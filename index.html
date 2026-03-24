@@ -2484,7 +2484,7 @@
 
 
 
-    // ── Cookbook notify form → Beehiiv ───────────────────────────
+    // ── Cookbook notify form → Beehiiv (via /api/subscribe proxy) ─
     async function handleNotify(e) {
       e.preventDefault();
       const form  = document.getElementById('notifyForm');
@@ -2494,8 +2494,11 @@
       btn.textContent = 'Adding you...';
       btn.disabled = true;
       try {
-        const body = new URLSearchParams({ email, publication_id: '20e51497-2fbd-4ecf-a7b1-9b4ce7f75cbf' });
-        await fetch('https://app.beehiiv.com/subscribe', { method: 'POST', body, mode: 'no-cors' });
+        await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
       } catch (_) {}
       form.style.display = 'none';
       conf.style.display = 'block';

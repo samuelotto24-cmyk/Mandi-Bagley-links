@@ -531,12 +531,21 @@
     }
 
     .program-price {
-      font-family: var(--serif);
-      font-size: clamp(48px, 7vw, 72px);
-      font-weight: 600;
-      color: var(--rose);
-      margin-bottom: 6px;
-      line-height: 1;
+      font-family: var(--serif) !important;
+      font-size: clamp(52px, 6vw, 72px) !important;
+      font-weight: 600 !important;
+      color: var(--rose) !important;
+      margin-bottom: 2px !important;
+      line-height: 1 !important;
+    }
+
+    .program-payment-note {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--taupe-mid);
+      margin-bottom: 14px;
     }
 
     .program-card h3 {
@@ -1064,6 +1073,7 @@
             <div class="program-body">
               <span class="program-badge">Featured · 6 Weeks</span>
               <p class="program-price">$40</p>
+              <p class="program-payment-note">one-time payment</p>
               <h3>Reset &amp; Rebuild</h3>
               <p>My signature summer fitness + mindset program. Build stronger habits, a stronger body, and a stronger you — together.</p>
               <a class="btn-primary"
@@ -1087,6 +1097,7 @@
             <div class="program-body">
               <span class="program-badge">6-Week Challenge</span>
               <p class="program-price">$30</p>
+              <p class="program-payment-note">one-time payment</p>
               <h3>Lock In &amp; Level Up</h3>
               <p>A 6-week strength challenge designed to help you lock in your focus and level up your training from the inside out.</p>
               <a class="btn-outline"

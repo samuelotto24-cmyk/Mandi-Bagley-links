@@ -1362,13 +1362,18 @@
       /* Photo strip shorter on mobile */
       .strip-track img { height: 160px; }
 
-      /* Program cards: taller photo so it's not overwhelmed by text */
-      .program-cover { height: 260px !important; }
-      .program-price { font-size: 38px !important; }
-      .program-body { padding: 14px 14px; }
-      .program-grid { gap: 14px; margin-bottom: 20px; }
-      .program-badge { margin-bottom: 8px; }
-      .program-card p { margin-bottom: 10px; }
+      /* Program cards: compact on mobile */
+      .program-cover { height: 160px !important; }
+      .program-price { font-size: 30px !important; }
+      .program-body { padding: 10px 12px; }
+      .program-grid { gap: 10px; margin-bottom: 16px; }
+      .program-badge { margin-bottom: 5px; font-size: 10px; padding: 3px 8px; }
+      .program-card p { margin-bottom: 6px; font-size: 12px; }
+      .program-card h3 { font-size: 16px !important; margin-bottom: 4px; }
+      .price-row { gap: 6px; align-items: baseline; margin-bottom: 8px; }
+      .price-original { font-size: 12px; }
+      .program-payment-note { font-size: 9px !important; }
+      .program-cta { font-size: 13px !important; padding: 10px 16px !important; }
 
       /* Brand cards: tighter */
       .brand-card { padding: 18px 16px; gap: 10px; }
@@ -1391,6 +1396,71 @@
 
       /* Footer */
       footer { padding: 32px var(--px); }
+
+      /* Snap Me: pill at bottom-right on mobile */
+      .snap-float {
+        bottom: 20px;
+        top: auto;
+        transform: none;
+        border-radius: 50px;
+        flex-direction: row;
+        padding: 9px 14px 9px 9px;
+        gap: 8px;
+      }
+      .snap-float:hover { transform: translateY(-2px); }
+      .snap-float-photo { width: 32px; height: 32px; }
+      .snap-float-label { writing-mode: horizontal-tb; transform: none; font-size: 11px; }
+      .snap-float-icon { font-size: 16px; }
+    }
+
+    /* ============================================================
+       SNAP ME — floating side widget
+       ============================================================ */
+    .snap-float {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 900;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      background: #FFFC00;
+      border-radius: 14px 0 0 14px;
+      padding: 14px 10px 12px;
+      text-decoration: none;
+      box-shadow: -2px 4px 18px rgba(0,0,0,0.18);
+      transition: padding-right 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .snap-float:hover {
+      padding-right: 16px;
+      box-shadow: -4px 4px 22px rgba(0,0,0,0.24);
+    }
+    .snap-float-photo {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center top;
+      border: 2px solid rgba(0,0,0,0.1);
+      display: block;
+    }
+    .snap-float-icon {
+      font-size: 20px;
+      color: #000;
+      line-height: 1;
+    }
+    .snap-float-label {
+      font-family: var(--sans);
+      font-size: 9px;
+      font-weight: 800;
+      color: #000;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      line-height: 1;
     }
   </style>
 </head>
@@ -2191,6 +2261,17 @@
       cb();
     }
   </script>
+
+  <!-- Snap Me floating widget -->
+  <a class="snap-float"
+     href="https://snapchat.com/t/TC1TuvC1"
+     target="_blank"
+     rel="noopener noreferrer"
+     aria-label="Add Mandi on Snapchat">
+    <img src="hero.jpg" alt="Mandi" class="snap-float-photo" />
+    <i class="fa-brands fa-snapchat snap-float-icon"></i>
+    <span class="snap-float-label">Snap Me</span>
+  </a>
 
 </body>
 </html>

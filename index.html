@@ -1386,9 +1386,10 @@
       .testimonial-stars { font-size: 10px; }
       .testimonial-attribution { font-size: 10px; padding-top: 8px; }
 
-      /* Cookbook card: taller photo, hide emoji to save space */
-      .coming-soon-photo { height: 280px !important; }
-      .coming-soon-body { padding: 18px 16px; gap: 7px; }
+      /* Cookbook card: side-by-side on mobile like program cards */
+      .coming-soon-card  { flex-direction: row !important; }
+      .coming-soon-photo { flex: 0 0 130px !important; height: auto !important; min-height: 160px; }
+      .coming-soon-body  { padding: 14px 14px; gap: 7px; }
       .cs-emoji { display: none; }
 
       /* Support buttons */
@@ -1398,21 +1399,24 @@
       /* Footer */
       footer { padding: 32px var(--px); }
 
-      /* Snap Me: tiny pill at bottom-right on mobile */
+      /* Snap Me: tiny icon-only circle on mobile */
       .snap-float {
         bottom: 14px;
         top: auto;
         transform: none;
-        border-radius: 50px;
+        border-radius: 50%;
         flex-direction: row;
-        padding: 6px 10px 6px 6px;
-        gap: 5px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+        padding: 0;
+        gap: 0;
+        width: 36px;
+        height: 36px;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       }
-      .snap-float:hover { transform: translateY(-2px); }
-      .snap-float-photo { width: 24px; height: 24px; }
-      .snap-float-label { writing-mode: horizontal-tb; transform: none; font-size: 9px; }
-      .snap-float-icon { font-size: 13px; }
+      .snap-float:hover { transform: translateY(-2px); padding-right: 0; }
+      .snap-float-photo { display: none; }
+      .snap-float-label { display: none; }
+      .snap-float-icon  { font-size: 17px; }
     }
 
     /* ============================================================

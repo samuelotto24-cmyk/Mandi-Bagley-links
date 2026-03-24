@@ -1399,21 +1399,6 @@
       /* Footer */
       footer { padding: 32px var(--px); }
 
-      /* Snap Me: tiny badge on mobile */
-      .snap-float {
-        bottom: 12px;
-        top: auto;
-        transform: none;
-        border-radius: 50px;
-        flex-direction: row;
-        padding: 4px 8px 4px 6px;
-        gap: 3px;
-        box-shadow: 0 1px 6px rgba(0,0,0,0.18);
-      }
-      .snap-float:hover { transform: translateY(-2px); padding-right: 8px; }
-      .snap-float-photo { display: none; }
-      .snap-float-label { writing-mode: horizontal-tb; transform: none; font-size: 7px; letter-spacing: 0.03em; }
-      .snap-float-icon  { font-size: 10px; }
     }
 
     /* ============================================================
@@ -1464,6 +1449,23 @@
       writing-mode: vertical-rl;
       transform: rotate(180deg);
       line-height: 1;
+    }
+    @media (max-width: 660px) {
+      /* Snap Me: tiny badge on mobile */
+      .snap-float {
+        bottom: 12px;
+        top: auto;
+        transform: none;
+        border-radius: 50px;
+        flex-direction: row;
+        padding: 4px 8px 4px 6px;
+        gap: 3px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.18);
+      }
+      .snap-float:hover { transform: translateY(-2px); }
+      .snap-float-photo { display: none; }
+      .snap-float-label { writing-mode: horizontal-tb; transform: none; font-size: 7px; letter-spacing: 0.03em; }
+      .snap-float-icon  { font-size: 10px; }
     }
   </style>
 </head>

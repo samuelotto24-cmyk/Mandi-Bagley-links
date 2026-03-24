@@ -1399,24 +1399,21 @@
       /* Footer */
       footer { padding: 32px var(--px); }
 
-      /* Snap Me: tiny icon-only circle on mobile */
+      /* Snap Me: small pill on mobile — icon + label, no photo */
       .snap-float {
         bottom: 14px;
         top: auto;
         transform: none;
-        border-radius: 50%;
+        border-radius: 50px;
         flex-direction: row;
-        padding: 0;
-        gap: 0;
-        width: 36px;
-        height: 36px;
-        justify-content: center;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        padding: 8px 13px 8px 11px;
+        gap: 6px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
       }
-      .snap-float:hover { transform: translateY(-2px); padding-right: 0; }
+      .snap-float:hover { transform: translateY(-2px); padding-right: 13px; }
       .snap-float-photo { display: none; }
-      .snap-float-label { display: none; }
-      .snap-float-icon  { font-size: 17px; }
+      .snap-float-label { writing-mode: horizontal-tb; transform: none; font-size: 10px; }
+      .snap-float-icon  { font-size: 16px; }
     }
 
     /* ============================================================

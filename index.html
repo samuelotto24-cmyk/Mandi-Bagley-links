@@ -1822,6 +1822,10 @@
        JAVASCRIPT
        ============================================================ -->
   <script>
+    // ── Always open at the top ───────────────────────────────────
+    if (history.scrollRestoration) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+
     // ── Sticky nav: add shadow when scrolled ────────────────────
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => {

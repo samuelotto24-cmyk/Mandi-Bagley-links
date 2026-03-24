@@ -2173,30 +2173,21 @@
   <!-- ============================================================
        JAVASCRIPT
        ============================================================ -->
-  <!-- GSAP + ScrollTrigger + Lenis smooth scroll -->
+  <!-- GSAP + ScrollTrigger (hero animations + parallax) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
 
   <script>
-    // ── Lenis smooth scroll ───────────────────────────────────────
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    });
     gsap.registerPlugin(ScrollTrigger);
-    lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add((time) => lenis.raf(time * 1000));
-    gsap.ticker.lagSmoothing(0);
 
-    // ── Internal anchor clicks: delegate to Lenis ─────────────────
+    // ── Internal anchor clicks: scroll without writing hash to URL ─
     document.addEventListener('click', function(e) {
       const a = e.target.closest('a[href^="#"]');
       if (!a) return;
       const target = document.querySelector(a.getAttribute('href'));
       if (!target) return;
       e.preventDefault();
-      lenis.scrollTo(target, { offset: -64 });
+      target.scrollIntoView({ behavior: 'smooth' });
     });
 
     // ── Always open at the top (Safari bfcache-proof) ────────────

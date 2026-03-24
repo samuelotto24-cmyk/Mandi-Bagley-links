@@ -2198,11 +2198,13 @@
             <span class="cs-emoji" aria-hidden="true">🍳</span>
             <h3>Cookbook Coming Soon</h3>
             <p class="cs-note">Be the first to know when it drops.</p>
-            <form class="notify-form" id="notifyForm" onsubmit="handleNotify(event)" aria-label="Email notification form">
-              <input type="email" placeholder="your@email.com" required aria-label="Email address" />
-              <button type="submit">Notify Me</button>
-            </form>
-            <p class="notify-confirm" id="notifyConfirm">You're on the list! 🍳</p>
+            <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
+            <iframe src="https://subscribe-forms.beehiiv.com/20e51497-2fbd-4ecf-a7b1-9b4ce7f75cbf"
+                    class="beehiiv-embed"
+                    frameborder="0" scrolling="no"
+                    style="width:100%;max-width:480px;height:52px;background:transparent;border:none;display:block;"
+                    title="Subscribe to Mandi Bagley's newsletter">
+            </iframe>
           </div>
         </div>
 
@@ -2482,26 +2484,6 @@
     }
 
 
-    // ── Cookbook notify form → Beehiiv ───────────────────────────
-    async function handleNotify(e) {
-      e.preventDefault();
-      const form    = document.getElementById('notifyForm');
-      const confirm = document.getElementById('notifyConfirm');
-      const email   = form.querySelector('input[type="email"]').value;
-      const btn     = form.querySelector('button');
-
-      btn.textContent = 'Adding you...';
-      btn.disabled = true;
-
-      try {
-        await fetch(`https://magic.beehiiv.com/v1/13341f5c-e6d3-411a-b7cc-e8d2916cebd5?email=${encodeURIComponent(email)}`, {
-          method: 'GET', mode: 'no-cors',
-        });
-      } catch (_) {}
-
-      form.style.display    = 'none';
-      confirm.style.display = 'block';
-    }
 
 
     // ── Scroll progress bar ───────────────────────────────────────

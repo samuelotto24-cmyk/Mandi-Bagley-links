@@ -457,7 +457,7 @@
       width: calc(100% + clamp(22px, 3vw, 36px) * 2);
       margin: 0 calc(-1 * clamp(22px, 3vw, 36px)) 20px;
       margin-top: calc(-1 * clamp(28px, 4vw, 44px));
-      aspect-ratio: 16 / 9;
+      aspect-ratio: 3 / 4;
       overflow: hidden;
       background: var(--blush-light);
     }
@@ -465,6 +465,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center top;
       display: block;
       transition: transform 0.4s ease;
     }
@@ -522,10 +523,11 @@
 
     .program-price {
       font-family: var(--serif);
-      font-size: 15px;
-      font-style: italic;
-      color: var(--taupe-mid);
-      margin-bottom: 4px;
+      font-size: 32px;
+      font-weight: 500;
+      color: var(--rose);
+      margin-bottom: 6px;
+      line-height: 1;
     }
 
     .program-card h3 {

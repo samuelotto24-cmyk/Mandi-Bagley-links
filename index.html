@@ -9,7 +9,13 @@
   <!-- ============================================================
        FONTS — Cormorant Garamond (serif display) + DM Sans (body)
        ============================================================ -->
-  <script>if (history.scrollRestoration) history.scrollRestoration = 'manual';</script>
+  <script>
+    if (history.scrollRestoration) history.scrollRestoration = 'manual';
+    // Strip any #hash from the URL immediately so the browser doesn't jump to it
+    if (window.location.hash) {
+      history.replaceState(null, '', window.location.pathname);
+    }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
@@ -1946,6 +1952,16 @@
        JAVASCRIPT
        ============================================================ -->
   <script>
+    // ── Internal anchor clicks: scroll without writing hash to URL ─
+    document.addEventListener('click', function(e) {
+      const a = e.target.closest('a[href^="#"]');
+      if (!a) return;
+      const target = document.querySelector(a.getAttribute('href'));
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth' });
+    });
+
     // ── Always open at the top (Safari bfcache-proof) ────────────
     if (history.scrollRestoration) history.scrollRestoration = 'manual';
 

@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Mandi Bagley — Fitness · Faith · Food content creator. Programs, brand codes, and more." />
+  <title>Mandi Bagley</title>
+
+  <!-- ============================================================
+       FONTS — Cormorant Garamond (serif display) + DM Sans (body)
+       ============================================================ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome 6 — brand & UI icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    /* ============================================================
+       DESIGN TOKENS
+       ============================================================ */
+    :root {
+      /* Palette — warm neutrals + deep rose accent */
+      --cream:         #FAF7F2;
+      --warm-white:    #FDF9F5;
+      --blush-light:   #F5EBE6;
+      --blush:         #EAD0C8;
+      --taupe:         #C4AFA4;
+      --taupe-mid:     #A08578;
+      --rose:          #B8546A;
+      --rose-dark:     #98384F;
+      --rose-pale:     #F2D5DB;
+      --espresso:      #2B1A1A;
+      --espresso-mid:  #503535;
+      --text-body:     #5A3D3D;
+      --text-muted:    #8E6B6B;
+      --success:       #4D9B72;
+
+      /* Typography */
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans:  'DM Sans', system-ui, -apple-system, sans-serif;
+
+      /* Layout */
+      --nav-h:     64px;
+      --max-w:     880px;
+      --px:        clamp(20px, 5vw, 44px);
+      --py:        clamp(64px, 9vw, 108px);
+
+      /* Effects */
+      --shadow-sm:   0 2px 12px rgba(43, 26, 26, 0.07);
+      --shadow-md:   0 6px 28px rgba(43, 26, 26, 0.12);
+      --shadow-lg:   0 12px 40px rgba(43, 26, 26, 0.16);
+      --r-sm:  10px;
+      --r-md:  18px;
+      --r-lg:  28px;
+      --r-xl:  36px;
+      --r-pill: 999px;
+      --ease:  0.25s ease;
+    }
+
+    /* ============================================================
+       RESET & BASE
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--cream);
+      color: var(--text-body);
+      line-height: 1.65;
+      font-size: 16px;
+      overflow-x: hidden;
+    }
+
+    img  { max-width: 100%; display: block; }
+    a    { color: inherit; text-decoration: none; }
+    ul   { list-style: none; }
+
+    /* ============================================================
+       LAYOUT HELPERS
+       ============================================================ */
+    .inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+
+    section {
+      padding: var(--py) var(--px);
+    }
+
+    .section-label {
+      display: block;
+      font-family: var(--sans);
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--taupe-mid);
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-family: var(--serif);
+      font-size: clamp(34px, 5.5vw, 50px);
+      font-weight: 400;
+      color: var(--espresso);
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+
+    .section-sub {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+    }
+
+    /* Feather dividers between sections */
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--blush) 30%, var(--blush) 70%, transparent);
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+
+    /* ============================================================
+       SCROLL FADE-IN — powered by Intersection Observer (see JS)
+       ============================================================ */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: none; }
+
+    /* Staggered delay for sibling groups */
+    .stagger > .fade-up:nth-child(1) { transition-delay: 0.00s; }
+    .stagger > .fade-up:nth-child(2) { transition-delay: 0.10s; }
+    .stagger > .fade-up:nth-child(3) { transition-delay: 0.20s; }
+    .stagger > .fade-up:nth-child(4) { transition-delay: 0.30s; }
+
+    /* ============================================================
+       BUTTONS
+       ============================================================ */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 30px;
+      background: var(--rose);
+      color: #fff;
+      border-radius: var(--r-pill);
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      border: none;
+      cursor: pointer;
+      transition: background var(--ease), transform var(--ease), box-shadow var(--ease);
+    }
+    .btn-primary:hover {
+      background: var(--rose-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(184, 84, 106, 0.35);
+      color: #fff;
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 22px;
+      background: transparent;
+      color: var(--rose);
+      border: 1.5px solid var(--rose);
+      border-radius: var(--r-pill);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: background var(--ease), color var(--ease), transform var(--ease);
+    }
+    .btn-outline:hover {
+      background: var(--rose);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    /* ============================================================
+       NAVIGATION — sticky, subtle shadow on scroll
+       ============================================================ */
+    #nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      background: var(--cream);
+      z-index: 1000;
+      transition: box-shadow var(--ease);
+    }
+    #nav.scrolled {
+      box-shadow: 0 1px 0 rgba(43,26,26,0.07), 0 4px 20px rgba(43,26,26,0.07);
+    }
+
+    .nav-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 var(--px);
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-family: var(--serif);
+      font-size: 21px;
+      font-weight: 500;
+      color: var(--espresso);
+      letter-spacing: 0.01em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+    }
+    .nav-links a {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      transition: color var(--ease);
+    }
+    .nav-links a:hover { color: var(--rose); }
+
+    /* Hamburger button */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--espresso);
+      border-radius: 2px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle.open span:nth-child(2) { opacity: 0; }
+    .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Mobile drawer */
+    .nav-drawer {
+      display: none;
+      position: fixed;
+      top: var(--nav-h); left: 0; right: 0;
+      background: var(--cream);
+      padding: 16px var(--px) 24px;
+      box-shadow: 0 10px 36px rgba(43,26,26,0.10);
+      z-index: 999;
+      flex-direction: column;
+    }
+    .nav-drawer.open { display: flex; }
+    .nav-drawer a {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-body);
+      padding: 12px 0;
+      border-bottom: 1px solid var(--blush-light);
+      transition: color var(--ease);
+    }
+    .nav-drawer a:last-child { border-bottom: none; }
+    .nav-drawer a:hover { color: var(--rose); }
+
+    /* ============================================================
+       HERO
+       ============================================================ */
+    #hero {
+      padding-top: calc(var(--nav-h) + clamp(48px, 8vw, 88px));
+      padding-bottom: clamp(64px, 9vw, 108px);
+      padding-left: var(--px);
+      padding-right: var(--px);
+      background: var(--cream);
+      text-align: center;
+    }
+
+    .hero-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .hero-photo {
+      width: 100%;
+      max-width: 295px;
+      aspect-ratio: 4 / 5;
+      border-radius: var(--r-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      background: var(--blush-light);
+    }
+    .hero-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .hero-name {
+      font-family: var(--serif);
+      font-size: clamp(54px, 14vw, 96px);
+      font-weight: 400;
+      color: var(--espresso);
+      letter-spacing: -0.01em;
+      line-height: 1;
+    }
+
+    .hero-ornament {
+      width: 44px;
+      height: 1px;
+      background: var(--blush);
+      margin: 2px auto;
+    }
+
+    .hero-tagline {
+      font-family: var(--serif);
+      font-size: clamp(17px, 3.5vw, 24px);
+      font-style: italic;
+      color: var(--taupe-mid);
+      letter-spacing: 0.1em;
+    }
+
+    /* Social follow row */
+    .follow-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 9px;
+      margin-top: 4px;
+    }
+
+    .follow-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      background: var(--warm-white);
+      border: 1.5px solid var(--blush);
+      border-radius: var(--r-pill);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--espresso-mid);
+      transition: background var(--ease), border-color var(--ease), color var(--ease),
+                  transform var(--ease), box-shadow var(--ease);
+    }
+    .follow-btn:hover {
+      background: var(--rose);
+      border-color: var(--rose);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 16px rgba(184, 84, 106, 0.28);
+    }
+    .follow-btn i { font-size: 14px; }
+
+    /* ============================================================
+       ABOUT
+       ============================================================ */
+    #about { background: var(--warm-white); }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(36px, 6vw, 72px);
+      align-items: center;
+    }
+
+    .about-text .section-title { margin-bottom: 16px; }
+
+    .about-text p {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--text-body);
+    }
+
+    .about-photo {
+      aspect-ratio: 1 / 1;
+      max-width: 320px;
+      width: 100%;
+      justify-self: center;
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      background: var(--blush-light);
+    }
+    .about-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ============================================================
+       MY PROGRAM
+       ============================================================ */
+    #program { background: var(--cream); }
+
+    .program-wrap {
+      text-align: center;
+    }
+
+    /* Two-card grid — stacks on mobile */
+    .program-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 580px) {
+      .program-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Program cover image */
+    .program-cover {
+      width: calc(100% + clamp(22px, 3vw, 36px) * 2);
+      margin: 0 calc(-1 * clamp(22px, 3vw, 36px)) 20px;
+      margin-top: calc(-1 * clamp(28px, 4vw, 44px));
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: var(--blush-light);
+    }
+    .program-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+    .program-card:hover .program-cover img { transform: scale(1.04); }
+
+    /* Program card */
+    .program-card {
+      position: relative;
+      background: var(--warm-white);
+      border: 1.5px solid var(--rose-pale);
+      border-radius: var(--r-md);
+      padding: clamp(28px, 4vw, 44px) clamp(22px, 3vw, 36px);
+      text-align: left;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: box-shadow var(--ease), transform var(--ease);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .program-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-3px);
+    }
+
+    /* Rose accent bar */
+    .program-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--rose);
+    }
+
+    /* Secondary card — taupe accent */
+    .program-card.secondary { border-color: var(--blush); }
+    .program-card.secondary::before { background: var(--taupe); }
+
+    .program-badge {
+      display: inline-block;
+      background: var(--rose-pale);
+      color: var(--rose-dark);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: var(--r-pill);
+      margin-bottom: 16px;
+    }
+    .program-card.secondary .program-badge {
+      background: var(--blush-light);
+      color: var(--taupe-mid);
+    }
+
+    .program-price {
+      font-family: var(--serif);
+      font-size: 15px;
+      font-style: italic;
+      color: var(--taupe-mid);
+      margin-bottom: 4px;
+    }
+
+    .program-card h3 {
+      font-family: var(--serif);
+      font-size: clamp(22px, 3.5vw, 30px);
+      font-weight: 400;
+      color: var(--espresso);
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .program-card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      line-height: 1.75;
+      flex: 1;
+    }
+
+    /* "View all" link below the grid */
+    .program-all-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--taupe-mid);
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--blush);
+      padding-bottom: 1px;
+      transition: color var(--ease), border-color var(--ease);
+    }
+    .program-all-link:hover {
+      color: var(--rose);
+      border-color: var(--rose);
+    }
+
+    /* ============================================================
+       BRAND PARTNERS & CODES
+       ============================================================ */
+    #partners { background: var(--warm-white); }
+
+    .partners-header { text-align: center; }
+
+    /* 2-col grid on desktop, 1-col on mobile */
+    .brand-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .brand-card {
+      background: var(--cream);
+      border: 1px solid var(--blush);
+      border-radius: var(--r-md);
+      padding: 26px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--ease), transform var(--ease);
+    }
+    .brand-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    /* Brand logo thumbnail */
+    .brand-thumb {
+      width: 100%;
+      aspect-ratio: 16 / 7;
+      border-radius: var(--r-sm);
+      overflow: hidden;
+      background: var(--blush-light);
+      margin-bottom: 4px;
+    }
+    .brand-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+    .brand-card:hover .brand-thumb img { transform: scale(1.04); }
+
+    .brand-name {
+      font-family: var(--serif);
+      font-size: 23px;
+      font-weight: 500;
+      color: var(--espresso);
+      line-height: 1.1;
+    }
+
+    .brand-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.65;
+      flex: 1;
+    }
+
+    /* Code pill — click to copy */
+    .code-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .code-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--taupe-mid);
+      text-transform: uppercase;
+    }
+
+    .code-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--rose-pale);
+      color: var(--rose-dark);
+      border: 1px solid rgba(184,84,106,0.25);
+      border-radius: var(--r-pill);
+      padding: 6px 14px;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      user-select: none;
+      transition: background var(--ease), color var(--ease), border-color var(--ease),
+                  transform var(--ease), box-shadow var(--ease);
+    }
+    .code-pill:hover {
+      background: var(--rose);
+      color: #fff;
+      border-color: var(--rose);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(184,84,106,0.25);
+    }
+    .code-pill.copied {
+      background: var(--success);
+      color: #fff;
+      border-color: var(--success);
+    }
+    .code-pill i { font-size: 11px; }
+
+    /* ============================================================
+       COMING SOON
+       ============================================================ */
+    #coming-soon { background: var(--cream); }
+
+    .coming-soon-wrap {
+      display: flex;
+      justify-content: center;
+    }
+
+    .coming-soon-card {
+      position: relative;
+      background: var(--warm-white);
+      border: 1.5px dashed var(--blush);
+      border-radius: var(--r-md);
+      padding: clamp(36px, 5vw, 56px) clamp(28px, 5vw, 56px);
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .cs-badge {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--espresso);
+      color: var(--cream);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 5px 18px;
+      border-radius: var(--r-pill);
+      white-space: nowrap;
+    }
+
+    .cs-emoji {
+      font-size: 52px;
+      display: block;
+      margin-bottom: 16px;
+      line-height: 1;
+    }
+
+    .coming-soon-card h3 {
+      font-family: var(--serif);
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 400;
+      color: var(--espresso);
+      margin-bottom: 10px;
+    }
+
+    .coming-soon-card .cs-note {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 14px;
+    }
+
+    /* ============================================================
+       SUPPORT / TIP JAR
+       ============================================================ */
+    #support { background: var(--warm-white); }
+
+    .support-wrap { text-align: center; }
+
+    .support-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .support-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 13px 24px;
+      background: var(--cream);
+      border: 1.5px solid var(--blush);
+      border-radius: var(--r-pill);
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-body);
+      transition: background var(--ease), border-color var(--ease), color var(--ease),
+                  transform var(--ease), box-shadow var(--ease);
+    }
+    .support-btn:hover {
+      background: var(--rose);
+      border-color: var(--rose);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(184,84,106,0.26);
+    }
+    .support-btn i { font-size: 16px; }
+
+    /* ============================================================
+       CONTACT
+       ============================================================ */
+    #contact { background: var(--cream); }
+
+    .contact-wrap { text-align: center; }
+
+    .contact-email-link {
+      display: block;
+      font-family: var(--serif);
+      font-size: clamp(19px, 3.5vw, 28px);
+      font-style: italic;
+      color: var(--espresso-mid);
+      margin-bottom: 28px;
+      transition: color var(--ease);
+    }
+    .contact-email-link:hover { color: var(--rose); }
+
+    /* ============================================================
+       FOOTER
+       ============================================================ */
+    footer {
+      background: var(--espresso);
+      padding: 44px var(--px);
+      text-align: center;
+    }
+
+    .footer-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .footer-name {
+      font-family: var(--serif);
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--cream);
+    }
+
+    .footer-socials {
+      display: flex;
+      gap: 12px;
+    }
+    .footer-socials a {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid rgba(250,247,242,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: rgba(250,247,242,0.55);
+      transition: border-color var(--ease), color var(--ease), background var(--ease);
+    }
+    .footer-socials a:hover {
+      border-color: var(--rose);
+      color: var(--rose);
+      background: rgba(184,84,106,0.12);
+    }
+
+    .footer-copy {
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      color: rgba(250,247,242,0.38);
+    }
+
+    /* ============================================================
+       RESPONSIVE — mobile breakpoint
+       ============================================================ */
+    @media (max-width: 660px) {
+      /* Hide desktop nav links, show hamburger */
+      .nav-links   { display: none; }
+      .nav-toggle  { display: flex; }
+
+      /* About: stack vertically, photo on top */
+      .about-grid {
+        grid-template-columns: 1fr;
+      }
+      .about-photo { order: -1; }
+
+      /* Brand grid: single column */
+      .brand-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Always hide mobile drawer on wide screens */
+    @media (min-width: 661px) {
+      .nav-drawer { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       NAVIGATION — sticky, collapses to hamburger on mobile
+       ============================================================ -->
+  <nav id="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+
+      <a href="#hero" class="nav-logo">Mandi Bagley</a>
+
+      <!-- Desktop links -->
+      <ul class="nav-links" role="list">
+        <li><a href="#about">About</a></li>
+        <li><a href="#program">Program</a></li>
+        <li><a href="#partners">Shop</a></li>
+        <li><a href="#support">Support</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+
+      <!-- Mobile hamburger -->
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+    </div>
+
+    <!-- Mobile drawer menu -->
+    <div class="nav-drawer" id="navDrawer" role="menu">
+      <a href="#about"       role="menuitem" onclick="closeNav()">About</a>
+      <a href="#program"     role="menuitem" onclick="closeNav()">Program</a>
+      <a href="#partners"    role="menuitem" onclick="closeNav()">Shop My Favorites</a>
+      <a href="#coming-soon" role="menuitem" onclick="closeNav()">Coming Soon</a>
+      <a href="#support"     role="menuitem" onclick="closeNav()">Support</a>
+      <a href="#contact"     role="menuitem" onclick="closeNav()">Contact</a>
+    </div>
+  </nav>
+
+
+  <main>
+    <!-- ==========================================================
+         1. HERO
+         ========================================================== -->
+    <section id="hero" aria-labelledby="hero-heading">
+      <div class="hero-inner">
+
+        <div class="hero-photo fade-up">
+          <img
+            src="https://res.cloudinary.com/solin-fitness/image/upload/c_fill,w_600,h_750,q_auto,f_auto/1767043510630_assetName_gjpdi4"
+            alt="Mandi Bagley"
+            loading="eager"
+          />
+        </div>
+
+        <!-- Name & tagline -->
+        <div class="fade-up" style="text-align:center">
+          <h1 class="hero-name" id="hero-heading">Mandi Bagley</h1>
+          <div class="hero-ornament"></div>
+          <p class="hero-tagline">Fitness · Faith · Food</p>
+        </div>
+
+        <!-- Follow buttons -->
+        <nav class="follow-row fade-up" aria-label="Social media follow links">
+          <a class="follow-btn" href="https://www.tiktok.com/@mandipandeee" target="_blank" rel="noopener noreferrer" aria-label="Follow on TikTok">
+            <i class="fa-brands fa-tiktok"></i> TikTok
+          </a>
+          <a class="follow-btn" href="https://www.instagram.com/mandi.bagley" target="_blank" rel="noopener noreferrer" aria-label="Follow on Instagram">
+            <i class="fa-brands fa-instagram"></i> Instagram
+          </a>
+          <a class="follow-btn" href="https://www.instagram.com/manditory_munchies" target="_blank" rel="noopener noreferrer" aria-label="Follow Munchies Instagram">
+            <i class="fa-brands fa-instagram"></i> Munchies
+          </a>
+          <a class="follow-btn" href="https://youtube.com/@mandibagleyy" target="_blank" rel="noopener noreferrer" aria-label="Subscribe on YouTube">
+            <i class="fa-brands fa-youtube"></i> YouTube
+          </a>
+          <a class="follow-btn" href="https://snapchat.com/t/TC1TuvC1" target="_blank" rel="noopener noreferrer" aria-label="Add on Snapchat">
+            <i class="fa-brands fa-snapchat"></i> Snapchat
+          </a>
+        </nav>
+
+      </div>
+    </section>
+
+    <div class="divider" role="separator"></div>
+
+
+    <!-- ==========================================================
+         2. ABOUT
+         ========================================================== -->
+    <section id="about" aria-labelledby="about-heading">
+      <div class="inner about-grid">
+
+        <div class="about-text fade-up">
+          <span class="section-label">Hey there</span>
+          <h2 class="section-title" id="about-heading">I'm Mandi.</h2>
+          <p>
+            A fitness, faith, and food content creator passionate about helping people feel their best.
+            From workouts to recipes to real life, this is your hub for everything Mandi.
+          </p>
+        </div>
+
+        <div class="about-photo fade-up">
+          <img
+            src="https://hoobe-creator-dashboard-images-prod.drive-hoo.com/67e717a023c5ba4648d3894b/1afc4c4a-bddd-450c-bee6-10702eed3f89.webp?v=1733431011560"
+            alt="Mandi Bagley"
+            loading="lazy"
+          />
+        </div>
+
+      </div>
+    </section>
+
+    <div class="divider" role="separator"></div>
+
+
+    <!-- ==========================================================
+         3. MY PROGRAM
+         ========================================================== -->
+    <section id="program" aria-labelledby="program-heading">
+      <div class="inner program-wrap">
+
+        <div class="fade-up" style="margin-bottom:36px">
+          <span class="section-label">Featured</span>
+          <h2 class="section-title" id="program-heading">My Program</h2>
+        </div>
+
+        <!-- Two program cards -->
+        <div class="program-grid stagger">
+
+          <!-- Reset & Rebuild — featured -->
+          <div class="program-card fade-up">
+            <div class="program-cover">
+              <img
+                src="https://res.cloudinary.com/solin-fitness/image/upload/c_fill,w_600,h_340,q_auto,f_auto/_DSC3048_iohl7z"
+                alt="Reset & Rebuild Program"
+                loading="lazy"
+              />
+            </div>
+            <span class="program-badge">Featured · 6 Weeks</span>
+            <p class="program-price">$40</p>
+            <h3>Reset &amp; Rebuild</h3>
+            <p>My signature summer fitness + mindset program. Build stronger habits, a stronger body, and a stronger you — together.</p>
+            <a class="btn-primary"
+               href="https://www.solin.stream/mandibagley/program/5698"
+               target="_blank"
+               rel="noopener noreferrer">
+              Join Now →
+            </a>
+          </div>
+
+          <!-- Lock In & Level Up — secondary -->
+          <div class="program-card secondary fade-up">
+            <div class="program-cover">
+              <img
+                src="https://res.cloudinary.com/solin-fitness/image/upload/c_fill,w_600,h_340,q_auto,f_auto/1767043551804_assetName_p4r42p"
+                alt="Lock In & Level Up Program"
+                loading="lazy"
+              />
+            </div>
+            <span class="program-badge">6-Week Challenge</span>
+            <p class="program-price">$30</p>
+            <h3>Lock In &amp; Level Up</h3>
+            <p>A 6-week strength challenge designed to help you lock in your focus and level up your training from the inside out.</p>
+            <a class="btn-outline"
+               href="https://www.solin.stream/mandibagley"
+               target="_blank"
+               rel="noopener noreferrer">
+              Get Started →
+            </a>
+          </div>
+
+        </div><!-- /.program-grid -->
+
+        <!-- View full Solin profile -->
+        <a class="program-all-link fade-up"
+           href="https://www.solin.stream/mandibagley"
+           target="_blank"
+           rel="noopener noreferrer">
+          View all programs on Solin <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px"></i>
+        </a>
+
+      </div>
+    </section>
+
+    <div class="divider" role="separator"></div>
+
+
+    <!-- ==========================================================
+         4. BRAND PARTNERS & CODES
+         ========================================================== -->
+    <section id="partners" aria-labelledby="partners-heading">
+      <div class="inner">
+
+        <header class="partners-header fade-up">
+          <span class="section-label">Affiliates</span>
+          <h2 class="section-title" id="partners-heading">Shop My Favorites</h2>
+          <p class="section-sub">Use my codes below for exclusive discounts</p>
+        </header>
+
+        <div class="brand-grid stagger">
+
+          <!-- Gymshark -->
+          <div class="brand-card fade-up">
+            <div class="brand-thumb">
+              <img src="https://hoobe-creator-dashboard-images-prod.drive-hoo.com/67e717a023c5ba4648d3894b/f048cbeb-ae77-4768-91a3-71f96f17f335.webp?v=1735864756660" alt="Gymshark" loading="lazy" />
+            </div>
+            <span class="brand-name">Gymshark</span>
+            <p class="brand-desc">Performance activewear built for training hard and looking good doing it.</p>
+            <div class="code-row">
+              <span class="code-label">Code:</span>
+              <!-- Click-to-copy pill — JS handles the "Copied!" feedback -->
+              <button class="code-pill"
+                      data-code="MANDI10"
+                      onclick="copyCode(this,'MANDI10')"
+                      aria-label="Copy discount code MANDI10">
+                <i class="fa-regular fa-copy"></i> MANDI10
+              </button>
+            </div>
+            <a class="btn-outline"
+               href="https://www.gymshark.com"
+               target="_blank"
+               rel="noopener noreferrer">
+              Shop Now →
+            </a>
+          </div>
+
+          <!-- Ghost Lifestyle -->
+          <div class="brand-card fade-up">
+            <div class="brand-thumb">
+              <img src="https://hoobe-creator-dashboard-images-prod.drive-hoo.com/67e717a023c5ba4648d3894b/43469e7f-4636-4960-a341-c752451ef2ba.webp?v=1735864569673" alt="Ghost Lifestyle" loading="lazy" />
+            </div>
+            <span class="brand-name">Ghost Lifestyle</span>
+            <p class="brand-desc">Premium supplements and wellness products to fuel your fitness journey.</p>
+            <div class="code-row">
+              <span class="code-label">Code:</span>
+              <button class="code-pill"
+                      data-code="MANDI"
+                      onclick="copyCode(this,'MANDI')"
+                      aria-label="Copy discount code MANDI">
+                <i class="fa-regular fa-copy"></i> MANDI
+              </button>
+            </div>
+            <a class="btn-outline"
+               href="https://www.ghostlifestyle.com/MANDI"
+               target="_blank"
+               rel="noopener noreferrer">
+              Shop Now →
+            </a>
+          </div>
+
+          <!-- DFYNE -->
+          <div class="brand-card fade-up">
+            <div class="brand-thumb">
+              <img src="https://hoobe-creator-dashboard-images-prod.drive-hoo.com/67e717a023c5ba4648d3894b/a8be0a44-9ef1-4080-ab84-fc927f9e9099.webp?v=1737650967790" alt="DFYNE" loading="lazy" />
+            </div>
+            <span class="brand-name">DFYNE</span>
+            <p class="brand-desc">Training apparel designed to move with you and keep you looking fierce.</p>
+            <div class="code-row">
+              <span class="code-label">Code:</span>
+              <button class="code-pill"
+                      data-code="MANDI"
+                      onclick="copyCode(this,'MANDI')"
+                      aria-label="Copy discount code MANDI">
+                <i class="fa-regular fa-copy"></i> MANDI
+              </button>
+            </div>
+            <a class="btn-outline"
+               href="https://us.dfyne.com/?sca_ref=7958945.biq58MSLA8"
+               target="_blank"
+               rel="noopener noreferrer">
+              Shop Now →
+            </a>
+          </div>
+
+          <!-- TEVEO -->
+          <div class="brand-card fade-up">
+            <span class="brand-name" style="margin-top:4px">TEVEO</span>
+            <p class="brand-desc">Fitness fashion that merges high-performance with everyday style.</p>
+            <div class="code-row">
+              <span class="code-label">Code:</span>
+              <button class="code-pill"
+                      data-code="MANDI"
+                      onclick="copyCode(this,'MANDI')"
+                      aria-label="Copy discount code MANDI">
+                <i class="fa-regular fa-copy"></i> MANDI
+              </button>
+            </div>
+            <a class="btn-outline"
+               href="https://teveo.com/en-us"
+               target="_blank"
+               rel="noopener noreferrer">
+              Shop Now →
+            </a>
+          </div>
+
+          <!-- Helimix -->
+          <div class="brand-card fade-up">
+            <div class="brand-thumb">
+              <img src="https://hoobe-creator-dashboard-images-prod.drive-hoo.com/67e717a023c5ba4648d3894b/418af07b-83a0-4ee8-a251-82a800c73df6.webp?v=1735864707820" alt="Helimix" loading="lazy" />
+            </div>
+            <span class="brand-name">Helimix</span>
+            <p class="brand-desc">The vortex shaker bottle that mixes your supplements perfectly every time.</p>
+            <div class="code-row">
+              <span class="code-label">Code:</span>
+              <button class="code-pill"
+                      data-code="MANDI"
+                      onclick="copyCode(this,'MANDI')"
+                      aria-label="Copy discount code MANDI">
+                <i class="fa-regular fa-copy"></i> MANDI
+              </button>
+            </div>
+            <a class="btn-outline"
+               href="https://helimix.com"
+               target="_blank"
+               rel="noopener noreferrer">
+              Shop Now →
+            </a>
+          </div>
+
+          <!-- YoungLA -->
+          <div class="brand-card fade-up">
+            <div class="brand-thumb">
+              <img src="https://hoobe-creator-dashboard-images-prod.drive-hoo.com/67e717a023c5ba4648d3894b/53484a0d-762c-47ab-ae34-b57efe3a5537.webp?v=1733431467707" alt="YoungLA" loading="lazy" />
+            </div>
+            <span class="brand-name">YoungLA</span>
+            <p class="brand-desc">Gym wear built for the culture — premium training fits for men and women.</p>
+            <div class="code-row">
+              <span class="code-label">Code:</span>
+              <button class="code-pill"
+                      data-code="MANDI"
+                      onclick="copyCode(this,'MANDI')"
+                      aria-label="Copy discount code MANDI">
+                <i class="fa-regular fa-copy"></i> MANDI
+              </button>
+            </div>
+            <a class="btn-outline"
+               href="https://www.youngla.com"
+               target="_blank"
+               rel="noopener noreferrer">
+              Shop Now →
+            </a>
+          </div>
+
+        </div><!-- /.brand-grid -->
+      </div>
+    </section>
+
+    <div class="divider" role="separator"></div>
+
+
+    <!-- ==========================================================
+         5. COMING SOON
+         ========================================================== -->
+    <section id="coming-soon" aria-label="Coming soon">
+      <div class="inner coming-soon-wrap">
+
+        <div class="coming-soon-card fade-up">
+          <span class="cs-badge">🔒 Coming Soon</span>
+          <span class="cs-emoji" aria-hidden="true">🍳</span>
+          <h3>Cookbook Coming Soon</h3>
+          <p class="cs-note">More drops coming — check back soon.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="divider" role="separator"></div>
+
+
+    <!-- ==========================================================
+         6. SUPPORT / TIP JAR
+         ========================================================== -->
+    <section id="support" aria-labelledby="support-heading">
+      <div class="inner support-wrap">
+
+        <div class="fade-up" style="margin-bottom:36px">
+          <span class="section-label">Tip Jar</span>
+          <h2 class="section-title" id="support-heading">Support My Work</h2>
+          <p class="section-sub">Every bit of support means the world — thank you! 🤍</p>
+        </div>
+
+        <div class="support-buttons fade-up">
+          <a class="support-btn"
+             href="https://venmo.com/u/MandiBagley_"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="Tip via Venmo">
+            <i class="fa-solid fa-dollar-sign"></i> Venmo @MandiBagley_
+          </a>
+          <a class="support-btn"
+             href="https://www.paypal.me/AmandaBagley95"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="Tip via PayPal">
+            <i class="fa-brands fa-paypal"></i> PayPal @AmandaBagley95
+          </a>
+          <a class="support-btn"
+             href="https://www.amazon.com/hz/wishlist/ls/29CLVSPMDN0E0?ref_=wl_share"
+             target="_blank"
+             rel="noopener noreferrer"
+             aria-label="Amazon Wishlist">
+            <i class="fa-brands fa-amazon"></i> Amazon Wishlist
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="divider" role="separator"></div>
+
+
+    <!-- ==========================================================
+         7. CONTACT
+         ========================================================== -->
+    <section id="contact" aria-labelledby="contact-heading">
+      <div class="inner contact-wrap">
+
+        <div class="fade-up" style="margin-bottom:28px">
+          <span class="section-label">Collabs &amp; Business</span>
+          <h2 class="section-title" id="contact-heading">Work With Me</h2>
+          <p class="section-sub">Interested in a brand partnership or collaboration? Let's connect.</p>
+        </div>
+
+        <div class="fade-up">
+          <a href="mailto:bagleyamanda95@gmail.com" class="contact-email-link">
+            bagleyamanda95@gmail.com
+          </a>
+          <a class="btn-primary" href="mailto:bagleyamanda95@gmail.com">
+            Send an Email →
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ -->
+  <footer role="contentinfo">
+    <div class="footer-inner">
+
+      <span class="footer-name">Mandi Bagley</span>
+
+      <nav class="footer-socials" aria-label="Social media links">
+        <a href="https://www.tiktok.com/@mandipandeee"          target="_blank" rel="noopener noreferrer" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+        <a href="https://www.instagram.com/mandi.bagley"         target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="https://www.instagram.com/manditory_munchies"   target="_blank" rel="noopener noreferrer" aria-label="Cooking Instagram"><i class="fa-brands fa-utensils"></i></a>
+        <a href="https://youtube.com/@mandibagleyy"              target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+        <a href="https://snapchat.com/t/TC1TuvC1"                target="_blank" rel="noopener noreferrer" aria-label="Snapchat"><i class="fa-brands fa-snapchat"></i></a>
+      </nav>
+
+      <p class="footer-copy">© 2025 Mandi Bagley · All rights reserved</p>
+
+    </div>
+  </footer>
+
+
+  <!-- ============================================================
+       JAVASCRIPT
+       ============================================================ -->
+  <script>
+    // ── Sticky nav: add shadow when scrolled ────────────────────
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 8);
+    }, { passive: true });
+
+
+    // ── Mobile nav toggle ────────────────────────────────────────
+    const navToggle = document.getElementById('navToggle');
+    const navDrawer = document.getElementById('navDrawer');
+
+    navToggle.addEventListener('click', () => {
+      const isOpen = navDrawer.classList.toggle('open');
+      navToggle.classList.toggle('open', isOpen);
+      navToggle.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    function closeNav() {
+      navDrawer.classList.remove('open');
+      navToggle.classList.remove('open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    // Close drawer on outside click
+    document.addEventListener('click', (e) => {
+      if (!nav.contains(e.target)) closeNav();
+    });
+
+
+    // ── Scroll fade-in via Intersection Observer ─────────────────
+    const fadeObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            fadeObserver.unobserve(entry.target); // animate once, then detach
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -36px 0px' }
+    );
+
+    document.querySelectorAll('.fade-up').forEach(el => fadeObserver.observe(el));
+
+
+    // ── Click-to-copy discount codes ─────────────────────────────
+    // Copies the code string to clipboard and shows "Copied!" for 1.5s.
+    function copyCode(btn, code) {
+      const originalHTML = btn.innerHTML;
+
+      const showCopied = () => {
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+        btn.classList.add('copied');
+        btn.setAttribute('aria-label', `Code ${code} copied to clipboard`);
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.classList.remove('copied');
+          btn.setAttribute('aria-label', `Copy discount code ${code}`);
+        }, 1500);
+      };
+
+      // Modern Clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(showCopied).catch(() => fallbackCopy(code, showCopied));
+      } else {
+        fallbackCopy(code, showCopied);
+      }
+    }
+
+    // Fallback for browsers without Clipboard API (Safari <13.1, etc.)
+    function fallbackCopy(code, cb) {
+      const ta = document.createElement('textarea');
+      ta.value = code;
+      ta.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try { document.execCommand('copy'); } catch (_) {}
+      document.body.removeChild(ta);
+      cb();
+    }
+  </script>
+
+</body>
+</html>

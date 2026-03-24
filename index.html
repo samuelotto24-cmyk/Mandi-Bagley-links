@@ -923,57 +923,63 @@
     }
 
     /* ============================================================
-       STATS BAR — full-width espresso band with count-up numbers
+       INTRO ROW — About text + Stats card side by side
        ============================================================ */
-    .stats-bar {
-      background: var(--espresso);
-      padding: clamp(28px, 4vw, 44px) var(--px);
+    .intro-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(28px, 5vw, 60px);
+      align-items: center;
     }
 
-    .stats-inner {
-      max-width: var(--max-w);
-      margin: 0 auto;
+    .intro-text .section-title { margin-bottom: 10px; }
+    .intro-text p {
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--text-body);
+    }
+
+    /* Stats as a dark rounded card */
+    .stats-card {
+      background: var(--espresso);
+      border-radius: var(--r-md);
+      padding: clamp(20px, 3vw, 32px);
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 24px;
-      text-align: center;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(16px, 2.5vw, 24px);
     }
 
     .stat-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 5px;
+      text-align: center;
+      gap: 4px;
     }
 
     .stat-number {
       font-family: var(--serif);
-      font-size: clamp(38px, 5vw, 58px);
+      font-size: clamp(30px, 3.5vw, 44px);
       font-weight: 500;
       color: var(--cream);
       line-height: 1;
       letter-spacing: -0.02em;
     }
 
-    .stat-suffix {
-      color: var(--rose);
-    }
+    .stat-suffix { color: var(--rose); }
 
     .stat-label {
       font-family: var(--sans);
-      font-size: 10.5px;
+      font-size: 9.5px;
       font-weight: 500;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: rgba(250,247,242,0.48);
-      margin-top: 3px;
+      color: rgba(250,247,242,0.45);
+      margin-top: 2px;
     }
 
-    @media (max-width: 560px) {
-      .stats-inner {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 28px 20px;
-      }
+    @media (max-width: 580px) {
+      .intro-row { grid-template-columns: 1fr; }
     }
 
     /* ============================================================
@@ -1388,54 +1394,38 @@
 
 
     <!-- ==========================================================
-         ABOUT
+         ABOUT + STATS — compact side-by-side row
          ========================================================== -->
-    <section id="about" aria-labelledby="about-heading">
-      <div class="inner about-grid">
+    <section id="about" aria-labelledby="about-heading" style="background:var(--warm-white)">
+      <div class="inner intro-row">
 
-        <div class="about-text fade-up">
+        <div class="intro-text fade-up">
           <span class="section-label">Hey there</span>
           <h2 class="section-title" id="about-heading">I'm Mandi.</h2>
-          <p>
-            A fitness, faith, and food content creator passionate about helping people feel their best.
-            From workouts to recipes to real life, this is your hub for everything Mandi.
-          </p>
+          <p>A fitness, faith, and food content creator passionate about helping people feel their best. From workouts to recipes to real life — this is your hub for everything Mandi.</p>
         </div>
 
-        <div class="about-photo fade-up">
-          <img
-            src="https://hoobe-creator-dashboard-images-prod.drive-hoo.com/67e717a023c5ba4648d3894b/1afc4c4a-bddd-450c-bee6-10702eed3f89.webp?v=1733431011560"
-            alt="Mandi Bagley"
-            loading="lazy"
-          />
+        <div class="stats-card fade-up" role="region" aria-label="By the numbers">
+          <div class="stat-item">
+            <span class="stat-number"><span class="count-up" data-target="1000000" data-display="1M"><span class="counter-val">1M</span></span><span class="stat-suffix">+</span></span>
+            <span class="stat-label">Instagram Followers</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number"><span class="count-up" data-target="498" data-display="4.98" data-decimal="true"><span class="counter-val">4.98</span></span><span class="stat-suffix">★</span></span>
+            <span class="stat-label">Program Rating</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number"><span class="count-up" data-target="53" data-display="53"><span class="counter-val">53</span></span></span>
+            <span class="stat-label">Five-Star Reviews</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number"><span class="count-up" data-target="2" data-display="2"><span class="counter-val">2</span></span></span>
+            <span class="stat-label">Active Programs</span>
+          </div>
         </div>
 
       </div>
     </section>
-
-    <!-- ==========================================================
-         STATS BAR — right below About
-         ========================================================== -->
-    <div class="stats-bar" role="region" aria-label="By the numbers">
-      <div class="stats-inner">
-        <div class="stat-item">
-          <span class="stat-number"><span class="count-up" data-target="1000000" data-display="1M"><span class="counter-val">1M</span></span><span class="stat-suffix">+</span></span>
-          <span class="stat-label">Instagram Followers</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number"><span class="count-up" data-target="498" data-display="4.98" data-decimal="true"><span class="counter-val">4.98</span></span><span class="stat-suffix">★</span></span>
-          <span class="stat-label">Program Rating</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number"><span class="count-up" data-target="53" data-display="53"><span class="counter-val">53</span></span></span>
-          <span class="stat-label">Five-Star Reviews</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number"><span class="count-up" data-target="2" data-display="2"><span class="counter-val">2</span></span></span>
-          <span class="stat-label">Active Programs</span>
-        </div>
-      </div>
-    </div>
 
     <div class="divider" role="separator"></div>
 
@@ -1879,7 +1869,7 @@
 
     // ── Stats bar: count-up animation ────────────────────────────
     // Animates numbers from 0 to target when the bar enters the viewport.
-    const statsBar = document.querySelector('.stats-bar');
+    const statsBar = document.querySelector('.stats-card');
     let statsAnimated = false;
 
     function animateCount(el, target, isDecimal) {

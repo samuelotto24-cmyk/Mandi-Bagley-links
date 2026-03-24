@@ -452,18 +452,30 @@
       .program-grid { grid-template-columns: 1fr; }
     }
 
-    /* Program cover image */
+    /* Program card — photo left, text right */
+    .program-card {
+      position: relative;
+      background: var(--warm-white);
+      border: 1.5px solid var(--rose-pale);
+      border-radius: var(--r-md);
+      text-align: left;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: box-shadow var(--ease), transform var(--ease);
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+    }
+
+    /* Photo — left column, shows full image */
     .program-cover {
-      width: calc(100% + clamp(22px, 3vw, 36px) * 2);
-      margin: 0 calc(-1 * clamp(22px, 3vw, 36px)) 16px;
-      margin-top: calc(-1 * clamp(28px, 4vw, 44px));
+      flex: 0 0 42%;
       overflow: hidden;
       background: var(--blush-light);
-      max-height: 220px;
     }
     .program-cover img {
       width: 100%;
-      height: 220px;
+      height: 100%;
       object-fit: cover;
       object-position: center top;
       display: block;
@@ -471,20 +483,17 @@
     }
     .program-card:hover .program-cover img { transform: scale(1.03); }
 
-    /* Program card */
-    .program-card {
-      position: relative;
-      background: var(--warm-white);
-      border: 1.5px solid var(--rose-pale);
-      border-radius: var(--r-md);
-      padding: 20px 20px 24px;
-      text-align: left;
-      box-shadow: var(--shadow-sm);
-      overflow: hidden;
-      transition: box-shadow var(--ease), transform var(--ease);
+    /* Text — right column */
+    .program-body {
+      flex: 1;
+      padding: 20px 18px 20px;
       display: flex;
       flex-direction: column;
-      gap: 0;
+    }
+
+    @media (max-width: 580px) {
+      .program-card { flex-direction: column; }
+      .program-cover { flex: none; height: 200px; }
     }
     .program-card:hover {
       box-shadow: var(--shadow-md);
@@ -717,12 +726,24 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-end;
-      padding: 28px 24px;
-      background: linear-gradient(to top, rgba(43,26,26,0.72) 40%, transparent 100%);
+      padding: 32px 28px;
+      background: linear-gradient(to top, rgba(20,10,10,0.82) 50%, transparent 100%);
     }
 
-    .coming-soon-body h3 { color: #fff; }
-    .coming-soon-body .cs-note { color: rgba(255,255,255,0.75); margin-top: 6px; }
+    .coming-soon-body h3 {
+      color: #fff;
+      font-size: clamp(26px, 4vw, 36px);
+      text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    }
+    .coming-soon-body .cs-note {
+      color: rgba(255,255,255,0.88);
+      font-size: 14px;
+      margin-top: 8px;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+    }
+    .coming-soon-body .cs-emoji {
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
 
     .cs-badge {
       position: absolute;
@@ -1035,16 +1056,18 @@
                 loading="lazy"
               />
             </div>
-            <span class="program-badge">Featured · 6 Weeks</span>
-            <p class="program-price">$40</p>
-            <h3>Reset &amp; Rebuild</h3>
-            <p>My signature summer fitness + mindset program. Build stronger habits, a stronger body, and a stronger you — together.</p>
-            <a class="btn-primary"
-               href="https://www.solin.stream/mandibagley/program/5698"
-               target="_blank"
-               rel="noopener noreferrer">
-              Join Now →
-            </a>
+            <div class="program-body">
+              <span class="program-badge">Featured · 6 Weeks</span>
+              <p class="program-price">$40</p>
+              <h3>Reset &amp; Rebuild</h3>
+              <p>My signature summer fitness + mindset program. Build stronger habits, a stronger body, and a stronger you — together.</p>
+              <a class="btn-primary"
+                 href="https://www.solin.stream/mandibagley/program/5698"
+                 target="_blank"
+                 rel="noopener noreferrer">
+                Join Now →
+              </a>
+            </div>
           </div>
 
           <!-- Lock In & Level Up — secondary -->
@@ -1056,16 +1079,18 @@
                 loading="lazy"
               />
             </div>
-            <span class="program-badge">6-Week Challenge</span>
-            <p class="program-price">$30</p>
-            <h3>Lock In &amp; Level Up</h3>
-            <p>A 6-week strength challenge designed to help you lock in your focus and level up your training from the inside out.</p>
-            <a class="btn-outline"
-               href="https://www.solin.stream/mandibagley"
-               target="_blank"
-               rel="noopener noreferrer">
-              Get Started →
-            </a>
+            <div class="program-body">
+              <span class="program-badge">6-Week Challenge</span>
+              <p class="program-price">$30</p>
+              <h3>Lock In &amp; Level Up</h3>
+              <p>A 6-week strength challenge designed to help you lock in your focus and level up your training from the inside out.</p>
+              <a class="btn-outline"
+                 href="https://www.solin.stream/mandibagley"
+                 target="_blank"
+                 rel="noopener noreferrer">
+                Get Started →
+              </a>
+            </div>
           </div>
 
         </div><!-- /.program-grid -->
@@ -1308,7 +1333,7 @@
       <nav class="footer-socials" aria-label="Social media links">
         <a href="https://www.tiktok.com/@mandipandeee"          target="_blank" rel="noopener noreferrer" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
         <a href="https://www.instagram.com/mandi.bagley"         target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-        <a href="https://www.instagram.com/manditory_munchies"   target="_blank" rel="noopener noreferrer" aria-label="Cooking Instagram"><i class="fa-brands fa-utensils"></i></a>
+        <a href="https://www.instagram.com/manditory_munchies"   target="_blank" rel="noopener noreferrer" aria-label="Cooking Instagram"><i class="fa-solid fa-cookie-bite"></i></a>
         <a href="https://youtube.com/@mandibagleyy"              target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
         <a href="https://snapchat.com/t/TC1TuvC1"                target="_blank" rel="noopener noreferrer" aria-label="Snapchat"><i class="fa-brands fa-snapchat"></i></a>
       </nav>

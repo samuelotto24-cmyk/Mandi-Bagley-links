@@ -1946,10 +1946,20 @@
        JAVASCRIPT
        ============================================================ -->
   <script>
-    // ── Always open at the top ───────────────────────────────────
+    // ── Always open at the top (Safari bfcache-proof) ────────────
     if (history.scrollRestoration) history.scrollRestoration = 'manual';
-    window.scrollTo(0, 0);
-    window.addEventListener('load', () => window.scrollTo(0, 0));
+
+    function forceTop() {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0; // iOS Safari uses body scroll
+    }
+
+    forceTop();
+    document.addEventListener('DOMContentLoaded', forceTop);
+    window.addEventListener('load', forceTop);
+    // pageshow fires on bfcache restores — the main Safari culprit
+    window.addEventListener('pageshow', forceTop);
 
     // ── Sticky nav: add shadow when scrolled ────────────────────
     const nav = document.getElementById('nav');

@@ -468,7 +468,7 @@
       text-align: left;
       box-shadow: var(--shadow-sm);
       overflow: hidden;
-      transition: box-shadow var(--ease), transform var(--ease);
+      transition: box-shadow var(--ease);
       display: flex;
       flex-direction: row;
       align-items: stretch;
@@ -504,7 +504,6 @@
     }
     .program-card:hover {
       box-shadow: var(--shadow-md);
-      transform: translateY(-3px);
     }
 
     /* Rose accent bar */
@@ -1074,9 +1073,6 @@
       animation: strip-scroll 38s linear infinite;
     }
 
-    .strip-track:hover {
-      animation-play-state: paused;
-    }
 
     .strip-track img {
       height: 220px;
@@ -1528,7 +1524,6 @@
       width: max-content;
       animation: testimonial-scroll 28s linear infinite;
     }
-    .testimonial-track:hover { animation-play-state: paused; }
     @keyframes testimonial-scroll {
       from { transform: translateX(0); }
       to   { transform: translateX(-50%); }
@@ -1545,11 +1540,58 @@
     .program-card .btn-outline {
       animation: btn-pulse 2.8s ease-in-out infinite;
     }
+
+    /* ── Page Loader ─────────────────────────────────────────────── */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--cream);
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.65s ease, visibility 0.65s ease;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loader-inner { text-align: center; }
+    .loader-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 400; letter-spacing: 0.08em;
+      color: var(--espresso); margin: 0;
+      opacity: 0; transform: translateY(12px);
+      animation: loader-text-in 0.7s 0.2s forwards ease-out;
+    }
+    .loader-bar {
+      height: 1px; background: var(--rose);
+      width: 0; margin-top: 14px;
+      animation: loader-bar-in 0.7s 0.55s forwards ease-out;
+    }
+    @keyframes loader-text-in { to { opacity: 1; transform: translateY(0); } }
+    @keyframes loader-bar-in  { to { width: 100%; } }
+
+    /* ── Hero greeting ───────────────────────────────────────────── */
+    .hero-greeting {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 400; font-style: italic;
+      color: var(--rose); letter-spacing: 0.04em;
+      margin: 0 0 6px;
+    }
+
+    /* ── Program card 3D tilt ────────────────────────────────────── */
+    .program-card {
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
   </style>
   <!-- Vercel Web Analytics -->
   <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
+  <!-- Page Loader -->
+  <div id="loader" aria-hidden="true">
+    <div class="loader-inner">
+      <p class="loader-name">Mandi Bagley</p>
+      <div class="loader-bar"></div>
+    </div>
+  </div>
+
   <div id="scroll-progress" aria-hidden="true"></div>
 
   <!-- ============================================================
@@ -1597,7 +1639,7 @@
     <section id="hero" aria-labelledby="hero-heading">
       <div class="hero-inner">
 
-        <div class="hero-photo fade-up">
+        <div class="hero-photo">
           <img
             src="hero.jpg"
             alt="Mandi Bagley"
@@ -1606,9 +1648,10 @@
         </div>
 
         <!-- Right column: name, tagline, buttons -->
-        <div class="hero-content fade-up">
+        <div class="hero-content">
           <div>
             <h1 class="hero-name" id="hero-heading">Mandi<br>Bagley</h1>
+            <p class="hero-greeting" aria-live="polite"></p>
             <div class="hero-ornament"></div>
             <p class="hero-tagline">Fitness · Faith · Food</p>
           </div>
@@ -2130,15 +2173,30 @@
   <!-- ============================================================
        JAVASCRIPT
        ============================================================ -->
+  <!-- GSAP + ScrollTrigger + Lenis smooth scroll -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+
   <script>
-    // ── Internal anchor clicks: scroll without writing hash to URL ─
+    // ── Lenis smooth scroll ───────────────────────────────────────
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    });
+    gsap.registerPlugin(ScrollTrigger);
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+
+    // ── Internal anchor clicks: delegate to Lenis ─────────────────
     document.addEventListener('click', function(e) {
       const a = e.target.closest('a[href^="#"]');
       if (!a) return;
       const target = document.querySelector(a.getAttribute('href'));
       if (!target) return;
       e.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth' });
+      lenis.scrollTo(target, { offset: -64 });
     });
 
     // ── Always open at the top (Safari bfcache-proof) ────────────
@@ -2419,6 +2477,80 @@
       try { document.execCommand('copy'); } catch (_) {}
       document.body.removeChild(ta);
       cb();
+    }
+
+    // ── Time-personalized greeting ────────────────────────────────
+    (function setGreeting() {
+      const h = new Date().getHours();
+      const map = {
+        morning:   'Good morning — ready to reset?',
+        afternoon: 'Good afternoon — let\'s lock in.',
+        evening:   'Good evening — time to level up.',
+        night:     'Up late? Let\'s get to work.',
+      };
+      const key = h >= 5 && h < 12 ? 'morning'
+                : h >= 12 && h < 17 ? 'afternoon'
+                : h >= 17 && h < 22 ? 'evening' : 'night';
+      const el = document.querySelector('.hero-greeting');
+      if (el) el.textContent = map[key];
+    })();
+
+    // ── GSAP hero entrance (called after loader exits) ────────────
+    function startHeroAnimation() {
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      tl.from('.hero-photo img', { opacity: 0, scale: 1.04, duration: 1.4 })
+        .from('.hero-name',      { opacity: 0, y: 36,  duration: 1.0 }, '-=0.9')
+        .from('.hero-greeting',  { opacity: 0, y: 14,  duration: 0.7 }, '-=0.6')
+        .from('.hero-ornament',  { opacity: 0, scaleX: 0, duration: 0.5, transformOrigin: 'left' }, '-=0.4')
+        .from('.hero-tagline',   { opacity: 0, y: 18,  duration: 0.7 }, '-=0.3')
+        .from('.follow-btn',     { opacity: 0, y: 14,  stagger: 0.08, duration: 0.6 }, '-=0.3');
+
+      // Parallax: hero photo drifts up slightly as user scrolls past
+      gsap.to('.hero-photo img', {
+        y: 60, ease: 'none',
+        scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true },
+      });
+    }
+
+    // ── Page loader dismiss → trigger hero animation ──────────────
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('loader').classList.add('hidden');
+        startHeroAnimation();
+      }, 1350);
+    });
+
+    // ── 3D card tilt + magnetic buttons (desktop / fine pointer only) ──
+    if (window.matchMedia('(pointer: fine)').matches) {
+      // 3D tilt on program cards
+      document.querySelectorAll('.program-card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+          const r = card.getBoundingClientRect();
+          const x = ((e.clientX - r.left) / r.width  - 0.5) * 2;
+          const y = ((e.clientY - r.top)  / r.height - 0.5) * 2;
+          card.style.transition = 'transform 0.08s ease, box-shadow var(--ease)';
+          card.style.transform  = `perspective(900px) rotateX(${-y * 7}deg) rotateY(${x * 7}deg) scale(1.02)`;
+        });
+        card.addEventListener('mouseleave', () => {
+          card.style.transition = 'transform 0.55s cubic-bezier(0.23,1,0.32,1), box-shadow var(--ease)';
+          card.style.transform  = 'perspective(900px) rotateX(0deg) rotateY(0deg) scale(1)';
+        });
+      });
+
+      // Magnetic pull on program CTA buttons
+      document.querySelectorAll('.program-card .btn-primary, .program-card .btn-outline').forEach(btn => {
+        btn.addEventListener('mousemove', (e) => {
+          const r = btn.getBoundingClientRect();
+          const x = e.clientX - r.left - r.width  / 2;
+          const y = e.clientY - r.top  - r.height / 2;
+          btn.style.transition = 'transform 0.1s ease';
+          btn.style.transform  = `translate(${x * 0.28}px, ${y * 0.28}px)`;
+        });
+        btn.addEventListener('mouseleave', () => {
+          btn.style.transition = 'transform 0.5s cubic-bezier(0.23,1,0.32,1)';
+          btn.style.transform  = 'translate(0,0)';
+        });
+      });
     }
   </script>
 

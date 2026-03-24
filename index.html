@@ -1571,7 +1571,7 @@
       font-family: 'DM Sans', sans-serif;
       font-size: 13px; font-weight: 400; font-style: italic;
       color: var(--rose); letter-spacing: 0.04em;
-      margin: 0 0 6px;
+      margin: 10px 0 0;
     }
 
     /* ── Program card 3D tilt ────────────────────────────────────── */
@@ -1651,9 +1651,9 @@
         <div class="hero-content">
           <div>
             <h1 class="hero-name" id="hero-heading">Mandi<br>Bagley</h1>
-            <p class="hero-greeting" aria-live="polite"></p>
             <div class="hero-ornament"></div>
             <p class="hero-tagline">Fitness · Faith · Food</p>
+            <p class="hero-greeting" aria-live="polite"></p>
           </div>
 
         <nav class="follow-row" aria-label="Social media follow links">
@@ -2491,9 +2491,9 @@
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
       tl.from('.hero-photo img', { opacity: 0, scale: 1.04, duration: 1.4 })
         .from('.hero-name',      { opacity: 0, y: 36,  duration: 1.0 }, '-=0.9')
-        .from('.hero-greeting',  { opacity: 0, y: 14,  duration: 0.7 }, '-=0.6')
-        .from('.hero-ornament',  { opacity: 0, scaleX: 0, duration: 0.5, transformOrigin: 'left' }, '-=0.4')
+        .from('.hero-ornament',  { opacity: 0, scaleX: 0, duration: 0.5, transformOrigin: 'left' }, '-=0.5')
         .from('.hero-tagline',   { opacity: 0, y: 18,  duration: 0.7 }, '-=0.3')
+        .from('.hero-greeting',  { opacity: 0, y: 14,  duration: 0.6 }, '-=0.4')
         .from('.follow-btn',     { opacity: 0, y: 14,  stagger: 0.08, duration: 0.6 }, '-=0.3');
 
       // Parallax: hero photo drifts up slightly as user scrolls past
@@ -2508,7 +2508,7 @@
       setTimeout(() => {
         document.getElementById('loader').classList.add('hidden');
         startHeroAnimation();
-      }, 1350);
+      }, 800);
     });
 
     // ── 3D card tilt + magnetic buttons (desktop / fine pointer only) ──

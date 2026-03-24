@@ -2073,6 +2073,13 @@
     const CHANNEL_ID = 'UCU_fb6omI8Ko6O8-65Aphhw';
     let latestVideoId = null;
 
+    function showYtFallback() {
+      const loader = document.getElementById('videoLoading');
+      if (loader) loader.innerHTML =
+        `<a href="https://youtube.com/@mandibagleyy" target="_blank" rel="noopener noreferrer"
+            class="btn-outline" style="position:relative;z-index:2">Watch on YouTube →</a>`;
+    }
+
     (async function fetchLatestVideo() {
       try {
         const rssUrl  = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
@@ -2081,27 +2088,32 @@
         const data    = await res.json();
         if (data.status === 'ok' && data.items && data.items.length > 0) {
           const item  = data.items[0];
-          const match = item.link.match(/[?&]v=([^&]+)/);
-          latestVideoId = match ? match[1] : null;
+          // Try link first, then guid (YouTube RSS guid = "yt:video:VIDEO_ID")
+          const fromLink  = (item.link  || '').match(/[?&]v=([^&]+)/);
+          const fromGuid  = (item.guid  || '').match(/yt:video:([^"]+)/);
+          latestVideoId = (fromLink && fromLink[1]) || (fromGuid && fromGuid[1]) || null;
           if (latestVideoId) {
             document.getElementById('videoThumb').src =
               `https://img.youtube.com/vi/${latestVideoId}/hqdefault.jpg`;
             document.getElementById('videoTitleBar').textContent = item.title;
             document.getElementById('videoLoading').style.display  = 'none';
             document.getElementById('videoPoster').style.display   = 'flex';
+          } else {
+            showYtFallback();
           }
+        } else {
+          showYtFallback();
         }
       } catch (_) {
-        // On error: show a fallback link
-        const loader = document.getElementById('videoLoading');
-        if (loader) loader.innerHTML =
-          `<a href="https://youtube.com/@mandibagleyy" target="_blank" rel="noopener noreferrer"
-              class="btn-outline" style="position:relative;z-index:2">Watch on YouTube →</a>`;
+        showYtFallback();
       }
     })();
 
     function playVideo() {
-      if (!latestVideoId) return;
+      if (!latestVideoId) {
+        window.open('https://youtube.com/@mandibagleyy', '_blank');
+        return;
+      }
       const wrapper = document.getElementById('videoWrapper');
       wrapper.innerHTML =
         `<iframe src="https://www.youtube.com/embed/${latestVideoId}?autoplay=1"

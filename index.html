@@ -2198,13 +2198,11 @@
             <span class="cs-emoji" aria-hidden="true">🍳</span>
             <h3>Cookbook Coming Soon</h3>
             <p class="cs-note">Be the first to know when it drops.</p>
-            <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
-            <iframe src="https://subscribe-forms.beehiiv.com/20e51497-2fbd-4ecf-a7b1-9b4ce7f75cbf"
-                    class="beehiiv-embed"
-                    frameborder="0" scrolling="no"
-                    style="width:100%;max-width:480px;height:160px;background:transparent;border:none;display:block;"
-                    title="Subscribe to Mandi Bagley's newsletter">
-            </iframe>
+            <form class="notify-form" id="notifyForm" onsubmit="handleNotify(event)" aria-label="Email notification form">
+              <input type="email" placeholder="your@email.com" required aria-label="Email address" />
+              <button type="submit">Let me know when the cookbook is live</button>
+            </form>
+            <p class="notify-confirm" id="notifyConfirm" style="display:none">You're on the list! 🍳</p>
           </div>
         </div>
 
@@ -2485,6 +2483,23 @@
 
 
 
+
+    // ── Cookbook notify form → Beehiiv ───────────────────────────
+    async function handleNotify(e) {
+      e.preventDefault();
+      const form  = document.getElementById('notifyForm');
+      const conf  = document.getElementById('notifyConfirm');
+      const email = form.querySelector('input[type="email"]').value;
+      const btn   = form.querySelector('button');
+      btn.textContent = 'Adding you...';
+      btn.disabled = true;
+      try {
+        const body = new URLSearchParams({ email, publication_id: '20e51497-2fbd-4ecf-a7b1-9b4ce7f75cbf' });
+        await fetch('https://app.beehiiv.com/subscribe', { method: 'POST', body, mode: 'no-cors' });
+      } catch (_) {}
+      form.style.display = 'none';
+      conf.style.display = 'block';
+    }
 
     // ── Scroll progress bar ───────────────────────────────────────
     (function() {

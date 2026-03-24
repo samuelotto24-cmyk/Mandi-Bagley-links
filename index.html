@@ -452,24 +452,21 @@
       .program-grid { grid-template-columns: 1fr; }
     }
 
-    /* Program cover image */
+    /* Program cover image — no forced crop, shows full photo */
     .program-cover {
       width: calc(100% + clamp(22px, 3vw, 36px) * 2);
       margin: 0 calc(-1 * clamp(22px, 3vw, 36px)) 20px;
       margin-top: calc(-1 * clamp(28px, 4vw, 44px));
-      aspect-ratio: 3 / 4;
       overflow: hidden;
       background: var(--blush-light);
     }
     .program-cover img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center top;
+      height: auto;
       display: block;
       transition: transform 0.4s ease;
     }
-    .program-card:hover .program-cover img { transform: scale(1.04); }
+    .program-card:hover .program-cover img { transform: scale(1.03); }
 
     /* Program card */
     .program-card {
@@ -1020,7 +1017,7 @@
           <div class="program-card fade-up">
             <div class="program-cover">
               <img
-                src="https://res.cloudinary.com/solin-fitness/image/upload/c_fill,w_600,h_340,q_auto,f_auto/_DSC3048_iohl7z"
+                src="https://res.cloudinary.com/solin-fitness/image/upload/c_scale,w_600,q_auto,f_auto/_DSC3048_iohl7z"
                 alt="Reset & Rebuild Program"
                 loading="lazy"
               />
@@ -1041,7 +1038,7 @@
           <div class="program-card secondary fade-up">
             <div class="program-cover">
               <img
-                src="https://res.cloudinary.com/solin-fitness/image/upload/c_fill,w_600,h_340,q_auto,f_auto/1767043551804_assetName_p4r42p"
+                src="https://res.cloudinary.com/solin-fitness/image/upload/c_scale,w_600,q_auto,f_auto/1767043551804_assetName_p4r42p"
                 alt="Lock In & Level Up Program"
                 loading="lazy"
               />

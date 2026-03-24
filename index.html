@@ -43,9 +43,9 @@
 
       /* Layout */
       --nav-h:     64px;
-      --max-w:     880px;
-      --px:        clamp(20px, 5vw, 44px);
-      --py:        clamp(64px, 9vw, 108px);
+      --max-w:     1080px;
+      --px:        clamp(20px, 5vw, 52px);
+      --py:        clamp(56px, 7vw, 88px);
 
       /* Effects */
       --shadow-sm:   0 2px 12px rgba(43, 26, 26, 0.07);
@@ -281,61 +281,67 @@
     .nav-drawer a:hover { color: var(--rose); }
 
     /* ============================================================
-       HERO
+       HERO — 2-column on desktop, stacked on mobile
        ============================================================ */
     #hero {
-      padding-top: calc(var(--nav-h) + clamp(48px, 8vw, 88px));
-      padding-bottom: clamp(64px, 9vw, 108px);
+      padding-top: calc(var(--nav-h) + clamp(36px, 6vw, 64px));
+      padding-bottom: clamp(48px, 7vw, 80px);
       padding-left: var(--px);
       padding-right: var(--px);
       background: var(--cream);
-      text-align: center;
     }
 
     .hero-inner {
       max-width: var(--max-w);
       margin: 0 auto;
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(36px, 6vw, 80px);
       align-items: center;
-      gap: 28px;
     }
 
     .hero-photo {
       width: 100%;
-      max-width: 295px;
-      aspect-ratio: 4 / 5;
+      aspect-ratio: 3 / 4;
       border-radius: var(--r-xl);
       overflow: hidden;
-      box-shadow: var(--shadow-md);
+      box-shadow: var(--shadow-lg);
       background: var(--blush-light);
     }
     .hero-photo img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center top;
       display: block;
+    }
+
+    /* Right column: text + buttons */
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
 
     .hero-name {
       font-family: var(--serif);
-      font-size: clamp(54px, 14vw, 96px);
+      font-size: clamp(48px, 7vw, 88px);
       font-weight: 400;
       color: var(--espresso);
-      letter-spacing: -0.01em;
-      line-height: 1;
+      letter-spacing: -0.02em;
+      line-height: 0.95;
     }
 
     .hero-ornament {
       width: 44px;
       height: 1px;
       background: var(--blush);
-      margin: 2px auto;
+      margin: 4px 0;
     }
 
     .hero-tagline {
       font-family: var(--serif);
-      font-size: clamp(17px, 3.5vw, 24px);
+      font-size: clamp(16px, 2vw, 22px);
       font-style: italic;
       color: var(--taupe-mid);
       letter-spacing: 0.1em;
@@ -345,9 +351,24 @@
     .follow-row {
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
+      justify-content: flex-start;
       gap: 9px;
       margin-top: 4px;
+    }
+
+    /* Mobile: stack hero vertically and re-center */
+    @media (max-width: 660px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .hero-photo {
+        max-width: 280px;
+        margin: 0 auto;
+        aspect-ratio: 4 / 5;
+      }
+      .hero-ornament { margin: 4px auto; }
+      .follow-row { justify-content: center; }
     }
 
     .follow-btn {
@@ -575,7 +596,7 @@
     /* Brand logo thumbnail */
     .brand-thumb {
       width: 100%;
-      aspect-ratio: 16 / 7;
+      aspect-ratio: 4 / 3;
       border-radius: var(--r-sm);
       overflow: hidden;
       background: var(--blush-light);
@@ -667,10 +688,30 @@
       background: var(--warm-white);
       border: 1.5px dashed var(--blush);
       border-radius: var(--r-md);
-      padding: clamp(36px, 5vw, 56px) clamp(28px, 5vw, 56px);
       max-width: 500px;
       width: 100%;
       text-align: center;
+      overflow: hidden;
+    }
+
+    .coming-soon-photo {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+    }
+    .coming-soon-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+      filter: brightness(0.92);
+      transition: transform 0.5s ease;
+    }
+    .coming-soon-card:hover .coming-soon-photo img { transform: scale(1.03); }
+
+    .coming-soon-body {
+      padding: clamp(28px, 4vw, 44px) clamp(24px, 4vw, 40px);
     }
 
     .cs-badge {
@@ -890,21 +931,21 @@
 
         <div class="hero-photo fade-up">
           <img
-            src="https://res.cloudinary.com/solin-fitness/image/upload/c_fill,w_600,h_750,q_auto,f_auto/1767043510630_assetName_gjpdi4"
+            src="hero.jpg"
             alt="Mandi Bagley"
             loading="eager"
           />
         </div>
 
-        <!-- Name & tagline -->
-        <div class="fade-up" style="text-align:center">
-          <h1 class="hero-name" id="hero-heading">Mandi Bagley</h1>
-          <div class="hero-ornament"></div>
-          <p class="hero-tagline">Fitness · Faith · Food</p>
-        </div>
+        <!-- Right column: name, tagline, buttons -->
+        <div class="hero-content fade-up">
+          <div>
+            <h1 class="hero-name" id="hero-heading">Mandi<br>Bagley</h1>
+            <div class="hero-ornament"></div>
+            <p class="hero-tagline">Fitness · Faith · Food</p>
+          </div>
 
-        <!-- Follow buttons -->
-        <nav class="follow-row fade-up" aria-label="Social media follow links">
+        <nav class="follow-row" aria-label="Social media follow links">
           <a class="follow-btn" href="https://www.tiktok.com/@mandipandeee" target="_blank" rel="noopener noreferrer" aria-label="Follow on TikTok">
             <i class="fa-brands fa-tiktok"></i> TikTok
           </a>
@@ -922,7 +963,9 @@
           </a>
         </nav>
 
-      </div>
+        </div><!-- /.hero-content -->
+
+      </div><!-- /.hero-inner -->
     </section>
 
     <div class="divider" role="separator"></div>
@@ -1046,7 +1089,7 @@
           <!-- Gymshark -->
           <div class="brand-card fade-up">
             <div class="brand-thumb">
-              <img src="https://hoobe-creator-dashboard-images-prod.drive-hoo.com/67e717a023c5ba4648d3894b/f048cbeb-ae77-4768-91a3-71f96f17f335.webp?v=1735864756660" alt="Gymshark" loading="lazy" />
+              <img src="gymshark.jpg" alt="Mandi Bagley wearing Gymshark" loading="lazy" />
             </div>
             <span class="brand-name">Gymshark</span>
             <p class="brand-desc">Performance activewear built for training hard and looking good doing it.</p>
@@ -1095,7 +1138,7 @@
           <!-- DFYNE -->
           <div class="brand-card fade-up">
             <div class="brand-thumb">
-              <img src="https://hoobe-creator-dashboard-images-prod.drive-hoo.com/67e717a023c5ba4648d3894b/a8be0a44-9ef1-4080-ab84-fc927f9e9099.webp?v=1737650967790" alt="DFYNE" loading="lazy" />
+              <img src="dfyne.jpg" alt="Mandi Bagley wearing DFYNE" loading="lazy" />
             </div>
             <span class="brand-name">DFYNE</span>
             <p class="brand-desc">Training apparel designed to move with you and keep you looking fierce.</p>
@@ -1118,7 +1161,10 @@
 
           <!-- TEVEO -->
           <div class="brand-card fade-up">
-            <span class="brand-name" style="margin-top:4px">TEVEO</span>
+            <div class="brand-thumb">
+              <img src="teveo.jpg" alt="Mandi Bagley wearing TEVEO" loading="lazy" />
+            </div>
+            <span class="brand-name">TEVEO</span>
             <p class="brand-desc">Fitness fashion that merges high-performance with everyday style.</p>
             <div class="code-row">
               <span class="code-label">Code:</span>
@@ -1161,29 +1207,6 @@
             </a>
           </div>
 
-          <!-- YoungLA -->
-          <div class="brand-card fade-up">
-            <div class="brand-thumb">
-              <img src="https://hoobe-creator-dashboard-images-prod.drive-hoo.com/67e717a023c5ba4648d3894b/53484a0d-762c-47ab-ae34-b57efe3a5537.webp?v=1733431467707" alt="YoungLA" loading="lazy" />
-            </div>
-            <span class="brand-name">YoungLA</span>
-            <p class="brand-desc">Gym wear built for the culture — premium training fits for men and women.</p>
-            <div class="code-row">
-              <span class="code-label">Code:</span>
-              <button class="code-pill"
-                      data-code="MANDI"
-                      onclick="copyCode(this,'MANDI')"
-                      aria-label="Copy discount code MANDI">
-                <i class="fa-regular fa-copy"></i> MANDI
-              </button>
-            </div>
-            <a class="btn-outline"
-               href="https://www.youngla.com"
-               target="_blank"
-               rel="noopener noreferrer">
-              Shop Now →
-            </a>
-          </div>
 
         </div><!-- /.brand-grid -->
       </div>
@@ -1200,9 +1223,14 @@
 
         <div class="coming-soon-card fade-up">
           <span class="cs-badge">🔒 Coming Soon</span>
-          <span class="cs-emoji" aria-hidden="true">🍳</span>
-          <h3>Cookbook Coming Soon</h3>
-          <p class="cs-note">More drops coming — check back soon.</p>
+          <div class="coming-soon-photo">
+            <img src="cookbook.jpg" alt="Mandi Bagley in the kitchen" loading="lazy" />
+          </div>
+          <div class="coming-soon-body">
+            <span class="cs-emoji" aria-hidden="true">🍳</span>
+            <h3>Cookbook Coming Soon</h3>
+            <p class="cs-note">More drops coming — check back soon.</p>
+          </div>
         </div>
 
       </div>

@@ -1485,11 +1485,72 @@
       .snap-float-label { writing-mode: horizontal-tb; transform: none; font-size: 7px; letter-spacing: 0.03em; }
       .snap-float-icon  { font-size: 10px; }
     }
+
+    /* ============================================================
+       SCROLL PROGRESS BAR
+       ============================================================ */
+    #scroll-progress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      width: 0%;
+      background: var(--rose);
+      z-index: 9998;
+      transition: width 0.08s linear;
+      pointer-events: none;
+    }
+
+    /* ============================================================
+       CURSOR SPARKLE (desktop only)
+       ============================================================ */
+    @keyframes sparkle-fade {
+      0%   { transform: translate(-50%,-50%) scale(1); opacity: 0.85; }
+      100% { transform: translate(-50%,-50%) scale(0); opacity: 0; }
+    }
+    .cursor-sparkle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9997;
+      border-radius: 50%;
+      animation: sparkle-fade 0.55s ease-out forwards;
+    }
+
+    /* ============================================================
+       TESTIMONIALS AUTO-SCROLL
+       ============================================================ */
+    .testimonial-strip {
+      overflow: hidden;
+      padding-bottom: 4px;
+    }
+    .testimonial-track {
+      display: flex;
+      gap: 12px;
+      width: max-content;
+      animation: testimonial-scroll 28s linear infinite;
+    }
+    .testimonial-track:hover { animation-play-state: paused; }
+    @keyframes testimonial-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ============================================================
+       PROGRAM BUTTON PULSE
+       ============================================================ */
+    @keyframes btn-pulse {
+      0%, 100% { box-shadow: 0 4px 14px rgba(184,84,106,0.25); }
+      50%       { box-shadow: 0 4px 28px rgba(184,84,106,0.55); }
+    }
+    .program-card .btn-primary,
+    .program-card .btn-outline {
+      animation: btn-pulse 2.8s ease-in-out infinite;
+    }
   </style>
   <!-- Vercel Web Analytics -->
   <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
+  <div id="scroll-progress" aria-hidden="true"></div>
 
   <!-- ============================================================
        NAVIGATION — sticky, collapses to hamburger on mobile
@@ -1752,26 +1813,41 @@
          ========================================================== -->
     <section id="testimonials" aria-label="Member reviews">
       <div class="inner">
-        <div class="testimonial-strip fade-up">
-
-          <div class="testimonial-card">
-            <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-body">"Reset &amp; Rebuild genuinely changed how I approach my fitness. I lost 8 lbs and feel stronger than ever. Mandi's energy makes you want to show up every day."</p>
-            <p class="testimonial-attribution">— Sarah M. · Reset &amp; Rebuild</p>
+        <div class="testimonial-strip fade-up" aria-label="Member reviews">
+          <div class="testimonial-track">
+            <!-- Original set -->
+            <div class="testimonial-card">
+              <div class="testimonial-stars">★★★★★</div>
+              <p class="testimonial-body">"Reset &amp; Rebuild genuinely changed how I approach my fitness. I lost 8 lbs and feel stronger than ever. Mandi's energy makes you want to show up every day."</p>
+              <p class="testimonial-attribution">— Sarah M. · Reset &amp; Rebuild</p>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-stars">★★★★★</div>
+              <p class="testimonial-body">"Best $40 I've ever spent. The workouts are challenging but totally doable. I've done 3 rounds already and I keep coming back."</p>
+              <p class="testimonial-attribution">— Jessica R. · Reset &amp; Rebuild</p>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-stars">★★★★★</div>
+              <p class="testimonial-body">"Lock In &amp; Level Up pushed me harder than I expected. I could see results by week 3. Already recommended it to 5 friends."</p>
+              <p class="testimonial-attribution">— Taylor K. · Lock In &amp; Level Up</p>
+            </div>
+            <!-- Cloned set for seamless loop -->
+            <div class="testimonial-card" aria-hidden="true">
+              <div class="testimonial-stars">★★★★★</div>
+              <p class="testimonial-body">"Reset &amp; Rebuild genuinely changed how I approach my fitness. I lost 8 lbs and feel stronger than ever. Mandi's energy makes you want to show up every day."</p>
+              <p class="testimonial-attribution">— Sarah M. · Reset &amp; Rebuild</p>
+            </div>
+            <div class="testimonial-card" aria-hidden="true">
+              <div class="testimonial-stars">★★★★★</div>
+              <p class="testimonial-body">"Best $40 I've ever spent. The workouts are challenging but totally doable. I've done 3 rounds already and I keep coming back."</p>
+              <p class="testimonial-attribution">— Jessica R. · Reset &amp; Rebuild</p>
+            </div>
+            <div class="testimonial-card" aria-hidden="true">
+              <div class="testimonial-stars">★★★★★</div>
+              <p class="testimonial-body">"Lock In &amp; Level Up pushed me harder than I expected. I could see results by week 3. Already recommended it to 5 friends."</p>
+              <p class="testimonial-attribution">— Taylor K. · Lock In &amp; Level Up</p>
+            </div>
           </div>
-
-          <div class="testimonial-card">
-            <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-body">"Best $40 I've ever spent. The workouts are challenging but totally doable. I've done 3 rounds already and I keep coming back."</p>
-            <p class="testimonial-attribution">— Jessica R. · Reset &amp; Rebuild</p>
-          </div>
-
-          <div class="testimonial-card">
-            <div class="testimonial-stars">★★★★★</div>
-            <p class="testimonial-body">"Lock In &amp; Level Up pushed me harder than I expected. I could see results by week 3. Already recommended it to 5 friends."</p>
-            <p class="testimonial-attribution">— Taylor K. · Lock In &amp; Level Up</p>
-          </div>
-
         </div>
       </div>
     </section>
@@ -2231,6 +2307,34 @@
       document.getElementById('notifyConfirm').style.display = 'block';
     }
 
+
+    // ── Scroll progress bar ───────────────────────────────────────
+    (function() {
+      const bar = document.getElementById('scroll-progress');
+      if (!bar) return;
+      window.addEventListener('scroll', function() {
+        const scrolled = document.documentElement.scrollTop;
+        const total    = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        bar.style.width = (total > 0 ? (scrolled / total) * 100 : 0) + '%';
+      }, { passive: true });
+    })();
+
+    // ── Cursor sparkle trail (desktop only) ───────────────────────
+    if (window.matchMedia('(pointer: fine)').matches) {
+      const sparkleColors = ['#B8546A','#EAD0C8','#F2D5DB','#D4708A','#FAF7F2'];
+      let lastSparkle = 0;
+      document.addEventListener('mousemove', function(e) {
+        const now = Date.now();
+        if (now - lastSparkle < 38) return;
+        lastSparkle = now;
+        const el   = document.createElement('div');
+        const size = 4 + Math.random() * 5;
+        el.className = 'cursor-sparkle';
+        el.style.cssText = `left:${e.clientX}px;top:${e.clientY}px;width:${size}px;height:${size}px;background:${sparkleColors[Math.floor(Math.random()*sparkleColors.length)]};`;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 580);
+      });
+    }
 
     // ── Sale countdown timer ──────────────────────────────────────
     // Update SALE_END to change the deadline.

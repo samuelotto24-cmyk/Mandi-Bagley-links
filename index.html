@@ -1362,15 +1362,16 @@
       /* Photo strip shorter on mobile */
       .strip-track img { height: 160px; }
 
-      /* Program cards: compact on mobile */
-      .program-cover { height: 160px !important; }
-      .program-price { font-size: 30px !important; }
-      .program-body { padding: 10px 12px; }
-      .program-grid { gap: 10px; margin-bottom: 16px; }
+      /* Program cards: side-by-side on mobile — photo strip left, text right */
+      .program-card  { flex-direction: row !important; }
+      .program-cover { flex: 0 0 110px !important; height: auto !important; min-height: 130px; }
+      .program-price { font-size: 28px !important; }
+      .program-body  { padding: 10px 12px; }
+      .program-grid  { gap: 10px; margin-bottom: 16px; }
       .program-badge { margin-bottom: 5px; font-size: 10px; padding: 3px 8px; }
       .program-card p { margin-bottom: 6px; font-size: 12px; }
-      .program-card h3 { font-size: 16px !important; margin-bottom: 4px; }
-      .price-row { gap: 6px; align-items: baseline; margin-bottom: 8px; }
+      .program-card h3 { font-size: 15px !important; margin-bottom: 4px; }
+      .price-row { gap: 6px; align-items: baseline; margin-bottom: 6px; }
       .price-original { font-size: 12px; }
       .program-payment-note { font-size: 9px !important; }
       .program-cta { font-size: 13px !important; padding: 10px 16px !important; }

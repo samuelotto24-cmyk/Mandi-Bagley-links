@@ -923,6 +923,314 @@
     }
 
     /* ============================================================
+       STATS BAR — full-width espresso band with count-up numbers
+       ============================================================ */
+    .stats-bar {
+      background: var(--espresso);
+      padding: clamp(28px, 4vw, 44px) var(--px);
+    }
+
+    .stats-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      text-align: center;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .stat-number {
+      font-family: var(--serif);
+      font-size: clamp(38px, 5vw, 58px);
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-suffix {
+      color: var(--rose);
+    }
+
+    .stat-label {
+      font-family: var(--sans);
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(250,247,242,0.48);
+      margin-top: 3px;
+    }
+
+    @media (max-width: 560px) {
+      .stats-inner {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 28px 20px;
+      }
+    }
+
+    /* ============================================================
+       PHOTO STRIP — edge-to-edge horizontal marquee
+       ============================================================ */
+    .photo-strip {
+      overflow: hidden;
+      padding: clamp(24px, 4vw, 44px) 0;
+      background: var(--cream);
+    }
+
+    .strip-track {
+      display: flex;
+      gap: 12px;
+      width: max-content;
+      animation: strip-scroll 38s linear infinite;
+    }
+
+    .strip-track:hover {
+      animation-play-state: paused;
+    }
+
+    .strip-track img {
+      height: 220px;
+      width: auto;
+      object-fit: cover;
+      border-radius: var(--r-sm);
+      display: block;
+      flex-shrink: 0;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    @keyframes strip-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ============================================================
+       TESTIMONIALS
+       ============================================================ */
+    #testimonials { background: var(--blush-light); }
+
+    .testimonial-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 700px) {
+      .testimonial-grid { grid-template-columns: 1fr; }
+    }
+
+    .testimonial-card {
+      background: var(--warm-white);
+      border-radius: var(--r-md);
+      padding: 28px 24px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid var(--blush);
+      transition: box-shadow var(--ease), transform var(--ease);
+    }
+    .testimonial-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .testimonial-open-quote {
+      font-family: var(--serif);
+      font-size: 64px;
+      line-height: 0.55;
+      color: var(--rose-pale);
+      font-weight: 400;
+      user-select: none;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .testimonial-stars {
+      color: #D4943A;
+      font-size: 12px;
+      letter-spacing: 2px;
+    }
+
+    .testimonial-body {
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--text-body);
+      flex: 1;
+      font-style: italic;
+    }
+
+    .testimonial-attribution {
+      font-family: var(--sans);
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      color: var(--taupe-mid);
+      text-transform: uppercase;
+      border-top: 1px solid var(--blush);
+      padding-top: 12px;
+      margin-top: 4px;
+    }
+
+    /* ============================================================
+       WATCH — YouTube auto-latest video section
+       ============================================================ */
+    #watch { background: var(--warm-white); }
+
+    .watch-wrap { text-align: center; }
+
+    .video-wrapper {
+      max-width: 700px;
+      margin: 0 auto;
+      border-radius: var(--r-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      background: var(--espresso);
+      aspect-ratio: 16 / 9;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .video-wrapper iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: none;
+      position: absolute;
+      inset: 0;
+    }
+
+    /* Poster state (before click) */
+    .video-poster {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .video-poster img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.72);
+    }
+
+    .video-play-btn {
+      position: relative;
+      z-index: 2;
+      width: 68px;
+      height: 68px;
+      background: var(--rose);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 22px;
+      box-shadow: 0 6px 28px rgba(0,0,0,0.4);
+      transition: transform 0.2s ease, background 0.2s ease;
+      padding-left: 4px; /* optical center for play icon */
+    }
+    .video-poster:hover .video-play-btn {
+      transform: scale(1.1);
+      background: var(--rose-dark);
+    }
+
+    .video-title-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 24px 18px 14px;
+      background: linear-gradient(transparent, rgba(43,26,26,0.85));
+      z-index: 2;
+      text-align: left;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(250,247,242,0.88);
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Loading state */
+    .video-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      color: rgba(250,247,242,0.35);
+    }
+
+    /* ============================================================
+       COOKBOOK NOTIFY FORM
+       ============================================================ */
+    .notify-form {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .notify-form input[type="email"] {
+      flex: 1;
+      min-width: 130px;
+      padding: 10px 14px;
+      border: 1.5px solid var(--blush);
+      border-radius: var(--r-pill);
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--espresso);
+      background: var(--cream);
+      outline: none;
+      transition: border-color var(--ease);
+    }
+    .notify-form input[type="email"]:focus { border-color: var(--rose); }
+    .notify-form input[type="email"]::placeholder { color: var(--taupe); }
+
+    .notify-form button {
+      padding: 10px 20px;
+      background: var(--espresso);
+      color: var(--cream);
+      border: none;
+      border-radius: var(--r-pill);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background var(--ease), transform var(--ease);
+    }
+    .notify-form button:hover {
+      background: var(--rose);
+      transform: translateY(-1px);
+    }
+
+    .notify-confirm {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--rose);
+      display: none;
+    }
+
+    /* ============================================================
        RESPONSIVE — mobile breakpoint
        ============================================================ */
     @media (max-width: 660px) {
@@ -960,6 +1268,7 @@
       <ul class="nav-links" role="list">
         <li><a href="#about">About</a></li>
         <li><a href="#program">Program</a></li>
+        <li><a href="#watch">Watch</a></li>
         <li><a href="#partners">Shop</a></li>
         <li><a href="#support">Support</a></li>
         <li><a href="#contact">Contact</a></li>
@@ -976,6 +1285,7 @@
     <div class="nav-drawer" id="navDrawer" role="menu">
       <a href="#about"       role="menuitem" onclick="closeNav()">About</a>
       <a href="#program"     role="menuitem" onclick="closeNav()">Program</a>
+      <a href="#watch"       role="menuitem" onclick="closeNav()">Watch</a>
       <a href="#partners"    role="menuitem" onclick="closeNav()">Shop My Favorites</a>
       <a href="#coming-soon" role="menuitem" onclick="closeNav()">Coming Soon</a>
       <a href="#support"     role="menuitem" onclick="closeNav()">Support</a>
@@ -1030,7 +1340,29 @@
       </div><!-- /.hero-inner -->
     </section>
 
-    <div class="divider" role="separator"></div>
+    <!-- ==========================================================
+         STATS BAR — social proof band
+         ========================================================== -->
+    <div class="stats-bar" role="region" aria-label="By the numbers">
+      <div class="stats-inner">
+        <div class="stat-item">
+          <span class="stat-number"><span class="count-up" data-target="1000000" data-display="1M"><span class="counter-val">1M</span></span><span class="stat-suffix">+</span></span>
+          <span class="stat-label">Instagram Followers</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number"><span class="count-up" data-target="498" data-display="4.98" data-decimal="true"><span class="counter-val">4.98</span></span><span class="stat-suffix">★</span></span>
+          <span class="stat-label">Program Rating</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number"><span class="count-up" data-target="53" data-display="53"><span class="counter-val">53</span></span></span>
+          <span class="stat-label">Five-Star Reviews</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number"><span class="count-up" data-target="2" data-display="2"><span class="counter-val">2</span></span></span>
+          <span class="stat-label">Active Programs</span>
+        </div>
+      </div>
+    </div>
 
 
     <!-- ==========================================================
@@ -1058,6 +1390,30 @@
 
       </div>
     </section>
+
+    <!-- ==========================================================
+         PHOTO STRIP — infinite scrolling marquee
+         ========================================================== -->
+    <div class="photo-strip" aria-hidden="true">
+      <div class="strip-track" id="stripTrack">
+        <!-- Original set -->
+        <img src="hero.jpg"      alt="" />
+        <img src="gymshark.jpg"  alt="" style="object-position: center top;" />
+        <img src="https://res.cloudinary.com/solin-fitness/image/upload/c_scale,w_400,q_auto,f_auto/1767043493395_assetName_wjecmf" alt="" />
+        <img src="dfyne.jpg"     alt="" />
+        <img src="https://res.cloudinary.com/solin-fitness/image/upload/c_fill,w_400,h_400,q_auto,f_auto/1767043219452_assetName_zkvtil" alt="" />
+        <img src="teveo.jpg"     alt="" />
+        <img src="cookbook.jpg"  alt="" />
+        <!-- Cloned set for seamless loop -->
+        <img src="hero.jpg"      alt="" />
+        <img src="gymshark.jpg"  alt="" style="object-position: center top;" />
+        <img src="https://res.cloudinary.com/solin-fitness/image/upload/c_scale,w_400,q_auto,f_auto/1767043493395_assetName_wjecmf" alt="" />
+        <img src="dfyne.jpg"     alt="" />
+        <img src="https://res.cloudinary.com/solin-fitness/image/upload/c_fill,w_400,h_400,q_auto,f_auto/1767043219452_assetName_zkvtil" alt="" />
+        <img src="teveo.jpg"     alt="" />
+        <img src="cookbook.jpg"  alt="" />
+      </div>
+    </div>
 
     <div class="divider" role="separator"></div>
 
@@ -1139,6 +1495,79 @@
            rel="noopener noreferrer">
           View all programs on Solin <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px"></i>
         </a>
+
+      </div>
+    </section>
+
+    <div class="divider" role="separator"></div>
+
+
+    <!-- ==========================================================
+         TESTIMONIALS
+         ========================================================== -->
+    <section id="testimonials" aria-labelledby="testimonials-heading">
+      <div class="inner">
+        <header class="fade-up" style="text-align:center; margin-bottom:40px">
+          <span class="section-label">Real Results</span>
+          <h2 class="section-title" id="testimonials-heading">What Members Are Saying</h2>
+        </header>
+        <div class="testimonial-grid stagger">
+
+          <div class="testimonial-card fade-up">
+            <span class="testimonial-open-quote">&ldquo;</span>
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-body">Reset &amp; Rebuild genuinely changed how I approach my fitness. I lost 8 lbs and feel stronger than ever. Mandi's energy makes you want to show up every single day.</p>
+            <p class="testimonial-attribution">— Sarah M. &nbsp;·&nbsp; Reset &amp; Rebuild</p>
+          </div>
+
+          <div class="testimonial-card fade-up">
+            <span class="testimonial-open-quote">&ldquo;</span>
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-body">Best $40 I've ever spent. The workouts are challenging but totally doable. I've done 3 rounds already and I keep coming back.</p>
+            <p class="testimonial-attribution">— Jessica R. &nbsp;·&nbsp; Reset &amp; Rebuild</p>
+          </div>
+
+          <div class="testimonial-card fade-up">
+            <span class="testimonial-open-quote">&ldquo;</span>
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-body">Lock In &amp; Level Up pushed me harder than I expected. I could see results by week 3. Already recommended it to 5 friends.</p>
+            <p class="testimonial-attribution">— Taylor K. &nbsp;·&nbsp; Lock In &amp; Level Up</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <div class="divider" role="separator"></div>
+
+
+    <!-- ==========================================================
+         WATCH — Latest YouTube video (auto-loaded)
+         ========================================================== -->
+    <section id="watch" aria-labelledby="watch-heading">
+      <div class="inner watch-wrap">
+
+        <div class="fade-up" style="margin-bottom:32px">
+          <span class="section-label">YouTube</span>
+          <h2 class="section-title" id="watch-heading">Watch My Latest</h2>
+        </div>
+
+        <div class="video-wrapper fade-up" id="videoWrapper">
+          <!-- Loading skeleton shown until RSS fetch resolves -->
+          <div class="video-loading" id="videoLoading">
+            <i class="fa-brands fa-youtube" style="font-size:36px"></i>
+          </div>
+          <!-- Poster (thumbnail + play button) — shown after fetch -->
+          <div class="video-poster" id="videoPoster" onclick="playVideo()" role="button" tabindex="0" aria-label="Play latest YouTube video">
+            <img id="videoThumb" src="" alt="Mandi Bagley latest YouTube video" />
+            <div class="video-play-btn" aria-hidden="true"><i class="fa-solid fa-play"></i></div>
+            <div class="video-title-bar" id="videoTitleBar"></div>
+          </div>
+        </div>
+
+        <p style="margin-top:18px; font-size:13px; color:var(--text-muted)">
+          <a href="https://youtube.com/@mandibagleyy" target="_blank" rel="noopener noreferrer" style="color:var(--rose); font-weight:600;">Subscribe on YouTube →</a>
+        </p>
 
       </div>
     </section>
@@ -1280,7 +1709,12 @@
             <span class="cs-badge">🔒 Coming Soon</span>
             <span class="cs-emoji" aria-hidden="true">🍳</span>
             <h3>Cookbook Coming Soon</h3>
-            <p class="cs-note">More drops coming — check back soon.</p>
+            <p class="cs-note">Be the first to know when it drops.</p>
+            <form class="notify-form" id="notifyForm" onsubmit="handleNotify(event)" aria-label="Email notification form">
+              <input type="email" placeholder="your@email.com" required aria-label="Email address" />
+              <button type="submit">Notify Me</button>
+            </form>
+            <p class="notify-confirm" id="notifyConfirm">You're on the list! 🍳</p>
           </div>
         </div>
 
@@ -1428,6 +1862,97 @@
     );
 
     document.querySelectorAll('.fade-up').forEach(el => fadeObserver.observe(el));
+
+
+    // ── Stats bar: count-up animation ────────────────────────────
+    // Animates numbers from 0 to target when the bar enters the viewport.
+    const statsBar = document.querySelector('.stats-bar');
+    let statsAnimated = false;
+
+    function animateCount(el, target, isDecimal) {
+      const duration = 1600;
+      const start = performance.now();
+      function step(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        // ease-out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const value = eased * target;
+        if (isDecimal) {
+          el.textContent = (value / 100).toFixed(2);
+        } else if (target >= 1000000) {
+          // Display as "1M" etc. — just snap to final label
+          el.textContent = target >= 1000000 ? Math.round(value / 1000000) + 'M' : Math.round(value).toLocaleString();
+        } else {
+          el.textContent = Math.round(value);
+        }
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    const statsObserver = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && !statsAnimated) {
+        statsAnimated = true;
+        document.querySelectorAll('.count-up').forEach(wrapper => {
+          const target  = parseInt(wrapper.dataset.target, 10);
+          const decimal = wrapper.dataset.decimal === 'true';
+          const valEl   = wrapper.querySelector('.counter-val');
+          animateCount(valEl, target, decimal);
+        });
+        statsObserver.disconnect();
+      }
+    }, { threshold: 0.3 });
+    if (statsBar) statsObserver.observe(statsBar);
+
+
+    // ── YouTube: auto-load latest video via RSS ───────────────────
+    const CHANNEL_ID = 'UCU_fb6omI8Ko6O8-65Aphhw';
+    let latestVideoId = null;
+
+    (async function fetchLatestVideo() {
+      try {
+        const rssUrl  = `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`;
+        const apiUrl  = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+        const res     = await fetch(apiUrl);
+        const data    = await res.json();
+        if (data.status === 'ok' && data.items && data.items.length > 0) {
+          const item  = data.items[0];
+          const match = item.link.match(/[?&]v=([^&]+)/);
+          latestVideoId = match ? match[1] : null;
+          if (latestVideoId) {
+            document.getElementById('videoThumb').src =
+              `https://img.youtube.com/vi/${latestVideoId}/hqdefault.jpg`;
+            document.getElementById('videoTitleBar').textContent = item.title;
+            document.getElementById('videoLoading').style.display  = 'none';
+            document.getElementById('videoPoster').style.display   = 'flex';
+          }
+        }
+      } catch (_) {
+        // On error: show a fallback link
+        const loader = document.getElementById('videoLoading');
+        if (loader) loader.innerHTML =
+          `<a href="https://youtube.com/@mandibagleyy" target="_blank" rel="noopener noreferrer"
+              class="btn-outline" style="position:relative;z-index:2">Watch on YouTube →</a>`;
+      }
+    })();
+
+    function playVideo() {
+      if (!latestVideoId) return;
+      const wrapper = document.getElementById('videoWrapper');
+      wrapper.innerHTML =
+        `<iframe src="https://www.youtube.com/embed/${latestVideoId}?autoplay=1"
+                 loading="lazy"
+                 allow="autoplay; encrypted-media; picture-in-picture"
+                 allowfullscreen></iframe>`;
+    }
+
+
+    // ── Cookbook notify form ──────────────────────────────────────
+    function handleNotify(e) {
+      e.preventDefault();
+      document.getElementById('notifyForm').style.display    = 'none';
+      document.getElementById('notifyConfirm').style.display = 'block';
+    }
 
 
     // ── Click-to-copy discount codes ─────────────────────────────

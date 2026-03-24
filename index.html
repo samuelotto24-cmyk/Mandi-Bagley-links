@@ -984,6 +984,57 @@
     }
 
     /* ============================================================
+       QUICK-LINKS BAR
+       ============================================================ */
+    .quick-links {
+      background: var(--cream);
+      padding: 16px var(--px) 22px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .quick-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 20px;
+      border: 1.5px solid var(--blush);
+      border-radius: var(--r-pill);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--espresso-mid);
+      background: var(--warm-white);
+      transition: background var(--ease), border-color var(--ease), color var(--ease), transform var(--ease);
+    }
+    .quick-link:hover {
+      background: var(--rose);
+      border-color: var(--rose);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+    .quick-link i { font-size: 12px; }
+
+    /* ============================================================
+       CONFETTI
+       ============================================================ */
+    @keyframes confetti-fall {
+      0%   { transform: translate(0,0) rotate(0deg); opacity: 1; }
+      100% { transform: translate(var(--cx), var(--cy)) rotate(var(--cr)); opacity: 0; }
+    }
+    .confetti-piece {
+      position: fixed;
+      width: 7px;
+      height: 7px;
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 9999;
+      animation: confetti-fall 0.9s ease-out forwards;
+    }
+
+    /* ============================================================
        PHOTO STRIP — edge-to-edge horizontal marquee
        ============================================================ */
     .photo-strip {
@@ -1416,6 +1467,16 @@
 
       </div><!-- /.hero-inner -->
     </section>
+
+    <!-- ==========================================================
+         QUICK-LINKS BAR
+         ========================================================== -->
+    <div class="quick-links" role="navigation" aria-label="Jump to section">
+      <a class="quick-link" href="#program"><i class="fa-solid fa-dumbbell"></i> My Programs</a>
+      <a class="quick-link" href="#partners"><i class="fa-solid fa-tag"></i> Discount Codes</a>
+      <a class="quick-link" href="#watch"><i class="fa-brands fa-youtube"></i> YouTube</a>
+      <a class="quick-link" href="#contact"><i class="fa-solid fa-envelope"></i> Contact</a>
+    </div>
 
     <!-- ==========================================================
          PHOTO STRIP — near top, right after hero
@@ -2026,12 +2087,35 @@
     }
 
 
+    // ── Confetti burst ────────────────────────────────────────────
+    function launchConfetti(btn) {
+      const colors = ['#B8546A','#FAF7F2','#EAD0C8','#503535','#F2D5DB'];
+      const rect = btn.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top  + rect.height / 2;
+      for (let i = 0; i < 28; i++) {
+        const el    = document.createElement('div');
+        el.className = 'confetti-piece';
+        el.style.background = colors[Math.floor(Math.random() * colors.length)];
+        el.style.left = cx + 'px';
+        el.style.top  = cy + 'px';
+        const angle = Math.random() * 360;
+        const dist  = 40 + Math.random() * 80;
+        el.style.setProperty('--cx', Math.cos(angle * Math.PI / 180) * dist + 'px');
+        el.style.setProperty('--cy', Math.sin(angle * Math.PI / 180) * dist + 'px');
+        el.style.setProperty('--cr', (Math.random() * 360) + 'deg');
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 950);
+      }
+    }
+
     // ── Click-to-copy discount codes ─────────────────────────────
     // Copies the code string to clipboard and shows "Copied!" for 1.5s.
     function copyCode(btn, code) {
       const originalHTML = btn.innerHTML;
 
       const showCopied = () => {
+        launchConfetti(btn);
         btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
         btn.classList.add('copied');
         btn.setAttribute('aria-label', `Code ${code} copied to clipboard`);

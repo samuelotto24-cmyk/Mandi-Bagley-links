@@ -532,7 +532,7 @@
 
     .program-price {
       font-family: var(--serif);
-      font-size: 44px;
+      font-size: clamp(48px, 7vw, 72px);
       font-weight: 600;
       color: var(--rose);
       margin-bottom: 6px;
@@ -694,19 +694,30 @@
       justify-content: center;
     }
 
+    /* Cookbook card — horizontal, photo left, text right */
     .coming-soon-card {
       position: relative;
+      background: var(--warm-white);
+      border: 1.5px solid var(--blush);
       border-radius: var(--r-md);
-      max-width: 500px;
+      max-width: 700px;
       width: 100%;
-      text-align: center;
       overflow: hidden;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow var(--ease), transform var(--ease);
+    }
+    .coming-soon-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
     }
 
     .coming-soon-photo {
-      width: 100%;
-      aspect-ratio: 4 / 3;
+      flex: 0 0 42%;
       overflow: hidden;
+      background: var(--blush-light);
     }
     .coming-soon-photo img {
       width: 100%;
@@ -718,50 +729,43 @@
     }
     .coming-soon-card:hover .coming-soon-photo img { transform: scale(1.03); }
 
-    /* Text overlaid on top of the photo */
     .coming-soon-body {
-      position: absolute;
-      inset: 0;
+      flex: 1;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
+      align-items: flex-start;
+      justify-content: center;
       padding: 32px 28px;
-      background: linear-gradient(to top, rgba(20,10,10,0.82) 50%, transparent 100%);
+      text-align: left;
+      gap: 10px;
     }
 
     .coming-soon-body h3 {
-      color: #fff;
-      font-size: clamp(26px, 4vw, 36px);
-      text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+      color: var(--espresso);
+      font-size: clamp(22px, 3vw, 32px);
     }
     .coming-soon-body .cs-note {
-      color: rgba(255,255,255,0.88);
+      color: var(--text-muted);
       font-size: 14px;
-      margin-top: 8px;
-      text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+      margin-top: 4px;
     }
-    .coming-soon-body .cs-emoji {
-      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+
+    @media (max-width: 580px) {
+      .coming-soon-card { flex-direction: column; }
+      .coming-soon-photo { flex: none; height: 240px; }
     }
 
     .cs-badge {
-      position: absolute;
-      top: 16px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(43,26,26,0.75);
+      display: inline-block;
+      background: var(--espresso);
       color: #fff;
       font-size: 10px;
       font-weight: 700;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      padding: 5px 18px;
+      padding: 5px 14px;
       border-radius: var(--r-pill);
       white-space: nowrap;
-      z-index: 2;
-      backdrop-filter: blur(4px);
-      text-shadow: 0 1px 4px rgba(0,0,0,0.4);
     }
 
     .cs-emoji {
@@ -1237,11 +1241,11 @@
       <div class="inner coming-soon-wrap">
 
         <div class="coming-soon-card fade-up">
-          <span class="cs-badge">🔒 Coming Soon</span>
           <div class="coming-soon-photo">
             <img src="cookbook.jpg" alt="Mandi Bagley in the kitchen" loading="lazy" />
           </div>
           <div class="coming-soon-body">
+            <span class="cs-badge">🔒 Coming Soon</span>
             <span class="cs-emoji" aria-hidden="true">🍳</span>
             <h3>Cookbook Coming Soon</h3>
             <p class="cs-note">More drops coming — check back soon.</p>

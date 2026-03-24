@@ -1266,6 +1266,68 @@
     @media (min-width: 661px) {
       .nav-drawer { display: none !important; }
     }
+
+    /* ============================================================
+       MOBILE COMPACT — tighter layout on phones, desktop unchanged
+       ============================================================ */
+    @media (max-width: 660px) {
+
+      /* Reduce section vertical padding across the board */
+      section, .photo-strip {
+        padding-top:    clamp(28px, 6vw, 44px);
+        padding-bottom: clamp(28px, 6vw, 44px);
+      }
+
+      /* Hero: smaller photo, tighter gaps */
+      #hero {
+        padding-top: calc(var(--nav-h) + 24px);
+        padding-bottom: 28px;
+      }
+      .hero-inner   { gap: 20px; }
+      .hero-photo   { max-width: 200px; aspect-ratio: 1/1; }
+      .hero-name    { font-size: clamp(38px, 11vw, 52px); }
+      .hero-tagline { font-size: 14px; }
+      .follow-row   { gap: 7px; }
+      .follow-btn   { font-size: 12px; padding: 7px 13px; }
+
+      /* Section titles + labels tighter */
+      .section-title  { font-size: clamp(26px, 7vw, 36px); margin-bottom: 6px; }
+      .section-sub    { font-size: 13px; margin-bottom: 28px; }
+      .section-label  { margin-bottom: 6px; }
+
+      /* Intro row: stack but keep stats card compact */
+      .intro-row  { gap: 20px; }
+      .stats-card { padding: 18px 16px; gap: 14px; }
+      .stat-number { font-size: clamp(26px, 7vw, 36px); }
+      .stat-label  { font-size: 9px; }
+
+      /* Photo strip shorter on mobile */
+      .strip-track img { height: 160px; }
+
+      /* Program cards: smaller padding, tighter text */
+      .program-body { padding: 14px 14px; }
+      .program-grid { gap: 14px; margin-bottom: 20px; }
+      .program-badge { margin-bottom: 10px; }
+      .program-card p { margin-bottom: 10px; }
+
+      /* Brand cards: tighter */
+      .brand-card { padding: 18px 16px; gap: 10px; }
+      .brand-grid { gap: 12px; }
+
+      /* Testimonials strip: slightly narrower cards */
+      .testimonial-card { flex: 0 0 260px; min-width: 220px; padding: 14px 16px; }
+
+      /* Cookbook card */
+      .coming-soon-body { padding: 22px 18px; gap: 8px; }
+      .cs-emoji { font-size: 36px; margin-bottom: 8px; }
+
+      /* Support buttons */
+      .support-buttons { gap: 9px; }
+      .support-btn { font-size: 13px; padding: 11px 18px; }
+
+      /* Footer */
+      footer { padding: 32px var(--px); }
+    }
   </style>
 </head>
 <body>

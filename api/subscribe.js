@@ -1,6 +1,6 @@
 export const config = { runtime: 'edge' };
 
-const BEEHIIV_API_KEY = 'zleaioJ44jL2oOcaQjZCjLmo6ONXS04ck7pZsZp2Bo6CqKxHt30DqAVBVJOywrfd';
+const BEEHIIV_API_KEY = process.env.BEEHIIV_API_KEY;
 const PUBLICATION_ID  = 'pub_13341f5c-e6d3-411a-b7cc-e8d2916cebd5';
 
 export default async function handler(req) {

@@ -2760,6 +2760,51 @@
     }, 9000);
   </script>
 
+  <!-- Analytics tracking -->
+  <script>
+    // Pageview
+    (function () {
+      fetch('/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'pageview', referrer: document.referrer }),
+        keepalive: true,
+      }).catch(() => {});
+    })();
+
+    // Click tracking via event delegation
+    document.addEventListener('click', function (e) {
+      const a = e.target.closest('a[href]');
+      if (!a) return;
+      const href = a.href || '';
+      let name = null;
+
+      if (href.includes('tiktok.com') && href.includes('mandipandeee')) name = 'tiktok';
+      else if (href.includes('instagram.com/mandi.bagley'))             name = 'instagram_main';
+      else if (href.includes('instagram.com/manditory_munchies'))       name = 'instagram_munchies';
+      else if (href.includes('youtube.com'))                            name = 'youtube';
+      else if (href.includes('snapchat.com'))                           name = 'snapchat';
+      else if (href.includes('solin.stream') && href.includes('program/')) name = 'solin_program';
+      else if (href.includes('solin.stream'))                           name = 'solin';
+      else if (href.includes('gymshark.com'))                           name = 'gymshark';
+      else if (href.includes('ghostlifestyle.com'))                     name = 'ghost_lifestyle';
+      else if (href.includes('dfyne.com'))                              name = 'dfyne';
+      else if (href.includes('teveo.com'))                              name = 'teveo';
+      else if (href.includes('venmo.com'))                              name = 'venmo';
+      else if (href.includes('paypal.me'))                              name = 'paypal';
+      else if (href.includes('amazon.com/hz/wishlist'))                 name = 'amazon_wishlist';
+      else if (href.includes('mailto:'))                                name = 'email';
+
+      if (!name) return;
+      fetch('/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'click', link: name }),
+        keepalive: true,
+      }).catch(() => {});
+    });
+  </script>
+
   <!-- Snap Me floating widget -->
   <a class="snap-float"
      href="https://snapchat.com/t/TC1TuvC1"

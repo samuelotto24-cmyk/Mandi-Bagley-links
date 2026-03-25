@@ -2,7 +2,7 @@ export const config = { runtime: 'edge' };
 
 const REDIS_URL   = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
-const PASSWORD    = process.env.DASHBOARD_PASSWORD || 'Mandi2024';
+const PASSWORD    = process.env.DASHBOARD_PASSWORD;
 
 async function redis(commands) {
   const res = await fetch(`${REDIS_URL}/pipeline`, {

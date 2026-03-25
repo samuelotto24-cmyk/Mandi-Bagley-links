@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <style>
@@ -22,7 +23,8 @@
       --muted:      #8B7B74;
       --border:     #E8DDD7;
       --card:       #FFFFFF;
-      --shadow:     0 1px 3px rgba(45,24,16,0.05), 0 4px 20px rgba(45,24,16,0.04);
+      --shadow:     0 1px 3px rgba(45,24,16,0.05), 0 4px 20px rgba(45,24,16,0.06);
+      --shadow-hover: 0 4px 8px rgba(45,24,16,0.08), 0 12px 32px rgba(45,24,16,0.10);
       --radius:     14px;
     }
 
@@ -30,7 +32,7 @@
 
     body {
       font-family: 'DM Sans', sans-serif;
-      background: var(--cream);
+      background: linear-gradient(160deg, #F5EBE6 0%, #FAF7F2 30%, #FAF7F2 100%);
       color: var(--espresso);
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
@@ -43,31 +45,32 @@
       justify-content: center;
       min-height: 100vh;
       padding: 24px;
+      background: radial-gradient(ellipse at 50% 30%, #F0E0D8 0%, #FAF7F2 70%);
     }
 
     .login-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 52px 44px;
+      padding: 56px 48px;
       width: 100%;
-      max-width: 380px;
+      max-width: 400px;
       box-shadow: var(--shadow);
       text-align: center;
     }
 
     .login-ornament {
       display: block;
-      width: 36px;
+      width: 40px;
       height: 1px;
       background: var(--rose);
-      margin: 0 auto 22px;
+      margin: 0 auto 24px;
     }
 
     .login-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 34px;
-      font-weight: 500;
+      font-size: 38px;
+      font-weight: 400;
       color: var(--espresso);
       letter-spacing: 0.02em;
       margin-bottom: 4px;
@@ -75,7 +78,7 @@
 
     .login-sub {
       font-size: 11px;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--muted);
       margin-bottom: 36px;
@@ -126,44 +129,67 @@
     /* ── Dashboard ─────────────────────────────── */
     #dashboard { display: none; }
 
+    /* Dark editorial header — full width */
+    .dash-header-bar {
+      background: #1A0F0B;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+    .dash-header-bar::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 100% 0%, rgba(183,110,121,0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .dash-header-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+    }
+    .dash-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 400;
+      color: var(--cream);
+      letter-spacing: 0.03em;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .dash-brand-line {
+      width: 40px;
+      height: 1px;
+      background: #B76E79;
+      margin-bottom: 8px;
+    }
+    .dash-brand-sub {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #8B7B74;
+    }
+    .dash-updated {
+      font-size: 12px;
+      color: rgba(250,247,242,0.45);
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* Content wrapper */
     .dash-wrap {
       max-width: 1180px;
       margin: 0 auto;
-      padding: 44px 28px 60px;
+      padding: 36px 28px 60px;
     }
 
-    /* Header */
-    .dash-header {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      margin-bottom: 36px;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-
-    .dash-brand {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 30px;
-      font-weight: 500;
-      letter-spacing: 0.03em;
-    }
-
-    .dash-brand-sub {
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-top: 3px;
-    }
-
-    .dash-updated {
-      font-size: 12px;
-      color: var(--muted);
-      text-align: right;
-    }
-
-    /* Summary cards */
+    /* ── Summary cards ──────────────────────────── */
     .summary-row {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -174,9 +200,22 @@
     .s-card {
       background: var(--card);
       border: 1px solid var(--border);
+      border-bottom: 2px solid var(--rose);
       border-radius: var(--radius);
-      padding: 22px 24px;
+      padding: 24px 24px 20px;
       box-shadow: var(--shadow);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    .s-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.45s ease, transform 0.45s ease, box-shadow 0.25s ease;
+    }
+    .s-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
     }
 
     .s-label {
@@ -189,8 +228,8 @@
 
     .s-value {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 40px;
-      font-weight: 500;
+      font-size: 44px;
+      font-weight: 400;
       line-height: 1;
       color: var(--espresso);
     }
@@ -199,7 +238,10 @@
       font-size: 20px;
       padding-top: 6px;
       line-height: 1.2;
+      opacity: 0;
+      transition: opacity 0.5s ease;
     }
+    .s-value.s-text.fade-in { opacity: 1; }
 
     .s-note {
       font-size: 11px;
@@ -207,7 +249,7 @@
       margin-top: 6px;
     }
 
-    /* Chart cards */
+    /* ── Chart cards ─────────────────────────────── */
     .chart-card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -215,15 +257,32 @@
       padding: 26px 28px;
       box-shadow: var(--shadow);
     }
-
     .chart-card + .chart-card { margin-top: 14px; }
 
+    .card-title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 22px;
+      gap: 12px;
+    }
     .card-title {
       font-family: 'Cormorant Garamond', serif;
       font-size: 20px;
       font-weight: 500;
       color: var(--espresso);
-      margin-bottom: 22px;
+    }
+    .card-title-badge {
+      font-size: 11px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      color: var(--rose);
+      background: rgba(183,110,121,0.1);
+      border: 1px solid rgba(183,110,121,0.2);
+      border-radius: 20px;
+      padding: 3px 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .two-col {
@@ -233,9 +292,9 @@
       margin-top: 14px;
     }
 
-    .chart-wrap { position: relative; height: 210px; }
+    .chart-wrap { position: relative; height: 220px; }
 
-    /* Bar list */
+    /* ── Bar lists ───────────────────────────────── */
     .bar-list { display: flex; flex-direction: column; gap: 11px; }
 
     .bar-row {
@@ -277,6 +336,117 @@
       flex-shrink: 0;
     }
 
+    /* ── Click rows with platform icons ────────────── */
+    .click-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .platform-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ── Doughnut chart section ─────────────────── */
+    .donut-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .donut-canvas-wrap {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      flex-shrink: 0;
+    }
+    .donut-center-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .donut-center-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--espresso);
+      line-height: 1;
+    }
+    .donut-center-label {
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .donut-legend {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 14px;
+    }
+    .donut-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+    }
+    .donut-legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .donut-legend-name {
+      font-size: 12px;
+      color: var(--espresso);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+    .donut-legend-count {
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: auto;
+      flex-shrink: 0;
+      padding-left: 4px;
+    }
+
+    /* ── Skeleton loading ───────────────────────── */
+    @keyframes shimmer {
+      0%   { background-position: -600px 0; }
+      100% { background-position: 600px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #f0e8e3 25%, #faf7f2 50%, #f0e8e3 75%);
+      background-size: 600px 100%;
+      animation: shimmer 1.6s infinite linear;
+      border-radius: 6px;
+    }
+    .skeleton-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .skel-label { height: 10px; width: 60%; margin-bottom: 14px; }
+    .skel-value { height: 44px; width: 55%; margin-bottom: 10px; }
+    .skel-note  { height: 10px; width: 40%; }
+    .skel-chart { height: 220px; width: 100%; }
+    .skel-bar   { height: 14px; width: 100%; margin-bottom: 11px; }
+
+    /* ── Empty state ────────────────────────────── */
     .empty-state {
       text-align: center;
       color: var(--muted);
@@ -285,25 +455,35 @@
       font-style: italic;
     }
 
-    /* Footer */
+    /* ── Footer ─────────────────────────────────── */
     .dash-footer {
       margin-top: 48px;
       text-align: center;
       font-size: 10px;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--blush);
+      color: var(--muted);
+    }
+    .footer-ornament {
+      display: inline-block;
+      width: 24px;
+      height: 1px;
+      background: var(--rose);
+      vertical-align: middle;
+      margin: 0 12px;
     }
 
-    /* Responsive */
+    /* ── Responsive ─────────────────────────────── */
     @media (max-width: 800px) {
       .summary-row { grid-template-columns: 1fr 1fr; }
       .two-col { grid-template-columns: 1fr; }
+      .dash-header-inner { padding: 28px 24px; }
     }
     @media (max-width: 480px) {
       .summary-row { grid-template-columns: 1fr; }
-      .dash-wrap { padding: 28px 16px 48px; }
+      .dash-wrap { padding: 24px 16px 48px; }
       .login-card { padding: 40px 28px; }
+      .dash-brand { font-size: 28px; }
     }
   </style>
 </head>
@@ -323,90 +503,133 @@
 
 <!-- ── Dashboard ──────────────────────────────── -->
 <div id="dashboard">
-  <div class="dash-wrap">
 
-    <div class="dash-header">
+  <!-- Dark editorial header — full width -->
+  <div class="dash-header-bar">
+    <div class="dash-header-inner">
       <div>
         <div class="dash-brand">Mandi Bagley</div>
+        <div class="dash-brand-line"></div>
         <div class="dash-brand-sub">Analytics Dashboard</div>
       </div>
       <div class="dash-updated" id="updatedAt"></div>
     </div>
-
-    <!-- Summary cards -->
-    <div class="summary-row">
-      <div class="s-card">
-        <div class="s-label">Pageviews (30 days)</div>
-        <div class="s-value" id="total30">—</div>
-        <div class="s-note">total visits</div>
-      </div>
-      <div class="s-card">
-        <div class="s-label">Today</div>
-        <div class="s-value" id="today">—</div>
-        <div class="s-note">visits today</div>
-      </div>
-      <div class="s-card">
-        <div class="s-label">Top Source</div>
-        <div class="s-value s-text" id="topSource">—</div>
-        <div class="s-note" id="topSourceNote">—</div>
-      </div>
-      <div class="s-card">
-        <div class="s-label">Top Country</div>
-        <div class="s-value s-text" id="topCountry">—</div>
-        <div class="s-note" id="topCountryNote">—</div>
-      </div>
-    </div>
-
-    <!-- Pageviews chart -->
-    <div class="chart-card">
-      <div class="card-title">Pageviews — Last 30 Days</div>
-      <div class="chart-wrap">
-        <canvas id="pvChart"></canvas>
-      </div>
-    </div>
-
-    <!-- Sources + Countries -->
-    <div class="two-col">
-      <div class="chart-card">
-        <div class="card-title">Traffic Sources</div>
-        <div id="sourcesList"></div>
-      </div>
-      <div class="chart-card">
-        <div class="card-title">Countries</div>
-        <div id="countriesList"></div>
-      </div>
-    </div>
-
-    <!-- Link clicks -->
-    <div class="chart-card" style="margin-top:14px">
-      <div class="card-title">Link Clicks</div>
-      <div id="clicksList"></div>
-    </div>
-
-    <div class="dash-footer">Mandi Bagley &nbsp;·&nbsp; Site Analytics</div>
-
   </div>
-</div>
+
+  <div class="dash-wrap">
+
+    <!-- Skeleton shown while first paint occurs -->
+    <div id="skeletonUI">
+      <div class="summary-row" style="margin-bottom:18px">
+        <div class="skeleton-card"><div class="skeleton skel-label"></div><div class="skeleton skel-value"></div><div class="skeleton skel-note"></div></div>
+        <div class="skeleton-card"><div class="skeleton skel-label"></div><div class="skeleton skel-value"></div><div class="skeleton skel-note"></div></div>
+        <div class="skeleton-card"><div class="skeleton skel-label"></div><div class="skeleton skel-value"></div><div class="skeleton skel-note"></div></div>
+        <div class="skeleton-card"><div class="skeleton skel-label"></div><div class="skeleton skel-value"></div><div class="skeleton skel-note"></div></div>
+      </div>
+      <div class="chart-card" style="margin-bottom:14px"><div class="skeleton skel-chart"></div></div>
+      <div class="two-col">
+        <div class="chart-card"><div class="skeleton skel-bar"></div><div class="skeleton skel-bar"></div><div class="skeleton skel-bar"></div><div class="skeleton skel-bar" style="width:70%"></div><div class="skeleton skel-bar" style="width:50%"></div></div>
+        <div class="chart-card"><div class="skeleton skel-bar"></div><div class="skeleton skel-bar"></div><div class="skeleton skel-bar"></div><div class="skeleton skel-bar" style="width:70%"></div><div class="skeleton skel-bar" style="width:50%"></div></div>
+      </div>
+    </div>
+
+    <!-- Real content, hidden until data loads -->
+    <div id="realContent" style="display:none">
+
+      <!-- Summary cards -->
+      <div class="summary-row" id="summaryRow">
+        <div class="s-card" id="card0">
+          <div class="s-label">Pageviews (30 days)</div>
+          <div class="s-value" id="total30">—</div>
+          <div class="s-note">total visits</div>
+        </div>
+        <div class="s-card" id="card1">
+          <div class="s-label">Today</div>
+          <div class="s-value" id="today">—</div>
+          <div class="s-note">visits today</div>
+        </div>
+        <div class="s-card" id="card2">
+          <div class="s-label">Top Source</div>
+          <div class="s-value s-text" id="topSource">—</div>
+          <div class="s-note" id="topSourceNote">—</div>
+        </div>
+        <div class="s-card" id="card3">
+          <div class="s-label">Top Country</div>
+          <div class="s-value s-text" id="topCountry">—</div>
+          <div class="s-note" id="topCountryNote">—</div>
+        </div>
+      </div>
+
+      <!-- Pageviews chart -->
+      <div class="chart-card">
+        <div class="card-title-row">
+          <div class="card-title">Pageviews — Last 30 Days</div>
+          <div class="card-title-badge" id="pvTotalBadge"></div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="pvChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Sources + Countries -->
+      <div class="two-col">
+        <div class="chart-card">
+          <div class="card-title-row">
+            <div class="card-title">Traffic Sources</div>
+          </div>
+          <div id="sourcesList"></div>
+        </div>
+        <div class="chart-card">
+          <div class="card-title-row">
+            <div class="card-title">Countries</div>
+          </div>
+          <div id="countriesList"></div>
+        </div>
+      </div>
+
+      <!-- Link clicks -->
+      <div class="chart-card" style="margin-top:14px">
+        <div class="card-title-row">
+          <div class="card-title">Link Clicks</div>
+        </div>
+        <div id="clicksList"></div>
+      </div>
+
+      <div class="dash-footer">
+        <span class="footer-ornament"></span>
+        MANDI BAGLEY · ANALYTICS
+        <span class="footer-ornament"></span>
+      </div>
+
+    </div><!-- /realContent -->
+  </div><!-- /dash-wrap -->
+</div><!-- /dashboard -->
 
 <script>
-  const CLICK_LABELS = {
-    tiktok:               'TikTok',
-    instagram_main:       'Instagram',
-    instagram_munchies:   'Instagram (Munchies)',
-    youtube:              'YouTube',
-    snapchat:             'Snapchat',
-    solin_program:        'Program — Join Now',
-    solin:                'Program — Browse',
-    gymshark:             'Gymshark',
-    ghost_lifestyle:      'Ghost Lifestyle',
-    dfyne:                'Dfyne',
-    teveo:                'Teveo',
-    venmo:                'Venmo',
-    paypal:               'PayPal',
-    amazon_wishlist:      'Amazon Wishlist',
-    email:                'Email',
+  /* ── Platform metadata ──────────────────────── */
+  const CLICK_META = {
+    tiktok:             { label: 'TikTok',              icon: 'fa-brands fa-tiktok',    color: '#010101' },
+    instagram_main:     { label: 'Instagram',            icon: 'fa-brands fa-instagram', color: '#E1306C' },
+    instagram_munchies: { label: 'Instagram (Munchies)', icon: 'fa-brands fa-instagram', color: '#C13584' },
+    youtube:            { label: 'YouTube',              icon: 'fa-brands fa-youtube',   color: '#FF0000' },
+    snapchat:           { label: 'Snapchat',             icon: 'fa-brands fa-snapchat',  color: '#FFFC00', iconColor: '#000' },
+    solin_program:      { label: 'Program — Join Now',   icon: 'fa-solid fa-dumbbell',   color: '#B76E79' },
+    solin:              { label: 'Program — Browse',     icon: 'fa-solid fa-dumbbell',   color: '#C9888F' },
+    gymshark:           { label: 'Gymshark',             icon: 'fa-solid fa-tag',        color: '#00A550' },
+    ghost_lifestyle:    { label: 'Ghost Lifestyle',      icon: 'fa-solid fa-ghost',      color: '#333333' },
+    dfyne:              { label: 'Dfyne',                icon: 'fa-solid fa-tag',        color: '#1A1A2E' },
+    teveo:              { label: 'Teveo',                icon: 'fa-solid fa-tag',        color: '#6B4FBB' },
+    venmo:              { label: 'Venmo',                icon: 'fa-solid fa-heart',      color: '#008CFF' },
+    paypal:             { label: 'PayPal',               icon: 'fa-brands fa-paypal',    color: '#003087' },
+    amazon_wishlist:    { label: 'Amazon Wishlist',      icon: 'fa-brands fa-amazon',    color: '#FF9900' },
+    email:              { label: 'Email',                icon: 'fa-solid fa-envelope',   color: '#B76E79' },
   };
 
+  /* Fallback label map (legacy) */
+  const CLICK_LABELS = {};
+  Object.entries(CLICK_META).forEach(([k, v]) => { CLICK_LABELS[k] = v.label; });
+
+  /* ── Helpers ──────────────────────────────────── */
   const countryNames = new Intl.DisplayNames(['en'], { type: 'region' });
 
   function getCountryName(code) {
@@ -415,7 +638,32 @@
 
   function fmt(n) { return Number(n).toLocaleString(); }
 
-  // ── Auth ────────────────────────────────────
+  function countryFlag(code) {
+    if (!code || code.length !== 2) return '';
+    const offset = 0x1F1E6 - 65;
+    return String.fromCodePoint(code.charCodeAt(0) + offset) +
+           String.fromCodePoint(code.charCodeAt(1) + offset) + ' ';
+  }
+
+  function topEntry(obj) {
+    const entries = Object.entries(obj);
+    if (!entries.length) return null;
+    return entries.sort((a, b) => b[1] - a[1])[0];
+  }
+
+  /* ── Animated counter ─────────────────────────── */
+  function animateCount(el, target, duration = 1400) {
+    const startTime = performance.now();
+    const update = (now) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 4); // ease out quart
+      el.textContent = Math.round(ease * target).toLocaleString();
+      if (progress < 1) requestAnimationFrame(update);
+    };
+    requestAnimationFrame(update);
+  }
+
+  /* ── Auth ────────────────────────────────────── */
   document.getElementById('pwInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') login();
   });
@@ -431,61 +679,97 @@
   const stored = sessionStorage.getItem('mb_pw');
   if (stored) loadData(stored);
 
-  // ── Data ────────────────────────────────────
+  /* ── Data loading ────────────────────────────── */
   async function loadData(pw) {
+    // Show dashboard shell with skeleton
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+
     try {
       const res = await fetch(`/api/stats?password=${encodeURIComponent(pw)}`);
       if (res.status === 401) {
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('dashboard').style.display = 'none';
         document.getElementById('loginError').style.display = 'block';
         sessionStorage.removeItem('mb_pw');
         return;
       }
       const data = await res.json();
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block';
+      // Swap skeleton → real content
+      document.getElementById('skeletonUI').style.display = 'none';
+      document.getElementById('realContent').style.display = 'block';
       render(data);
     } catch {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('dashboard').style.display = 'none';
       document.getElementById('loginError').textContent = 'Could not connect. Please try again.';
       document.getElementById('loginError').style.display = 'block';
     }
   }
 
-  // ── Render ──────────────────────────────────
+  /* ── Render ───────────────────────────────────── */
   function render(data) {
     const todayKey = new Date().toISOString().split('T')[0];
 
-    // Last 30 days
+    // Build 30-day window
     const days = [];
     for (let i = 29; i >= 0; i--) {
       const d = new Date(); d.setDate(d.getDate() - i);
       days.push(d.toISOString().split('T')[0]);
     }
 
-    const pv      = data.pageviews  || {};
-    const refs    = data.referrers  || {};
-    const ctries  = data.countries  || {};
-    const clicks  = data.clicks     || {};
+    const pv     = data.pageviews  || {};
+    const refs   = data.referrers  || {};
+    const ctries = data.countries  || {};
+    const clicks = data.clicks     || {};
 
-    const pvByDay   = days.map(d => pv[d] || 0);
-    const total30   = pvByDay.reduce((a, b) => a + b, 0);
-    const todayPv   = pv[todayKey] || 0;
+    const pvByDay = days.map(d => pv[d] || 0);
+    const total30 = pvByDay.reduce((a, b) => a + b, 0);
+    const todayPv = pv[todayKey] || 0;
 
-    // Summary cards
-    document.getElementById('total30').textContent = fmt(total30);
-    document.getElementById('today').textContent   = fmt(todayPv);
+    /* Updated timestamp */
     document.getElementById('updatedAt').textContent =
       'Last updated ' + new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
+    /* Summary cards — stagger entrance then animate numbers */
+    [0, 1, 2, 3].forEach((i) => {
+      const card = document.getElementById('card' + i);
+      setTimeout(() => {
+        card.classList.add('visible');
+      }, 80 + i * 100);
+    });
+
+    // Numeric cards
+    setTimeout(() => animateCount(document.getElementById('total30'), total30), 200);
+    setTimeout(() => animateCount(document.getElementById('today'), todayPv), 300);
+
+    // Text cards — fade in
     const topRef = topEntry(refs);
-    document.getElementById('topSource').textContent     = topRef ? topRef[0] : '—';
-    document.getElementById('topSourceNote').textContent = topRef ? fmt(topRef[1]) + ' visits' : 'no data yet';
+    const topC   = topEntry(ctries);
 
-    const topC = topEntry(ctries);
-    document.getElementById('topCountry').textContent     = topC ? getCountryName(topC[0]) : '—';
-    document.getElementById('topCountryNote').textContent = topC ? fmt(topC[1]) + ' visits' : 'no data yet';
+    setTimeout(() => {
+      const el = document.getElementById('topSource');
+      el.textContent = topRef ? topRef[0] : '—';
+      el.classList.add('fade-in');
+      document.getElementById('topSourceNote').textContent = topRef ? fmt(topRef[1]) + ' visits' : 'no data yet';
+    }, 400);
 
-    // Pageviews chart
+    setTimeout(() => {
+      const el = document.getElementById('topCountry');
+      el.textContent = topC ? getCountryName(topC[0]) : '—';
+      el.classList.add('fade-in');
+      document.getElementById('topCountryNote').textContent = topC ? fmt(topC[1]) + ' visits' : 'no data yet';
+    }, 500);
+
+    /* Total badge on chart */
+    document.getElementById('pvTotalBadge').textContent = fmt(total30) + ' total views';
+
+    /* Pageviews line chart with gradient fill */
     const pvCtx = document.getElementById('pvChart').getContext('2d');
+    const grad = pvCtx.createLinearGradient(0, 0, 0, 220);
+    grad.addColorStop(0, 'rgba(183,110,121,0.25)');
+    grad.addColorStop(1, 'rgba(183,110,121,0)');
+
     new Chart(pvCtx, {
       type: 'line',
       data: {
@@ -496,7 +780,7 @@
         datasets: [{
           data: pvByDay,
           borderColor: '#B76E79',
-          backgroundColor: 'rgba(183,110,121,0.07)',
+          backgroundColor: grad,
           borderWidth: 2,
           fill: true,
           tension: 0.4,
@@ -546,30 +830,159 @@
       },
     });
 
-    // Sources
-    renderBarList('sourcesList', refs, 8);
+    /* Traffic sources — doughnut chart */
+    renderDoughnut('sourcesList', refs, 8);
 
-    // Countries
-    const ctryFormatted = {};
-    Object.entries(ctries).forEach(([code, n]) => {
-      ctryFormatted[getCountryName(code)] = n;
-    });
-    renderBarList('countriesList', ctryFormatted, 8);
+    /* Countries — bar list with flags */
+    const ctryEntries = Object.entries(ctries)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8);
+    renderFlagBarList('countriesList', ctries, ctryEntries);
 
-    // Clicks
-    const clicksFormatted = {};
-    Object.entries(clicks).forEach(([k, v]) => {
-      clicksFormatted[CLICK_LABELS[k] || k] = v;
-    });
-    renderBarList('clicksList', clicksFormatted, 15);
+    /* Link clicks — enhanced rows with icons */
+    renderClickList('clicksList', clicks, 15);
   }
 
-  function topEntry(obj) {
-    const entries = Object.entries(obj);
-    if (!entries.length) return null;
-    return entries.sort((a, b) => b[1] - a[1])[0];
+  /* ── Doughnut for sources ───────────────────── */
+  const DONUT_COLORS = ['#B76E79','#C9888F','#D9A5A9','#8B5E65','#E8C4C7','#6B4449','#F0D8D9','#4A2D30'];
+
+  function renderDoughnut(id, data, limit) {
+    const el = document.getElementById(id);
+    const sorted = Object.entries(data).sort((a, b) => b[1] - a[1]).slice(0, limit);
+    if (!sorted.length) {
+      el.innerHTML = '<div class="empty-state">No data yet — check back soon.</div>';
+      return;
+    }
+    const total = sorted.reduce((s, [, v]) => s + v, 0);
+
+    el.innerHTML = `
+      <div class="donut-wrap">
+        <div class="donut-canvas-wrap">
+          <canvas id="donutCanvas" width="180" height="180"></canvas>
+          <div class="donut-center-text">
+            <div class="donut-center-num" id="donutTotal">${fmt(total)}</div>
+            <div class="donut-center-label">visits</div>
+          </div>
+        </div>
+        <div class="donut-legend" id="donutLegend"></div>
+      </div>`;
+
+    const ctx = document.getElementById('donutCanvas').getContext('2d');
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: sorted.map(([name]) => name),
+        datasets: [{
+          data: sorted.map(([, v]) => v),
+          backgroundColor: sorted.map((_, i) => DONUT_COLORS[i % DONUT_COLORS.length]),
+          borderWidth: 0,
+          hoverOffset: 4,
+        }],
+      },
+      options: {
+        cutout: '65%',
+        responsive: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#2D1810',
+            titleFont: { family: 'DM Sans', size: 11 },
+            bodyFont: { family: 'DM Sans', size: 12 },
+            padding: 8,
+            callbacks: {
+              label: ctx => ` ${fmt(ctx.parsed)} visits`,
+            },
+          },
+        },
+      },
+    });
+
+    const legend = document.getElementById('donutLegend');
+    legend.innerHTML = sorted.map(([name, count], i) => `
+      <div class="donut-legend-item" title="${name}: ${fmt(count)}">
+        <div class="donut-legend-dot" style="background:${DONUT_COLORS[i % DONUT_COLORS.length]}"></div>
+        <div class="donut-legend-name">${name}</div>
+        <div class="donut-legend-count">${fmt(count)}</div>
+      </div>`).join('');
   }
 
+  /* ── Countries bar list with flags ────────────── */
+  function renderFlagBarList(id, data, entries) {
+    const el = document.getElementById(id);
+    if (!entries.length) {
+      el.innerHTML = '<div class="empty-state">No data yet — check back soon.</div>';
+      return;
+    }
+    const max = entries[0][1];
+    const pct = (v) => Math.round((v / max) * 100);
+
+    const rows = entries.map(([code, count], idx) => {
+      const name = getCountryName(code);
+      const flag = countryFlag(code);
+      const w = pct(count);
+      return `
+        <div class="bar-row">
+          <div class="bar-name" title="${flag}${name}">${flag}${name}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:0%" data-w="${w}"></div>
+          </div>
+          <div class="bar-count">${fmt(count)}</div>
+        </div>`;
+    });
+
+    el.innerHTML = `<div class="bar-list">${rows.join('')}</div>`;
+    animateBars(el);
+  }
+
+  /* ── Click list with platform icons ───────────── */
+  function renderClickList(id, clicks, limit) {
+    const el = document.getElementById(id);
+    const sorted = Object.entries(clicks).sort((a, b) => b[1] - a[1]).slice(0, limit);
+    if (!sorted.length) {
+      el.innerHTML = '<div class="empty-state">No data yet — check back soon.</div>';
+      return;
+    }
+    const max = sorted[0][1];
+
+    const rows = sorted.map(([key, count], idx) => {
+      const meta  = CLICK_META[key];
+      const label = meta ? meta.label : (CLICK_LABELS[key] || key);
+      const w     = Math.round((count / max) * 100);
+
+      if (meta) {
+        const bgColor   = meta.color;
+        const iconColor = meta.iconColor || meta.color;
+        return `
+          <div class="click-row">
+            <div class="platform-icon" style="background:${hexToRgba(bgColor, 0.12)}">
+              <i class="${meta.icon}" style="color:${iconColor}; font-size:11px"></i>
+            </div>
+            <div class="bar-name" title="${label}">${label}</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:0%" data-w="${w}"></div>
+            </div>
+            <div class="bar-count">${fmt(count)}</div>
+          </div>`;
+      } else {
+        return `
+          <div class="click-row">
+            <div class="platform-icon" style="background:rgba(183,110,121,0.12)">
+              <i class="fa-solid fa-link" style="color:#B76E79; font-size:11px"></i>
+            </div>
+            <div class="bar-name" title="${label}">${label}</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:0%" data-w="${w}"></div>
+            </div>
+            <div class="bar-count">${fmt(count)}</div>
+          </div>`;
+      }
+    });
+
+    el.innerHTML = `<div class="bar-list" style="gap:13px">${rows.join('')}</div>`;
+    animateBars(el);
+  }
+
+  /* ── Generic bar list (sources fallback) ─────── */
   function renderBarList(id, data, limit) {
     const el = document.getElementById(id);
     const sorted = Object.entries(data).sort((a, b) => b[1] - a[1]).slice(0, limit);
@@ -578,14 +991,39 @@
       return;
     }
     const max = sorted[0][1];
-    el.innerHTML = `<div class="bar-list">${sorted.map(([name, count]) => `
-      <div class="bar-row">
-        <div class="bar-name" title="${name}">${name}</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:${Math.round((count / max) * 100)}%"></div>
-        </div>
-        <div class="bar-count">${fmt(count)}</div>
-      </div>`).join('')}</div>`;
+    const rows = sorted.map(([name, count]) => {
+      const w = Math.round((count / max) * 100);
+      return `
+        <div class="bar-row">
+          <div class="bar-name" title="${name}">${name}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:0%" data-w="${w}"></div>
+          </div>
+          <div class="bar-count">${fmt(count)}</div>
+        </div>`;
+    });
+    el.innerHTML = `<div class="bar-list">${rows.join('')}</div>`;
+    animateBars(el);
+  }
+
+  /* ── Staggered bar animation ──────────────────── */
+  function animateBars(container) {
+    const fills = container.querySelectorAll('.bar-fill');
+    fills.forEach((fill, i) => {
+      const targetW = fill.getAttribute('data-w');
+      setTimeout(() => {
+        fill.style.width = targetW + '%';
+      }, i * 60);
+    });
+  }
+
+  /* ── Hex to rgba helper ───────────────────────── */
+  function hexToRgba(hex, alpha) {
+    const clean = hex.replace('#', '');
+    const r = parseInt(clean.slice(0, 2), 16);
+    const g = parseInt(clean.slice(2, 4), 16);
+    const b = parseInt(clean.slice(4, 6), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
   }
 </script>
 </body>

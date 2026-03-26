@@ -1239,45 +1239,32 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
-    // Globe sphere — brighter base so it reads as a planet
+    // Globe with Earth texture — draws real continents on the sphere
     var globeGeo = new THREE.SphereGeometry(1, 64, 64);
+    // Start with a dark placeholder color while texture loads
     var globeMat = new THREE.MeshBasicMaterial({ color: CLIENT.mode === 'dark' ? 0x0a1530 : 0x221a14 });
     var globe = new THREE.Mesh(globeGeo, globeMat);
     scene.add(globe);
 
-    // Latitude lines (visible grid for geographic context)
-    var latMat = new THREE.LineBasicMaterial({ color: CLIENT.mode === 'dark' ? 0xffffff : 0xffffff, transparent: true, opacity: 0.25 });
-    [-60, -30, 0, 30, 60].forEach(function(lat) {
-      var r = Math.cos(lat * Math.PI / 180);
-      var y = Math.sin(lat * Math.PI / 180);
-      var pts = [];
-      for (var i = 0; i <= 64; i++) {
-        var a = (i / 64) * Math.PI * 2;
-        pts.push(new THREE.Vector3(r * Math.cos(a) * 1.003, y * 1.003, -r * Math.sin(a) * 1.003));
-      }
-      var lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
-      scene.add(new THREE.Line(lineGeo, latMat));
-    });
-
-    // Longitude lines
-    [-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180].forEach(function(lng) {
-      var pts = [];
-      for (var i = 0; i <= 64; i++) {
-        var lat = (i / 64) * Math.PI - Math.PI / 2;
-        var r = Math.cos(lat);
-        pts.push(new THREE.Vector3(
-          r * Math.cos(lng * Math.PI / 180) * 1.003,
-          Math.sin(lat) * 1.003,
-          -r * Math.sin(lng * Math.PI / 180) * 1.003
-        ));
-      }
-      var lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
-      scene.add(new THREE.Line(lineGeo, latMat));
+    // Load Earth texture from a reliable CDN (dark-styled blue marble)
+    var textureLoader = new THREE.TextureLoader();
+    textureLoader.crossOrigin = 'anonymous';
+    // Use a high-contrast Earth map — dark ocean, visible land
+    var earthUrl = 'https://unpkg.com/three-globe@2.31.1/example/img/earth-night.jpg';
+    textureLoader.load(earthUrl, function(texture) {
+      globe.material = new THREE.MeshBasicMaterial({ map: texture });
+      globe.material.needsUpdate = true;
+    }, undefined, function() {
+      // Fallback: try alternative Earth texture
+      textureLoader.load('https://unpkg.com/three-globe@2.31.1/example/img/earth-blue-marble.jpg', function(texture2) {
+        globe.material = new THREE.MeshBasicMaterial({ map: texture2 });
+        globe.material.needsUpdate = true;
+      });
     });
 
     // Outer atmosphere glow ring
-    var atmoGeo = new THREE.SphereGeometry(1.04, 64, 64);
-    var atmoMat = new THREE.MeshBasicMaterial({ color: CLIENT.mode === 'dark' ? 0x1a3a6a : 0x3a2a20, transparent: true, opacity: 0.06, side: THREE.BackSide });
+    var atmoGeo = new THREE.SphereGeometry(1.05, 64, 64);
+    var atmoMat = new THREE.MeshBasicMaterial({ color: CLIENT.mode === 'dark' ? 0x3B82F6 : 0xB76E79, transparent: true, opacity: 0.05, side: THREE.BackSide });
     scene.add(new THREE.Mesh(atmoGeo, atmoMat));
 
     // Glow texture

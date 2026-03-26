@@ -361,7 +361,8 @@
       transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.23,1,0.32,1);
     }
     .funnel-level.funnel-visible { opacity: 1; transform: translateX(0); }
-    .funnel-label { font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+    .funnel-label { font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+    .funnel-desc { font-size: 10px; opacity: 0.7; margin-top: 1px; font-weight: 400; letter-spacing: 0.02em; }
     .funnel-count { font-family: var(--display-font); font-size: 28px; font-weight: 400; }
     .funnel-pct { font-size: 11px; opacity: 0.8; }
     .funnel-connector { width: 2px; height: 8px; background: var(--accent-40); }
@@ -1413,10 +1414,10 @@
     // All percentages relative to total visitors — avoids nonsensical ratios
     // when some metrics have been collecting longer than others
     var levels = [
-      { label: 'Visitors', count: totalPv, pct: '100', desc: 'total pageviews' },
-      { label: 'Engaged', count: engaged, pct: totalPv > 0 ? ((engaged / totalPv) * 100).toFixed(1) : '0', desc: 'scrolled 50%+' },
-      { label: 'Clicked', count: totalClicks, pct: totalPv > 0 ? ((totalClicks / totalPv) * 100).toFixed(1) : '0', desc: 'clicked a link' },
-      { label: 'Converted', count: converted, pct: totalPv > 0 ? ((converted / totalPv) * 100).toFixed(1) : '0', desc: 'booked or used code' },
+      { label: 'Visitors', count: totalPv, pct: '100', desc: 'people who landed on your site' },
+      { label: 'Engaged', count: engaged, pct: totalPv > 0 ? ((engaged / totalPv) * 100).toFixed(1) : '0', desc: 'read past halfway — they\u2019re interested' },
+      { label: 'Clicked', count: totalClicks, pct: totalPv > 0 ? ((totalClicks / totalPv) * 100).toFixed(1) : '0', desc: 'tapped a button, link, or code' },
+      { label: 'Converted', count: converted, pct: totalPv > 0 ? ((converted / totalPv) * 100).toFixed(1) : '0', desc: 'booked a call or used your code from a specific platform' },
     ];
 
     // Parse accent for darker shades
@@ -1436,6 +1437,7 @@
         'clip-path:polygon(' + (i > 0 ? '4%' : '0%') + ' 0%, ' + (i > 0 ? '96%' : '100%') + ' 0%, 100% 100%, 0% 100%);' +
         'border-radius:6px;min-height:56px;transition-delay:' + (i * 0.15) + 's" data-funnel-idx="' + i + '">' +
         '<div><div class="funnel-label">' + level.label + '</div>' +
+        '<div class="funnel-desc">' + level.desc + '</div>' +
         '<div class="funnel-pct">' + (i > 0 ? level.pct + '% of visitors' : '') + '</div></div>' +
         '<div class="funnel-count" id="funnelCount' + i + '">0</div></div>';
     });

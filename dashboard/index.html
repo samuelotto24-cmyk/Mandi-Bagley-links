@@ -441,10 +441,22 @@
       <!-- Summary cards — revenue metrics first -->
       <div class="summary-row" id="summaryRow">
         <div class="s-card" id="card5">
-          <div class="s-label">Conversion Rate</div>
-          <div class="s-value s-text" id="convRate">—</div>
-          <div class="s-note" id="convRateNote">clicks / views</div>
+          <div class="s-label">Booking Rate</div>
+          <div class="s-value s-text" id="bookingRate">—</div>
+          <div class="s-note" id="bookingRateNote">bookings / views</div>
         </div>
+        <div class="s-card" id="card6">
+          <div class="s-label">Code Rate</div>
+          <div class="s-value s-text" id="codeRate">—</div>
+          <div class="s-note" id="codeRateNote">code copies / views</div>
+        </div>
+        <div class="s-card" id="card7">
+          <div class="s-label">Engagement</div>
+          <div class="s-value s-text" id="engageRate">—</div>
+          <div class="s-note" id="engageRateNote">scrolled 50%+ / views</div>
+        </div>
+      </div>
+      <div class="summary-row">
         <div class="s-card" id="card0">
           <div class="s-label">Pageviews (30 days)</div>
           <div class="s-value" id="total30">—</div>
@@ -476,7 +488,7 @@
 
       <!-- Conversion Rate Gauge -->
       <div class="chart-card" id="gaugeCard" style="margin-bottom:14px;max-width:320px;margin-left:auto;margin-right:auto">
-        <div class="card-title-row" style="justify-content:center"><div class="card-title">Conversion Rate</div></div>
+        <div class="card-title-row" style="justify-content:center"><div class="card-title">Booking Rate</div></div>
         <div class="gauge-wrap" id="gaugeWrap"></div>
       </div>
 
@@ -766,14 +778,47 @@
       el.classList.add('fade-in');
     }, 600);
 
-    // Conversion rate
+    // Booking rate — clicks on calendly, hero_book, program_primary
+    var bookingKeys = ['calendly', 'hero_book', 'program_primary'];
+    var bookingClicks = 0;
+    bookingKeys.forEach(function(k) { bookingClicks += (clicks[k] || 0); });
+    var bookingRate = total30 > 0 ? ((bookingClicks / total30) * 100).toFixed(1) : '0.0';
+
+    // Code rate — clicks that look like affiliate code copies (keys containing 'code' or partner names)
+    var codeClicks = 0;
+    Object.entries(clicks).forEach(function(kv) {
+      var k = kv[0].toLowerCase();
+      if (k.includes('code') || k.includes('affiliate') || k.includes('partner') ||
+          k.includes('flavor') || k.includes('soar') || k.includes('intelligent') || k.includes('dfyne')) {
+        codeClicks += kv[1];
+      }
+    });
+    var codeRate = total30 > 0 ? ((codeClicks / total30) * 100).toFixed(1) : '0.0';
+
+    // Engagement rate — scrolled 50%+
+    var engaged = scroll['50'] || 0;
+    var engageRate = total30 > 0 ? ((engaged / total30) * 100).toFixed(1) : '0.0';
+
     setTimeout(function() {
-      var totalClicks = Object.values(clicks).reduce(function(a,b){return a+b;}, 0);
-      var rate = total30 > 0 ? ((totalClicks / total30) * 100).toFixed(1) : '0.0';
-      var el = document.getElementById('convRate');
-      el.textContent = rate + '%';
-      el.classList.add('fade-in');
-      document.getElementById('convRateNote').textContent = fmt(totalClicks) + ' clicks / ' + fmt(total30) + ' views';
+      [5,6,7].forEach(function(i) {
+        var card = document.getElementById('card' + i);
+        if (card) setTimeout(function() { card.classList.add('visible'); }, 80 + i * 100);
+      });
+
+      var bEl = document.getElementById('bookingRate');
+      bEl.textContent = bookingRate + '%';
+      bEl.classList.add('fade-in');
+      document.getElementById('bookingRateNote').textContent = fmt(bookingClicks) + ' bookings / ' + fmt(total30) + ' views';
+
+      var cEl = document.getElementById('codeRate');
+      cEl.textContent = codeRate + '%';
+      cEl.classList.add('fade-in');
+      document.getElementById('codeRateNote').textContent = fmt(codeClicks) + ' code copies / ' + fmt(total30) + ' views';
+
+      var eEl = document.getElementById('engageRate');
+      eEl.textContent = engageRate + '%';
+      eEl.classList.add('fade-in');
+      document.getElementById('engageRateNote').textContent = fmt(engaged) + ' engaged / ' + fmt(total30) + ' views';
     }, 700);
 
     // ── Pageviews chart ──────────────────────────
@@ -838,7 +883,7 @@
     renderFunnel(total30, scroll, clicks, conversions);
 
     // ── Conversion gauge ──────────────────────────
-    renderGauge(total30, clicks);
+    renderGauge(total30, bookingClicks);
 
     // ── Sparkline in pageviews card ──────────────
     drawSparkline('card0', pvByDay.slice(-7));
@@ -1193,16 +1238,46 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
-    // Globe sphere
+    // Globe sphere — brighter base so it reads as a planet
     var globeGeo = new THREE.SphereGeometry(1, 64, 64);
-    var globeMat = new THREE.MeshBasicMaterial({ color: CLIENT.mode === 'dark' ? 0x0a1628 : 0x1a1210 });
+    var globeMat = new THREE.MeshBasicMaterial({ color: CLIENT.mode === 'dark' ? 0x0f1f3d : 0x2a1e18 });
     var globe = new THREE.Mesh(globeGeo, globeMat);
     scene.add(globe);
 
-    // Wireframe grid
-    var wireGeo = new THREE.SphereGeometry(1.002, 36, 18);
-    var wireMat = new THREE.MeshBasicMaterial({ color: CLIENT.mode === 'dark' ? 0x1a2a4a : 0x3a2a20, wireframe: true, transparent: true, opacity: 0.15 });
-    scene.add(new THREE.Mesh(wireGeo, wireMat));
+    // Latitude lines (visible grid for geographic context)
+    var latMat = new THREE.LineBasicMaterial({ color: CLIENT.mode === 'dark' ? 0x2a4a7a : 0x4a3a30, transparent: true, opacity: 0.35 });
+    [-60, -30, 0, 30, 60].forEach(function(lat) {
+      var r = Math.cos(lat * Math.PI / 180);
+      var y = Math.sin(lat * Math.PI / 180);
+      var pts = [];
+      for (var i = 0; i <= 64; i++) {
+        var a = (i / 64) * Math.PI * 2;
+        pts.push(new THREE.Vector3(r * Math.cos(a) * 1.003, y * 1.003, -r * Math.sin(a) * 1.003));
+      }
+      var lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
+      scene.add(new THREE.Line(lineGeo, latMat));
+    });
+
+    // Longitude lines
+    [-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180].forEach(function(lng) {
+      var pts = [];
+      for (var i = 0; i <= 64; i++) {
+        var lat = (i / 64) * Math.PI - Math.PI / 2;
+        var r = Math.cos(lat);
+        pts.push(new THREE.Vector3(
+          r * Math.cos(lng * Math.PI / 180) * 1.003,
+          Math.sin(lat) * 1.003,
+          -r * Math.sin(lng * Math.PI / 180) * 1.003
+        ));
+      }
+      var lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
+      scene.add(new THREE.Line(lineGeo, latMat));
+    });
+
+    // Outer atmosphere glow ring
+    var atmoGeo = new THREE.SphereGeometry(1.04, 64, 64);
+    var atmoMat = new THREE.MeshBasicMaterial({ color: CLIENT.mode === 'dark' ? 0x1a3a6a : 0x3a2a20, transparent: true, opacity: 0.06, side: THREE.BackSide });
+    scene.add(new THREE.Mesh(atmoGeo, atmoMat));
 
     // Glow texture
     var glowCanvas = document.createElement('canvas');
@@ -1384,10 +1459,9 @@
   }
 
   /* ── Conversion Rate Gauge ──────────────────── */
-  function renderGauge(totalPv, clicks) {
+  function renderGauge(totalPv, bookingClicks) {
     var el = document.getElementById('gaugeWrap');
-    var totalClicks = Object.values(clicks).reduce(function(a,b){return a+b;}, 0);
-    var rate = totalPv > 0 ? (totalClicks / totalPv) * 100 : 0;
+    var rate = totalPv > 0 ? (bookingClicks / totalPv) * 100 : 0;
     var rateStr = rate.toFixed(1);
 
     // Gauge arc: 240 degrees, from -210 to 30 (centered at bottom)

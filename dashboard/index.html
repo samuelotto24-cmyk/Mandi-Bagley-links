@@ -1240,12 +1240,12 @@
 
     // Globe sphere — brighter base so it reads as a planet
     var globeGeo = new THREE.SphereGeometry(1, 64, 64);
-    var globeMat = new THREE.MeshBasicMaterial({ color: CLIENT.mode === 'dark' ? 0x0f1f3d : 0x2a1e18 });
+    var globeMat = new THREE.MeshBasicMaterial({ color: CLIENT.mode === 'dark' ? 0x0a1530 : 0x221a14 });
     var globe = new THREE.Mesh(globeGeo, globeMat);
     scene.add(globe);
 
     // Latitude lines (visible grid for geographic context)
-    var latMat = new THREE.LineBasicMaterial({ color: CLIENT.mode === 'dark' ? 0x2a4a7a : 0x4a3a30, transparent: true, opacity: 0.35 });
+    var latMat = new THREE.LineBasicMaterial({ color: CLIENT.mode === 'dark' ? 0xffffff : 0xffffff, transparent: true, opacity: 0.25 });
     [-60, -30, 0, 30, 60].forEach(function(lat) {
       var r = Math.cos(lat * Math.PI / 180);
       var y = Math.sin(lat * Math.PI / 180);
@@ -1406,14 +1406,17 @@
   function renderFunnel(totalPv, scroll, clicks, conversions) {
     var el = document.getElementById('funnelWrap');
     var totalClicks = Object.values(clicks).reduce(function(a,b){return a+b;}, 0);
-    var engaged = (scroll['50'] || 0) + (scroll['75'] || 0) + (scroll['100'] || 0);
+    // Use max of scroll thresholds (50% is the "engaged" baseline)
+    var engaged = scroll['50'] || 0;
     var converted = Object.values(conversions).reduce(function(a,b){return a+b;}, 0);
 
+    // All percentages relative to total visitors — avoids nonsensical ratios
+    // when some metrics have been collecting longer than others
     var levels = [
-      { label: 'Visitors', count: totalPv, pct: 100 },
-      { label: 'Engaged', count: engaged, pct: totalPv > 0 ? ((engaged / totalPv) * 100).toFixed(1) : 0 },
-      { label: 'Clicked', count: totalClicks, pct: engaged > 0 ? ((totalClicks / engaged) * 100).toFixed(1) : 0 },
-      { label: 'Converted', count: converted, pct: totalClicks > 0 ? ((converted / totalClicks) * 100).toFixed(1) : 0 },
+      { label: 'Visitors', count: totalPv, pct: '100', desc: 'total pageviews' },
+      { label: 'Engaged', count: engaged, pct: totalPv > 0 ? ((engaged / totalPv) * 100).toFixed(1) : '0', desc: 'scrolled 50%+' },
+      { label: 'Clicked', count: totalClicks, pct: totalPv > 0 ? ((totalClicks / totalPv) * 100).toFixed(1) : '0', desc: 'clicked a link' },
+      { label: 'Converted', count: converted, pct: totalPv > 0 ? ((converted / totalPv) * 100).toFixed(1) : '0', desc: 'booked or used code' },
     ];
 
     // Parse accent for darker shades
@@ -1433,7 +1436,7 @@
         'clip-path:polygon(' + (i > 0 ? '4%' : '0%') + ' 0%, ' + (i > 0 ? '96%' : '100%') + ' 0%, 100% 100%, 0% 100%);' +
         'border-radius:6px;min-height:56px;transition-delay:' + (i * 0.15) + 's" data-funnel-idx="' + i + '">' +
         '<div><div class="funnel-label">' + level.label + '</div>' +
-        '<div class="funnel-pct">' + (i > 0 ? level.pct + '% of above' : '') + '</div></div>' +
+        '<div class="funnel-pct">' + (i > 0 ? level.pct + '% of visitors' : '') + '</div></div>' +
         '<div class="funnel-count" id="funnelCount' + i + '">0</div></div>';
     });
     el.innerHTML = html;

@@ -2762,22 +2762,61 @@
 
   <!-- Analytics tracking -->
   <script>
-    // Pageview
-    (function () {
-      fetch('/api/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'pageview', referrer: document.referrer }),
-        keepalive: true,
-      }).catch(() => {});
-    })();
+  (function() {
+    var ua = navigator.userAgent;
+    var device = /Mobi|Android/i.test(ua) ? (/Tablet|iPad/i.test(ua) ? 'tablet' : 'mobile') : 'desktop';
+    var browser = /Firefox/i.test(ua) ? 'Firefox' : /Edg/i.test(ua) ? 'Edge' : /Chrome/i.test(ua) ? 'Chrome' : /Safari/i.test(ua) ? 'Safari' : 'Other';
+    var os = /iPhone|iPad|iPod/i.test(ua) ? 'iOS' : /Android/i.test(ua) ? 'Android' : /Windows/i.test(ua) ? 'Windows' : /Mac/i.test(ua) ? 'macOS' : /Linux/i.test(ua) ? 'Linux' : 'Other';
+    var screenSize = window.screen.width + 'x' + window.screen.height;
+    var language = (navigator.language || '').split('-')[0];
+    var returning = false;
+    try {
+      if (document.cookie.includes('_vid=')) { returning = true; }
+      else { document.cookie = '_vid=' + Math.random().toString(36).slice(2) + Date.now().toString(36) + ';path=/;max-age=31536000;SameSite=Lax'; }
+    } catch(e) {}
 
-    // Click tracking via event delegation
-    document.addEventListener('click', function (e) {
-      const a = e.target.closest('a[href]');
+    function parseRef(r) {
+      if (!r) return null;
+      try {
+        var h = new URL(r).hostname.replace(/^www\./, '').replace(/^l\./, '');
+        var map = {'instagram.com':'Instagram','tiktok.com':'TikTok','youtube.com':'YouTube','google.com':'Google','facebook.com':'Facebook','t.co':'Twitter/X','twitter.com':'Twitter/X','pinterest.com':'Pinterest','snapchat.com':'Snapchat','linktr.ee':'Linktree','reddit.com':'Reddit','beacons.ai':'Beacons'};
+        return map[h] || null;
+      } catch(e) { return null; }
+    }
+    var refSource = parseRef(document.referrer) || 'Direct';
+    try { sessionStorage.setItem('_src', refSource); } catch(e) {}
+
+    function track(payload) {
+      try { fetch('/api/track', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload), keepalive:true }).catch(function(){}); } catch(e) {}
+    }
+
+    track({ type:'pageview', referrer:document.referrer, device:device, browser:browser, os:os, screen:screenSize, language:language, returning:returning });
+
+    var scrollFired = {};
+    var scrollTimer;
+    window.addEventListener('scroll', function() {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(function() {
+        var pct = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+        [25,50,75,100].forEach(function(t) { if (pct >= t && !scrollFired[t]) { scrollFired[t] = true; track({type:'scroll',depth:t}); } });
+      }, 200);
+    }, { passive: true });
+
+    var sessionStart = Date.now(), durationSent = false;
+    function sendDuration() {
+      if (durationSent) return; durationSent = true;
+      var ms = Date.now() - sessionStart; if (ms < 1000) return;
+      navigator.sendBeacon('/api/track', JSON.stringify({type:'duration',ms:ms}));
+    }
+    document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'hidden') sendDuration(); });
+    window.addEventListener('pagehide', sendDuration);
+
+    // Click tracking (href-based detection + attribution)
+    document.addEventListener('click', function(e) {
+      var a = e.target.closest('a[href]');
       if (!a) return;
-      const href = a.href || '';
-      let name = null;
+      var href = a.href || '';
+      var name = null;
 
       if (href.includes('tiktok.com') && href.includes('mandipandeee')) name = 'tiktok';
       else if (href.includes('instagram.com/mandi.bagley'))             name = 'instagram_main';
@@ -2795,14 +2834,15 @@
       else if (href.includes('amazon.com/hz/wishlist'))                 name = 'amazon_wishlist';
       else if (href.includes('mailto:'))                                name = 'email';
 
+      // Also check data-track-key
+      var tracked = e.target.closest('.tracked[data-track-key]');
+      if (tracked) name = tracked.dataset.trackKey;
+
       if (!name) return;
-      fetch('/api/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'click', link: name }),
-        keepalive: true,
-      }).catch(() => {});
+      var src = 'Direct'; try { src = sessionStorage.getItem('_src') || 'Direct'; } catch(e) {}
+      track({type:'click', link:name, source:src});
     });
+  })();
   </script>
 
   <!-- Snap Me floating widget -->

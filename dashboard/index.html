@@ -19,8 +19,8 @@
     const CLIENT = {
       name:   'Mandi Bagley',
       accent: '#B76E79',
-      mode:   'light',
-      font:   'cormorant',
+      mode:   'light',        // 'light' or 'dark'
+      font:   'cormorant',    // 'cormorant' | 'playfair' | 'bebas' | 'dm-serif'
     };
     // ──────────────────────────────────────────────────────────────
   </script>
@@ -371,8 +371,15 @@
     <!-- Real content -->
     <div id="realContent" style="display:none">
 
-      <!-- Summary cards row 1 -->
+      <!-- ═══ TIER 1: Revenue Signals ═══ -->
+
+      <!-- Summary cards — revenue metrics first -->
       <div class="summary-row" id="summaryRow">
+        <div class="s-card" id="card5">
+          <div class="s-label">Conversion Rate</div>
+          <div class="s-value s-text" id="convRate">—</div>
+          <div class="s-note" id="convRateNote">clicks / views</div>
+        </div>
         <div class="s-card" id="card0">
           <div class="s-label">Pageviews (30 days)</div>
           <div class="s-value" id="total30">—</div>
@@ -383,42 +390,27 @@
           <div class="s-value" id="today">—</div>
           <div class="s-note">visits today</div>
         </div>
+      </div>
+      <div class="summary-row" style="margin-bottom:18px">
         <div class="s-card" id="card2">
           <div class="s-label">Top Source</div>
           <div class="s-value s-text" id="topSource">—</div>
           <div class="s-note" id="topSourceNote">—</div>
-        </div>
-      </div>
-      <!-- Summary cards row 2 -->
-      <div class="summary-row" style="margin-bottom:18px">
-        <div class="s-card" id="card3">
-          <div class="s-label">Top Country</div>
-          <div class="s-value s-text" id="topCountry">—</div>
-          <div class="s-note" id="topCountryNote">—</div>
         </div>
         <div class="s-card" id="card4">
           <div class="s-label">Avg Session</div>
           <div class="s-value s-text" id="avgDuration">—</div>
           <div class="s-note">time on page</div>
         </div>
-        <div class="s-card" id="card5">
-          <div class="s-label">Conversion Rate</div>
-          <div class="s-value s-text" id="convRate">—</div>
-          <div class="s-note" id="convRateNote">clicks / views</div>
+        <div class="s-card" id="card3">
+          <div class="s-label">Top Country</div>
+          <div class="s-value s-text" id="topCountry">—</div>
+          <div class="s-note" id="topCountryNote">—</div>
         </div>
       </div>
 
-      <!-- Pageviews chart -->
-      <div class="chart-card">
-        <div class="card-title-row">
-          <div class="card-title">Pageviews — Last 30 Days</div>
-          <div class="card-title-badge" id="pvTotalBadge"></div>
-        </div>
-        <div class="chart-wrap"><canvas id="pvChart"></canvas></div>
-      </div>
-
-      <!-- Conversion Attribution -->
-      <div class="chart-card" style="margin-top:14px" id="convCard">
+      <!-- Conversion Attribution — THE killer feature, right at the top -->
+      <div class="chart-card" id="convCard">
         <div class="card-title-row">
           <div class="card-title">Referrer → Conversion</div>
           <div class="card-title-badge">which platform drives action</div>
@@ -426,13 +418,68 @@
         <div id="convTable"></div>
       </div>
 
-      <!-- Hourly Heatmap -->
+      <!-- Link Clicks — what people are actually clicking -->
+      <div class="chart-card" style="margin-top:14px">
+        <div class="card-title-row"><div class="card-title">Link Clicks</div></div>
+        <div id="clicksList"></div>
+      </div>
+
+      <!-- ═══ TIER 2: Optimization Signals ═══ -->
+
+      <!-- Scroll Depth + Device — are people seeing your offers? -->
+      <div class="two-col">
+        <div class="chart-card">
+          <div class="card-title-row"><div class="card-title">Scroll Depth</div></div>
+          <div id="scrollDepth"></div>
+        </div>
+        <div class="chart-card">
+          <div class="card-title-row"><div class="card-title">Devices</div></div>
+          <div id="devicesList"></div>
+        </div>
+      </div>
+
+      <!-- Hourly Heatmap — when to post -->
       <div class="chart-card" style="margin-top:14px">
         <div class="card-title-row">
-          <div class="card-title">Traffic by Hour</div>
+          <div class="card-title">Best Time to Post</div>
           <div class="card-title-badge">when your audience is online</div>
         </div>
         <div id="heatmapWrap"></div>
+      </div>
+
+      <!-- Pageviews chart -->
+      <div class="chart-card" style="margin-top:14px">
+        <div class="card-title-row">
+          <div class="card-title">Pageviews — Last 30 Days</div>
+          <div class="card-title-badge" id="pvTotalBadge"></div>
+        </div>
+        <div class="chart-wrap"><canvas id="pvChart"></canvas></div>
+      </div>
+
+      <!-- ═══ TIER 3: Context ═══ -->
+
+      <!-- Sources + New vs Returning -->
+      <div class="two-col">
+        <div class="chart-card">
+          <div class="card-title-row"><div class="card-title">Traffic Sources</div></div>
+          <div id="sourcesList"></div>
+        </div>
+        <div class="chart-card">
+          <div class="card-title-row"><div class="card-title">New vs Returning</div></div>
+          <div id="visitorsList"></div>
+        </div>
+      </div>
+
+      <!-- Browser/OS + Countries -->
+      <div class="two-col">
+        <div class="chart-card">
+          <div class="card-title-row"><div class="card-title">Browsers & OS</div></div>
+          <div id="browsersList"></div>
+        </div>
+        <div class="chart-card">
+          <div class="card-title-row"><div class="card-title">Countries</div></div>
+          <div id="countriesList"></div>
+        </div>
       </div>
 
       <!-- World Map -->
@@ -447,52 +494,10 @@
         </div>
       </div>
 
-      <!-- Sources + Countries -->
-      <div class="two-col">
-        <div class="chart-card">
-          <div class="card-title-row"><div class="card-title">Traffic Sources</div></div>
-          <div id="sourcesList"></div>
-        </div>
-        <div class="chart-card">
-          <div class="card-title-row"><div class="card-title">Countries</div></div>
-          <div id="countriesList"></div>
-        </div>
-      </div>
-
-      <!-- Device + Browser/OS -->
-      <div class="two-col">
-        <div class="chart-card">
-          <div class="card-title-row"><div class="card-title">Devices</div></div>
-          <div id="devicesList"></div>
-        </div>
-        <div class="chart-card">
-          <div class="card-title-row"><div class="card-title">Browsers & OS</div></div>
-          <div id="browsersList"></div>
-        </div>
-      </div>
-
-      <!-- Scroll Depth + New vs Returning -->
-      <div class="two-col">
-        <div class="chart-card">
-          <div class="card-title-row"><div class="card-title">Scroll Depth</div></div>
-          <div id="scrollDepth"></div>
-        </div>
-        <div class="chart-card">
-          <div class="card-title-row"><div class="card-title">New vs Returning</div></div>
-          <div id="visitorsList"></div>
-        </div>
-      </div>
-
       <!-- Top Cities -->
       <div class="chart-card" style="margin-top:14px">
         <div class="card-title-row"><div class="card-title">Top Cities</div></div>
         <div id="citiesList"></div>
-      </div>
-
-      <!-- Link Clicks -->
-      <div class="chart-card" style="margin-top:14px">
-        <div class="card-title-row"><div class="card-title">Link Clicks</div></div>
-        <div id="clicksList"></div>
       </div>
 
       <div class="dash-footer" id="dashFooter">

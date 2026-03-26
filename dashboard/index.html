@@ -12,6 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
   <script>
     // ── Client config ──────────────────────────────────────────────
@@ -333,6 +334,48 @@
     }
     .map-tooltip strong { display: block; font-size: 13px; margin-bottom: 2px; color: var(--accent); }
 
+    /* ── 3D Globe ─────────────────────────────────── */
+    .globe-container { position: relative; width: 100%; height: 420px; border-radius: 8px; overflow: hidden; cursor: grab; }
+    .globe-container:active { cursor: grabbing; }
+    .globe-container canvas { display: block; width: 100% !important; height: 100% !important; }
+
+    /* ── Clock Heatmap ────────────────────────────── */
+    .clock-heatmap-wrap { display: flex; align-items: center; justify-content: center; padding: 20px 0; }
+    .clock-heatmap-wrap svg { max-width: 420px; width: 100%; }
+    .clock-wedge { transition: transform 0.2s ease, opacity 0.2s; transform-origin: center; cursor: pointer; }
+    .clock-wedge:hover { filter: brightness(1.2); transform: scale(1.06); }
+    .clock-tooltip {
+      position: absolute; background: var(--tooltip-bg); border: 1px solid var(--tooltip-border);
+      border-radius: 8px; padding: 8px 14px; font-family: 'DM Sans', sans-serif;
+      font-size: 12px; color: #EEF2FF; pointer-events: none; opacity: 0;
+      transition: opacity 0.15s; white-space: nowrap; z-index: 10;
+    }
+    .clock-tooltip strong { display: block; font-size: 13px; margin-bottom: 2px; color: var(--accent); }
+
+    /* ── Conversion Funnel ────────────────────────── */
+    .funnel-wrap { display: flex; flex-direction: column; align-items: center; gap: 0; padding: 20px 0; }
+    .funnel-level {
+      display: flex; align-items: center; justify-content: center; gap: 16px;
+      padding: 18px 24px; position: relative; color: #fff; font-family: 'DM Sans', sans-serif;
+      opacity: 0; transform: translateX(-30px);
+      transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.23,1,0.32,1);
+    }
+    .funnel-level.funnel-visible { opacity: 1; transform: translateX(0); }
+    .funnel-label { font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+    .funnel-count { font-family: var(--display-font); font-size: 28px; font-weight: 400; }
+    .funnel-pct { font-size: 11px; opacity: 0.8; }
+    .funnel-connector { width: 2px; height: 8px; background: var(--accent-40); }
+
+    /* ── Gauge ─────────────────────────────────────── */
+    .gauge-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0; }
+    .gauge-wrap svg { max-width: 220px; width: 100%; }
+    .gauge-needle {
+      transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform-origin: center;
+    }
+    .gauge-value { font-family: var(--display-font); font-size: 32px; font-weight: 400; color: var(--text); text-align: center; margin-top: -10px; }
+    .gauge-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-align: center; margin-top: 2px; }
+
     /* ── Footer ─────────────────────────────────── */
     .dash-footer { margin-top: 48px; text-align: center; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
     .footer-ornament { display: inline-block; width: 24px; height: 1px; background: var(--accent); vertical-align: middle; margin: 0 12px; }
@@ -431,6 +474,12 @@
         </div>
       </div>
 
+      <!-- Conversion Rate Gauge -->
+      <div class="chart-card" id="gaugeCard" style="margin-bottom:14px;max-width:320px;margin-left:auto;margin-right:auto">
+        <div class="card-title-row" style="justify-content:center"><div class="card-title">Conversion Rate</div></div>
+        <div class="gauge-wrap" id="gaugeWrap"></div>
+      </div>
+
       <!-- Conversion Attribution — THE killer feature, right at the top -->
       <div class="chart-card" id="convCard">
         <div class="card-title-row">
@@ -444,6 +493,15 @@
       <div class="chart-card" style="margin-top:14px">
         <div class="card-title-row"><div class="card-title">Link Clicks</div></div>
         <div id="clicksList"></div>
+      </div>
+
+      <!-- Conversion Funnel -->
+      <div class="chart-card" style="margin-top:14px" id="funnelCard">
+        <div class="card-title-row">
+          <div class="card-title">Conversion Funnel</div>
+          <div class="card-title-badge">visitor journey</div>
+        </div>
+        <div class="funnel-wrap" id="funnelWrap"></div>
       </div>
 
       <!-- ═══ TIER 2: Optimization Signals ═══ -->
@@ -460,13 +518,14 @@
         </div>
       </div>
 
-      <!-- Hourly Heatmap — when to post -->
-      <div class="chart-card" style="margin-top:14px">
+      <!-- Clock Heatmap — when to post -->
+      <div class="chart-card" style="margin-top:14px;position:relative">
         <div class="card-title-row">
           <div class="card-title">Best Time to Post</div>
           <div class="card-title-badge">when your audience is online</div>
         </div>
-        <div id="heatmapWrap"></div>
+        <div class="clock-heatmap-wrap" id="clockHeatmapWrap"></div>
+        <div class="clock-tooltip" id="clockTooltip"></div>
       </div>
 
       <!-- Pageviews chart -->
@@ -504,16 +563,14 @@
         </div>
       </div>
 
-      <!-- World Map -->
-      <div class="map-card">
+      <!-- 3D Globe -->
+      <div class="map-card" id="globeCard">
         <div class="card-title-row">
           <div class="card-title">Visitor Map</div>
           <div class="card-title-badge" id="mapCountBadge"></div>
         </div>
-        <div style="position:relative">
-          <svg id="worldMap"></svg>
-          <div class="map-tooltip" id="mapTooltip"></div>
-        </div>
+        <div class="globe-container" id="globeContainer"></div>
+        <div class="map-tooltip" id="mapTooltip"></div>
       </div>
 
       <!-- Top Cities -->
@@ -758,8 +815,8 @@
     // ── Conversion attribution table ─────────────
     renderConversionTable(conversions, refs);
 
-    // ── Hourly heatmap ───────────────────────────
-    renderHeatmap(hourly);
+    // ── Clock heatmap ─────────────────────────────
+    renderClockHeatmap(hourly);
 
     // ── Existing sections ────────────────────────
     renderDoughnut('sourcesList', refs, 8, 'visits');
@@ -774,8 +831,14 @@
     renderBarList('citiesList', cities, 10);
     renderClickList('clicksList', clicks, 15);
 
-    // ── World map ────────────────────────────────
-    renderMap(ctries);
+    // ── 3D Globe ──────────────────────────────────
+    renderGlobe(ctries);
+
+    // ── Conversion funnel ─────────────────────────
+    renderFunnel(total30, scroll, clicks, conversions);
+
+    // ── Conversion gauge ──────────────────────────
+    renderGauge(total30, clicks);
 
     // ── Sparkline in pageviews card ──────────────
     drawSparkline('card0', pvByDay.slice(-7));
@@ -861,45 +924,94 @@
     el.innerHTML = html;
   }
 
-  /* ── Hourly heatmap ────────────────────────── */
-  function renderHeatmap(hourly) {
-    var el = document.getElementById('heatmapWrap');
-    var dayLabels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    var hourLabels = [];
-    for (var h = 0; h < 24; h++) hourLabels.push(h);
+  /* ── Clock Heatmap ─────────────────────────── */
+  function renderClockHeatmap(hourly) {
+    var el = document.getElementById('clockHeatmapWrap');
+    var tooltip = document.getElementById('clockTooltip');
 
-    // Build grid data: aggregate by dayOfWeek + hour
-    var grid = {};
-    var maxVal = 1;
+    // Aggregate by hour across all days
+    var hourTotals = new Array(24).fill(0);
     Object.entries(hourly).forEach(function(kv) {
       var parts = kv[0].split(':');
-      var date = parts[0];
       var hour = parseInt(parts[1], 10);
-      var dow = new Date(date + 'T12:00:00').getDay();
-      dow = dow === 0 ? 6 : dow - 1; // Mon=0
-      var key = dow + '-' + hour;
-      grid[key] = (grid[key] || 0) + kv[1];
-      if (grid[key] > maxVal) maxVal = grid[key];
+      hourTotals[hour] += kv[1];
+    });
+    var maxVal = Math.max.apply(null, hourTotals) || 1;
+    var peakHour = hourTotals.indexOf(maxVal);
+
+    function hourLabel(h) {
+      if (h === 0) return '12am';
+      if (h < 12) return h + 'am';
+      if (h === 12) return '12pm';
+      return (h - 12) + 'pm';
+    }
+
+    var size = 420;
+    var cx = size / 2, cy = size / 2;
+    var outerR = size / 2 - 40;
+    var innerR = outerR * 0.28;
+
+    var svg = '<svg viewBox="0 0 ' + size + ' ' + size + '" xmlns="http://www.w3.org/2000/svg">';
+
+    // Draw wedges
+    for (var h = 0; h < 24; h++) {
+      var startAngle = (h / 24) * Math.PI * 2 - Math.PI / 2;
+      var endAngle = ((h + 1) / 24) * Math.PI * 2 - Math.PI / 2;
+      var intensity = hourTotals[h] / maxVal;
+      var alpha = Math.round(intensity * 0.85 * 255 + 0.1 * 255).toString(16).padStart(2, '0');
+
+      var x1o = cx + outerR * Math.cos(startAngle);
+      var y1o = cy + outerR * Math.sin(startAngle);
+      var x2o = cx + outerR * Math.cos(endAngle);
+      var y2o = cy + outerR * Math.sin(endAngle);
+      var x1i = cx + innerR * Math.cos(startAngle);
+      var y1i = cy + innerR * Math.sin(startAngle);
+      var x2i = cx + innerR * Math.cos(endAngle);
+      var y2i = cy + innerR * Math.sin(endAngle);
+
+      var d = 'M ' + x1i + ' ' + y1i +
+              ' L ' + x1o + ' ' + y1o +
+              ' A ' + outerR + ' ' + outerR + ' 0 0 1 ' + x2o + ' ' + y2o +
+              ' L ' + x2i + ' ' + y2i +
+              ' A ' + innerR + ' ' + innerR + ' 0 0 0 ' + x1i + ' ' + y1i + ' Z';
+
+      svg += '<path class="clock-wedge" d="' + d + '" fill="' + CLIENT.accent + alpha + '" stroke="var(--surface)" stroke-width="1" data-hour="' + h + '" data-count="' + hourTotals[h] + '"/>';
+    }
+
+    // Hour labels (every 3 hours)
+    var labelHours = [0, 3, 6, 9, 12, 15, 18, 21];
+    var labelR = outerR + 22;
+    labelHours.forEach(function(h) {
+      var angle = (h / 24) * Math.PI * 2 - Math.PI / 2;
+      var lx = cx + labelR * Math.cos(angle);
+      var ly = cy + labelR * Math.sin(angle);
+      svg += '<text x="' + lx + '" y="' + ly + '" text-anchor="middle" dominant-baseline="central" fill="var(--muted)" font-family="DM Sans,sans-serif" font-size="11">' + hourLabel(h) + '</text>';
     });
 
-    var html = '<div class="heatmap-grid">';
-    // Header row
-    html += '<div></div>';
-    for (var h = 0; h < 24; h++) {
-      html += '<div class="heatmap-header">' + (h % 3 === 0 ? h + ':00' : '') + '</div>';
-    }
-    // Data rows
-    for (var d = 0; d < 7; d++) {
-      html += '<div class="heatmap-label">' + dayLabels[d] + '</div>';
-      for (var h = 0; h < 24; h++) {
-        var val = grid[d + '-' + h] || 0;
-        var intensity = val / maxVal;
-        var bg = intensity > 0 ? CLIENT.accent + Math.round(intensity * 200 + 20).toString(16).padStart(2,'0') : 'var(--border)';
-        html += '<div class="heatmap-cell" style="background:' + bg + '" title="' + dayLabels[d] + ' ' + h + ':00 — ' + val + ' visits"></div>';
-      }
-    }
-    html += '</div>';
-    el.innerHTML = html;
+    // Center label
+    svg += '<text x="' + cx + '" y="' + (cy - 6) + '" text-anchor="middle" fill="var(--text)" font-family="var(--display-font)" font-size="18" font-weight="500">Peak</text>';
+    svg += '<text x="' + cx + '" y="' + (cy + 14) + '" text-anchor="middle" fill="var(--accent)" font-family="DM Sans,sans-serif" font-size="13" font-weight="600">' + hourLabel(peakHour) + '</text>';
+
+    svg += '</svg>';
+    el.innerHTML = svg;
+
+    // Tooltip
+    el.querySelectorAll('.clock-wedge').forEach(function(wedge) {
+      wedge.addEventListener('mouseenter', function(e) {
+        var h = parseInt(wedge.getAttribute('data-hour'));
+        var count = wedge.getAttribute('data-count');
+        tooltip.innerHTML = '<strong>' + hourLabel(h) + '</strong>' + fmt(parseInt(count)) + ' visits';
+        tooltip.style.opacity = '1';
+      });
+      wedge.addEventListener('mousemove', function(e) {
+        var rect = el.closest('.chart-card').getBoundingClientRect();
+        tooltip.style.left = (e.clientX - rect.left + 12) + 'px';
+        tooltip.style.top = (e.clientY - rect.top - 36) + 'px';
+      });
+      wedge.addEventListener('mouseleave', function() {
+        tooltip.style.opacity = '0';
+      });
+    });
   }
 
   /* ── Scroll depth ──────────────────────────── */
@@ -1064,87 +1176,292 @@
     YE:[47.59,15.55],ZA:[25.08,-29.00],ZM:[27.85,-13.13],ZW:[29.15,-19.02],
   };
 
-  async function renderMap(countryData) {
-    var svg = d3.select('#worldMap');
-    var wrap = document.getElementById('worldMap').parentElement;
-    var W = wrap.clientWidth || 900;
-    var H = Math.round(W * 0.46);
-    svg.attr('width', W).attr('height', H).attr('viewBox', '0 0 ' + W + ' ' + H);
-
-    var projection = d3.geoNaturalEarth1().scale(W / 6.1).translate([W / 2, H / 2]);
-    var path = d3.geoPath().projection(projection);
-
-    var world;
-    try { world = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'); } catch { return; }
-    var countries = topojson.feature(world, world.objects.countries);
-
-    var numToAlpha = {
-      840:'US',826:'GB',124:'CA',36:'AU',276:'DE',250:'FR',356:'IN',76:'BR',484:'MX',
-      392:'JP',410:'KR',528:'NL',752:'SE',756:'CH',40:'AT',56:'BE',724:'ES',
-      380:'IT',620:'PT',616:'PL',203:'CZ',348:'HU',300:'GR',208:'DK',246:'FI',578:'NO',
-      372:'IE',703:'SK',705:'SI',191:'HR',792:'TR',804:'UA',112:'BY',643:'RU',398:'KZ',
-      710:'ZA',404:'KE',566:'NG',818:'EG',12:'DZ',504:'MA',288:'GH',702:'SG',764:'TH',
-      458:'MY',608:'PH',360:'ID',704:'VN',156:'CN',344:'HK',158:'TW',50:'BD',586:'PK',
-      144:'LK',524:'NP',604:'PE',152:'CL',170:'CO',32:'AR',858:'UY',68:'BO',
-      887:'YE',682:'SA',784:'AE',414:'KW',634:'QA',512:'OM',368:'IQ',422:'LB',400:'JO',
-      376:'IL',320:'GT',340:'HN',222:'SV',188:'CR',591:'PA',630:'PR',388:'JM',
-      192:'CU',214:'DO',332:'HT',862:'VE',218:'EC',600:'PY',328:'GY',740:'SR',
-    };
-
-    var hasData = new Set(Object.keys(countryData));
-    svg.append('rect').attr('width', W).attr('height', H).attr('fill', 'transparent');
-    svg.selectAll('.map-country').data(countries.features).enter().append('path')
-      .attr('class', function(d) { var a = numToAlpha[+d.id]; return 'map-country' + (a && hasData.has(a) ? ' has-data' : ''); })
-      .attr('d', path);
-
+  /* ── 3D Globe ──────────────────────────────── */
+  function renderGlobe(countryData) {
+    var container = document.getElementById('globeContainer');
     var tooltip = document.getElementById('mapTooltip');
-    var cni = new Intl.DisplayNames(['en'], { type: 'region' });
-    var totalVisits = Object.values(countryData).reduce(function(a,b){return a+b;}, 0);
     document.getElementById('mapCountBadge').textContent = Object.keys(countryData).length + ' countries';
 
+    var W = container.clientWidth || 600;
+    var H = 420;
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 1000);
+    camera.position.z = 2.8;
+
+    var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(W, H);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    // Globe sphere
+    var globeGeo = new THREE.SphereGeometry(1, 64, 64);
+    var globeMat = new THREE.MeshBasicMaterial({ color: CLIENT.mode === 'dark' ? 0x0a1628 : 0x1a1210 });
+    var globe = new THREE.Mesh(globeGeo, globeMat);
+    scene.add(globe);
+
+    // Wireframe grid
+    var wireGeo = new THREE.SphereGeometry(1.002, 36, 18);
+    var wireMat = new THREE.MeshBasicMaterial({ color: CLIENT.mode === 'dark' ? 0x1a2a4a : 0x3a2a20, wireframe: true, transparent: true, opacity: 0.15 });
+    scene.add(new THREE.Mesh(wireGeo, wireMat));
+
+    // Glow texture
+    var glowCanvas = document.createElement('canvas');
+    glowCanvas.width = 64; glowCanvas.height = 64;
+    var gctx = glowCanvas.getContext('2d');
+    var gradient = gctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gradient.addColorStop(0, CLIENT.accent + 'ff');
+    gradient.addColorStop(0.3, CLIENT.accent + 'aa');
+    gradient.addColorStop(0.7, CLIENT.accent + '44');
+    gradient.addColorStop(1, CLIENT.accent + '00');
+    gctx.fillStyle = gradient;
+    gctx.fillRect(0, 0, 64, 64);
+    var glowTexture = new THREE.CanvasTexture(glowCanvas);
+
+    // Place visitor dots
+    var R = 1.02;
     var maxCount = Math.max.apply(null, Object.values(countryData).concat([1]));
-    Object.entries(countryData).forEach(function(kv, i) {
-      var code = kv[0]; var count = kv[1];
-      var centroid = CENTROIDS[code];
-      if (!centroid) return;
-      var coords;
-      try { coords = projection(centroid); } catch { return; }
-      if (!coords || isNaN(coords[0]) || isNaN(coords[1])) return;
-      var x = coords[0]; var y = coords[1];
-      if (x < 4 || x > W - 4 || y < 4 || y > H - 4) return;
+    var dotGroup = new THREE.Group();
 
-      var r = Math.max(3, Math.min(11, 3 + (count / maxCount) * 8));
+    Object.entries(countryData).forEach(function(kv) {
+      var code = kv[0], count = kv[1];
+      var c = CENTROIDS[code];
+      if (!c) return;
+      var lat = c[1] * Math.PI / 180;
+      var lng = c[0] * Math.PI / 180;
+      var x = R * Math.cos(lat) * Math.cos(lng);
+      var y = R * Math.sin(lat);
+      var z = -R * Math.cos(lat) * Math.sin(lng);
 
-      [0, 0.8, 1.6].forEach(function(delay, j) {
-        svg.append('circle').attr('class', 'map-pulse')
-          .attr('cx', x).attr('cy', y)
-          .style('--pr', r + 'px')
-          .style('animation-delay', delay + 's')
-          .style('animation-duration', (2.4 + j * 0.3) + 's');
+      var size = 0.02 + (count / maxCount) * 0.06;
+      var spriteMat = new THREE.SpriteMaterial({ map: glowTexture, transparent: true, depthTest: false });
+      var sprite = new THREE.Sprite(spriteMat);
+      sprite.position.set(x, y, z);
+      sprite.scale.set(size, size, 1);
+      sprite.userData = { code: code, count: count };
+      dotGroup.add(sprite);
+    });
+    scene.add(dotGroup);
+
+    // Rotation state
+    var autoRotate = true;
+    var rotY = 0, rotX = 0;
+    var isDragging = false;
+    var prevMouse = { x: 0, y: 0 };
+
+    container.addEventListener('mousedown', function(e) {
+      isDragging = true; autoRotate = false;
+      prevMouse.x = e.clientX; prevMouse.y = e.clientY;
+    });
+    window.addEventListener('mouseup', function() {
+      isDragging = false;
+      setTimeout(function() { autoRotate = true; }, 2000);
+    });
+    window.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+      var dx = e.clientX - prevMouse.x;
+      var dy = e.clientY - prevMouse.y;
+      rotY += dx * 0.005;
+      rotX += dy * 0.005;
+      rotX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, rotX));
+      prevMouse.x = e.clientX; prevMouse.y = e.clientY;
+    });
+
+    // Tooltip on hover
+    var raycaster = new THREE.Raycaster();
+    var mouse = new THREE.Vector2();
+    var cni = new Intl.DisplayNames(['en'], { type: 'region' });
+    var totalVisits = Object.values(countryData).reduce(function(a,b){return a+b;}, 0);
+
+    container.addEventListener('mousemove', function(e) {
+      var rect = container.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      var intersects = raycaster.intersectObjects(dotGroup.children);
+      if (intersects.length > 0) {
+        var ud = intersects[0].object.userData;
+        var name = ud.code;
+        try { name = cni.of(ud.code) || ud.code; } catch(ex) {}
+        var pct = ((ud.count / totalVisits) * 100).toFixed(1);
+        tooltip.innerHTML = '<strong>' + name + '</strong>' + fmt(ud.count) + ' visits \u00b7 ' + pct + '%';
+        tooltip.style.opacity = '1';
+        tooltip.style.left = (e.clientX - rect.left + 12) + 'px';
+        tooltip.style.top = (e.clientY - rect.top - 36) + 'px';
+      } else {
+        tooltip.style.opacity = '0';
+      }
+    });
+    container.addEventListener('mouseleave', function() { tooltip.style.opacity = '0'; });
+
+    // Pulse animation
+    var pulseTime = 0;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      pulseTime += 0.03;
+      if (autoRotate) rotY += 0.001;
+      globe.rotation.set(rotX, rotY, 0);
+      dotGroup.rotation.set(rotX, rotY, 0);
+      scene.children.forEach(function(child) {
+        if (child.material && child.material.wireframe) child.rotation.set(rotX, rotY, 0);
       });
 
-      var dot = svg.append('circle').attr('class', 'map-dot')
-        .attr('cx', x).attr('cy', y).attr('r', 0).style('cursor', 'pointer');
+      // Pulse dots
+      var pulseScale = 1 + Math.sin(pulseTime) * 0.2;
+      dotGroup.children.forEach(function(sprite) {
+        var baseSize = 0.02 + (sprite.userData.count / maxCount) * 0.06;
+        var s = baseSize * pulseScale;
+        sprite.scale.set(s, s, 1);
+      });
 
-      dot.transition().delay(i * 40).duration(500).ease(d3.easeBounceOut).attr('r', r);
+      renderer.render(scene, camera);
+    }
+    animate();
 
-      dot.on('mouseover', function() {
-        var name = code;
-        try { name = cni.of(code) || code; } catch {}
-        var pct = ((count / totalVisits) * 100).toFixed(1);
-        tooltip.innerHTML = '<strong>' + name + '</strong>' + fmt(count) + ' visits \u00b7 ' + pct + '%';
-        tooltip.style.opacity = '1';
-      })
-      .on('mousemove', function(event) {
-        var rect = wrap.getBoundingClientRect();
-        var tx = event.clientX - rect.left + 12;
-        var ty = event.clientY - rect.top - 36;
-        if (tx + 160 > W) tx -= 150;
-        tooltip.style.left = tx + 'px';
-        tooltip.style.top = ty + 'px';
-      })
-      .on('mouseleave', function() { tooltip.style.opacity = '0'; });
+    // Responsive
+    window.addEventListener('resize', function() {
+      var newW = container.clientWidth || 600;
+      camera.aspect = newW / H;
+      camera.updateProjectionMatrix();
+      renderer.setSize(newW, H);
     });
+  }
+
+  /* ── Conversion Funnel ──────────────────────── */
+  function renderFunnel(totalPv, scroll, clicks, conversions) {
+    var el = document.getElementById('funnelWrap');
+    var totalClicks = Object.values(clicks).reduce(function(a,b){return a+b;}, 0);
+    var engaged = (scroll['50'] || 0) + (scroll['75'] || 0) + (scroll['100'] || 0);
+    var converted = Object.values(conversions).reduce(function(a,b){return a+b;}, 0);
+
+    var levels = [
+      { label: 'Visitors', count: totalPv, pct: 100 },
+      { label: 'Engaged', count: engaged, pct: totalPv > 0 ? ((engaged / totalPv) * 100).toFixed(1) : 0 },
+      { label: 'Clicked', count: totalClicks, pct: engaged > 0 ? ((totalClicks / engaged) * 100).toFixed(1) : 0 },
+      { label: 'Converted', count: converted, pct: totalClicks > 0 ? ((converted / totalClicks) * 100).toFixed(1) : 0 },
+    ];
+
+    // Parse accent for darker shades
+    var ar = parseInt(CLIENT.accent.slice(1,3),16);
+    var ag = parseInt(CLIENT.accent.slice(3,5),16);
+    var ab = parseInt(CLIENT.accent.slice(5,7),16);
+
+    var html = '';
+    var maxWidth = 100;
+    levels.forEach(function(level, i) {
+      var widthPct = i === 0 ? maxWidth : Math.max(20, (level.count / (levels[0].count || 1)) * maxWidth);
+      var darken = 1 - i * 0.15;
+      var bgColor = 'rgb(' + Math.round(ar * darken) + ',' + Math.round(ag * darken) + ',' + Math.round(ab * darken) + ')';
+
+      if (i > 0) html += '<div class="funnel-connector"></div>';
+      html += '<div class="funnel-level" style="width:' + widthPct + '%;background:' + bgColor + ';' +
+        'clip-path:polygon(' + (i > 0 ? '4%' : '0%') + ' 0%, ' + (i > 0 ? '96%' : '100%') + ' 0%, 100% 100%, 0% 100%);' +
+        'border-radius:6px;min-height:56px;transition-delay:' + (i * 0.15) + 's" data-funnel-idx="' + i + '">' +
+        '<div><div class="funnel-label">' + level.label + '</div>' +
+        '<div class="funnel-pct">' + (i > 0 ? level.pct + '% of above' : '') + '</div></div>' +
+        '<div class="funnel-count" id="funnelCount' + i + '">0</div></div>';
+    });
+    el.innerHTML = html;
+
+    // Animate on scroll reveal
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          el.querySelectorAll('.funnel-level').forEach(function(lv) {
+            lv.classList.add('funnel-visible');
+          });
+          // Animate counts
+          levels.forEach(function(level, i) {
+            setTimeout(function() {
+              animateCount(document.getElementById('funnelCount' + i), level.count, 1200);
+            }, 200 + i * 200);
+          });
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    observer.observe(el);
+  }
+
+  /* ── Conversion Rate Gauge ──────────────────── */
+  function renderGauge(totalPv, clicks) {
+    var el = document.getElementById('gaugeWrap');
+    var totalClicks = Object.values(clicks).reduce(function(a,b){return a+b;}, 0);
+    var rate = totalPv > 0 ? (totalClicks / totalPv) * 100 : 0;
+    var rateStr = rate.toFixed(1);
+
+    // Gauge arc: 240 degrees, from -210 to 30 (centered at bottom)
+    var startAngle = -210;
+    var endAngle = 30;
+    var sweep = endAngle - startAngle; // 240
+    var cx = 110, cy = 110, outerR = 90, innerR = 70;
+
+    function polarToCart(cx, cy, r, angleDeg) {
+      var rad = angleDeg * Math.PI / 180;
+      return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+    }
+
+    function arcPath(startDeg, endDeg, outerR, innerR) {
+      var s1 = polarToCart(cx, cy, outerR, startDeg);
+      var e1 = polarToCart(cx, cy, outerR, endDeg);
+      var s2 = polarToCart(cx, cy, innerR, endDeg);
+      var e2 = polarToCart(cx, cy, innerR, startDeg);
+      var largeArc = (endDeg - startDeg) > 180 ? 1 : 0;
+      return 'M ' + s1.x + ' ' + s1.y + ' A ' + outerR + ' ' + outerR + ' 0 ' + largeArc + ' 1 ' + e1.x + ' ' + e1.y +
+             ' L ' + s2.x + ' ' + s2.y + ' A ' + innerR + ' ' + innerR + ' 0 ' + largeArc + ' 0 ' + e2.x + ' ' + e2.y + ' Z';
+    }
+
+    // Color zones: red 0-2%, yellow 2-5%, green 5-10%+ (mapped to the 240 sweep)
+    var maxRate = 10;
+    var redEnd = startAngle + (2 / maxRate) * sweep;
+    var yellowEnd = startAngle + (5 / maxRate) * sweep;
+
+    var svg = '<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">';
+    // Red zone
+    svg += '<path d="' + arcPath(startAngle, redEnd, outerR, innerR) + '" fill="#ef444466" />';
+    // Yellow zone
+    svg += '<path d="' + arcPath(redEnd, yellowEnd, outerR, innerR) + '" fill="#eab30866" />';
+    // Green zone
+    svg += '<path d="' + arcPath(yellowEnd, endAngle, outerR, innerR) + '" fill="#22c55e66" />';
+
+    // Tick marks
+    for (var t = 0; t <= maxRate; t += 1) {
+      var tickAngle = startAngle + (t / maxRate) * sweep;
+      var p1 = polarToCart(cx, cy, outerR + 2, tickAngle);
+      var p2 = polarToCart(cx, cy, outerR + (t % 5 === 0 ? 8 : 4), tickAngle);
+      svg += '<line x1="' + p1.x + '" y1="' + p1.y + '" x2="' + p2.x + '" y2="' + p2.y + '" stroke="var(--muted)" stroke-width="' + (t % 5 === 0 ? 1.5 : 0.8) + '" />';
+      if (t % 5 === 0) {
+        var labelP = polarToCart(cx, cy, outerR + 16, tickAngle);
+        svg += '<text x="' + labelP.x + '" y="' + labelP.y + '" text-anchor="middle" dominant-baseline="central" fill="var(--muted)" font-family="DM Sans,sans-serif" font-size="9">' + t + '%</text>';
+      }
+    }
+
+    // Needle — starts at startAngle, will animate to correct position
+    var needleAngle = startAngle + (Math.min(rate, maxRate) / maxRate) * sweep;
+    svg += '<line id="gaugeNeedle" x1="' + cx + '" y1="' + cy + '" x2="' + polarToCart(cx, cy, outerR - 4, startAngle).x + '" y2="' + polarToCart(cx, cy, outerR - 4, startAngle).y + '" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" class="gauge-needle" style="transform-origin:' + cx + 'px ' + cy + 'px" />';
+    // Center dot
+    svg += '<circle cx="' + cx + '" cy="' + cy + '" r="5" fill="var(--accent)" />';
+    svg += '</svg>';
+
+    el.innerHTML = svg + '<div class="gauge-value" id="gaugeValue">0%</div><div class="gauge-label">click-through rate</div>';
+
+    // Animate needle
+    var needle = document.getElementById('gaugeNeedle');
+    var endPt = polarToCart(cx, cy, outerR - 4, needleAngle);
+    setTimeout(function() {
+      needle.setAttribute('x2', endPt.x);
+      needle.setAttribute('y2', endPt.y);
+      // Animate the number
+      var startTime = performance.now();
+      var duration = 1200;
+      function updateGauge(now) {
+        var progress = Math.min((now - startTime) / duration, 1);
+        var ease = 1 - Math.pow(1 - progress, 4);
+        document.getElementById('gaugeValue').textContent = (ease * rate).toFixed(1) + '%';
+        if (progress < 1) requestAnimationFrame(updateGauge);
+      }
+      requestAnimationFrame(updateGauge);
+    }, 400);
   }
 </script>
 

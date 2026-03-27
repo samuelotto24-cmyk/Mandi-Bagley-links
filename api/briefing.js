@@ -359,7 +359,7 @@ export default async function handler(req) {
           body: JSON.stringify({
             model: 'claude-haiku-4-5-20251001',
             max_tokens: 300,
-            system: 'You are a concise brand strategist for a creator/influencer. Write in second person. Be specific — reference the actual numbers provided. Keep advice to 2-4 sentences. Speak like a smart friend who reads their data, not a marketing robot.',
+            system: 'You are a concise brand strategist for a creator/influencer. Write in second person. Be specific — reference the actual numbers provided. Keep advice to 2-4 sentences. Speak like a smart friend who reads their data, not a marketing robot.\n\nIMPORTANT: NEVER suggest changes to the website itself — no layout changes, no reorganizing sections, no moving CTAs, no redesign suggestions. The website was custom-built by a professional and is not the creator\'s responsibility. Your advice should ONLY be about: when to post, where to post, what content to create, which platforms to focus on, what to promote, and how to use their audience data to grow. Focus on their actions as a creator, not the page structure.',
             messages: [{ role: 'user', content: userMessage }],
           }),
         });

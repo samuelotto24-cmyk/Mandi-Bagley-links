@@ -173,7 +173,7 @@ function runRules(data, metrics) {
   // 8 & 9. Session duration
   const durTotal = Object.values(data.duration).reduce((s, v) => s + v, 0);
   const durCount = Object.values(data.duration_count).reduce((s, v) => s + v, 0);
-  const avgSessionSec = durCount > 0 ? Math.round(durTotal / durCount) : 0;
+  const avgSessionSec = durCount > 0 ? Math.round(durTotal / durCount / 1000) : 0;
   if (durCount > 0) {
     if (avgSessionSec < 15) {
       flags.push({ type: 'warning', text: `Average session is only ${avgSessionSec}s — visitors may not be engaging` });
@@ -365,9 +365,12 @@ export default async function handler(req) {
 
         if (llmRes.ok) {
           const llmData = await llmRes.json();
-          advice = llmData.content[0].text;
+          advice = llmData.content?.[0]?.text || null;
+        } else {
+          console.error('Briefing LLM error:', llmRes.status, await llmRes.text().catch(() => ''));
         }
-      } catch {
+      } catch (e) {
+        console.error('Briefing LLM exception:', e);
         // Graceful fallback — advice stays null
       }
     }

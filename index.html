@@ -730,6 +730,339 @@
     .code-pill i { font-size: 11px; }
 
     /* ============================================================
+       RECIPES — "Measured With Love"
+       ============================================================ */
+    #recipes {
+      background: var(--warm-white);
+      padding-top: clamp(36px, 4vw, 56px);
+      padding-bottom: clamp(36px, 4vw, 56px);
+    }
+
+    /* Side-by-side: recipes left, Mandi photo right */
+    .food-row {
+      display: flex;
+      gap: clamp(20px, 3vw, 32px);
+      align-items: stretch;
+    }
+    .food-row .recipes-frame { flex: 1; min-width: 0; }
+
+    .food-row-photo {
+      flex: 0 0 280px;
+      max-width: 300px;
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+    .food-row-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+    }
+
+    @media (max-width: 780px) {
+      .food-row {
+        flex-direction: column;
+      }
+      .food-row-photo {
+        flex: none;
+        max-width: 100%;
+        height: 240px;
+      }
+    }
+
+    /* Cookbook bar — big announcement strip */
+    .cookbook-bar {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+      margin-top: clamp(20px, 3vw, 32px);
+      padding: clamp(28px, 4vw, 44px) clamp(24px, 4vw, 48px);
+      background: linear-gradient(135deg, var(--blush-light) 0%, var(--cream) 50%, var(--blush-light) 100%);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    /* Subtle shimmer animation */
+    .cookbook-bar::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(105deg, transparent 40%, rgba(184,84,106,0.03) 45%, rgba(184,84,106,0.06) 50%, rgba(184,84,106,0.03) 55%, transparent 60%);
+      background-size: 300% 100%;
+      animation: cookbook-shimmer 4s ease-in-out infinite;
+    }
+    @keyframes cookbook-shimmer {
+      0%, 100% { background-position: 200% 0; }
+      50% { background-position: -100% 0; }
+    }
+
+    /* Decorative inset border */
+    .cookbook-bar::after {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 1px solid var(--blush);
+      border-radius: calc(var(--r-lg) - 3px);
+      pointer-events: none;
+    }
+
+    .cookbook-bar .cs-badge {
+      background: var(--rose);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      padding: 6px 20px;
+      border-radius: var(--r-pill);
+      position: relative;
+      z-index: 1;
+    }
+
+    .cookbook-bar h3 {
+      font-family: var(--serif);
+      font-size: clamp(30px, 5vw, 46px);
+      font-weight: 300;
+      font-style: italic;
+      color: var(--espresso);
+      margin: 8px 0 4px;
+      line-height: 1.15;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cookbook-bar .cs-note {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin: 0 0 12px;
+      letter-spacing: 0.03em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cookbook-bar .notify-form {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      max-width: 460px;
+      position: relative;
+      z-index: 1;
+    }
+    .cookbook-bar .notify-form input[type="email"] {
+      flex: 1;
+      background: var(--warm-white);
+      border: 1.5px solid var(--blush);
+      color: var(--espresso);
+      font-size: 14px;
+      padding: 12px 18px;
+      border-radius: var(--r-pill);
+    }
+    .cookbook-bar .notify-form input[type="email"]::placeholder {
+      color: var(--taupe);
+    }
+    .cookbook-bar .notify-form input[type="email"]:focus {
+      border-color: var(--rose);
+      background: #fff;
+      outline: none;
+    }
+    .cookbook-bar .notify-form button {
+      background: var(--rose);
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: var(--r-pill);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background 0.25s ease, transform 0.2s ease;
+      white-space: nowrap;
+    }
+    .cookbook-bar .notify-form button:hover {
+      background: var(--rose-dark);
+      transform: scale(1.04);
+    }
+
+    .cookbook-bar .notify-confirm {
+      margin: 0;
+      color: var(--rose);
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 600px) {
+      .cookbook-bar .notify-form {
+        flex-direction: column;
+      }
+    }
+
+    .recipes-frame {
+      position: relative;
+      padding: clamp(22px, 3vw, 36px) clamp(18px, 2.5vw, 32px);
+      background: var(--cream);
+      border-radius: var(--r-lg);
+      border: 3px solid #7B8C5E;
+      box-shadow: var(--shadow-sm), inset 0 0 0 6px var(--cream), inset 0 0 0 7.5px #9C7B5C;
+    }
+
+    /* Decorative inner dotted border */
+    .recipes-frame::before {
+      content: '';
+      position: absolute;
+      inset: 12px;
+      border: 1.5px dashed rgba(123, 140, 94, 0.35);
+      border-radius: calc(var(--r-lg) - 6px);
+      pointer-events: none;
+    }
+
+    /* Corner flourishes — SVG floral/wheat decorations */
+    .recipes-corner {
+      position: absolute;
+      width: clamp(48px, 8vw, 80px);
+      height: clamp(48px, 8vw, 80px);
+      pointer-events: none;
+      opacity: 0.55;
+      z-index: 1;
+    }
+    .recipes-corner svg { width: 100%; height: 100%; }
+    .recipes-corner--tl { top: 14px; left: 14px; }
+    .recipes-corner--tr { top: 14px; right: 14px; transform: scaleX(-1); }
+    .recipes-corner--bl { bottom: 14px; left: 14px; transform: scaleY(-1); }
+    .recipes-corner--br { bottom: 14px; right: 14px; transform: scale(-1, -1); }
+
+    /* Center divider ornament under heading */
+    .recipes-ornament {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 10px auto 0;
+      color: #7B8C5E;
+      font-size: 14px;
+      opacity: 0.7;
+    }
+    .recipes-ornament::before,
+    .recipes-ornament::after {
+      content: '';
+      width: clamp(40px, 8vw, 80px);
+      height: 1px;
+      background: linear-gradient(to right, transparent, #9C7B5C, transparent);
+    }
+
+    .recipes-header {
+      text-align: center;
+      margin-bottom: clamp(18px, 2.5vw, 28px);
+      position: relative;
+      z-index: 2;
+    }
+
+    .recipe-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(14px, 2vw, 22px);
+      max-width: 100%;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Card with lift + glow animation */
+    .recipe-card {
+      position: relative;
+      border-radius: var(--r-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      border: 1.5px solid rgba(123, 140, 94, 0.3);
+      transition: transform 0.4s cubic-bezier(.22,.61,.36,1),
+                  box-shadow 0.4s cubic-bezier(.22,.61,.36,1),
+                  border-color 0.4s ease;
+    }
+    .recipe-card:hover {
+      transform: translateY(-8px) scale(1.04);
+      box-shadow: 0 16px 48px rgba(123, 140, 94, 0.15), var(--shadow-lg);
+      border-color: #7B8C5E;
+    }
+    .recipe-card:active {
+      transform: translateY(-3px) scale(1.01);
+      transition-duration: 0.15s;
+    }
+
+    .recipe-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s cubic-bezier(.22,.61,.36,1);
+    }
+    .recipe-card:hover img {
+      transform: scale(1.06);
+    }
+
+    /* Warm glow overlay on hover */
+    .recipe-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 100%, rgba(184, 84, 106, 0.1) 0%, transparent 70%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .recipe-card:hover::after { opacity: 1; }
+
+    /* Instagram icon hint on hover */
+    .recipe-card .recipe-link-icon {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 30px;
+      height: 30px;
+      background: rgba(255,255,255,0.92);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(6px) scale(0.8);
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(.22,.61,.36,1);
+      color: var(--rose);
+      font-size: 14px;
+      box-shadow: var(--shadow-sm);
+      z-index: 3;
+    }
+    .recipe-card:hover .recipe-link-icon {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    @media (max-width: 580px) {
+      .recipe-grid {
+        grid-template-columns: 1fr;
+        max-width: 280px;
+      }
+      .recipes-frame { padding: 28px 18px; }
+      .recipes-corner { width: 36px; height: 36px; }
+    }
+    @media (min-width: 581px) and (max-width: 780px) {
+      .recipe-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 480px;
+      }
+      .recipe-grid .recipe-card:last-child {
+        grid-column: 1 / -1;
+        max-width: 230px;
+        margin: 0 auto;
+      }
+    }
+
+    /* ============================================================
        COMING SOON
        ============================================================ */
     #coming-soon { background: var(--cream); }
@@ -1163,26 +1496,33 @@
     /* ============================================================
        WATCH — compact YouTube section
        ============================================================ */
-    #watch { background: var(--warm-white); }
+    #watch {
+      background: var(--warm-white);
+      padding-top: clamp(32px, 4vw, 48px);
+      padding-bottom: clamp(32px, 4vw, 48px);
+    }
 
     .watch-inner {
       display: flex;
       align-items: center;
-      gap: clamp(24px, 4vw, 52px);
+      gap: clamp(20px, 3vw, 40px);
     }
 
     .watch-text {
       flex: 0 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .watch-text .section-title { margin-bottom: 0; }
+    .watch-text .section-title {
+      margin-bottom: 0;
+      font-size: clamp(28px, 4vw, 38px);
+    }
 
     .video-wrapper {
       flex: 1;
-      max-width: 480px;
+      max-width: 560px;
       border-radius: var(--r-md);
       overflow: hidden;
       box-shadow: var(--shadow-md);
@@ -2184,26 +2524,120 @@
 
 
     <!-- ==========================================================
-         4. COMING SOON
+         RECIPES — Measured With Love
          ========================================================== -->
-    <section id="coming-soon" aria-label="Coming soon">
-      <div class="inner coming-soon-wrap">
+    <section id="recipes" aria-labelledby="recipes-heading">
+      <div class="inner fade-up">
 
-        <div class="coming-soon-card fade-up">
-          <div class="coming-soon-photo">
-            <img src="cookbook.jpg" alt="Mandi Bagley in the kitchen" loading="lazy" />
+        <div class="food-row">
+
+        <div class="recipes-frame">
+
+          <!-- Corner flourishes (floral wheat/leaf motif) -->
+          <div class="recipes-corner recipes-corner--tl">
+            <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 76 C4 76, 8 40, 40 20 C28 28, 18 44, 16 60" stroke="#7B8C5E" stroke-width="1.4" fill="none"/>
+              <path d="M4 76 C4 76, 40 72, 60 40 C52 52, 44 60, 28 64" stroke="#9C7B5C" stroke-width="1.2" fill="none"/>
+              <ellipse cx="40" cy="16" rx="3.5" ry="6" fill="#7B8C5E" opacity="0.5" transform="rotate(-20 40 16)"/>
+              <ellipse cx="44" cy="22" rx="3" ry="5" fill="#8FA06B" opacity="0.4" transform="rotate(-5 44 22)"/>
+              <ellipse cx="62" cy="36" rx="3.5" ry="6" fill="#7B8C5E" opacity="0.5" transform="rotate(60 62 36)"/>
+              <ellipse cx="58" cy="42" rx="3" ry="5" fill="#8FA06B" opacity="0.4" transform="rotate(45 58 42)"/>
+              <circle cx="36" cy="12" r="2.5" fill="#9C7B5C" opacity="0.5"/>
+              <circle cx="66" cy="32" r="2.5" fill="#9C7B5C" opacity="0.5"/>
+              <path d="M10 70 C14 58, 20 50, 30 42" stroke="#7B8C5E" stroke-width="0.8" fill="none" opacity="0.35"/>
+              <path d="M10 70 C22 66, 34 60, 46 48" stroke="#9C7B5C" stroke-width="0.8" fill="none" opacity="0.35"/>
+            </svg>
           </div>
-          <div class="coming-soon-body">
-            <span class="cs-badge">🔒 Coming Soon</span>
-            <span class="cs-emoji" aria-hidden="true">🍳</span>
-            <h3>Cookbook Coming Soon</h3>
-            <p class="cs-note">Be the first to know when it drops.</p>
-            <form class="notify-form" id="notifyForm" onsubmit="handleNotify(event)" aria-label="Email notification form">
-              <input type="email" placeholder="your@email.com" required aria-label="Email address" />
-              <button type="submit">Let me know when the cookbook is live</button>
-            </form>
-            <p class="notify-confirm" id="notifyConfirm" style="display:none">You're on the list! 🍳</p>
+          <div class="recipes-corner recipes-corner--tr">
+            <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 76 C4 76, 8 40, 40 20 C28 28, 18 44, 16 60" stroke="#7B8C5E" stroke-width="1.4" fill="none"/>
+              <path d="M4 76 C4 76, 40 72, 60 40 C52 52, 44 60, 28 64" stroke="#9C7B5C" stroke-width="1.2" fill="none"/>
+              <ellipse cx="40" cy="16" rx="3.5" ry="6" fill="#7B8C5E" opacity="0.5" transform="rotate(-20 40 16)"/>
+              <ellipse cx="44" cy="22" rx="3" ry="5" fill="#8FA06B" opacity="0.4" transform="rotate(-5 44 22)"/>
+              <ellipse cx="62" cy="36" rx="3.5" ry="6" fill="#7B8C5E" opacity="0.5" transform="rotate(60 62 36)"/>
+              <ellipse cx="58" cy="42" rx="3" ry="5" fill="#8FA06B" opacity="0.4" transform="rotate(45 58 42)"/>
+              <circle cx="36" cy="12" r="2.5" fill="#9C7B5C" opacity="0.5"/>
+              <circle cx="66" cy="32" r="2.5" fill="#9C7B5C" opacity="0.5"/>
+              <path d="M10 70 C14 58, 20 50, 30 42" stroke="#7B8C5E" stroke-width="0.8" fill="none" opacity="0.35"/>
+              <path d="M10 70 C22 66, 34 60, 46 48" stroke="#9C7B5C" stroke-width="0.8" fill="none" opacity="0.35"/>
+            </svg>
           </div>
+          <div class="recipes-corner recipes-corner--bl">
+            <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 76 C4 76, 8 40, 40 20 C28 28, 18 44, 16 60" stroke="#7B8C5E" stroke-width="1.4" fill="none"/>
+              <path d="M4 76 C4 76, 40 72, 60 40 C52 52, 44 60, 28 64" stroke="#9C7B5C" stroke-width="1.2" fill="none"/>
+              <ellipse cx="40" cy="16" rx="3.5" ry="6" fill="#7B8C5E" opacity="0.5" transform="rotate(-20 40 16)"/>
+              <ellipse cx="44" cy="22" rx="3" ry="5" fill="#8FA06B" opacity="0.4" transform="rotate(-5 44 22)"/>
+              <ellipse cx="62" cy="36" rx="3.5" ry="6" fill="#7B8C5E" opacity="0.5" transform="rotate(60 62 36)"/>
+              <ellipse cx="58" cy="42" rx="3" ry="5" fill="#8FA06B" opacity="0.4" transform="rotate(45 58 42)"/>
+              <circle cx="36" cy="12" r="2.5" fill="#9C7B5C" opacity="0.5"/>
+              <circle cx="66" cy="32" r="2.5" fill="#9C7B5C" opacity="0.5"/>
+              <path d="M10 70 C14 58, 20 50, 30 42" stroke="#7B8C5E" stroke-width="0.8" fill="none" opacity="0.35"/>
+              <path d="M10 70 C22 66, 34 60, 46 48" stroke="#9C7B5C" stroke-width="0.8" fill="none" opacity="0.35"/>
+            </svg>
+          </div>
+          <div class="recipes-corner recipes-corner--br">
+            <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 76 C4 76, 8 40, 40 20 C28 28, 18 44, 16 60" stroke="#7B8C5E" stroke-width="1.4" fill="none"/>
+              <path d="M4 76 C4 76, 40 72, 60 40 C52 52, 44 60, 28 64" stroke="#9C7B5C" stroke-width="1.2" fill="none"/>
+              <ellipse cx="40" cy="16" rx="3.5" ry="6" fill="#7B8C5E" opacity="0.5" transform="rotate(-20 40 16)"/>
+              <ellipse cx="44" cy="22" rx="3" ry="5" fill="#8FA06B" opacity="0.4" transform="rotate(-5 44 22)"/>
+              <ellipse cx="62" cy="36" rx="3.5" ry="6" fill="#7B8C5E" opacity="0.5" transform="rotate(60 62 36)"/>
+              <ellipse cx="58" cy="42" rx="3" ry="5" fill="#8FA06B" opacity="0.4" transform="rotate(45 58 42)"/>
+              <circle cx="36" cy="12" r="2.5" fill="#9C7B5C" opacity="0.5"/>
+              <circle cx="66" cy="32" r="2.5" fill="#9C7B5C" opacity="0.5"/>
+              <path d="M10 70 C14 58, 20 50, 30 42" stroke="#7B8C5E" stroke-width="0.8" fill="none" opacity="0.35"/>
+              <path d="M10 70 C22 66, 34 60, 46 48" stroke="#9C7B5C" stroke-width="0.8" fill="none" opacity="0.35"/>
+            </svg>
+          </div>
+
+          <div class="recipes-header">
+            <span class="section-label">Measured With Love</span>
+            <h2 class="section-title" id="recipes-heading">Recipes</h2>
+            <div class="recipes-ornament">
+              <i class="fa-solid fa-leaf"></i>
+            </div>
+            <p class="section-sub" style="margin-top:10px">Tap a recipe to watch the full video on Instagram</p>
+          </div>
+
+          <div class="recipe-grid">
+
+            <a class="recipe-card" href="https://www.instagram.com/reel/DUtSeKdEUAK/" target="_blank" rel="noopener noreferrer" aria-label="Peanut Butter Banana Protein Loaf — watch on Instagram">
+              <img src="recipe-pb-banana.png" alt="Peanut Butter Banana Protein Loaf recipe card" loading="lazy" />
+              <span class="recipe-link-icon"><i class="fa-brands fa-instagram"></i></span>
+            </a>
+
+            <a class="recipe-card" href="https://www.instagram.com/reel/DVrXLr2EUiD/" target="_blank" rel="noopener noreferrer" aria-label="Blueberry Lemon Muffins — watch on Instagram">
+              <img src="recipe-blueberry-muffins.png" alt="Blueberry Lemon Muffins recipe card" loading="lazy" />
+              <span class="recipe-link-icon"><i class="fa-brands fa-instagram"></i></span>
+            </a>
+
+            <a class="recipe-card" href="https://www.instagram.com/reel/DWKNyQkEbcU/" target="_blank" rel="noopener noreferrer" aria-label="Gluten Free Carrot Cake — watch on Instagram">
+              <img src="recipe-carrot-cake.png" alt="Gluten Free Carrot Cake recipe card" loading="lazy" />
+              <span class="recipe-link-icon"><i class="fa-brands fa-instagram"></i></span>
+            </a>
+
+          </div>
+
+        </div><!-- /.recipes-frame -->
+
+        <!-- Mandi photo — right side -->
+        <div class="food-row-photo">
+          <img src="cookbook.jpg" alt="Mandi Bagley in the kitchen" loading="lazy" />
+        </div>
+
+        </div><!-- /.food-row -->
+
+        <!-- Cookbook coming soon — full-width bar below -->
+        <div class="cookbook-bar fade-up" id="coming-soon">
+          <span class="cs-badge">COMING SOON</span>
+          <h3>The Cookbook Is Almost Here</h3>
+          <p class="cs-note">Recipes made with love, straight to your kitchen. Be the first to get it.</p>
+          <form class="notify-form" id="notifyForm" onsubmit="handleNotify(event)" aria-label="Email notification form">
+            <input type="email" placeholder="your@email.com" required aria-label="Email address" />
+            <button type="submit">Notify Me</button>
+          </form>
+          <p class="notify-confirm" id="notifyConfirm" style="display:none">You're on the list! 🍳</p>
         </div>
 
       </div>
@@ -2445,7 +2879,15 @@
         const res     = await fetch(apiUrl);
         const data    = await res.json();
         if (data.status === 'ok' && data.items && data.items.length > 0) {
-          const item  = data.items[0];
+          // Find first non-Shorts video (Shorts often can't be embedded)
+          let item = null;
+          for (let i = 0; i < data.items.length; i++) {
+            if (!(data.items[i].link || '').includes('/shorts/')) {
+              item = data.items[i];
+              break;
+            }
+          }
+          if (!item) item = data.items[0]; // fallback to first item if all are Shorts
           // Try link first, then guid (YouTube RSS guid = "yt:video:VIDEO_ID")
           const fromLink   = (item.link || '').match(/[?&]v=([^&]+)/);
           const fromShorts = (item.link || '').match(/\/shorts\/([^?&"]+)/);
@@ -2457,28 +2899,62 @@
             document.getElementById('videoTitleBar').textContent = item.title;
             document.getElementById('videoLoading').style.display  = 'none';
             document.getElementById('videoPoster').style.display   = 'flex';
+            onVideoIdReady();
           } else {
             showYtFallback();
+            onVideoIdReady();
           }
         } else {
           showYtFallback();
+          onVideoIdReady();
         }
       } catch (_) {
         showYtFallback();
+        onVideoIdReady();
       }
     })();
 
+    let videoPlayed = false;
+    let watchSectionVisible = false;
+
     function playVideo() {
-      if (!latestVideoId) {
-        window.open('https://youtube.com/@mandibagleyy', '_blank');
-        return;
-      }
+      if (videoPlayed) return;
+      if (!latestVideoId) return; // wait until video ID is ready
+      videoPlayed = true;
       const wrapper = document.getElementById('videoWrapper');
+      // Use origin=* and enablejsapi for broader compat; mute=1 allows autoplay
+      var embedSrc = 'https://www.youtube.com/embed/' + latestVideoId
+        + '?autoplay=1&mute=1&enablejsapi=1&rel=0&modestbranding=1&playsinline=1';
       wrapper.innerHTML =
-        `<iframe src="https://www.youtube.com/embed/${latestVideoId}?autoplay=1"
-                 loading="lazy"
-                 allow="autoplay; encrypted-media; picture-in-picture"
-                 allowfullscreen></iframe>`;
+        '<iframe src="' + embedSrc + '"'
+        + ' allow="autoplay; encrypted-media; picture-in-picture"'
+        + ' allowfullscreen'
+        + ' style="position:absolute;inset:0;width:100%;height:100%;border:none">'
+        + '</iframe>';
+    }
+
+    // Called after video ID is loaded — if user already scrolled there, play now
+    function onVideoIdReady() {
+      if (watchSectionVisible && !videoPlayed) {
+        playVideo();
+      }
+    }
+
+    // Auto-play YouTube video when section scrolls into view
+    const watchSection = document.getElementById('watch');
+    if (watchSection) {
+      const videoAutoObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            watchSectionVisible = true;
+            if (latestVideoId && !videoPlayed) {
+              playVideo();
+              videoAutoObserver.disconnect();
+            }
+          }
+        });
+      }, { threshold: 0.3 });
+      videoAutoObserver.observe(watchSection);
     }
 
 

@@ -747,18 +747,53 @@
     .food-row .recipes-frame { flex: 1; min-width: 0; }
 
     .food-row-photo {
+      position: relative;
       flex: 0 0 280px;
       max-width: 300px;
       border-radius: var(--r-lg);
       overflow: hidden;
       box-shadow: var(--shadow-md);
+      background: var(--blush-light);
     }
     .food-row-photo img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      object-position: center top;
+      object-fit: contain;
+      object-position: center bottom;
       display: block;
+    }
+
+    /* Cooking Instagram button overlaid on photo */
+    .food-row-photo .cooking-ig-btn {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: rgba(43, 26, 26, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border-radius: var(--r-pill);
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: var(--shadow-md);
+      transition: background 0.25s ease, transform 0.25s ease;
+      white-space: nowrap;
+      z-index: 2;
+    }
+    .food-row-photo .cooking-ig-btn:hover {
+      background: var(--rose);
+      transform: translateX(-50%) scale(1.05);
+    }
+    .food-row-photo .cooking-ig-btn i {
+      font-size: 15px;
     }
 
     @media (max-width: 780px) {
@@ -1824,19 +1859,19 @@
     @media (max-width: 660px) {
       /* Snap Me: tiny badge on mobile */
       .snap-float {
-        bottom: 12px;
+        bottom: 14px;
         top: auto;
         transform: none;
         border-radius: 50px;
         flex-direction: row;
-        padding: 4px 8px 4px 6px;
-        gap: 3px;
-        box-shadow: 0 1px 6px rgba(0,0,0,0.18);
+        padding: 8px 14px 8px 10px;
+        gap: 6px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.22);
       }
       .snap-float:hover { transform: translateY(-2px); }
       .snap-float-photo { display: none; }
-      .snap-float-label { writing-mode: horizontal-tb; transform: none; font-size: 7px; letter-spacing: 0.03em; }
-      .snap-float-icon  { font-size: 10px; }
+      .snap-float-label { writing-mode: horizontal-tb; transform: none; font-size: 11px; letter-spacing: 0.03em; }
+      .snap-float-icon  { font-size: 14px; }
     }
 
     /* ============================================================
@@ -2626,6 +2661,9 @@
         <!-- Mandi photo — right side -->
         <div class="food-row-photo">
           <img src="cookbook.jpg" alt="Mandi Bagley in the kitchen" loading="lazy" />
+          <a class="cooking-ig-btn" href="https://www.instagram.com/manditory_munchies" target="_blank" rel="noopener noreferrer">
+            <i class="fa-brands fa-instagram"></i> @manditory_munchies
+          </a>
         </div>
 
         </div><!-- /.food-row -->

@@ -6,7 +6,7 @@ const CLIENT_NAME = 'Mandi Bagley';
 const REDIS_URL   = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const PASSWORD    = process.env.DASHBOARD_PASSWORD || 'Password2024';
-const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || process.env.AI_KEY;
 
 async function redis(commands) {
   const res = await fetch(`${REDIS_URL}/pipeline`, {

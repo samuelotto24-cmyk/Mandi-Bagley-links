@@ -342,7 +342,7 @@ export default async function handler(req) {
 
     /* ── LLM advisory (Claude Haiku) ── */
     let advice = null;
-    const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+    const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || process.env.AI_KEY;
     const _debug = { hasKey: !!ANTHROPIC_API_KEY, flagCount: flags.length };
     if (ANTHROPIC_API_KEY && flags.length > 0) {
       try {

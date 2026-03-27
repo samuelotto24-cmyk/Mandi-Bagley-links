@@ -382,6 +382,140 @@
     }
     .hub-nav-btn:hover { opacity: 0.85; }
 
+    /* ── Greeting glow ── */
+    .greeting-wrap { position: relative; }
+    .greeting-glow {
+      position: absolute;
+      top: -30px; left: 50%; transform: translateX(-50%);
+      width: 400px; height: 120px;
+      background: radial-gradient(ellipse, var(--accent-20) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hub-greeting { position: relative; z-index: 1; }
+    .hub-date { position: relative; z-index: 1; }
+
+    /* ── Health status bar ── */
+    .health-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 6px 16px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .health-bar.visible { opacity: 1; transform: translateY(0); }
+    .health-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .health-green  { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+    .health-amber  { background: #f59e0b; box-shadow: 0 0 6px rgba(245,158,11,0.5); }
+    .health-red    { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.5); }
+
+    /* ── Priority markers on advice bullets ── */
+    .advice-bullet.priority-high   { background: #ef4444; }
+    .advice-bullet.priority-medium { background: #f59e0b; }
+    .advice-bullet.priority-low    { background: #22c55e; }
+
+    /* ── Confidence badge on chat responses ── */
+    .chat-confidence {
+      display: inline-block;
+      font-size: 10px;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 2px 10px;
+      margin-top: 6px;
+    }
+
+    /* ── Suggested prompt pills ── */
+    .chat-prompts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 24px 16px;
+    }
+    .chat-prompt-btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--accent-10);
+      border: 1px solid var(--accent-20);
+      border-radius: 50px;
+      padding: 7px 16px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .chat-prompt-btn:hover {
+      background: var(--accent-20);
+      transform: translateY(-1px);
+    }
+
+    /* ── Quick action buttons ── */
+    .quick-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+    .quick-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 8px 18px;
+      text-decoration: none;
+      transition: color 0.2s, border-color 0.2s, transform 0.15s;
+    }
+    .quick-action-btn:hover {
+      color: var(--text);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .qa-icon { font-size: 14px; }
+
+    /* ── Entrance animations ── */
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .briefing-card { animation: fadeSlideUp 0.6s ease forwards; }
+    .chat-section  { animation: fadeSlideUp 0.6s 0.15s ease both; }
+    .hub-cards     { animation: fadeSlideUp 0.6s 0.3s ease both; }
+    .quick-actions { animation: fadeSlideUp 0.6s 0.45s ease both; }
+
+    /* ── Week-over-week trend animation ── */
+    .briefing-metric-val.trend-up   { color: #22c55e; }
+    .briefing-metric-val.trend-down { color: #ef4444; }
+    @keyframes trendSlide {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .briefing-metric { animation: trendSlide 0.4s ease both; }
+    .briefing-metric:nth-child(1) { animation-delay: 0.1s; }
+    .briefing-metric:nth-child(2) { animation-delay: 0.2s; }
+    .briefing-metric:nth-child(3) { animation-delay: 0.3s; }
+    .briefing-metric:nth-child(4) { animation-delay: 0.4s; }
+
     /* ── AI Advisor Chat ── */
     .chat-section {
       background: var(--surface); border: 1px solid var(--border);
@@ -454,6 +588,11 @@
       .briefing-flags { padding: 0 24px 20px; }
       .briefing-footer { padding: 14px 24px; }
       .chat-header { padding: 16px 18px; }
+      .chat-prompts { padding: 0 18px 12px; }
+      .chat-prompt-btn { font-size: 11px; padding: 6px 12px; }
+      .quick-actions { gap: 8px; }
+      .quick-action-btn { font-size: 11px; padding: 7px 14px; }
+      .greeting-glow { width: 280px; height: 80px; }
       .chat-messages { padding: 16px 18px; max-height: 320px; }
       .chat-input-row { padding: 12px 18px; }
       .chat-msg-bubble { max-width: 88%; font-size: 13px; }
@@ -511,8 +650,17 @@
 
 <!-- ── Hub ────────────────────────────────────── -->
 <div id="hub">
-  <h1 class="hub-greeting" id="hubGreeting"></h1>
-  <p class="hub-date" id="hubDate"></p>
+  <div class="greeting-wrap">
+    <div class="greeting-glow"></div>
+    <h1 class="hub-greeting" id="hubGreeting"></h1>
+    <p class="hub-date" id="hubDate"></p>
+  </div>
+
+  <!-- Health status indicator -->
+  <div class="health-bar" id="healthBar">
+    <span class="health-dot" id="healthDot"></span>
+    <span class="health-text" id="healthText"></span>
+  </div>
   <!-- Briefing Card -->
   <div class="briefing-card">
     <!-- Skeleton loading state -->
@@ -566,11 +714,17 @@
     </div>
     <div class="chat-messages" id="chatMessages">
       <div class="chat-msg assistant">
-        <div class="chat-msg-bubble">Hey! I've got all your analytics loaded. Ask me anything — best times to post, which platform is converting, what links to push, or what to change on your page.</div>
+        <div class="chat-msg-bubble">Hey! I've got all your analytics loaded. Ask me anything — best times to post, which platform is converting, or what to promote this week.</div>
       </div>
     </div>
+    <div class="chat-prompts" id="chatPrompts">
+      <button class="chat-prompt-btn" onclick="askPrompt(this)">When should I post?</button>
+      <button class="chat-prompt-btn" onclick="askPrompt(this)">What's my best platform?</button>
+      <button class="chat-prompt-btn" onclick="askPrompt(this)">What should I promote?</button>
+      <button class="chat-prompt-btn" onclick="askPrompt(this)">How's my growth?</button>
+    </div>
     <form class="chat-input-row" id="chatForm" onsubmit="sendChat(event)">
-      <input type="text" class="chat-input" id="chatInput" placeholder="e.g. When should I post this week?" autocomplete="off" />
+      <input type="text" class="chat-input" id="chatInput" placeholder="Ask about your data…" autocomplete="off" />
       <button type="submit" class="chat-send" id="chatSend">→</button>
     </form>
   </div>
@@ -593,6 +747,19 @@
       <p class="hub-nav-status" style="visibility:hidden">·</p>
       <a class="hub-nav-btn" href="/dashboard" target="_blank">Open dashboard →</a>
     </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <a class="quick-action-btn" href="mailto:samuelotto24@gmail.com?subject=Hey Sam — Mandi Bagley">
+      <span class="qa-icon">✉️</span> Message Sam
+    </a>
+    <a class="quick-action-btn" href="mailto:samuelotto24@gmail.com?subject=Update request — Mandi Bagley">
+      <span class="qa-icon">🔄</span> Request an update
+    </a>
+    <a class="quick-action-btn" id="qaViewSite" href="#" target="_blank">
+      <span class="qa-icon">🌐</span> View my page
+    </a>
   </div>
 </div>
 
@@ -649,6 +816,7 @@
       document.getElementById('siteHostname').textContent = CLIENT.url;
     }
     document.getElementById('siteLink').href = CLIENT.url;
+    document.getElementById('qaViewSite').href = CLIENT.url;
 
     document.getElementById('hub').style.display = 'block';
     loadBriefing();
@@ -677,34 +845,56 @@
       document.getElementById('briefingSummary').textContent =
         data.summary || '';
 
-      // Metric pills below summary
+      // Health status bar
+      var healthBar = document.getElementById('healthBar');
+      var healthDot = document.getElementById('healthDot');
+      var healthText = document.getElementById('healthText');
+      var warningCount = data.flags ? data.flags.filter(function(f) { return f.type === 'warning'; }).length : 0;
+      var positiveCount = data.flags ? data.flags.filter(function(f) { return f.type === 'positive'; }).length : 0;
+      if (warningCount >= 3) {
+        healthDot.className = 'health-dot health-red';
+        healthText.textContent = 'Action needed — review your insights below';
+      } else if (warningCount >= 1) {
+        healthDot.className = 'health-dot health-amber';
+        healthText.textContent = 'Some areas need attention';
+      } else {
+        healthDot.className = 'health-dot health-green';
+        healthText.textContent = 'Your page is performing well';
+      }
+      setTimeout(function() { healthBar.classList.add('visible'); }, 300);
+
+      // Metric pills below summary — with trend colors
       var metricsEl = document.getElementById('briefingMetrics');
       metricsEl.innerHTML = '';
       if (data.metrics) {
         var m = data.metrics;
+        var wowVal = m.weekOverWeek || '—';
+        var wowClass = wowVal.charAt(0) === '+' ? ' trend-up' : (wowVal.charAt(0) === '-' ? ' trend-down' : '');
         var pills = [
-          { val: m.thisWeekViews ? m.thisWeekViews.toLocaleString() : '—', label: 'this week' },
-          { val: m.weekOverWeek || '—', label: 'vs last week' },
-          { val: m.topReferrer || '—', label: 'top source' },
-          { val: m.avgSessionSec ? m.avgSessionSec + 's' : '—', label: 'avg session' },
+          { val: m.thisWeekViews ? m.thisWeekViews.toLocaleString() : '—', label: 'this week', cls: '' },
+          { val: wowVal, label: 'vs last week', cls: wowClass },
+          { val: m.topReferrer || '—', label: 'top source', cls: '' },
+          { val: m.avgSessionSec ? m.avgSessionSec + 's' : '—', label: 'avg session', cls: '' },
         ];
         pills.forEach(function(p) {
           var el = document.createElement('div');
           el.className = 'briefing-metric';
-          el.innerHTML = '<span class="briefing-metric-val">' + p.val + '</span><span class="briefing-metric-label">' + p.label + '</span>';
+          el.innerHTML = '<span class="briefing-metric-val' + p.cls + '">' + p.val + '</span><span class="briefing-metric-label">' + p.label + '</span>';
           metricsEl.appendChild(el);
         });
       }
 
-      // Advice — split into bullet points by sentence
+      // Advice — split into bullet points with priority markers
       var adviceEl = document.getElementById('briefingAdvice');
       adviceEl.innerHTML = '';
       var adviceText = data.advice || 'Advisory insights temporarily unavailable';
       var sentences = adviceText.split(/(?<=[.!?])\s+/).filter(function(s) { return s.trim(); });
-      sentences.forEach(function(s) {
+      sentences.forEach(function(s, i) {
         var item = document.createElement('div');
         item.className = 'advice-item';
-        item.innerHTML = '<div class="advice-bullet"></div><span>' + s.trim() + '</span>';
+        // First sentence = high priority, middle = medium, last = low
+        var priority = i === 0 ? 'high' : (i < sentences.length - 1 ? 'medium' : 'low');
+        item.innerHTML = '<div class="advice-bullet priority-' + priority + '"></div><span>' + s.trim() + '</span>';
         adviceEl.appendChild(item);
       });
 
@@ -746,6 +936,13 @@
     }
   }
 
+  // ── Suggested prompt click ──
+  function askPrompt(btn) {
+    document.getElementById('chatInput').value = btn.textContent;
+    document.getElementById('chatPrompts').style.display = 'none';
+    sendChat(new Event('submit'));
+  }
+
   // ── AI Advisor Chat ──
   var chatHistory = [];
 
@@ -779,7 +976,12 @@
       typingEl.remove();
 
       if (res.ok && data.answer) {
-        appendMsg('assistant', data.answer);
+        var msgEl = appendMsg('assistant', data.answer);
+        // Add confidence badge
+        var badge = document.createElement('div');
+        badge.className = 'chat-confidence';
+        badge.textContent = 'Based on your live analytics data';
+        msgEl.querySelector('.chat-msg-bubble').appendChild(badge);
         chatHistory.push({ role: 'assistant', content: data.answer });
       } else {
         appendMsg('assistant', data.error || 'Something went wrong — try again.');

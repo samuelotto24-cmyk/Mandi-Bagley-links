@@ -96,6 +96,11 @@
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
     }
+    #hub {
+      background:
+        radial-gradient(ellipse 60% 50% at 15% 20%, var(--accent-10) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 80%, var(--accent-10) 0%, transparent 55%);
+    }
 
     /* ── Login ─────────────────────────────────── */
     #loginScreen {
@@ -493,6 +498,124 @@
     }
     .qa-icon { font-size: 14px; }
 
+    /* ── Contact modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      animation: modalFadeIn 0.25s ease;
+    }
+    .modal-overlay.open { display: flex; }
+    @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      width: 100%;
+      max-width: 440px;
+      overflow: hidden;
+      animation: modalSlideUp 0.3s cubic-bezier(0.23,1,0.32,1);
+    }
+    @keyframes modalSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-title {
+      font-family: var(--display-font);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .modal-close {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .modal-close:hover { background: var(--border); }
+    .modal-body { padding: 24px; }
+    .modal-field { margin-bottom: 16px; }
+    .modal-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .modal-select,
+    .modal-textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--input-bg);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+    .modal-select:focus,
+    .modal-textarea:focus { border-color: var(--accent); }
+    .modal-textarea { resize: vertical; min-height: 100px; }
+    .modal-submit {
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .modal-submit:hover { opacity: 0.85; }
+    .modal-submit:disabled { opacity: 0.4; cursor: default; }
+    .modal-status {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+      min-height: 18px;
+    }
+    .modal-sms {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .modal-sms a {
+      color: var(--accent);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .modal-sms a:hover { text-decoration: underline; }
+
     /* ── Entrance animations ── */
     @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(16px); }
@@ -751,15 +874,45 @@
 
   <!-- Quick Actions -->
   <div class="quick-actions">
-    <a class="quick-action-btn" href="mailto:samuelotto24@gmail.com?subject=Hey Sam — Mandi Bagley">
+    <button class="quick-action-btn" onclick="openModal('message')">
       <span class="qa-icon">✉️</span> Message Sam
-    </a>
-    <a class="quick-action-btn" href="mailto:samuelotto24@gmail.com?subject=Update request — Mandi Bagley">
+    </button>
+    <button class="quick-action-btn" onclick="openModal('update')">
       <span class="qa-icon">🔄</span> Request an update
-    </a>
+    </button>
     <a class="quick-action-btn" id="qaViewSite" href="#" target="_blank">
       <span class="qa-icon">🌐</span> View my page
     </a>
+  </div>
+
+  <!-- Contact Modal -->
+  <div class="modal-overlay" id="contactModal" onclick="if(event.target===this)closeModal()">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">Message Sam</span>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <form class="modal-body" onsubmit="submitModal(event)">
+        <div class="modal-field">
+          <label class="modal-label">What do you need?</label>
+          <select class="modal-select" id="modalType">
+            <option value="Site update">Site update</option>
+            <option value="Question about my data">Question about my data</option>
+            <option value="New feature request">New feature request</option>
+            <option value="Something else">Something else</option>
+          </select>
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Details</label>
+          <textarea class="modal-textarea" id="modalMessage" placeholder="Tell me what you need…"></textarea>
+        </div>
+        <button type="submit" class="modal-submit" id="modalSubmit">Send</button>
+        <p class="modal-status" id="modalStatus"></p>
+      </form>
+      <div class="modal-sms">
+        Need a faster response? <a href="sms:6149286837">Text Sam →</a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -933,6 +1086,65 @@
     } catch (e) {
       skeleton.style.display = 'none';
       errorEl.style.display = 'block';
+    }
+  }
+
+  // ── Contact modal ──
+  function openModal(type) {
+    var modal = document.getElementById('contactModal');
+    var title = document.getElementById('modalTitle');
+    var select = document.getElementById('modalType');
+    if (type === 'update') {
+      title.textContent = 'Request an Update';
+      select.value = 'Site update';
+    } else {
+      title.textContent = 'Message Sam';
+      select.value = 'Something else';
+    }
+    document.getElementById('modalMessage').value = '';
+    document.getElementById('modalStatus').textContent = '';
+    document.getElementById('modalSubmit').disabled = false;
+    modal.classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('contactModal').classList.remove('open');
+  }
+
+  async function submitModal(e) {
+    e.preventDefault();
+    var btn = document.getElementById('modalSubmit');
+    var status = document.getElementById('modalStatus');
+    var type = document.getElementById('modalType').value;
+    var message = document.getElementById('modalMessage').value.trim();
+
+    if (!message) { status.textContent = 'Please add some details.'; return; }
+
+    btn.disabled = true;
+    status.textContent = 'Sending…';
+
+    try {
+      var res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: CLIENT.name,
+          email: CLIENT.name,
+          type: type,
+          message: '[' + type + '] ' + message,
+        }),
+      });
+      if (res.ok) {
+        status.textContent = 'Sent! Sam will get back to you.';
+        status.style.color = 'var(--accent)';
+        setTimeout(closeModal, 2000);
+      } else {
+        status.textContent = 'Couldn\'t send — try texting instead.';
+        btn.disabled = false;
+      }
+    } catch {
+      status.textContent = 'Connection error — try texting instead.';
+      btn.disabled = false;
     }
   }
 

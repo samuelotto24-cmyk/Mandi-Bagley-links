@@ -343,6 +343,7 @@ export default async function handler(req) {
     /* ── LLM advisory (Claude Haiku) ── */
     let advice = null;
     const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+    const _debug = { hasKey: !!ANTHROPIC_API_KEY, flagCount: flags.length };
     if (ANTHROPIC_API_KEY && flags.length > 0) {
       try {
         const bulletPoints = flags.map((f) => `- [${f.type}] ${f.text}`).join('\n');
@@ -382,6 +383,7 @@ export default async function handler(req) {
       generatedAt: new Date().toISOString(),
       metrics,
       flags,
+      _debug,
     }), { headers: { 'Content-Type': 'application/json' } });
   } catch {
     return new Response(JSON.stringify({ error: 'Failed to load data' }), { status: 500 });

@@ -82,25 +82,6 @@
     }
 
     /* ============================================================
-       3D GLOBE BACKGROUND
-       ============================================================ */
-    #globeCanvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    /* Ensure all content sits above the globe */
-    #nav, main, .purchase-ticker, #loader, #scroll-progress, .snap-float, footer {
-      position: relative;
-      z-index: 1;
-    }
-
-    /* ============================================================
        RESET & BASE
        ============================================================ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2098,9 +2079,6 @@
   <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
-  <!-- 3D Globe Background -->
-  <canvas id="globeCanvas" aria-hidden="true"></canvas>
-
   <!-- Purchase ticker -->
   <div class="purchase-ticker" id="purchaseTicker" role="status">
     <div class="ticker-avatar">🏋️</div>
@@ -3393,164 +3371,6 @@
     <i class="fa-brands fa-snapchat snap-float-icon"></i>
     <span class="snap-float-label">Snap Me</span>
   </a>
-
-  <!-- Three.js — 3D Globe -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script>
-  (function() {
-    var canvas = document.getElementById('globeCanvas');
-    if (!canvas) return;
-
-    // ── Renderer ──
-    var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    var scene = new THREE.Scene();
-
-    // ── Camera ──
-    var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 4.8;
-
-    // ── Colors from the site palette ──
-    var ROSE      = new THREE.Color('#B8546A');
-    var TAUPE     = new THREE.Color('#C4AFA4');
-    var BLUSH     = new THREE.Color('#EAD0C8');
-    var ESPRESSO  = new THREE.Color('#5A3D3D');
-
-    // ── Build the globe geometry ──
-    var detail = window.innerWidth < 660 ? 12 : 18;
-    var geo = new THREE.IcosahedronGeometry(2.2, detail);
-
-    // --- Wireframe lines ---
-    var edgesGeo = new THREE.EdgesGeometry(geo, 1);
-    var lineMat = new THREE.LineBasicMaterial({
-      color: TAUPE,
-      transparent: true,
-      opacity: 0.12
-    });
-    var wireframe = new THREE.LineSegments(edgesGeo, lineMat);
-
-    // --- Dots at every vertex ---
-    var positions = geo.getAttribute('position');
-    var dotPositions = [];
-    var dotColors = [];
-    var seen = {};
-
-    for (var i = 0; i < positions.count; i++) {
-      var x = positions.getX(i);
-      var y = positions.getY(i);
-      var z = positions.getZ(i);
-      // Deduplicate vertices (icosahedron has shared verts)
-      var key = x.toFixed(4) + ',' + y.toFixed(4) + ',' + z.toFixed(4);
-      if (seen[key]) continue;
-      seen[key] = true;
-
-      dotPositions.push(x, y, z);
-
-      // Blend between rose and taupe based on latitude
-      var lat = Math.abs(y / 2.2);
-      var c = new THREE.Color().lerpColors(ROSE, TAUPE, lat);
-      dotColors.push(c.r, c.g, c.b);
-    }
-
-    var dotGeo = new THREE.BufferGeometry();
-    dotGeo.setAttribute('position', new THREE.Float32BufferAttribute(dotPositions, 3));
-    dotGeo.setAttribute('color', new THREE.Float32BufferAttribute(dotColors, 3));
-
-    var dotMat = new THREE.PointsMaterial({
-      size: window.innerWidth < 660 ? 2.5 : 3.0,
-      sizeAttenuation: true,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.55
-    });
-    var dots = new THREE.Points(dotGeo, dotMat);
-
-    // --- Larger accent dots on a coarser sphere for depth ---
-    var coarseGeo = new THREE.IcosahedronGeometry(2.22, 3);
-    var coarsePos = coarseGeo.getAttribute('position');
-    var accentPositions = [];
-    var accentColors = [];
-    var seen2 = {};
-
-    for (var j = 0; j < coarsePos.count; j++) {
-      var ax = coarsePos.getX(j);
-      var ay = coarsePos.getY(j);
-      var az = coarsePos.getZ(j);
-      var key2 = ax.toFixed(3) + ',' + ay.toFixed(3) + ',' + az.toFixed(3);
-      if (seen2[key2]) continue;
-      seen2[key2] = true;
-
-      accentPositions.push(ax, ay, az);
-      var lat2 = Math.abs(ay / 2.22);
-      var c2 = new THREE.Color().lerpColors(ESPRESSO, ROSE, lat2 * 0.6 + 0.4);
-      accentColors.push(c2.r, c2.g, c2.b);
-    }
-
-    var accentGeo = new THREE.BufferGeometry();
-    accentGeo.setAttribute('position', new THREE.Float32BufferAttribute(accentPositions, 3));
-    accentGeo.setAttribute('color', new THREE.Float32BufferAttribute(accentColors, 3));
-
-    var accentMat = new THREE.PointsMaterial({
-      size: window.innerWidth < 660 ? 4.5 : 5.5,
-      sizeAttenuation: true,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.7
-    });
-    var accentDots = new THREE.Points(accentGeo, accentMat);
-
-    // --- Group everything and tilt it diagonally ---
-    var globe = new THREE.Group();
-    globe.add(wireframe);
-    globe.add(dots);
-    globe.add(accentDots);
-
-    // Axial tilt: like a real globe model on a stand
-    globe.rotation.x = 0.4;   // tilt forward
-    globe.rotation.z = -0.25; // tilt sideways
-
-    scene.add(globe);
-
-    // ── Fade opacity based on scroll ──
-    var scrollFade = 1;
-
-    window.addEventListener('scroll', function() {
-      var scrollY = window.pageYOffset || document.documentElement.scrollTop;
-      var heroH = window.innerHeight;
-      // Fade out over the hero section height
-      scrollFade = Math.max(0, 1 - (scrollY / (heroH * 0.9)));
-    }, { passive: true });
-
-    // ── Animation loop ──
-    var clock = new THREE.Clock();
-
-    function animate() {
-      requestAnimationFrame(animate);
-      var elapsed = clock.getElapsedTime();
-
-      // Slow diagonal rotation (rotate around tilted axis)
-      globe.rotation.y = elapsed * 0.08;
-
-      // Apply scroll-based fade
-      lineMat.opacity = 0.12 * scrollFade;
-      dotMat.opacity = 0.55 * scrollFade;
-      accentMat.opacity = 0.7 * scrollFade;
-
-      renderer.render(scene, camera);
-    }
-
-    animate();
-
-    // ── Resize handler ──
-    window.addEventListener('resize', function() {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  })();
-  </script>
 
 </body>
 </html>

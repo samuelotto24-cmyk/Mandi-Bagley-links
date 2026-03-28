@@ -126,11 +126,32 @@
       document.head.appendChild(link);
 
       document.title = 'Analytics — ' + CLIENT.name;
+
+      // Build gradient mesh backgrounds
+      var gp = GRADIENT_PRESETS[CLIENT.gradient] || GRADIENT_PRESETS['neon-pink'];
+      var mesh1Bg = gp.mesh1.map(function(c, i) {
+        var positions = ['25% 25%','75% 20%','50% 75%','20% 60%','80% 50%'];
+        return 'radial-gradient(ellipse at ' + positions[i % 5] + ', ' + c + ' 0%, transparent 50%)';
+      }).join(',');
+      var mesh2Bg = gp.mesh2.map(function(c, i) {
+        var positions = ['60% 30%','30% 70%','70% 60%'];
+        return 'radial-gradient(ellipse at ' + positions[i % 3] + ', ' + c + ' 0%, transparent 45%)';
+      }).join(',');
+      var meshPulseBg = 'radial-gradient(ellipse at 50% 50%, ' + gp.pulse + ' 0%, transparent 70%)';
+      document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('mesh1').style.background = mesh1Bg;
+        document.getElementById('mesh2').style.background = mesh2Bg;
+        document.getElementById('meshPulse').style.background = meshPulseBg;
+      });
     })();
   </script>
 
   <style>
     :root { --radius: 14px; }
+
+    @keyframes meshDrift1 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-5%,3%) scale(1.05); } }
+    @keyframes meshDrift2 { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(4%,-3%) scale(1.03); } }
+    @keyframes meshPulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -140,18 +161,19 @@
       color: var(--text);
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
     /* ── Login ─────────────────────────────────── */
     #loginScreen {
       display: flex; align-items: center; justify-content: center;
       min-height: 100vh; padding: 24px;
-      background: var(--login-bg);
+      position: relative; z-index: 1;
     }
     @keyframes login-entrance { from { opacity: 0; transform: translateY(24px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
     .login-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 56px 48px;
+      background: rgba(20,16,18,0.75); backdrop-filter: blur(20px);
+      border: 1px solid var(--border); border-radius: 18px; padding: 56px 48px;
       width: 100%; max-width: 400px; box-shadow: var(--shadow); text-align: center;
       animation: login-entrance 0.6s cubic-bezier(0.23,1,0.32,1) forwards;
     }
@@ -169,13 +191,13 @@
     }
     .login-input {
       width: 100%; padding: 13px 16px; border: 1.5px solid var(--border);
-      border-radius: 8px; background: var(--input-bg);
+      border-radius: 8px; background: rgba(12,8,9,0.6);
       font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text);
       outline: none; transition: border-color 0.2s, background 0.2s;
       margin-bottom: 12px; text-align: center; letter-spacing: 0.08em;
     }
     .login-input::placeholder { letter-spacing: 0.04em; color: var(--muted); }
-    .login-input:focus { border-color: var(--accent); background: var(--input-focus); }
+    .login-input:focus { border-color: var(--accent); background: rgba(12,8,9,0.8); }
     .login-btn {
       width: 100%; padding: 13px; background: var(--accent); color: #fff;
       border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif;
@@ -186,7 +208,7 @@
     .login-error { font-size: 12px; color: #ef4444; margin-top: 12px; display: none; }
 
     /* ── Dashboard ─────────────────────────────── */
-    #dashboard { display: none; }
+    #dashboard { display: none; position: relative; z-index: 1; }
     .dash-header-bar {
       background: var(--header-bg); position: relative; overflow: hidden;
       width: 100%; border-bottom: 1px solid var(--border);
@@ -480,6 +502,12 @@
   </style>
 </head>
 <body>
+<!-- Gradient Mesh Background -->
+<div id="gradientMesh" style="position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;">
+  <div id="mesh1" style="position:absolute;width:200%;height:200%;top:-50%;left:-30%;filter:blur(80px);animation:meshDrift1 20s ease-in-out infinite alternate;"></div>
+  <div id="mesh2" style="position:absolute;width:180%;height:180%;top:-40%;left:-40%;filter:blur(100px);animation:meshDrift2 28s ease-in-out infinite alternate;"></div>
+  <div id="meshPulse" style="position:absolute;inset:-20%;filter:blur(80px);animation:meshPulse 6s ease-in-out infinite;"></div>
+</div>
 
 <!-- ── Login ──────────────────────────────────── -->
 <div id="loginScreen">

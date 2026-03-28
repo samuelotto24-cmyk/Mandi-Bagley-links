@@ -1121,12 +1121,19 @@ const FONT_MAP = {
     <div class="section-label">Social Analytics</div>
     <div class="social-section-header" id="socialHeader">Connect your platforms to unlock AI-powered strategy across all your channels</div>
     <div class="social-platforms" id="socialPlatforms">
-      <div class="social-platform-card" id="ytCard">
+      <div class="social-platform-card" id="ytCard" style="position:relative;">
         <div class="social-platform-icon">&#9654;&#65039;</div>
         <div class="social-platform-name">YouTube</div>
         <div class="social-platform-status" id="ytStatus">Not connected</div>
         <a class="social-connect-btn" id="ytConnectBtn" href="#">Connect YouTube</a>
-        <button class="social-connect-btn" id="ytDisconnectBtn" style="display:none;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:6px 14px;margin-top:8px;" onclick="disconnectYouTube()">Disconnect</button>
+        <button id="ytDisconnectBtn" style="display:none;position:absolute;top:14px;right:14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:border-color 0.2s,color 0.2s;" onmouseover="this.style.borderColor='#f87171';this.style.color='#f87171'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'" onclick="confirmDisconnectYouTube()">Disconnect</button>
+        <div id="ytDisconnectConfirm" style="display:none;position:absolute;top:14px;right:14px;background:var(--surface-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 16px;z-index:5;text-align:center;">
+          <div style="font-size:12px;color:var(--text);margin-bottom:10px;">Disconnect YouTube?</div>
+          <div style="display:flex;gap:8px;">
+            <button style="flex:1;padding:6px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);" onclick="cancelDisconnectYouTube()">Cancel</button>
+            <button style="flex:1;padding:6px 12px;background:#f87171;border:none;color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;" onclick="disconnectYouTube()">Confirm</button>
+          </div>
+        </div>
         <div id="ytData" style="display:none;"></div>
       </div>
       <div class="social-platform-card">
@@ -2100,13 +2107,23 @@ async function loadSocialAnalytics() {
   }
 }
 
+function confirmDisconnectYouTube() {
+  document.getElementById('ytDisconnectBtn').style.display = 'none';
+  document.getElementById('ytDisconnectConfirm').style.display = 'block';
+}
+
+function cancelDisconnectYouTube() {
+  document.getElementById('ytDisconnectConfirm').style.display = 'none';
+  document.getElementById('ytDisconnectBtn').style.display = 'block';
+}
+
 async function disconnectYouTube() {
-  if (!confirm('Disconnect YouTube? You can reconnect anytime.')) return;
   try {
     var res = await fetch('/api/youtube/disconnect?password=' + encodeURIComponent(password), { method: 'POST' });
     if (res.ok) {
       document.getElementById('ytConnectBtn').style.display = 'inline-block';
       document.getElementById('ytDisconnectBtn').style.display = 'none';
+      document.getElementById('ytDisconnectConfirm').style.display = 'none';
       document.getElementById('ytData').style.display = 'none';
       document.getElementById('ytData').innerHTML = '';
       document.getElementById('ytStatus').textContent = 'Not connected';

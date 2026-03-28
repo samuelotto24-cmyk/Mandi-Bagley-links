@@ -886,6 +886,27 @@ function refreshBriefing() {
   setTimeout(() => btn.classList.remove('spinning'), 1200);
 }
 
+/* ── Count-up animation ── */
+function animateCount(el, target, duration) {
+  var start = 0;
+  var startTime = null;
+  var formatted = target.toLocaleString();
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    var progress = Math.min((ts - startTime) / duration, 1);
+    // Ease out cubic
+    var eased = 1 - Math.pow(1 - progress, 3);
+    var current = Math.floor(eased * target);
+    el.textContent = current.toLocaleString();
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      el.textContent = formatted;
+    }
+  }
+  requestAnimationFrame(step);
+}
+
 /* ── Render Stats ── */
 function renderStats(data) {
   var grid = document.getElementById('statsGrid');
@@ -899,10 +920,19 @@ function renderStats(data) {
   var topSrc = m.topReferrer || '\u2014';
   var topSrcSize = topSrc.length > 4 ? '22px' : '34px';
   grid.innerHTML =
-    '<div class="card stat-tile"><div class="stat-value">' + (m.todayViews || 0) + '</div><div class="stat-label">Today</div></div>' +
-    '<div class="card stat-tile"><div class="stat-value">' + (m.thisWeekViews ? m.thisWeekViews.toLocaleString() : 0) + ' ' + trend + '</div><div class="stat-label">This Week</div></div>' +
-    '<div class="card stat-tile"><div class="stat-value">' + (m.thisMonthViews ? m.thisMonthViews.toLocaleString() : 0) + '</div><div class="stat-label">This Month</div></div>' +
+    '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + (m.todayViews || 0) + '">0</span></div><div class="stat-label">Today</div></div>' +
+    '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + (m.thisWeekViews || 0) + '">0</span> ' + trend + '</div><div class="stat-label">This Week</div></div>' +
+    '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + (m.thisMonthViews || 0) + '">0</span></div><div class="stat-label">This Month</div></div>' +
     '<div class="card stat-tile"><div class="stat-value" style="font-size:' + topSrcSize + '">' + topSrc + '</div><div class="stat-label">Top Source</div></div>';
+
+  // Trigger count-up animations with staggered starts
+  var counters = grid.querySelectorAll('.count-up');
+  counters.forEach(function(el, i) {
+    var target = parseInt(el.getAttribute('data-target'), 10) || 0;
+    if (target > 0) {
+      setTimeout(function() { animateCount(el, target, 1500); }, i * 150);
+    }
+  });
 }
 
 /* ── Render Briefing ── */
@@ -1171,12 +1201,20 @@ function renderGoal(data) {
       <button class="goal-edit" onclick="openGoalModal()">Edit \u203a</button>
     </div>
     <div class="goal-numbers">
-      <span class="goal-current">${(data.current || 0).toLocaleString()}</span>
+      <span class="goal-current count-up" data-target="${data.current || 0}">0</span>
       <span class="goal-target">/ ${data.target.toLocaleString()} views</span>
     </div>
-    <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%"></div></div>
+    <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:0%"></div></div>
     <div class="goal-pace">${data.pace || ''}</div>
   `;
+  // Animate goal count-up and progress bar
+  var goalCounter = card.querySelector('.count-up');
+  if (goalCounter) {
+    var t = parseInt(goalCounter.getAttribute('data-target'), 10) || 0;
+    if (t > 0) setTimeout(function() { animateCount(goalCounter, t, 1500); }, 300);
+  }
+  var bar = card.querySelector('.goal-bar-fill');
+  if (bar) setTimeout(function() { bar.style.transition = 'width 1.2s cubic-bezier(0.23,1,0.32,1)'; bar.style.width = pct + '%'; }, 200);
 }
 
 function renderGoalEmpty() {

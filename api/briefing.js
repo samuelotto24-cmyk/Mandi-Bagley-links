@@ -12,6 +12,9 @@ function isBookingLink(key) {
 const REDIS_URL   = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const PASSWORD    = process.env.DASHBOARD_PASSWORD || 'Password2024';
+const CLIENT_NICHE = process.env.CLIENT_NICHE || 'Fitness · Faith · Food';
+const CLIENT_DESCRIPTION = process.env.CLIENT_DESCRIPTION || 'Lifestyle fitness creator, recipe content, brand partnerships';
+const PREFIX = process.env.REDIS_PREFIX || 'stats:';
 
 async function redis(commands) {
   const res = await fetch(`${REDIS_URL}/pipeline`, {
@@ -229,21 +232,23 @@ export default async function handler(req) {
 
   try {
     const results = await redis([
-      ['HGETALL', 'stats:pageviews'],
-      ['HGETALL', 'stats:referrers'],
-      ['HGETALL', 'stats:countries'],
-      ['HGETALL', 'stats:clicks'],
-      ['HGETALL', 'stats:hourly'],
-      ['HGETALL', 'stats:devices'],
-      ['HGETALL', 'stats:browsers'],
-      ['HGETALL', 'stats:os'],
-      ['HGETALL', 'stats:cities'],
-      ['HGETALL', 'stats:languages'],
-      ['HGETALL', 'stats:visitors'],
-      ['HGETALL', 'stats:scroll'],
-      ['HGETALL', 'stats:duration'],
-      ['HGETALL', 'stats:duration_count'],
-      ['HGETALL', 'stats:conversions'],
+      ['HGETALL', PREFIX + 'pageviews'],
+      ['HGETALL', PREFIX + 'referrers'],
+      ['HGETALL', PREFIX + 'countries'],
+      ['HGETALL', PREFIX + 'clicks'],
+      ['HGETALL', PREFIX + 'hourly'],
+      ['HGETALL', PREFIX + 'devices'],
+      ['HGETALL', PREFIX + 'browsers'],
+      ['HGETALL', PREFIX + 'os'],
+      ['HGETALL', PREFIX + 'cities'],
+      ['HGETALL', PREFIX + 'languages'],
+      ['HGETALL', PREFIX + 'visitors'],
+      ['HGETALL', PREFIX + 'scroll'],
+      ['HGETALL', PREFIX + 'duration'],
+      ['HGETALL', PREFIX + 'duration_count'],
+      ['HGETALL', PREFIX + 'conversions'],
+      ['GET', PREFIX + 'goal:target'],
+      ['GET', PREFIX + 'goal:type'],
     ]);
 
     const data = {
@@ -263,6 +268,9 @@ export default async function handler(req) {
       duration_count: parseHash(results[13]),
       conversions:    parseHash(results[14]),
     };
+
+    const goalTarget = results[15]?.result ? parseInt(results[15].result, 10) : null;
+    const goalType = results[16]?.result || 'views';
 
     /* ── Compute aggregations ── */
     const today = new Date().toISOString().slice(0, 10);
@@ -284,9 +292,12 @@ export default async function handler(req) {
     const thisMonthViews = sumForDates(data.pageviews, thisMonthDates);
     const lastMonthViews = sumForDates(data.pageviews, lastMonthDates);
 
+    const todayViews = data.pageviews[today] || 0;
+
     const metrics = {
       clientName: CLIENT_NAME,
       today,
+      todayViews,
       thisWeekRange:  weekRange(todayDate),
       thisWeekViews,
       lastWeekViews,
@@ -298,6 +309,8 @@ export default async function handler(req) {
       topCountry:     topEntry(data.countries),
       topCity:        topEntry(data.cities),
       topClick:       topEntry(data.clicks),
+      goalTarget,
+      goalType,
     };
 
     /* ── Cold start check ── */
@@ -340,14 +353,96 @@ export default async function handler(req) {
 
     const summary = parts.join('. ') + '.';
 
-    /* ── LLM advisory (Claude Haiku) ── */
-    let advice = null;
+    /* ── Compute byHour for LLM context ── */
+    const byHour = {};
+    Object.entries(data.hourly).forEach(([key, val]) => {
+      const hr = key.includes(':') ? parseInt(key.split(':').pop(), 10) : parseInt(key, 10);
+      if (!isNaN(hr)) byHour[hr] = (byHour[hr] || 0) + val;
+    });
+
+    /* ── LLM: actionItems, calendar, nichePulse, proactiveInsight ── */
+    let actionItems = [];
+    let calendar = [];
+    let nichePulse = [];
+    let proactiveInsight = null;
     const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || process.env.AI_KEY;
     const _debug = { hasKey: !!ANTHROPIC_API_KEY, flagCount: flags.length };
-    if (ANTHROPIC_API_KEY && flags.length > 0) {
+
+    if (ANTHROPIC_API_KEY) {
       try {
         const bulletPoints = flags.map((f) => `- [${f.type}] ${f.text}`).join('\n');
-        const userMessage = `Creator: ${CLIENT_NAME}\n\nHere are this week's data flags:\n${bulletPoints}\n\nWrite a short advisory paragraph — what should they focus on this week?`;
+        const clicksList = Object.entries(data.clicks)
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, count]) => `- ${name}: ${count} clicks`)
+          .join('\n');
+
+        // Build calendar date range (Mon-Sun of current week)
+        const todayD = new Date();
+        const dayOfWeek = todayD.getDay(); // 0=Sun
+        const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        const calDays = [];
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(todayD);
+          d.setDate(d.getDate() + mondayOffset + i);
+          calDays.push({
+            day: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i],
+            date: d.toISOString().slice(0, 10),
+            isToday: d.toISOString().slice(0, 10) === today,
+          });
+        }
+
+        // Peak hours formatted
+        const peakFormatted = Object.entries(byHour)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 3)
+          .map(([h]) => { const hr = parseInt(h); return (hr % 12 || 12) + (hr >= 12 ? 'PM' : 'AM'); })
+          .join(', ');
+
+        const goalContext = goalTarget
+          ? `\nGoal: ${metrics.thisMonthViews} / ${goalTarget} ${goalType} this month. ${Math.max(0, goalTarget - metrics.thisMonthViews)} remaining.`
+          : '';
+
+        const userMessage = `Creator: ${CLIENT_NAME} (${CLIENT_NICHE})
+About: ${CLIENT_DESCRIPTION}
+
+## This Week's Data Flags
+${bulletPoints || 'No flags this week.'}
+
+## Link Clicks (all time)
+${clicksList || 'No click data yet.'}
+
+## Key Metrics
+- This week views: ${thisWeekViews}, last week: ${lastWeekViews}
+- Week-over-week: ${metrics.weekOverWeek}
+- Top referrer: ${metrics.topReferrer || 'none'}
+- Avg session: ${avgSessionSec}s
+- Peak hours: ${peakFormatted || 'not enough data'}
+${goalContext}
+
+## Calendar dates this week
+${calDays.map(d => `- ${d.day} ${d.date}${d.isToday ? ' (TODAY)' : ''}`).join('\n')}
+
+Respond with ONLY valid JSON (no markdown, no code fences) matching this exact structure:
+{
+  "actionItems": [
+    { "priority": "high|medium|low", "action": "specific action", "reason": "data-backed reason", "suggestion": "caption idea or specific tip", "timeframe": "now|today|this_week" }
+  ],
+  "calendar": [
+    { "day": "Mon", "date": "YYYY-MM-DD", "type": "reel|story|pin|post|rest", "time": "3 PM", "idea": "one-line concept" }
+  ],
+  "nichePulse": [
+    { "icon": "emoji", "headline": "trend headline", "context": "1 sentence context", "meta": "source line", "chatPrompt": "question to ask advisor" }
+  ],
+  "proactiveInsight": { "message": "observation about their data", "actions": ["action 1", "action 2", "action 3"] } or null
+}
+
+Rules:
+- 3 actionItems, prioritized high/medium/low, with specific times and caption ideas relevant to their niche
+- 7 calendar days (Mon-Sun), mix of content types appropriate for their niche, use peak hours for timing, include one rest day
+- 2-3 nichePulse items relevant to ${CLIENT_NICHE} creators, reference plausible trends in that space
+- proactiveInsight: flag the most important data anomaly (0-click links, traffic drops >20% WoW, new referrers). null if nothing notable.
+- NEVER suggest website layout changes
+- Reference actual numbers from the data above`;
 
         const llmRes = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
@@ -358,28 +453,39 @@ export default async function handler(req) {
           },
           body: JSON.stringify({
             model: 'claude-haiku-4-5-20251001',
-            max_tokens: 300,
-            system: 'You are a concise brand strategist for a creator/influencer. Write in second person. Be specific — reference the actual numbers provided. Keep advice to 2-4 sentences. Speak like a smart friend who reads their data, not a marketing robot.\n\nIMPORTANT: NEVER suggest changes to the website itself — no layout changes, no reorganizing sections, no moving CTAs, no redesign suggestions. The website was custom-built by a professional and is not the creator\'s responsibility. Your advice should ONLY be about: when to post, where to post, what content to create, which platforms to focus on, what to promote, and how to use their audience data to grow. Focus on their actions as a creator, not the page structure.',
+            max_tokens: 1500,
+            system: 'You are a JSON API. Respond with ONLY valid JSON. No markdown, no code fences, no explanation. Follow the exact structure requested.',
             messages: [{ role: 'user', content: userMessage }],
           }),
         });
 
         if (llmRes.ok) {
           const llmData = await llmRes.json();
-          advice = llmData.content?.[0]?.text || null;
+          const text = llmData.content?.[0]?.text || '';
+          try {
+            const parsed = JSON.parse(text);
+            actionItems = parsed.actionItems || [];
+            calendar = parsed.calendar || [];
+            nichePulse = parsed.nichePulse || [];
+            proactiveInsight = parsed.proactiveInsight || null;
+          } catch (parseErr) {
+            console.error('Briefing JSON parse error:', parseErr, text.slice(0, 200));
+          }
         } else {
           console.error('Briefing LLM error:', llmRes.status, await llmRes.text().catch(() => ''));
         }
       } catch (e) {
         console.error('Briefing LLM exception:', e);
-        // Graceful fallback — advice stays null
       }
     }
 
     return new Response(JSON.stringify({
       weekRange: weekRange(todayDate),
       summary,
-      advice,
+      actionItems,
+      calendar,
+      nichePulse,
+      proactiveInsight,
       generatedAt: new Date().toISOString(),
       metrics,
       flags,

@@ -355,6 +355,12 @@ const FONT_MAP = {
   }
   .goal-type-btn:hover { border-color: var(--accent-border); color: var(--text); }
   .goal-type-btn.active { background: var(--accent-pale); border-color: var(--accent-border); color: var(--accent); }
+  .goal-preset {
+    flex: 1; padding: 6px 4px; font-family: var(--sans); font-size: 11px; font-weight: 500;
+    background: transparent; border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+  }
+  .goal-preset:hover { border-color: var(--accent-border); color: var(--accent); background: var(--accent-pale); }
 
   /* ── Goal Modal ── */
   .goal-modal-overlay {
@@ -1344,7 +1350,15 @@ const FONT_MAP = {
       <button class="goal-type-btn" data-type="followers" onclick="selectGoalType(this)">Followers</button>
       <button class="goal-type-btn" data-type="conversions" onclick="selectGoalType(this)">Conversions</button>
     </div>
-    <input type="number" id="goalInput" placeholder="Target (e.g. 1500)">
+    <input type="text" inputmode="numeric" id="goalInput" placeholder="Target (e.g. 1,500)" oninput="formatGoalInput(this)">
+    <div class="goal-presets" id="goalPresets" style="display:flex;gap:6px;margin:8px 0 12px">
+      <button class="goal-preset" onclick="setGoalPreset(500)">500</button>
+      <button class="goal-preset" onclick="setGoalPreset(1000)">1K</button>
+      <button class="goal-preset" onclick="setGoalPreset(5000)">5K</button>
+      <button class="goal-preset" onclick="setGoalPreset(10000)">10K</button>
+      <button class="goal-preset" onclick="setGoalPreset(50000)">50K</button>
+    </div>
+    <div id="goalCurrentLabel" style="font-size:11px;color:var(--text-muted);margin-bottom:12px;display:none"></div>
     <div class="goal-modal-btns">
       <button class="cancel" onclick="closeGoalModal()">Cancel</button>
       <button class="save" onclick="submitGoal()">Save Goal</button>
@@ -2242,15 +2256,40 @@ var GOAL_ICONS = { views: '&#128065;', followers: '&#128101;', conversions: '&#1
 var selectedGoalType = 'views';
 var currentGoals = {};
 
+function formatGoalInput(el) {
+  var raw = el.value.replace(/[^\d]/g, '');
+  if (raw) {
+    el.value = parseInt(raw, 10).toLocaleString();
+  }
+}
+
+function setGoalPreset(val) {
+  var input = document.getElementById('goalInput');
+  input.value = val.toLocaleString();
+  input.focus();
+}
+
+function getGoalInputValue() {
+  return parseInt(document.getElementById('goalInput').value.replace(/[^\d]/g, ''), 10) || 0;
+}
+
 function selectGoalType(btn) {
   document.querySelectorAll('.goal-type-btn').forEach(function(b) { b.classList.remove('active'); });
   btn.classList.add('active');
   selectedGoalType = btn.getAttribute('data-type');
-  var placeholders = { views: 'Target pageviews (e.g. 1500)', followers: 'Target followers (e.g. 10000)', conversions: 'Target conversions (e.g. 50)' };
+  var placeholders = { views: 'Target pageviews (e.g. 1,500)', followers: 'Target followers (e.g. 10,000)', conversions: 'Target conversions (e.g. 50)' };
   document.getElementById('goalInput').placeholder = placeholders[selectedGoalType] || 'Target';
   // Pre-fill with existing value if set
   var existing = currentGoals[selectedGoalType];
-  document.getElementById('goalInput').value = existing || '';
+  document.getElementById('goalInput').value = existing ? existing.toLocaleString() : '';
+  // Show current value hint
+  var label = document.getElementById('goalCurrentLabel');
+  if (existing) {
+    label.textContent = 'Current target: ' + existing.toLocaleString() + ' ' + GOAL_LABELS[selectedGoalType];
+    label.style.display = '';
+  } else {
+    label.style.display = 'none';
+  }
 }
 
 function renderGoal(data) {
@@ -2274,12 +2313,13 @@ function renderGoal(data) {
     var current = data.current && data.current[type] || 0;
     var pct = Math.min(100, Math.round((current / target) * 100));
     var label = GOAL_LABELS[type];
+    var barColor = pct >= 80 ? '#22c55e' : pct >= 40 ? 'var(--accent)' : 'var(--accent)';
     html += '<div>' +
       '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">' +
         '<span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em">' + label + '</span>' +
-        '<span style="font-size:13px;color:var(--text)"><span class="count-up" data-target="' + current + '">0</span> <span style="color:var(--text-muted)">/ ' + target.toLocaleString() + '</span></span>' +
+        '<span style="font-size:13px;color:var(--text)"><span class="count-up" data-target="' + current + '">0</span> <span style="color:var(--text-muted)">/ ' + target.toLocaleString() + '</span> <span style="font-size:10px;color:' + barColor + ';font-weight:600">' + pct + '%</span></span>' +
       '</div>' +
-      '<div class="goal-bar-bg"><div class="goal-bar-fill" style="width:0%" data-pct="' + pct + '"></div></div>' +
+      '<div class="goal-bar-bg"><div class="goal-bar-fill" style="width:0%;background:' + barColor + '" data-pct="' + pct + '"></div></div>' +
     '</div>';
   });
 
@@ -2312,7 +2352,17 @@ function openGoalModal() {
   document.querySelectorAll('.goal-type-btn').forEach(function(b) {
     b.classList.toggle('active', b.getAttribute('data-type') === selectedGoalType);
   });
-  document.getElementById('goalInput').value = '';
+  // Pre-fill with existing value
+  var existing = currentGoals[selectedGoalType];
+  document.getElementById('goalInput').value = existing ? existing.toLocaleString() : '';
+  // Show current hint
+  var label = document.getElementById('goalCurrentLabel');
+  if (existing) {
+    label.textContent = 'Current target: ' + existing.toLocaleString() + ' ' + GOAL_LABELS[selectedGoalType];
+    label.style.display = '';
+  } else {
+    label.style.display = 'none';
+  }
   document.getElementById('goalInput').focus();
 }
 
@@ -2321,7 +2371,7 @@ function closeGoalModal() {
 }
 
 function submitGoal() {
-  const target = parseInt(document.getElementById('goalInput').value);
+  const target = getGoalInputValue();
   if (!target || target < 1) return;
   closeGoalModal();
   saveGoal(target, selectedGoalType);

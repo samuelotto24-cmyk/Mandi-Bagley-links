@@ -311,5 +311,84 @@ This gives the advisor full context about what was already recommended, so it do
 - All data comes from Upstash Redis via existing pipeline pattern
 - AI features use Claude Haiku via Anthropic API (existing pattern)
 - Chat streaming is already implemented
-- The generic auto-theme system (CLIENT config, THEMES, FONT_MAP) will be removed — the hub becomes Mandi-specific with hardcoded styles
 - `.superpowers/` should be added to `.gitignore`
+
+---
+
+## Templatization — Hub Generator System
+
+The hub is built as a **parameterized template** so new clients can be spun up with a config swap. Every visual value flows through a `CLIENT` config object.
+
+### CLIENT config
+
+```js
+const CLIENT = {
+  name: 'Mandi Bagley',
+  niche: 'fitness',
+  nicheLabel: 'Fitness · Faith · Food',
+  description: 'Lifestyle fitness creator, recipe content, brand partnerships with DFYNE and Gymshark. Audience is women 18-35 on Instagram and TikTok.',
+  url: 'https://mandibagley.com',
+  palette: {
+    bg: '#0C0809',
+    surface: '#141012',
+    surfaceElevated: '#1A1416',
+    border: 'rgba(255,255,255,0.07)',
+    text: '#F5EBE6',
+    textMuted: 'rgba(245,235,230,0.45)',
+    accent: '#E8527A',
+    accentGlow: '#FF2D78',
+    accentPale: 'rgba(232,82,122,0.15)',
+    accentBorder: 'rgba(232,82,122,0.25)',
+  },
+  gradient: 'neon-pink',
+  particleColors: [
+    { r: 255, g: 45, b: 120, weight: 0.4 },
+    { r: 232, g: 82, b: 122, weight: 0.3 },
+    { r: 255, g: 150, b: 180, weight: 0.15 },
+    { r: 245, g: 235, b: 230, weight: 0.15 },
+  ],
+  font: 'cormorant',
+  brandCodes: [
+    { brand: 'DFYNE', code: 'MANDI15', linkPattern: 'dfyne' },
+    { brand: 'Gymshark', code: 'MANDIB', linkPattern: 'gymshark' },
+    { brand: 'Teveo', code: 'MANDIBAGLEY', linkPattern: 'teveo' },
+  ],
+  redisPrefix: 'stats:',
+};
+```
+
+### What's parameterized
+
+| Feature | Driven by |
+|---------|-----------|
+| Background color, card colors, text colors | `CLIENT.palette.*` → CSS custom properties |
+| Gradient mesh colors | `CLIENT.gradient` → preset lookup (neon-pink, warm-gold, cool-blue, aurora, ember) |
+| Particle colors | `CLIENT.particleColors` → canvas draw code |
+| Typography | `CLIENT.font` → FONT_MAP lookup (cormorant, playfair, bebas, dm-serif, inter) |
+| Section labels, greeting | `CLIENT.name`, `CLIENT.url` |
+| AI briefing/chat prompts | `CLIENT.niche`, `CLIENT.nicheLabel`, `CLIENT.description` |
+| Brand codes section | `CLIENT.brandCodes` → matching against click data |
+| Redis keys | `CLIENT.redisPrefix` |
+| Niche Pulse section label | `CLIENT.nicheLabel` |
+
+### Gradient presets
+
+Each preset defines the radial-gradient colors used in the mesh layers:
+
+| Preset | Primary hues | Best for |
+|--------|-------------|----------|
+| `neon-pink` | #FF2D78, #E8527A, #FF96B4 | Fitness, beauty, bold brands |
+| `warm-gold` | #D4A574, #C4956A, #E8C9A0 | Food, lifestyle, coaching |
+| `cool-blue` | #4A7BF7, #6B8FFF, #3D5CC9 | Tech, business, corporate |
+| `aurora` | #7B4AE2, #E8527A, #4A7BF7 | Creative, artistic, eclectic |
+| `ember` | #E85C3A, #FF7F50, #D4574A | Sports, energy, action |
+
+### New client workflow
+
+1. Get client brief: name, niche, 2-3 brand images, brand codes, site URL
+2. Run palette extraction (script analyzes images → suggests accent color + palette)
+3. Pick gradient preset based on niche/palette
+4. Fill in CLIENT config
+5. Copy template directory, paste config, set Redis prefix + password
+6. Deploy to Vercel
+7. Done — 10 minutes per client

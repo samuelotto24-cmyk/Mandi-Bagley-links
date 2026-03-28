@@ -877,7 +877,7 @@ const FONT_MAP = {
 }
 .social-platforms {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 14px;
 }
 .social-platform-card {
@@ -1179,6 +1179,12 @@ const FONT_MAP = {
         </div>
         <div id="ytData" style="display:none;"></div>
       </div>
+      <div class="social-platform-card" id="igCard">
+        <div class="social-platform-icon">&#128247;</div>
+        <div class="social-platform-name">Instagram</div>
+        <div class="social-platform-status" style="color:var(--accent)">Coming soon</div>
+        <div style="font-size:11px;color:var(--text-muted);line-height:1.4">Post insights, follower growth, and engagement tracking.</div>
+      </div>
       <div class="social-platform-card" id="tiktokPlatformCard" style="position:relative;">
         <div class="social-platform-icon">&#127925;</div>
         <div class="social-platform-name">TikTok</div>
@@ -1401,6 +1407,7 @@ const FONT_MAP = {
 let chatHistory = [];
 let password = '';
 window.lastBriefing = null;
+var statsRendered = false;
 
 /* ═══════════════════════════════════════════════════
    LOGIN
@@ -1551,6 +1558,7 @@ function loadQuickStats() {
 
       // Render stats immediately
       renderStats({ metrics: quickMetrics });
+      statsRendered = true;
 
       // Render links and brand codes immediately
       var clickList = Object.entries(raw.clicks || {})
@@ -1574,7 +1582,7 @@ function loadBriefing(forceRefresh) {
     .then(function(r) { return r.json(); })
     .then(function(data) {
       window.lastBriefing = data;
-      renderStats(data);
+      if (!statsRendered) renderStats(data);
       renderBriefing(data);
       renderCalendar(data);
       renderLinks(data);
@@ -2158,8 +2166,10 @@ function updateSocialHeader() {
   var header = document.getElementById('socialHeader');
   if (connected.length === 0) {
     header.textContent = 'Connect your platforms to unlock AI-powered strategy across all your channels';
+  } else if (connected.length === 1) {
+    header.textContent = connected[0] + ' connected — Instagram coming soon';
   } else {
-    header.textContent = connected.join(' + ') + ' connected — your AI advisor can now analyze cross-platform performance';
+    header.textContent = connected.join(' + ') + ' connected — your AI advisor analyzes cross-platform performance';
   }
 }
 

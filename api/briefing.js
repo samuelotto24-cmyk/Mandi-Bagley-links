@@ -318,7 +318,10 @@ export default async function handler(req) {
       return new Response(JSON.stringify({
         weekRange: weekRange(todayDate),
         summary: `Welcome to your ${CLIENT_NAME} briefing! No traffic data yet — check back once your site is live.`,
-        advice: null,
+        actionItems: [],
+        calendar: [],
+        nichePulse: [],
+        proactiveInsight: null,
         generatedAt: new Date().toISOString(),
         metrics,
         flags: [],

@@ -1,0 +1,22 @@
+{
+  "name": "Mandi Hub",
+  "short_name": "Hub",
+  "description": "Your command center",
+  "start_url": "/hub/",
+  "display": "standalone",
+  "background_color": "#0C0809",
+  "theme_color": "#0C0809",
+  "icons": [
+    {
+      "src": "/hub/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/hub/icon-192.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

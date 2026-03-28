@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="40" fill="#0C0809"/>
+  <circle cx="96" cy="80" r="50" fill="none" stroke="#E8527A" stroke-width="2" opacity="0.3"/>
+  <circle cx="96" cy="80" r="35" fill="none" stroke="#FF2D78" stroke-width="1.5" opacity="0.2"/>
+  <text x="96" y="105" text-anchor="middle" font-family="Georgia, serif" font-size="72" font-weight="400" fill="#F5EBE6" letter-spacing="-2">M</text>
+  <text x="96" y="150" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#E8527A" letter-spacing="4" text-transform="uppercase">HUB</text>
+</svg>

@@ -2238,7 +2238,9 @@ async function disconnectTikTok() {
 }
 
 var GOAL_LABELS = { views: 'pageviews', followers: 'followers', conversions: 'conversions' };
+var GOAL_ICONS = { views: '&#128065;', followers: '&#128101;', conversions: '&#127919;' };
 var selectedGoalType = 'views';
+var currentGoals = {};
 
 function selectGoalType(btn) {
   document.querySelectorAll('.goal-type-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -2246,45 +2248,60 @@ function selectGoalType(btn) {
   selectedGoalType = btn.getAttribute('data-type');
   var placeholders = { views: 'Target pageviews (e.g. 1500)', followers: 'Target followers (e.g. 10000)', conversions: 'Target conversions (e.g. 50)' };
   document.getElementById('goalInput').placeholder = placeholders[selectedGoalType] || 'Target';
+  // Pre-fill with existing value if set
+  var existing = currentGoals[selectedGoalType];
+  document.getElementById('goalInput').value = existing || '';
 }
 
 function renderGoal(data) {
   const card = document.getElementById('goalCard');
-  if (!data || !data.target) {
+  var goals = data.goals || {};
+  currentGoals = goals;
+
+  // Check if any goals are set
+  var hasAny = goals.views || goals.followers || goals.conversions;
+  if (!hasAny) {
     renderGoalEmpty();
     return;
   }
-  var type = data.type || 'views';
-  var label = GOAL_LABELS[type] || type;
-  const pct = Math.min(100, Math.round((data.current / data.target) * 100));
-  card.innerHTML = `
-    <div class="goal-header">
-      <span class="goal-title">Monthly Goal</span>
-      <button class="goal-edit" onclick="openGoalModal()">Edit \u203a</button>
-    </div>
-    <div class="goal-numbers">
-      <span class="goal-current count-up" data-target="${data.current || 0}">0</span>
-      <span class="goal-target">/ ${data.target.toLocaleString()} ${label}</span>
-    </div>
-    <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:0%"></div></div>
-    <div class="goal-pace">${data.pace || ''}</div>
-  `;
-  selectedGoalType = type;
-  // Animate goal count-up and progress bar
-  var goalCounter = card.querySelector('.count-up');
-  if (goalCounter) {
-    var t = parseInt(goalCounter.getAttribute('data-target'), 10) || 0;
-    if (t > 0) setTimeout(function() { animateCount(goalCounter, t, 1500); }, 300);
-  }
-  var bar = card.querySelector('.goal-bar-fill');
-  if (bar) setTimeout(function() { bar.style.transition = 'width 1.2s cubic-bezier(0.23,1,0.32,1)'; bar.style.width = pct + '%'; }, 200);
+
+  var html = '<div class="goal-header"><span class="goal-title">Monthly Goals</span><button class="goal-edit" onclick="openGoalModal()">Edit &#8250;</button></div>';
+  html += '<div style="display:flex;flex-direction:column;gap:10px">';
+
+  ['views', 'followers', 'conversions'].forEach(function(type) {
+    var target = goals[type];
+    if (!target) return;
+    var current = data.current && data.current[type] || 0;
+    var pct = Math.min(100, Math.round((current / target) * 100));
+    var label = GOAL_LABELS[type];
+    html += '<div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">' +
+        '<span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em">' + label + '</span>' +
+        '<span style="font-size:13px;color:var(--text)"><span class="count-up" data-target="' + current + '">0</span> <span style="color:var(--text-muted)">/ ' + target.toLocaleString() + '</span></span>' +
+      '</div>' +
+      '<div class="goal-bar-bg"><div class="goal-bar-fill" style="width:0%" data-pct="' + pct + '"></div></div>' +
+    '</div>';
+  });
+
+  html += '</div>';
+  card.innerHTML = html;
+
+  // Animate
+  card.querySelectorAll('.count-up').forEach(function(el, i) {
+    var t = parseInt(el.getAttribute('data-target'), 10) || 0;
+    if (t > 0) setTimeout(function() { animateCount(el, t, 1500); }, i * 150 + 300);
+  });
+  card.querySelectorAll('.goal-bar-fill').forEach(function(bar, i) {
+    var pct = bar.getAttribute('data-pct');
+    setTimeout(function() { bar.style.transition = 'width 1.2s cubic-bezier(0.23,1,0.32,1)'; bar.style.width = pct + '%'; }, i * 150 + 200);
+  });
 }
 
 function renderGoalEmpty() {
   document.getElementById('goalCard').innerHTML = `
     <div class="goal-empty">
-      <p>Set a monthly target to track your growth</p>
-      <button onclick="openGoalModal()">Set Goal</button>
+      <p>Set monthly targets to track your growth</p>
+      <button onclick="openGoalModal()">Set Goals</button>
     </div>
   `;
 }

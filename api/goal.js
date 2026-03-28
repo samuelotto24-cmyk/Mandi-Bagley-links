@@ -24,30 +24,44 @@ export default async function handler(req) {
 
   if (req.method === 'GET') {
     const results = await redis([
-      ['GET', PREFIX + 'goal:target'],
-      ['GET', PREFIX + 'goal:type'],
+      ['GET', PREFIX + 'goal:views:target'],
+      ['GET', PREFIX + 'goal:followers:target'],
+      ['GET', PREFIX + 'goal:conversions:target'],
     ]);
-    const target = results[0]?.result ? parseInt(results[0].result, 10) : null;
-    const type = results[1]?.result || 'views';
-    return new Response(JSON.stringify({ target, type }), {
+    const goals = {
+      views:       results[0]?.result ? parseInt(results[0].result, 10) : null,
+      followers:   results[1]?.result ? parseInt(results[1].result, 10) : null,
+      conversions: results[2]?.result ? parseInt(results[2].result, 10) : null,
+    };
+    return new Response(JSON.stringify({ goals }), {
       headers: { 'Content-Type': 'application/json' },
     });
   }
 
   if (req.method === 'POST') {
     const body = await req.json();
-    const target = parseInt(body.target, 10);
     const type = body.type || 'views';
+    const target = parseInt(body.target, 10);
     if (!target || target < 1) {
       return new Response(JSON.stringify({ error: 'Invalid target' }), {
         status: 400, headers: { 'Content-Type': 'application/json' },
       });
     }
     await redis([
-      ['SET', PREFIX + 'goal:target', String(target)],
-      ['SET', PREFIX + 'goal:type', type],
+      ['SET', PREFIX + 'goal:' + type + ':target', String(target)],
     ]);
-    return new Response(JSON.stringify({ target, type }), {
+    // Return all goals
+    const results = await redis([
+      ['GET', PREFIX + 'goal:views:target'],
+      ['GET', PREFIX + 'goal:followers:target'],
+      ['GET', PREFIX + 'goal:conversions:target'],
+    ]);
+    const goals = {
+      views:       results[0]?.result ? parseInt(results[0].result, 10) : null,
+      followers:   results[1]?.result ? parseInt(results[1].result, 10) : null,
+      conversions: results[2]?.result ? parseInt(results[2].result, 10) : null,
+    };
+    return new Response(JSON.stringify({ goals }), {
       headers: { 'Content-Type': 'application/json' },
     });
   }

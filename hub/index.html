@@ -348,6 +348,13 @@ const FONT_MAP = {
     padding: 8px 20px; cursor: pointer; transition: background 0.2s;
   }
   .goal-empty button:hover { background: var(--accent-border); }
+  .goal-type-btn {
+    flex: 1; padding: 8px 4px; font-family: var(--sans); font-size: 11px; font-weight: 600;
+    background: var(--surface-elevated); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+  }
+  .goal-type-btn:hover { border-color: var(--accent-border); color: var(--text); }
+  .goal-type-btn.active { background: var(--accent-pale); border-color: var(--accent-border); color: var(--accent); }
 
   /* ── Goal Modal ── */
   .goal-modal-overlay {
@@ -1332,7 +1339,12 @@ const FONT_MAP = {
 <div class="goal-modal-overlay" id="goalModal">
   <div class="goal-modal">
     <h3>Set Monthly Goal</h3>
-    <input type="number" id="goalInput" placeholder="Target page views (e.g. 1500)">
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button class="goal-type-btn active" data-type="views" onclick="selectGoalType(this)">Pageviews</button>
+      <button class="goal-type-btn" data-type="followers" onclick="selectGoalType(this)">Followers</button>
+      <button class="goal-type-btn" data-type="conversions" onclick="selectGoalType(this)">Conversions</button>
+    </div>
+    <input type="number" id="goalInput" placeholder="Target (e.g. 1500)">
     <div class="goal-modal-btns">
       <button class="cancel" onclick="closeGoalModal()">Cancel</button>
       <button class="save" onclick="submitGoal()">Save Goal</button>
@@ -2225,12 +2237,25 @@ async function disconnectTikTok() {
   }
 }
 
+var GOAL_LABELS = { views: 'pageviews', followers: 'followers', conversions: 'conversions' };
+var selectedGoalType = 'views';
+
+function selectGoalType(btn) {
+  document.querySelectorAll('.goal-type-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  selectedGoalType = btn.getAttribute('data-type');
+  var placeholders = { views: 'Target pageviews (e.g. 1500)', followers: 'Target followers (e.g. 10000)', conversions: 'Target conversions (e.g. 50)' };
+  document.getElementById('goalInput').placeholder = placeholders[selectedGoalType] || 'Target';
+}
+
 function renderGoal(data) {
   const card = document.getElementById('goalCard');
   if (!data || !data.target) {
     renderGoalEmpty();
     return;
   }
+  var type = data.type || 'views';
+  var label = GOAL_LABELS[type] || type;
   const pct = Math.min(100, Math.round((data.current / data.target) * 100));
   card.innerHTML = `
     <div class="goal-header">
@@ -2239,11 +2264,12 @@ function renderGoal(data) {
     </div>
     <div class="goal-numbers">
       <span class="goal-current count-up" data-target="${data.current || 0}">0</span>
-      <span class="goal-target">/ ${data.target.toLocaleString()} views</span>
+      <span class="goal-target">/ ${data.target.toLocaleString()} ${label}</span>
     </div>
     <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:0%"></div></div>
     <div class="goal-pace">${data.pace || ''}</div>
   `;
+  selectedGoalType = type;
   // Animate goal count-up and progress bar
   var goalCounter = card.querySelector('.count-up');
   if (goalCounter) {
@@ -2257,7 +2283,7 @@ function renderGoal(data) {
 function renderGoalEmpty() {
   document.getElementById('goalCard').innerHTML = `
     <div class="goal-empty">
-      <p>Set a monthly goal to track your progress</p>
+      <p>Set a monthly target to track your growth</p>
       <button onclick="openGoalModal()">Set Goal</button>
     </div>
   `;
@@ -2265,6 +2291,11 @@ function renderGoalEmpty() {
 
 function openGoalModal() {
   document.getElementById('goalModal').classList.add('active');
+  // Pre-select current goal type
+  document.querySelectorAll('.goal-type-btn').forEach(function(b) {
+    b.classList.toggle('active', b.getAttribute('data-type') === selectedGoalType);
+  });
+  document.getElementById('goalInput').value = '';
   document.getElementById('goalInput').focus();
 }
 
@@ -2276,14 +2307,14 @@ function submitGoal() {
   const target = parseInt(document.getElementById('goalInput').value);
   if (!target || target < 1) return;
   closeGoalModal();
-  saveGoal(target);
+  saveGoal(target, selectedGoalType);
 }
 
-function saveGoal(target) {
+function saveGoal(target, type) {
   fetch('/api/goal?password=' + encodeURIComponent(password), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ target }),
+    body: JSON.stringify({ target, type }),
   })
   .then(r => r.json())
   .then(data => renderGoal(data))

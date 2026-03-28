@@ -1143,7 +1143,8 @@ function showHub() {
   // Pulse label
   document.getElementById('pulseLabel').textContent = 'Niche Pulse \u00b7 ' + CLIENT.nicheLabel + ' This Week';
 
-  // Load data
+  // Load data — quick stats first (pure Redis, ~200ms), then briefing (has LLM, slower)
+  loadQuickStats();
   loadBriefing();
   loadGoal();
   loadReferral();
@@ -1153,6 +1154,77 @@ function showHub() {
 
   // Init sticky chat
   initStickyChat();
+}
+
+/* ═══════════════════════════════════════════════════
+   QUICK STATS (fast — pure Redis, no LLM)
+   ═══════════════════════════════════════════════════ */
+function loadQuickStats() {
+  fetch('/api/stats?password=' + encodeURIComponent(password))
+    .then(function(r) { return r.json(); })
+    .then(function(raw) {
+      // Compute metrics client-side from raw Redis data
+      var today = new Date().toISOString().slice(0, 10);
+      var todayDate = new Date(today + 'T00:00:00Z');
+
+      function sumDates(hash, dates) {
+        return dates.reduce(function(s, d) { return s + (hash[d] || 0); }, 0);
+      }
+      function makeDates(base, offset, count) {
+        var arr = [];
+        for (var i = offset; i < offset + count; i++) {
+          var d = new Date(base);
+          d.setDate(d.getDate() - i);
+          arr.push(d.toISOString().slice(0, 10));
+        }
+        return arr;
+      }
+      function topKey(obj) {
+        var best = null, max = -Infinity;
+        for (var k in obj) { if (obj[k] > max) { max = obj[k]; best = k; } }
+        return best;
+      }
+      function pctChange(cur, prev) {
+        if (!prev) return cur > 0 ? '+∞%' : '0%';
+        var p = Math.round(((cur - prev) / prev) * 100);
+        return p >= 0 ? '+' + p + '%' : p + '%';
+      }
+
+      var thisWeek = makeDates(todayDate, 0, 7);
+      var lastWeek = makeDates(todayDate, 7, 7);
+      var thisWeekViews = sumDates(raw.pageviews || {}, thisWeek);
+      var lastWeekViews = sumDates(raw.pageviews || {}, lastWeek);
+
+      var yr = todayDate.getUTCFullYear();
+      var mo = todayDate.getUTCMonth();
+      var thisMonthViews = 0;
+      var daysInMonth = new Date(yr, mo + 1, 0).getDate();
+      for (var d = 1; d <= daysInMonth; d++) {
+        var key = yr + '-' + String(mo + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+        if (key <= today) thisMonthViews += (raw.pageviews[key] || 0);
+      }
+
+      var quickMetrics = {
+        todayViews: (raw.pageviews || {})[today] || 0,
+        thisWeekViews: thisWeekViews,
+        weekOverWeek: pctChange(thisWeekViews, lastWeekViews),
+        thisMonthViews: thisMonthViews,
+        topReferrer: topKey(raw.referrers || {}),
+      };
+
+      // Render stats immediately
+      renderStats({ metrics: quickMetrics });
+
+      // Render links and brand codes immediately
+      var clickList = Object.entries(raw.clicks || {})
+        .sort(function(a, b) { return b[1] - a[1]; })
+        .map(function(e) { return { name: e[0], clicks: e[1] }; });
+      renderLinks({ clickList: clickList });
+      renderBrandCodes({ clicks: raw.clicks || {}, clickList: clickList });
+    })
+    .catch(function(e) {
+      console.error('Quick stats failed:', e);
+    });
 }
 
 /* ═══════════════════════════════════════════════════

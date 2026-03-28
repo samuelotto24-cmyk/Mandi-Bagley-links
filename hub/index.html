@@ -853,6 +853,175 @@ const FONT_MAP = {
   .referral-code-row { flex-wrap: wrap; gap: 10px; }
   .referral-code-value { font-size: 18px; }
 }
+
+/* ── Social Analytics ── */
+.social-section-header {
+  text-align: center;
+  padding: 8px 0 20px;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.social-platforms {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+.social-platform-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  transition: border-color 0.22s ease;
+}
+.social-platform-card:hover { border-color: var(--accent-border); }
+.social-platform-card.connected {
+  text-align: left;
+  padding: 20px;
+}
+.social-platform-icon {
+  font-size: 28px;
+  margin-bottom: 12px;
+}
+.social-platform-name {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.social-platform-status {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.social-connect-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: box-shadow 0.22s ease;
+  text-decoration: none;
+}
+.social-connect-btn:hover {
+  box-shadow: 0 0 24px var(--accent-pale);
+}
+.social-connect-btn.disabled {
+  background: var(--surface-elevated);
+  color: var(--text-muted);
+  cursor: default;
+  border: 1px solid var(--border);
+}
+.social-connect-btn.disabled:hover { box-shadow: none; }
+.yt-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.yt-stat {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+.yt-stat-value {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+}
+.yt-stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.yt-stat-trend { font-size: 11px; margin-top: 2px; }
+.yt-stat-trend.up { color: #4ade80; }
+.yt-stat-trend.down { color: #f87171; }
+.yt-videos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.yt-video-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+}
+.yt-video-title {
+  color: var(--text);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 12px;
+}
+.yt-video-stats {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.yt-demo-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.yt-demo-card {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.yt-demo-card-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.yt-demo-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+.yt-demo-bar-label { width: 60px; flex-shrink: 0; color: var(--text-muted); }
+.yt-demo-bar-track { flex: 1; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; }
+.yt-demo-bar-fill { height: 100%; background: var(--accent); border-radius: 2px; }
+.yt-demo-bar-pct { width: 36px; text-align: right; color: var(--text-muted); flex-shrink: 0; }
+.yt-section-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+@media (max-width: 640px) {
+  .social-platforms { grid-template-columns: 1fr; }
+  .yt-stats-grid { grid-template-columns: 1fr; }
+  .yt-demo-row { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 
@@ -946,6 +1115,92 @@ const FONT_MAP = {
   </div>
 
   <div class="divider"></div>
+
+  <!-- Social Analytics -->
+  <div class="fade-up">
+    <div class="section-label">Social Analytics</div>
+    <div class="social-section-header" id="socialHeader">Connect your platforms to unlock AI-powered strategy across all your channels</div>
+    <div class="social-platforms" id="socialPlatforms">
+      <div class="social-platform-card" id="ytCard">
+        <div class="social-platform-icon">&#9654;&#65039;</div>
+        <div class="social-platform-name">YouTube</div>
+        <div class="social-platform-status" id="ytStatus">Not connected</div>
+        <a class="social-connect-btn" id="ytConnectBtn" href="#">Connect YouTube</a>
+        <div id="ytData" style="display:none;"></div>
+      </div>
+      <div class="social-platform-card">
+        <div class="social-platform-icon">&#128247;</div>
+        <div class="social-platform-name">Instagram</div>
+        <div class="social-platform-status">Coming soon</div>
+        <button class="social-connect-btn disabled">Coming Soon</button>
+      </div>
+      <div class="social-platform-card">
+        <div class="social-platform-icon">&#127925;</div>
+        <div class="social-platform-name">TikTok</div>
+        <div class="social-platform-status">Coming soon</div>
+        <button class="social-connect-btn disabled">Coming Soon</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- TikTok Analytics -->
+  <div class="fade-up" id="tiktokSection" style="display:none">
+    <div class="section-label">TikTok</div>
+    <div class="card" id="tiktokCard" style="padding:0;overflow:hidden">
+      <!-- Connect state -->
+      <div id="tiktokConnect" style="padding:28px;text-align:center">
+        <div style="font-size:28px;margin-bottom:10px">&#9835;</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.5">Connect TikTok to see your video analytics, engagement, and top-performing content.</div>
+        <a href="/api/tiktok-auth" style="display:inline-flex;align-items:center;gap:8px;background:var(--accent-pale);border:1px solid var(--accent-border);border-radius:50px;padding:10px 24px;font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;transition:background 0.2s" onmouseover="this.style.background='var(--accent-border)'" onmouseout="this.style.background='var(--accent-pale)'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.73a8.19 8.19 0 004.76 1.52V6.8a4.84 4.84 0 01-1-.11z"/></svg>
+          Connect TikTok
+        </a>
+      </div>
+      <!-- Connected state -->
+      <div id="tiktokData" style="display:none">
+        <div style="display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border)">
+          <img id="tiktokAvatar" src="" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--accent)" />
+          <div>
+            <div id="tiktokName" style="font-size:14px;font-weight:600;color:var(--text)"></div>
+            <div id="tiktokFollowers" style="font-size:11px;color:var(--text-muted)"></div>
+          </div>
+          <div style="margin-left:auto;background:#22c55e;color:#fff;font-size:10px;font-weight:600;padding:3px 10px;border-radius:50px">Connected</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--border)">
+          <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
+            <div id="tiktokViews" style="font-family:var(--serif);font-size:22px;color:var(--text)">—</div>
+            <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Views</div>
+          </div>
+          <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
+            <div id="tiktokLikes" style="font-family:var(--serif);font-size:22px;color:var(--text)">—</div>
+            <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Likes</div>
+          </div>
+          <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
+            <div id="tiktokComments" style="font-family:var(--serif);font-size:22px;color:var(--text)">—</div>
+            <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Comments</div>
+          </div>
+          <div style="padding:16px;text-align:center">
+            <div id="tiktokShares" style="font-family:var(--serif);font-size:22px;color:var(--text)">—</div>
+            <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Shares</div>
+          </div>
+        </div>
+        <div id="tiktokTopVideo" style="padding:16px 20px;display:none">
+          <div style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px">Top Performing Video</div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <img id="tiktokTopCover" src="" style="width:48px;height:64px;border-radius:6px;object-fit:cover;border:1px solid var(--border)" />
+            <div style="flex:1;min-width:0">
+              <div id="tiktokTopTitle" style="font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+              <div id="tiktokTopStats" style="font-size:11px;color:var(--text-muted);margin-top:3px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider" id="tiktokDivider" style="display:none"></div>
 
   <!-- Game Plan -->
   <div class="fade-up">
@@ -1211,6 +1466,8 @@ function showHub() {
   loadBriefing();
   loadGoal();
   loadReferral();
+  loadSocialAnalytics();
+  loadTikTok();
 
   // Init scroll animations
   setTimeout(initScrollAnimations, 100);
@@ -1748,6 +2005,160 @@ function copyReferralCode() {
     btn.textContent = 'Copied!';
     setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
   });
+}
+
+/* ── Social Analytics ── */
+async function loadSocialAnalytics() {
+  try {
+    var res = await fetch('/api/youtube/data?password=' + encodeURIComponent(password));
+    if (!res.ok) return;
+    var data = await res.json();
+    document.getElementById('ytConnectBtn').href = '/api/youtube/connect?password=' + encodeURIComponent(password);
+    if (!data.connected) return;
+    var card = document.getElementById('ytCard');
+    card.classList.add('connected');
+    var ch = data.channel || {};
+    var analytics = data.analytics || {};
+    var videos = data.videos || [];
+    var history = data.subscriberHistory || [];
+    var subTrend = '';
+    if (history.length >= 2) {
+      var newest = history[0].count;
+      var oldest = history[history.length - 1].count;
+      var diff = newest - oldest;
+      if (diff > 0) subTrend = '<span class="yt-stat-trend up">+' + diff.toLocaleString() + ' this week</span>';
+      else if (diff < 0) subTrend = '<span class="yt-stat-trend down">' + diff.toLocaleString() + ' this week</span>';
+    }
+    var watchHours = analytics.watchTime30d ? Math.round(analytics.watchTime30d / 60) : 0;
+    var html = '';
+    html += '<div class="yt-stats-grid">';
+    html += '<div class="yt-stat"><div class="yt-stat-value">' + (ch.subscriberCount || 0).toLocaleString() + '</div><div class="yt-stat-label">Subscribers</div>' + subTrend + '</div>';
+    html += '<div class="yt-stat"><div class="yt-stat-value">' + (analytics.views30d || 0).toLocaleString() + '</div><div class="yt-stat-label">Views (30d)</div></div>';
+    html += '<div class="yt-stat"><div class="yt-stat-value">' + watchHours.toLocaleString() + 'h</div><div class="yt-stat-label">Watch Time (30d)</div></div>';
+    html += '</div>';
+    if (videos.length) {
+      html += '<div class="yt-section-label">Recent Videos</div><div class="yt-videos-list">';
+      videos.forEach(function(v) {
+        html += '<div class="yt-video-item"><span class="yt-video-title">' + v.title + '</span><span class="yt-video-stats">';
+        html += '<span>' + (v.views||0).toLocaleString() + ' views</span>';
+        html += '<span>' + (v.likes||0).toLocaleString() + ' likes</span>';
+        html += '<span>' + (v.comments||0).toLocaleString() + ' comments</span></span></div>';
+      });
+      html += '</div>';
+    }
+    var demo = analytics.demographics || {};
+    var traffic = analytics.trafficSources || {};
+    var countries = analytics.countries || {};
+    html += '<div class="yt-demo-row">';
+    if (demo.genderSplit && Object.keys(demo.genderSplit).length) {
+      html += '<div class="yt-demo-card"><div class="yt-demo-card-title">Audience</div>';
+      Object.entries(demo.genderSplit).sort(function(a,b){return b[1]-a[1];}).forEach(function(e) {
+        var label = e[0]==='female'?'Female':e[0]==='male'?'Male':'Other';
+        var pct = Math.round(e[1]);
+        html += '<div class="yt-demo-bar"><span class="yt-demo-bar-label">'+label+'</span><div class="yt-demo-bar-track"><div class="yt-demo-bar-fill" style="width:'+pct+'%"></div></div><span class="yt-demo-bar-pct">'+pct+'%</span></div>';
+      });
+      if (demo.ageGroups && Object.keys(demo.ageGroups).length) {
+        html += '<div style="margin-top:10px;">';
+        Object.entries(demo.ageGroups).sort(function(a,b){return b[1]-a[1];}).slice(0,4).forEach(function(e) {
+          var label = e[0].replace('age','');
+          var pct = Math.round(e[1]);
+          html += '<div class="yt-demo-bar"><span class="yt-demo-bar-label">'+label+'</span><div class="yt-demo-bar-track"><div class="yt-demo-bar-fill" style="width:'+pct+'%"></div></div><span class="yt-demo-bar-pct">'+pct+'%</span></div>';
+        });
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+    if (Object.keys(traffic).length) {
+      html += '<div class="yt-demo-card"><div class="yt-demo-card-title">Traffic Sources</div>';
+      var totalTraffic = Object.values(traffic).reduce(function(a,b){return a+b;},0);
+      Object.entries(traffic).sort(function(a,b){return b[1]-a[1];}).slice(0,5).forEach(function(e) {
+        var label = e[0].replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+        var pct = totalTraffic>0?Math.round(e[1]/totalTraffic*100):0;
+        html += '<div class="yt-demo-bar"><span class="yt-demo-bar-label" style="width:80px">'+label+'</span><div class="yt-demo-bar-track"><div class="yt-demo-bar-fill" style="width:'+pct+'%"></div></div><span class="yt-demo-bar-pct">'+pct+'%</span></div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+    if (Object.keys(countries).length) {
+      html += '<div class="yt-demo-card" style="margin-bottom:0;"><div class="yt-demo-card-title">Top Countries</div>';
+      var totalCountry = Object.values(countries).reduce(function(a,b){return a+b;},0);
+      Object.entries(countries).sort(function(a,b){return b[1]-a[1];}).slice(0,5).forEach(function(e) {
+        var pct = totalCountry>0?Math.round(e[1]/totalCountry*100):0;
+        html += '<div class="yt-demo-bar"><span class="yt-demo-bar-label">'+e[0]+'</span><div class="yt-demo-bar-track"><div class="yt-demo-bar-fill" style="width:'+pct+'%"></div></div><span class="yt-demo-bar-pct">'+pct+'%</span></div>';
+      });
+      html += '</div>';
+    }
+    document.getElementById('ytConnectBtn').style.display = 'none';
+    document.getElementById('ytStatus').textContent = 'Connected \u00b7 ' + (data.channelTitle || 'YouTube');
+    document.getElementById('ytData').style.display = 'block';
+    document.getElementById('ytData').innerHTML = html;
+    document.getElementById('socialHeader').textContent = 'Connect more platforms to unlock full cross-channel strategy';
+  } catch (e) {
+    console.error('Social analytics load failed:', e);
+  }
+}
+
+/* ── TikTok ── */
+function formatNum(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  return String(n);
+}
+
+async function loadTikTok() {
+  // Show section if URL has tiktok param
+  var urlParams = new URLSearchParams(window.location.search);
+  var tiktokParam = urlParams.get('tiktok');
+  if (tiktokParam === 'connected') {
+    // Clean up URL
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
+  try {
+    var res = await fetch('/api/tiktok-stats?password=' + encodeURIComponent(password));
+    if (!res.ok) return;
+    var data = await res.json();
+
+    document.getElementById('tiktokSection').style.display = '';
+    document.getElementById('tiktokDivider').style.display = '';
+
+    if (!data.connected) {
+      // Show connect button
+      document.getElementById('tiktokConnect').style.display = '';
+      document.getElementById('tiktokData').style.display = 'none';
+      return;
+    }
+
+    // Show connected state
+    document.getElementById('tiktokConnect').style.display = 'none';
+    document.getElementById('tiktokData').style.display = '';
+
+    // User info
+    if (data.user) {
+      document.getElementById('tiktokAvatar').src = data.user.avatar || '';
+      document.getElementById('tiktokName').textContent = data.user.name || 'TikTok';
+      document.getElementById('tiktokFollowers').textContent = formatNum(data.user.followers) + ' followers · ' + formatNum(data.user.totalLikes) + ' likes';
+    }
+
+    // Totals from recent videos
+    if (data.totals) {
+      document.getElementById('tiktokViews').textContent = formatNum(data.totals.views);
+      document.getElementById('tiktokLikes').textContent = formatNum(data.totals.likes);
+      document.getElementById('tiktokComments').textContent = formatNum(data.totals.comments);
+      document.getElementById('tiktokShares').textContent = formatNum(data.totals.shares);
+    }
+
+    // Top video
+    if (data.topVideo) {
+      document.getElementById('tiktokTopVideo').style.display = '';
+      document.getElementById('tiktokTopCover').src = data.topVideo.cover || '';
+      document.getElementById('tiktokTopTitle').textContent = data.topVideo.title || 'Untitled';
+      document.getElementById('tiktokTopStats').textContent = formatNum(data.topVideo.views) + ' views · ' + formatNum(data.topVideo.likes) + ' likes';
+    }
+  } catch (e) {
+    // Silently fail — TikTok is optional
+    console.error('TikTok load failed:', e);
+  }
 }
 
 function renderGoal(data) {

@@ -542,6 +542,135 @@ const FONT_MAP = {
     .fab-btn { font-size: 11px; padding: 8px 14px; }
     .chat-prompt { font-size: 11px; padding: 6px 14px; }
   }
+
+/* ── Referral Section ── */
+.referral-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  transition: border-color 0.22s ease;
+}
+.referral-card:hover {
+  border-color: var(--accent-border);
+}
+.referral-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.referral-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--accent-pale);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.referral-header-text h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text);
+  margin: 0;
+}
+.referral-header-text p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+.referral-stats-row {
+  display: flex;
+  gap: 16px;
+}
+.referral-stat {
+  flex: 1;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.referral-stat-value {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text);
+}
+.referral-stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.referral-code-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+.referral-code-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.referral-code-value {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--accent);
+  flex: 1;
+}
+.referral-copy-btn {
+  background: var(--accent-pale);
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  color: var(--accent);
+  font-size: 13px;
+  font-family: var(--sans);
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.22s ease, box-shadow 0.22s ease;
+  white-space: nowrap;
+}
+.referral-copy-btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+  box-shadow: 0 0 20px var(--accent-pale);
+}
+.referral-reward {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  text-align: center;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--border);
+}
+.referral-reward strong {
+  color: var(--accent);
+  font-weight: 500;
+}
+@media (max-width: 640px) {
+  .referral-card { padding: 24px 20px; }
+  .referral-stats-row { gap: 10px; }
+  .referral-stat { padding: 12px 8px; }
+  .referral-stat-value { font-size: 22px; }
+  .referral-code-row { flex-wrap: wrap; gap: 10px; }
+  .referral-code-value { font-size: 18px; }
+}
 </style>
 </head>
 
@@ -683,6 +812,43 @@ const FONT_MAP = {
     <div class="section-label" id="pulseLabel">Niche Pulse</div>
     <div class="pulse-items" id="pulseItems">
       <div class="empty-state"><p>Trend insights will generate once we have a week of data.</p></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Referral Program -->
+  <div class="fade-up">
+    <div class="section-label">Referral Program</div>
+    <div class="referral-card" id="referralCard">
+      <div class="referral-header">
+        <div class="referral-icon">&#127873;</div>
+        <div class="referral-header-text">
+          <h3>Share the Platform</h3>
+          <p>Refer a creator — every signup earns you a free month.</p>
+        </div>
+      </div>
+
+      <div class="referral-stats-row">
+        <div class="referral-stat">
+          <div class="referral-stat-value" id="referralCount">—</div>
+          <div class="referral-stat-label">Creators Referred</div>
+        </div>
+        <div class="referral-stat">
+          <div class="referral-stat-value" id="referralFreeMonths">—</div>
+          <div class="referral-stat-label">Free Months Earned</div>
+        </div>
+      </div>
+
+      <div class="referral-code-row">
+        <span class="referral-code-label">Your Code</span>
+        <span class="referral-code-value" id="referralCode">—</span>
+        <button class="referral-copy-btn" id="referralCopyBtn" onclick="copyReferralCode()">Copy</button>
+      </div>
+
+      <div class="referral-reward">
+        When a creator signs up with your code, <strong>you get one month free</strong> and <strong>they get $100 off</strong> their setup.
+      </div>
     </div>
   </div>
 
@@ -849,6 +1015,7 @@ function showHub() {
   // Load data
   loadBriefing();
   loadGoal();
+  loadReferral();
 
   // Init scroll animations
   setTimeout(initScrollAnimations, 100);
@@ -1188,6 +1355,33 @@ function loadGoal() {
     .catch(() => {
       renderGoalEmpty();
     });
+}
+
+/* ── Referral ── */
+async function loadReferral() {
+  try {
+    const res = await fetch('/api/referral?password=' + encodeURIComponent(password));
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.code) {
+      document.getElementById('referralCode').textContent = data.code;
+    }
+    document.getElementById('referralCount').textContent = data.count || 0;
+    document.getElementById('referralFreeMonths').textContent = data.freeMonths || 0;
+  } catch (e) {
+    console.error('Referral load failed:', e);
+  }
+}
+
+function copyReferralCode() {
+  const code = document.getElementById('referralCode').textContent;
+  if (!code || code === '—') return;
+  const msg = "Hey! I use this platform for my brand — custom site, analytics, and an AI strategist that reads my actual data. Use my code " + code + " and you'll get $100 off. Check it out: https://samotto.dev";
+  navigator.clipboard.writeText(msg).then(() => {
+    const btn = document.getElementById('referralCopyBtn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+  });
 }
 
 function renderGoal(data) {

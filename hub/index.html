@@ -1142,11 +1142,12 @@ const FONT_MAP = {
         <div class="social-platform-status">Coming soon</div>
         <button class="social-connect-btn disabled">Coming Soon</button>
       </div>
-      <div class="social-platform-card">
+      <div class="social-platform-card" id="tiktokPlatformCard" style="position:relative;">
         <div class="social-platform-icon">&#127925;</div>
         <div class="social-platform-name">TikTok</div>
-        <div class="social-platform-status">Coming soon</div>
-        <button class="social-connect-btn disabled">Coming Soon</button>
+        <div class="social-platform-status" id="tiktokStatus">Not connected</div>
+        <a class="social-connect-btn" id="tiktokConnectBtn" href="/api/tiktok-auth">Connect TikTok</a>
+        <div id="tiktokPlatformData" style="display:none;"></div>
       </div>
     </div>
   </div>
@@ -2165,6 +2166,12 @@ async function loadTikTok() {
       document.getElementById('tiktokData').style.display = 'none';
       return;
     }
+
+    // Update social platform card
+    document.getElementById('tiktokStatus').textContent = 'Connected';
+    document.getElementById('tiktokStatus').style.color = '#22c55e';
+    document.getElementById('tiktokConnectBtn').textContent = 'View Analytics ↓';
+    document.getElementById('tiktokConnectBtn').href = '#tiktokSection';
 
     // Show connected state
     document.getElementById('tiktokConnect').style.display = 'none';

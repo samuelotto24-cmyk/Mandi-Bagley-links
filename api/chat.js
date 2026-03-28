@@ -7,6 +7,8 @@ const REDIS_URL   = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const PASSWORD    = process.env.DASHBOARD_PASSWORD || 'Password2024';
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || process.env.AI_KEY;
+const CLIENT_NICHE = process.env.CLIENT_NICHE || 'Fitness · Faith · Food';
+const CLIENT_DESCRIPTION = process.env.CLIENT_DESCRIPTION || 'Lifestyle fitness creator, recipe content, brand partnerships';
 
 async function redis(commands) {
   const res = await fetch(`${REDIS_URL}/pipeline`, {
@@ -66,6 +68,7 @@ export default async function handler(req) {
     const body = await req.json();
     const question = body.question;
     const history = body.history || []; // previous messages for context
+    const briefingContext = body.briefingContext || null;
 
     if (!question || typeof question !== 'string') {
       return new Response(JSON.stringify({ error: 'Question required' }), {
@@ -176,8 +179,28 @@ ${peakHours.map(([hr, count]) => {
 }).join('\n')}
 `.trim();
 
+    let briefingSection = '';
+    if (briefingContext) {
+      const bc = briefingContext;
+      if (bc.actionItems && bc.actionItems.length) {
+        briefingSection += '\n\n## This Week\'s Action Items (already shown to the creator)\n';
+        briefingSection += bc.actionItems.map(a => `- [${a.timeframe}] ${a.action}: ${a.reason}`).join('\n');
+      }
+      if (bc.calendar && bc.calendar.length) {
+        briefingSection += '\n\n## Content Calendar This Week\n';
+        briefingSection += bc.calendar.map(d => `- ${d.day}: ${d.type} at ${d.time} — "${d.idea}"`).join('\n');
+      }
+      if (bc.nichePulse && bc.nichePulse.length) {
+        briefingSection += '\n\n## Niche Trends (already shown)\n';
+        briefingSection += bc.nichePulse.map(p => `- ${p.headline}: ${p.context}`).join('\n');
+      }
+      if (bc.goalTarget) {
+        briefingSection += `\n\n## Monthly Goal\n- Target: ${bc.goalTarget} views\n- Current: ${bc.goalCurrent || '?'} views`;
+      }
+    }
+
     // Build messages array with conversation history
-    const systemPrompt = `You are a personal brand strategist and data analyst for ${CLIENT_NAME}, a creator/influencer. You have access to their complete website analytics data below.
+    const systemPrompt = `You are a personal brand strategist and data analyst for ${CLIENT_NAME}, a ${CLIENT_NICHE} creator/influencer. ${CLIENT_DESCRIPTION}. You have access to their complete website analytics data below.
 
 Your role:
 - Give specific, data-backed advice. Always reference actual numbers from their data.
@@ -188,10 +211,15 @@ Your role:
 - Keep responses concise — 2-5 sentences unless they ask for detail.
 - If you don't have enough data to answer, say so honestly.
 - Proactively suggest actions: "you should post...", "try creating...", "focus on..."
+- You can draft Instagram captions, Pinterest pin descriptions, pitch emails to brands, and content ideas.
+- If the creator asks you to "write a caption" or "draft a pitch", produce ready-to-use copy, not just advice.
+- You have full context of this week's content calendar and action items — reference them when relevant.
+- Don't repeat what the briefing already told them. Build on it or go deeper.
 
 CRITICAL RULE: NEVER suggest changes to the website itself. No layout changes, no reorganizing sections, no moving CTAs, no "put this above the fold", no redesign suggestions. The website was custom-built by a professional developer — it is NOT the creator's responsibility to modify it. If you notice a data pattern that might relate to page structure (like low scroll depth), frame it as a content strategy insight ("your audience engages most with the top content — make sure your best offer is what you're promoting") NOT as a page change ("move your CTA higher"). Your advice is ONLY about: when to post, where to post, what content to create, which platforms to focus on, what to promote, and how to interpret their analytics.
 
-${dataContext}`;
+${dataContext}
+${briefingSection}`;
 
     const messages = [];
     // Add conversation history (last 10 messages max)
@@ -211,6 +239,7 @@ ${dataContext}`;
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 500,
+        stream: true,
         system: systemPrompt,
         messages: messages,
       }),
@@ -224,11 +253,48 @@ ${dataContext}`;
       });
     }
 
-    const llmData = await llmRes.json();
-    const answer = llmData.content?.[0]?.text || 'I couldn\'t generate a response. Please try again.';
+    // Stream SSE from Anthropic → client
+    const { readable, writable } = new TransformStream();
+    const writer = writable.getWriter();
+    const encoder = new TextEncoder();
 
-    return new Response(JSON.stringify({ answer }), {
-      headers: { 'Content-Type': 'application/json' },
+    (async () => {
+      const reader = llmRes.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const json = line.slice(6).trim();
+            if (json === '[DONE]') continue;
+            try {
+              const evt = JSON.parse(json);
+              if (evt.type === 'content_block_delta' && evt.delta?.text) {
+                await writer.write(encoder.encode(`data: ${JSON.stringify({ text: evt.delta.text })}\n\n`));
+              }
+            } catch {}
+          }
+        }
+        await writer.write(encoder.encode('data: [DONE]\n\n'));
+      } catch (e) {
+        console.error('Stream error:', e);
+      } finally {
+        writer.close();
+      }
+    })();
+
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
     });
   } catch (e) {
     return new Response(JSON.stringify({ error: 'Something went wrong' }), {

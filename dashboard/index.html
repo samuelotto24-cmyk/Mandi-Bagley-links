@@ -456,16 +456,17 @@
     /* ── Conversion Funnel ────────────────────────── */
     .funnel-wrap { display: flex; flex-direction: column; align-items: center; gap: 0; padding: 20px 0; }
     .funnel-level {
-      display: flex; align-items: center; justify-content: center; gap: 16px;
-      padding: 18px 24px; position: relative; color: #fff; font-family: 'DM Sans', sans-serif;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 16px 24px; position: relative; color: #fff; font-family: 'DM Sans', sans-serif;
+      min-height: 72px; border-radius: 8px;
       opacity: 0; transform: translateX(-30px);
       transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.23,1,0.32,1);
     }
     .funnel-level.funnel-visible { opacity: 1; transform: translateX(0); }
     .funnel-label { font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
-    .funnel-desc { font-size: 10px; opacity: 0.7; margin-top: 1px; font-weight: 400; letter-spacing: 0.02em; }
-    .funnel-count { font-family: var(--display-font); font-size: 28px; font-weight: 400; }
-    .funnel-pct { font-size: 11px; opacity: 0.8; }
+    .funnel-desc { font-size: 10px; opacity: 0.85; margin-top: 2px; font-weight: 400; letter-spacing: 0.02em; }
+    .funnel-count { font-family: var(--display-font); font-size: 28px; font-weight: 400; flex-shrink: 0; }
+    .funnel-pct { font-size: 11px; opacity: 0.9; margin-top: 2px; }
     .funnel-connector { width: 2px; height: 8px; background: var(--accent-40); }
 
     /* ── Gauge ─────────────────────────────────────── */
@@ -1564,14 +1565,14 @@
     var html = '';
     var maxWidth = 100;
     levels.forEach(function(level, i) {
-      var widthPct = i === 0 ? maxWidth : Math.max(20, (level.count / (levels[0].count || 1)) * maxWidth);
-      var darken = 1 - i * 0.15;
-      var bgColor = 'rgb(' + Math.round(ar * darken) + ',' + Math.round(ag * darken) + ',' + Math.round(ab * darken) + ')';
+      var widthPct = i === 0 ? maxWidth : Math.max(35, (level.count / (levels[0].count || 1)) * maxWidth);
+      // Lighter shades for lower levels so text stays readable
+      var opacity = 1 - i * 0.18;
+      var bgColor = 'rgba(' + ar + ',' + ag + ',' + ab + ',' + opacity.toFixed(2) + ')';
 
       if (i > 0) html += '<div class="funnel-connector"></div>';
       html += '<div class="funnel-level" style="width:' + widthPct + '%;background:' + bgColor + ';' +
-        'clip-path:polygon(' + (i > 0 ? '4%' : '0%') + ' 0%, ' + (i > 0 ? '96%' : '100%') + ' 0%, 100% 100%, 0% 100%);' +
-        'border-radius:6px;min-height:56px;transition-delay:' + (i * 0.15) + 's" data-funnel-idx="' + i + '">' +
+        'transition-delay:' + (i * 0.15) + 's" data-funnel-idx="' + i + '">' +
         '<div><div class="funnel-label">' + level.label + '</div>' +
         '<div class="funnel-desc">' + level.desc + '</div>' +
         '<div class="funnel-pct">' + (i > 0 ? level.pct + '% of visitors' : '') + '</div></div>' +

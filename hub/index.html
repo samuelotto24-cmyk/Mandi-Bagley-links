@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>Hub</title>
 
@@ -1139,13 +1139,18 @@ document.getElementById('loginPassword').addEventListener('keydown', function(e)
   if (e.key === 'Enter') login();
 });
 
+// Force scroll to top and reset zoom
+window.scrollTo(0, 0);
+if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
+
 // Auto-login
 (function() {
-  const saved = sessionStorage.getItem('hubPassword');
+  var saved = sessionStorage.getItem('hubPassword');
   if (saved) {
     password = saved;
     document.getElementById('loginScreen').style.display = 'none';
     showHub();
+    window.scrollTo(0, 0);
   }
 })();
 
@@ -1168,6 +1173,7 @@ function login() {
     sessionStorage.setItem('hubPassword', pw);
     document.getElementById('loginScreen').style.display = 'none';
     showHub();
+    window.scrollTo(0, 0);
   })
   .catch(function() {
     err.style.display = 'block';

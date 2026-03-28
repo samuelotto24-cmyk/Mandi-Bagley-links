@@ -369,7 +369,7 @@ export default async function handler(req) {
     let nichePulse = [];
     let proactiveInsight = null;
     const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || process.env.AI_KEY;
-    const _debug = { hasKey: !!ANTHROPIC_API_KEY, flagCount: flags.length };
+    let _debug = { hasKey: !!ANTHROPIC_API_KEY, flagCount: flags.length };
 
     if (ANTHROPIC_API_KEY) {
       try {
@@ -464,7 +464,9 @@ Rules:
 
         if (llmRes.ok) {
           const llmData = await llmRes.json();
-          const text = llmData.content?.[0]?.text || '';
+          let text = llmData.content?.[0]?.text || '';
+          // Strip markdown code fences if present
+          text = text.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
           try {
             const parsed = JSON.parse(text);
             actionItems = parsed.actionItems || [];
@@ -472,10 +474,25 @@ Rules:
             nichePulse = parsed.nichePulse || [];
             proactiveInsight = parsed.proactiveInsight || null;
           } catch (parseErr) {
-            console.error('Briefing JSON parse error:', parseErr, text.slice(0, 200));
+            // Try to extract JSON from mixed response
+            const match = text.match(/\{[\s\S]*\}/);
+            if (match) {
+              try {
+                const parsed = JSON.parse(match[0]);
+                actionItems = parsed.actionItems || [];
+                calendar = parsed.calendar || [];
+                nichePulse = parsed.nichePulse || [];
+                proactiveInsight = parsed.proactiveInsight || null;
+              } catch (e2) {
+                _debug.llmParseError = text.slice(0, 500);
+              }
+            } else {
+              _debug.llmParseError = text.slice(0, 500);
+            }
           }
         } else {
-          console.error('Briefing LLM error:', llmRes.status, await llmRes.text().catch(() => ''));
+          const errBody = await llmRes.text().catch(() => '');
+          _debug.llmError = { status: llmRes.status, body: errBody.slice(0, 300) };
         }
       } catch (e) {
         console.error('Briefing LLM exception:', e);

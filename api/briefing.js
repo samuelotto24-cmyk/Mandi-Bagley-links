@@ -220,6 +220,8 @@ function runRules(data, metrics) {
   return { flags, avgSessionSec };
 }
 
+const CACHE_TTL = 3600; // 1 hour in seconds
+
 /* ── Handler ── */
 export default async function handler(req) {
   const url = new URL(req.url);
@@ -228,6 +230,25 @@ export default async function handler(req) {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
     });
+  }
+
+  // Check for cached briefing (skip if ?refresh=1)
+  const forceRefresh = url.searchParams.get('refresh') === '1';
+  if (!forceRefresh) {
+    try {
+      const cached = await redis([['GET', PREFIX + 'briefing:cache']]);
+      if (cached[0]?.result) {
+        const parsed = JSON.parse(cached[0].result);
+        const age = (Date.now() - new Date(parsed.generatedAt).getTime()) / 1000;
+        if (age < CACHE_TTL) {
+          parsed._cached = true;
+          parsed._cacheAge = Math.round(age);
+          return new Response(JSON.stringify(parsed), {
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+      }
+    } catch (e) { /* cache miss, continue */ }
   }
 
   try {
@@ -507,7 +528,7 @@ Rules:
       .sort((a, b) => b[1] - a[1])
       .map(([name, count]) => ({ name, clicks: count }));
 
-    return new Response(JSON.stringify({
+    const response = {
       weekRange: weekRange(todayDate),
       summary,
       actionItems,
@@ -519,7 +540,12 @@ Rules:
       flags,
       clickList,
       _debug,
-    }), { headers: { 'Content-Type': 'application/json' } });
+    };
+
+    // Cache the response in Redis (fire and forget)
+    redis([['SET', PREFIX + 'briefing:cache', JSON.stringify(response), 'EX', String(CACHE_TTL)]]).catch(() => {});
+
+    return new Response(JSON.stringify(response), { headers: { 'Content-Type': 'application/json' } });
   } catch {
     return new Response(JSON.stringify({ error: 'Failed to load data' }), { status: 500 });
   }

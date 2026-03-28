@@ -796,15 +796,15 @@ document.getElementById('loginPassword').addEventListener('keydown', function(e)
 })();
 
 function login() {
-  const pw = document.getElementById('loginPassword').value.trim();
+  var pw = document.getElementById('loginPassword').value.trim();
   if (!pw) return;
-  const err = document.getElementById('loginError');
-  const btn = document.querySelector('.login-btn');
+  var err = document.getElementById('loginError');
+  var btn = document.querySelector('.login-btn');
   err.style.display = 'none';
   btn.textContent = 'Loading...';
   btn.disabled = true;
 
-  fetch('/api/briefing?password=' + encodeURIComponent(pw))
+  fetch('/api/auth?password=' + encodeURIComponent(pw))
   .then(function(r) {
     if (!r.ok) throw new Error('bad');
     return r.json();
@@ -860,10 +860,12 @@ function showHub() {
 /* ═══════════════════════════════════════════════════
    LOAD BRIEFING
    ═══════════════════════════════════════════════════ */
-function loadBriefing() {
-  fetch('/api/briefing?password=' + encodeURIComponent(password))
-    .then(r => r.json())
-    .then(data => {
+function loadBriefing(forceRefresh) {
+  var url = '/api/briefing?password=' + encodeURIComponent(password);
+  if (forceRefresh) url += '&refresh=1';
+  fetch(url)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
       window.lastBriefing = data;
       renderStats(data);
       renderBriefing(data);
@@ -874,16 +876,16 @@ function loadBriefing() {
       renderProactiveInsight(data);
       renderHealthBar(data);
     })
-    .catch(() => {
+    .catch(function() {
       renderEmptyStates();
     });
 }
 
 function refreshBriefing() {
-  const btn = document.getElementById('briefingRefresh');
+  var btn = document.getElementById('briefingRefresh');
   btn.classList.add('spinning');
-  loadBriefing();
-  setTimeout(() => btn.classList.remove('spinning'), 1200);
+  loadBriefing(true);
+  setTimeout(function() { btn.classList.remove('spinning'); }, 1200);
 }
 
 /* ── Count-up animation ── */

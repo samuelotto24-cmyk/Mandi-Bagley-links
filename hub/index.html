@@ -864,7 +864,7 @@ const FONT_MAP = {
 }
 .social-platforms {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 14px;
 }
 .social-platform-card {
@@ -1116,109 +1116,6 @@ const FONT_MAP = {
 
   <div class="divider"></div>
 
-  <!-- Social Analytics -->
-  <div class="fade-up">
-    <div class="section-label">Social Analytics</div>
-    <div class="social-section-header" id="socialHeader">Connect your platforms to unlock AI-powered strategy across all your channels</div>
-    <div class="social-platforms" id="socialPlatforms">
-      <div class="social-platform-card" id="ytCard" style="position:relative;">
-        <div class="social-platform-icon">&#9654;&#65039;</div>
-        <div class="social-platform-name">YouTube</div>
-        <div class="social-platform-status" id="ytStatus">Not connected</div>
-        <a class="social-connect-btn" id="ytConnectBtn" href="#">Connect YouTube</a>
-        <button id="ytDisconnectBtn" style="display:none;position:absolute;top:14px;right:14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:border-color 0.2s,color 0.2s;" onmouseover="this.style.borderColor='#f87171';this.style.color='#f87171'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'" onclick="confirmDisconnectYouTube()">Disconnect</button>
-        <div id="ytDisconnectConfirm" style="display:none;position:absolute;top:14px;right:14px;background:var(--surface-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 16px;z-index:5;text-align:center;">
-          <div style="font-size:12px;color:var(--text);margin-bottom:10px;">Disconnect YouTube?</div>
-          <div style="display:flex;gap:8px;">
-            <button style="flex:1;padding:6px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);" onclick="cancelDisconnectYouTube()">Cancel</button>
-            <button style="flex:1;padding:6px 12px;background:#f87171;border:none;color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;" onclick="disconnectYouTube()">Confirm</button>
-          </div>
-        </div>
-        <div id="ytData" style="display:none;"></div>
-      </div>
-      <div class="social-platform-card">
-        <div class="social-platform-icon">&#128247;</div>
-        <div class="social-platform-name">Instagram</div>
-        <div class="social-platform-status">Coming soon</div>
-        <button class="social-connect-btn disabled">Coming Soon</button>
-      </div>
-      <div class="social-platform-card" id="tiktokPlatformCard" style="position:relative;">
-        <div class="social-platform-icon">&#127925;</div>
-        <div class="social-platform-name">TikTok</div>
-        <div class="social-platform-status" id="tiktokStatus">Not connected</div>
-        <a class="social-connect-btn" id="tiktokConnectBtn" href="/api/tiktok-auth">Connect TikTok</a>
-        <div id="tiktokPlatformData" style="display:none;"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- TikTok Analytics -->
-  <div class="fade-up" id="tiktokSection" style="display:none">
-    <div class="section-label">TikTok</div>
-    <div class="card" id="tiktokCard" style="padding:0;overflow:hidden;position:relative">
-      <!-- Connect state -->
-      <div id="tiktokConnect" style="padding:28px;text-align:center">
-        <div style="font-size:28px;margin-bottom:10px">&#9835;</div>
-        <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.5">Connect TikTok to see your video analytics, engagement, and top-performing content.</div>
-        <a href="/api/tiktok-auth" style="display:inline-flex;align-items:center;gap:8px;background:var(--accent-pale);border:1px solid var(--accent-border);border-radius:50px;padding:10px 24px;font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;transition:background 0.2s" onmouseover="this.style.background='var(--accent-border)'" onmouseout="this.style.background='var(--accent-pale)'">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.73a8.19 8.19 0 004.76 1.52V6.8a4.84 4.84 0 01-1-.11z"/></svg>
-          Connect TikTok
-        </a>
-      </div>
-      <!-- Connected state -->
-      <button id="tiktokDisconnectBtn" style="display:none;position:absolute;top:14px;right:14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:border-color 0.2s,color 0.2s;z-index:3;" onmouseover="this.style.borderColor='#f87171';this.style.color='#f87171'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'" onclick="confirmDisconnectTikTok()">Disconnect</button>
-      <div id="tiktokDisconnectConfirm" style="display:none;position:absolute;top:14px;right:14px;background:var(--surface-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 16px;z-index:5;text-align:center;">
-        <div style="font-size:12px;color:var(--text);margin-bottom:10px;">Disconnect TikTok?</div>
-        <div style="display:flex;gap:8px;">
-          <button style="flex:1;padding:6px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);" onclick="cancelDisconnectTikTok()">Cancel</button>
-          <button style="flex:1;padding:6px 12px;background:#f87171;border:none;color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;" onclick="disconnectTikTok()">Confirm</button>
-        </div>
-      </div>
-      <div id="tiktokData" style="display:none">
-        <div style="display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border)">
-          <img id="tiktokAvatar" src="" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--accent)" />
-          <div>
-            <div id="tiktokName" style="font-size:14px;font-weight:600;color:var(--text)"></div>
-            <div id="tiktokFollowers" style="font-size:11px;color:var(--text-muted)"></div>
-          </div>
-          <div style="margin-left:auto;background:#22c55e;color:#fff;font-size:10px;font-weight:600;padding:3px 10px;border-radius:50px">Connected</div>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--border)">
-          <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
-            <div id="tiktokViews" style="font-family:var(--serif);font-size:22px;color:var(--text)">—</div>
-            <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Views</div>
-          </div>
-          <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
-            <div id="tiktokLikes" style="font-family:var(--serif);font-size:22px;color:var(--text)">—</div>
-            <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Likes</div>
-          </div>
-          <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
-            <div id="tiktokComments" style="font-family:var(--serif);font-size:22px;color:var(--text)">—</div>
-            <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Comments</div>
-          </div>
-          <div style="padding:16px;text-align:center">
-            <div id="tiktokShares" style="font-family:var(--serif);font-size:22px;color:var(--text)">—</div>
-            <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Shares</div>
-          </div>
-        </div>
-        <div id="tiktokTopVideo" style="padding:16px 20px;display:none">
-          <div style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px">Top Performing Video</div>
-          <div style="display:flex;align-items:center;gap:12px">
-            <img id="tiktokTopCover" src="" style="width:48px;height:64px;border-radius:6px;object-fit:cover;border:1px solid var(--border)" />
-            <div style="flex:1;min-width:0">
-              <div id="tiktokTopTitle" style="font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
-              <div id="tiktokTopStats" style="font-size:11px;color:var(--text-muted);margin-top:3px"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="divider" id="tiktokDivider" style="display:none"></div>
-
   <!-- Game Plan -->
   <div class="fade-up">
     <div class="section-label">Your Game Plan</div>
@@ -1244,6 +1141,83 @@ const FONT_MAP = {
     <div class="section-label">This Week's Content Plan</div>
     <div class="calendar-strip" id="calendarStrip">
       <!-- filled by JS -->
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Social Analytics -->
+  <div class="fade-up">
+    <div class="section-label">Social Analytics</div>
+    <div class="social-section-header" id="socialHeader">Connect your platforms to unlock AI-powered strategy across all your channels</div>
+    <div class="social-platforms" id="socialPlatforms">
+      <div class="social-platform-card" id="ytCard" style="position:relative;">
+        <div class="social-platform-icon">&#9654;&#65039;</div>
+        <div class="social-platform-name">YouTube</div>
+        <div class="social-platform-status" id="ytStatus">Not connected</div>
+        <a class="social-connect-btn" id="ytConnectBtn" href="#">Connect YouTube</a>
+        <button id="ytDisconnectBtn" style="display:none;position:absolute;top:14px;right:14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:border-color 0.2s,color 0.2s;" onmouseover="this.style.borderColor='#f87171';this.style.color='#f87171'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'" onclick="confirmDisconnectYouTube()">Disconnect</button>
+        <div id="ytDisconnectConfirm" style="display:none;position:absolute;top:14px;right:14px;background:var(--surface-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 16px;z-index:5;text-align:center;">
+          <div style="font-size:12px;color:var(--text);margin-bottom:10px;">Disconnect YouTube?</div>
+          <div style="display:flex;gap:8px;">
+            <button style="flex:1;padding:6px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);" onclick="cancelDisconnectYouTube()">Cancel</button>
+            <button style="flex:1;padding:6px 12px;background:#f87171;border:none;color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;" onclick="disconnectYouTube()">Confirm</button>
+          </div>
+        </div>
+        <div id="ytData" style="display:none;"></div>
+      </div>
+      <div class="social-platform-card" id="tiktokPlatformCard" style="position:relative;">
+        <div class="social-platform-icon">&#127925;</div>
+        <div class="social-platform-name">TikTok</div>
+        <div class="social-platform-status" id="tiktokStatus">Not connected</div>
+        <a class="social-connect-btn" id="tiktokConnectBtn" href="/api/tiktok-auth">Connect TikTok</a>
+        <button id="tiktokDisconnectBtn" style="display:none;position:absolute;top:14px;right:14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:border-color 0.2s,color 0.2s;z-index:3;" onmouseover="this.style.borderColor='#f87171';this.style.color='#f87171'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'" onclick="confirmDisconnectTikTok()">Disconnect</button>
+        <div id="tiktokDisconnectConfirm" style="display:none;position:absolute;top:14px;right:14px;background:var(--surface-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 16px;z-index:5;text-align:center;">
+          <div style="font-size:12px;color:var(--text);margin-bottom:10px;">Disconnect TikTok?</div>
+          <div style="display:flex;gap:8px;">
+            <button style="flex:1;padding:6px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);" onclick="cancelDisconnectTikTok()">Cancel</button>
+            <button style="flex:1;padding:6px 12px;background:#f87171;border:none;color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;" onclick="disconnectTikTok()">Confirm</button>
+          </div>
+        </div>
+        <div id="tiktokData" style="display:none">
+          <div style="display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border)">
+            <img id="tiktokAvatar" src="" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--accent)" />
+            <div>
+              <div id="tiktokName" style="font-size:14px;font-weight:600;color:var(--text)"></div>
+              <div id="tiktokFollowers" style="font-size:11px;color:var(--text-muted)"></div>
+            </div>
+            <div style="margin-left:auto;background:#22c55e;color:#fff;font-size:10px;font-weight:600;padding:3px 10px;border-radius:50px">Connected</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--border)">
+            <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
+              <div id="tiktokViews" style="font-family:var(--serif);font-size:22px;color:var(--text)">—</div>
+              <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Views</div>
+            </div>
+            <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
+              <div id="tiktokLikes" style="font-family:var(--serif);font-size:22px;color:var(--text)">—</div>
+              <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Likes</div>
+            </div>
+            <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
+              <div id="tiktokComments" style="font-family:var(--serif);font-size:22px;color:var(--text)">—</div>
+              <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Comments</div>
+            </div>
+            <div style="padding:16px;text-align:center">
+              <div id="tiktokShares" style="font-family:var(--serif);font-size:22px;color:var(--text)">—</div>
+              <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Shares</div>
+            </div>
+          </div>
+          <div id="tiktokTopVideo" style="padding:16px 20px;display:none">
+            <div style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px">Top Performing Video</div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <img id="tiktokTopCover" src="" style="width:48px;height:64px;border-radius:6px;object-fit:cover;border:1px solid var(--border)" />
+              <div style="flex:1;min-width:0">
+                <div id="tiktokTopTitle" style="font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+                <div id="tiktokTopStats" style="font-size:11px;color:var(--text-muted);margin-top:3px"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1381,7 +1355,7 @@ const FONT_MAP = {
       </select>
       <textarea class="modal-textarea" id="modalMessage" placeholder="What's on your mind?"></textarea>
       <button class="modal-submit" onclick="submitModal(event)">Send Message</button>
-      <div class="modal-sms">or text directly: <a href="sms:+1234567890">+1 (234) 567-890</a></div>
+      <div class="modal-sms">or reach out on the main site contact form</div>
     </div>
     <div id="modalSuccess" style="display:none">
       <div class="modal-success">
@@ -2110,7 +2084,7 @@ async function loadSocialAnalytics() {
     document.getElementById('ytStatus').textContent = 'Connected \u00b7 ' + (data.channelTitle || 'YouTube');
     document.getElementById('ytData').style.display = 'block';
     document.getElementById('ytData').innerHTML = html;
-    document.getElementById('socialHeader').textContent = 'Connect more platforms to unlock full cross-channel strategy';
+    updateSocialHeader();
   } catch (e) {
     console.error('Social analytics load failed:', e);
   }
@@ -2151,6 +2125,18 @@ function formatNum(n) {
   return String(n);
 }
 
+function updateSocialHeader() {
+  var connected = [];
+  if (document.getElementById('ytStatus').textContent.startsWith('Connected')) connected.push('YouTube');
+  if (document.getElementById('tiktokStatus').textContent.startsWith('Connected')) connected.push('TikTok');
+  var header = document.getElementById('socialHeader');
+  if (connected.length === 0) {
+    header.textContent = 'Connect your platforms to unlock AI-powered strategy across all your channels';
+  } else {
+    header.textContent = connected.join(' + ') + ' connected — your AI advisor can now analyze cross-platform performance';
+  }
+}
+
 async function loadTikTok() {
   // Show section if URL has tiktok param
   var urlParams = new URLSearchParams(window.location.search);
@@ -2165,26 +2151,22 @@ async function loadTikTok() {
     if (!res.ok) return;
     var data = await res.json();
 
-    document.getElementById('tiktokSection').style.display = '';
-    document.getElementById('tiktokDivider').style.display = '';
-
     if (!data.connected) {
-      // Show connect button
-      document.getElementById('tiktokConnect').style.display = '';
-      document.getElementById('tiktokData').style.display = 'none';
       return;
     }
 
-    // Update social platform card
+    // Update social platform card to connected state
     document.getElementById('tiktokStatus').textContent = 'Connected';
     document.getElementById('tiktokStatus').style.color = '#22c55e';
-    document.getElementById('tiktokConnectBtn').textContent = 'View Analytics ↓';
-    document.getElementById('tiktokConnectBtn').href = '#tiktokSection';
+    document.getElementById('tiktokConnectBtn').style.display = 'none';
+    document.getElementById('tiktokPlatformCard').classList.add('connected');
 
-    // Show connected state
-    document.getElementById('tiktokConnect').style.display = 'none';
+    // Show connected data + disconnect button
     document.getElementById('tiktokData').style.display = '';
     document.getElementById('tiktokDisconnectBtn').style.display = 'block';
+
+    // Update social header
+    updateSocialHeader();
 
     // User info
     if (data.user) {

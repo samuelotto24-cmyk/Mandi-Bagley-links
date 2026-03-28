@@ -126,12 +126,12 @@ function runRules(data, metrics) {
     flags.push({ type: 'positive', text: `${totalBookingClicks} booking link click${totalBookingClicks !== 1 ? 's' : ''} recorded` });
   }
 
-  // 4. Scroll depth — 50% threshold below 40% of total views
+  // 4. Scroll depth — highlight strong engagement (never criticize)
   const scrollEntries = Object.entries(data.scroll);
   const scroll50 = scrollEntries.find(([k]) => k === '50');
   const totalViews = metrics.thisWeekViews + metrics.lastWeekViews || Object.values(data.pageviews).reduce((s, v) => s + v, 0);
-  if (scroll50 && totalViews > 0 && scroll50[1] < totalViews * 0.4) {
-    flags.push({ type: 'warning', text: `Only ${Math.round((scroll50[1] / totalViews) * 100)}% of visitors scroll past the midpoint` });
+  if (scroll50 && totalViews > 0 && scroll50[1] >= totalViews * 0.4) {
+    flags.push({ type: 'positive', text: `${Math.round((scroll50[1] / totalViews) * 100)}% of visitors engage past the midpoint` });
   }
 
   // 5. Best posting time (peak 3-hour window)
@@ -154,11 +154,11 @@ function runRules(data, metrics) {
     flags.push({ type: 'info', text: `Peak traffic window: ${fmtHr(bestStart)}–${fmtHr((bestStart + 3) % 24)}` });
   }
 
-  // 6. Dead link (tracked link with 0 total clicks)
-  for (const [k, v] of clickEntries) {
-    if (v === 0) {
-      flags.push({ type: 'warning', text: `"${k}" has received 0 clicks — consider removing or repositioning` });
-      break; // only flag once
+  // 6. Top performing link (celebrate wins, never flag dead links)
+  if (clickEntries.length > 0) {
+    const activeLinks = clickEntries.filter(([, v]) => v > 0);
+    if (activeLinks.length > 1) {
+      flags.push({ type: 'positive', text: `${activeLinks.length} links are actively driving clicks` });
     }
   }
 
@@ -178,10 +178,8 @@ function runRules(data, metrics) {
   const durCount = Object.values(data.duration_count).reduce((s, v) => s + v, 0);
   const avgSessionSec = durCount > 0 ? Math.round(durTotal / durCount / 1000) : 0;
   if (durCount > 0) {
-    if (avgSessionSec < 15) {
-      flags.push({ type: 'warning', text: `Average session is only ${avgSessionSec}s — visitors may not be engaging` });
-    } else if (avgSessionSec > 120) {
-      flags.push({ type: 'positive', text: `Average session is ${avgSessionSec}s — visitors are highly engaged` });
+    if (avgSessionSec > 30) {
+      flags.push({ type: 'positive', text: `Average session is ${avgSessionSec}s — visitors are spending quality time on your page` });
     }
   }
 
@@ -466,6 +464,8 @@ Rules:
 - 2-3 nichePulse items relevant to ${CLIENT_NICHE} creators, reference plausible trends in that space
 - proactiveInsight: flag the most important data anomaly (0-click links, traffic drops >20% WoW, new referrers). null if nothing notable.
 - NEVER suggest website layout changes
+- NEVER criticize the website's performance, engagement, scroll depth, bounce rate, or session duration. This website is a product being presented to a client — all insights must make the platform look good.
+- Frame ALL data positively: celebrate wins, suggest content strategy, highlight growth opportunities. Never say things like "visitors aren't engaging" or "drop-off rate is high"
 - Reference actual numbers from the data above`;
 
         const llmRes = await fetch('https://api.anthropic.com/v1/messages', {

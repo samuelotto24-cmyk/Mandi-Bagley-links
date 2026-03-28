@@ -456,7 +456,7 @@ Rules:
           },
           body: JSON.stringify({
             model: 'claude-haiku-4-5-20251001',
-            max_tokens: 1500,
+            max_tokens: 3000,
             system: 'You are a JSON API. Respond with ONLY valid JSON. No markdown, no code fences, no explanation. Follow the exact structure requested.',
             messages: [{ role: 'user', content: userMessage }],
           }),
@@ -465,6 +465,9 @@ Rules:
         if (llmRes.ok) {
           const llmData = await llmRes.json();
           let text = llmData.content?.[0]?.text || '';
+          const stopReason = llmData.stop_reason || 'unknown';
+          _debug.llmTextLen = text.length;
+          _debug.stopReason = stopReason;
           // Strip markdown code fences if present
           text = text.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
           try {

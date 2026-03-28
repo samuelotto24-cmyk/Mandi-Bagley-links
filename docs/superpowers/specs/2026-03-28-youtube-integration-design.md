@@ -183,8 +183,8 @@ Same approach — include YouTube data in the chat advisor's system prompt conte
 ## Environment Variables
 
 **Same for all clients (your Google developer app):**
-- `YOUTUBE_CLIENT_ID` — `219086500121-tcoqb495srtro9qooi7nq7002j9fe3hl.apps.googleusercontent.com`
-- `YOUTUBE_CLIENT_SECRET` — `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`
+- `YOUTUBE_CLIENT_ID` — from Google Cloud Console
+- `YOUTUBE_CLIENT_SECRET` — from Google Cloud Console
 
 **Per-client (already exist):**
 - `UPSTASH_REDIS_REST_URL` — each client's Redis

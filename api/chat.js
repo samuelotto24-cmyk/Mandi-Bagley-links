@@ -91,6 +91,9 @@ export default async function handler(req) {
       ['HGETALL', 'stats:duration_count'],
       ['HGETALL', 'stats:cities'],
       ['HGETALL', 'stats:conversions'],
+      ['GET', 'stats:youtube:channel'],
+      ['GET', 'stats:youtube:videos'],
+      ['GET', 'stats:youtube:analytics'],
     ]);
 
     const data = {
@@ -108,6 +111,40 @@ export default async function handler(req) {
       cities:         parseHash(results[11]),
       conversions:    parseHash(results[12]),
     };
+
+    // YouTube data (if connected)
+    const ytChannelRaw = results[results.length - 3]?.result;
+    const ytVideosRaw = results[results.length - 2]?.result;
+    const ytAnalyticsRaw = results[results.length - 1]?.result;
+    let youtubeContext = '';
+    if (ytChannelRaw) {
+      const ytChannel = JSON.parse(ytChannelRaw);
+      const ytVideos = ytVideosRaw ? JSON.parse(ytVideosRaw) : [];
+      const ytAnalytics = ytAnalyticsRaw ? JSON.parse(ytAnalyticsRaw) : {};
+      youtubeContext = '\n\n## YouTube Analytics\n';
+      youtubeContext += '- Subscribers: ' + (ytChannel.subscriberCount || 0).toLocaleString() + '\n';
+      youtubeContext += '- Total channel views: ' + (ytChannel.viewCount || 0).toLocaleString() + '\n';
+      if (ytAnalytics.views30d) youtubeContext += '- Views (30d): ' + ytAnalytics.views30d.toLocaleString() + '\n';
+      if (ytAnalytics.watchTime30d) youtubeContext += '- Watch time (30d): ' + Math.round(ytAnalytics.watchTime30d / 60) + ' hours\n';
+      if (ytAnalytics.demographics && ytAnalytics.demographics.genderSplit) {
+        var genders = Object.entries(ytAnalytics.demographics.genderSplit).map(function(e) { return e[0] + ': ' + Math.round(e[1]) + '%'; }).join(', ');
+        youtubeContext += '- Gender: ' + genders + '\n';
+      }
+      if (ytAnalytics.trafficSources) {
+        var sources = Object.entries(ytAnalytics.trafficSources).sort(function(a,b){return b[1]-a[1];}).slice(0,3).map(function(e){return e[0]+': '+e[1];}).join(', ');
+        youtubeContext += '- Top YT traffic sources: ' + sources + '\n';
+      }
+      if (ytAnalytics.countries) {
+        var topC = Object.entries(ytAnalytics.countries).sort(function(a,b){return b[1]-a[1];}).slice(0,3).map(function(e){return e[0]+': '+e[1];}).join(', ');
+        youtubeContext += '- Top YT countries: ' + topC + '\n';
+      }
+      if (ytVideos.length) {
+        youtubeContext += '\n### Recent YouTube Videos\n';
+        ytVideos.forEach(function(v) {
+          youtubeContext += '- "' + v.title + '" — ' + (v.views||0).toLocaleString() + ' views, ' + (v.likes||0).toLocaleString() + ' likes, ' + (v.comments||0).toLocaleString() + ' comments (' + (v.publishedAt||'').split('T')[0] + ')\n';
+        });
+      }
+    }
 
     // Compute key metrics for context
     const today = new Date();
@@ -177,7 +214,7 @@ ${peakHours.map(([hr, count]) => {
   const h12 = (h % 12) || 12;
   return `- ${h12}${ampm}: ${count} views`;
 }).join('\n')}
-`.trim();
+${youtubeContext}`.trim();
 
     let briefingSection = '';
     if (briefingContext) {

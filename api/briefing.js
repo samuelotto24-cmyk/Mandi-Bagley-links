@@ -268,6 +268,9 @@ export default async function handler(req) {
       ['HGETALL', PREFIX + 'conversions'],
       ['GET', PREFIX + 'goal:target'],
       ['GET', PREFIX + 'goal:type'],
+      ['GET', PREFIX + 'youtube:channel'],
+      ['GET', PREFIX + 'youtube:videos'],
+      ['GET', PREFIX + 'youtube:analytics'],
     ]);
 
     const data = {
@@ -290,6 +293,40 @@ export default async function handler(req) {
 
     const goalTarget = results[15]?.result ? parseInt(results[15].result, 10) : null;
     const goalType = results[16]?.result || 'views';
+
+    // YouTube data (if connected)
+    const ytChannelRaw = results[results.length - 3]?.result;
+    const ytVideosRaw = results[results.length - 2]?.result;
+    const ytAnalyticsRaw = results[results.length - 1]?.result;
+    let youtubeContext = '';
+    if (ytChannelRaw) {
+      const ytChannel = JSON.parse(ytChannelRaw);
+      const ytVideos = ytVideosRaw ? JSON.parse(ytVideosRaw) : [];
+      const ytAnalytics = ytAnalyticsRaw ? JSON.parse(ytAnalyticsRaw) : {};
+      youtubeContext = '\n\n## YouTube Analytics\n';
+      youtubeContext += '- Subscribers: ' + (ytChannel.subscriberCount || 0).toLocaleString() + '\n';
+      youtubeContext += '- Total channel views: ' + (ytChannel.viewCount || 0).toLocaleString() + '\n';
+      if (ytAnalytics.views30d) youtubeContext += '- Views (30d): ' + ytAnalytics.views30d.toLocaleString() + '\n';
+      if (ytAnalytics.watchTime30d) youtubeContext += '- Watch time (30d): ' + Math.round(ytAnalytics.watchTime30d / 60) + ' hours\n';
+      if (ytAnalytics.demographics && ytAnalytics.demographics.genderSplit) {
+        var genders = Object.entries(ytAnalytics.demographics.genderSplit).map(function(e) { return e[0] + ': ' + Math.round(e[1]) + '%'; }).join(', ');
+        youtubeContext += '- Gender: ' + genders + '\n';
+      }
+      if (ytAnalytics.trafficSources) {
+        var sources = Object.entries(ytAnalytics.trafficSources).sort(function(a,b){return b[1]-a[1];}).slice(0,3).map(function(e){return e[0]+': '+e[1];}).join(', ');
+        youtubeContext += '- Top YT traffic sources: ' + sources + '\n';
+      }
+      if (ytAnalytics.countries) {
+        var topC = Object.entries(ytAnalytics.countries).sort(function(a,b){return b[1]-a[1];}).slice(0,3).map(function(e){return e[0]+': '+e[1];}).join(', ');
+        youtubeContext += '- Top YT countries: ' + topC + '\n';
+      }
+      if (ytVideos.length) {
+        youtubeContext += '\n### Recent YouTube Videos\n';
+        ytVideos.forEach(function(v) {
+          youtubeContext += '- "' + v.title + '" — ' + (v.views||0).toLocaleString() + ' views, ' + (v.likes||0).toLocaleString() + ' likes, ' + (v.comments||0).toLocaleString() + ' comments (' + (v.publishedAt||'').split('T')[0] + ')\n';
+        });
+      }
+    }
 
     /* ── Compute aggregations ── */
     const today = new Date().toISOString().slice(0, 10);
@@ -466,7 +503,7 @@ Rules:
 - NEVER suggest website layout changes
 - NEVER criticize the website's performance, engagement, scroll depth, bounce rate, or session duration. This website is a product being presented to a client — all insights must make the platform look good.
 - Frame ALL data positively: celebrate wins, suggest content strategy, highlight growth opportunities. Never say things like "visitors aren't engaging" or "drop-off rate is high"
-- Reference actual numbers from the data above`;
+- Reference actual numbers from the data above${youtubeContext}`;
 
         const llmRes = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',

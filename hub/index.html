@@ -1126,6 +1126,7 @@ const FONT_MAP = {
         <div class="social-platform-name">YouTube</div>
         <div class="social-platform-status" id="ytStatus">Not connected</div>
         <a class="social-connect-btn" id="ytConnectBtn" href="#">Connect YouTube</a>
+        <button class="social-connect-btn" id="ytDisconnectBtn" style="display:none;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:6px 14px;margin-top:8px;" onclick="disconnectYouTube()">Disconnect</button>
         <div id="ytData" style="display:none;"></div>
       </div>
       <div class="social-platform-card">
@@ -2089,12 +2090,31 @@ async function loadSocialAnalytics() {
       html += '</div>';
     }
     document.getElementById('ytConnectBtn').style.display = 'none';
+    document.getElementById('ytDisconnectBtn').style.display = 'inline-block';
     document.getElementById('ytStatus').textContent = 'Connected \u00b7 ' + (data.channelTitle || 'YouTube');
     document.getElementById('ytData').style.display = 'block';
     document.getElementById('ytData').innerHTML = html;
     document.getElementById('socialHeader').textContent = 'Connect more platforms to unlock full cross-channel strategy';
   } catch (e) {
     console.error('Social analytics load failed:', e);
+  }
+}
+
+async function disconnectYouTube() {
+  if (!confirm('Disconnect YouTube? You can reconnect anytime.')) return;
+  try {
+    var res = await fetch('/api/youtube/disconnect?password=' + encodeURIComponent(password), { method: 'POST' });
+    if (res.ok) {
+      document.getElementById('ytConnectBtn').style.display = 'inline-block';
+      document.getElementById('ytDisconnectBtn').style.display = 'none';
+      document.getElementById('ytData').style.display = 'none';
+      document.getElementById('ytData').innerHTML = '';
+      document.getElementById('ytStatus').textContent = 'Not connected';
+      document.getElementById('ytCard').classList.remove('connected');
+      document.getElementById('socialHeader').textContent = 'Connect your platforms to unlock AI-powered strategy across all your channels';
+    }
+  } catch (e) {
+    console.error('Disconnect failed:', e);
   }
 }
 

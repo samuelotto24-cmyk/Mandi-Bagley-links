@@ -482,6 +482,11 @@ Rules:
       }
     }
 
+    // Build sorted click list for frontend
+    const clickList = Object.entries(data.clicks)
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => ({ name, clicks: count }));
+
     return new Response(JSON.stringify({
       weekRange: weekRange(todayDate),
       summary,
@@ -492,6 +497,7 @@ Rules:
       generatedAt: new Date().toISOString(),
       metrics,
       flags,
+      clickList,
       _debug,
     }), { headers: { 'Content-Type': 'application/json' } });
   } catch {

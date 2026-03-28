@@ -888,86 +888,90 @@ function refreshBriefing() {
 
 /* ── Render Stats ── */
 function renderStats(data) {
-  const grid = document.getElementById('statsGrid');
-  const s = data.stats;
-  if (!s || (!s.today && !s.thisWeek && !s.thisMonth)) {
+  var grid = document.getElementById('statsGrid');
+  var m = data.metrics;
+  if (!m) {
     grid.innerHTML = '<div class="card stat-tile" style="grid-column:1/-1"><div class="empty-state"><p>No traffic data yet.</p></div></div>';
     return;
   }
-  const trend = s.weekTrend ? '<span class="stat-trend">' + (s.weekTrend > 0 ? '+' : '') + s.weekTrend + '%</span>' : '';
-  const topSrc = s.topSource || '—';
-  const topSrcSize = topSrc.length > 4 ? '22px' : '34px';
-  grid.innerHTML = `
-    <div class="card stat-tile"><div class="stat-value">${s.today || 0}</div><div class="stat-label">Today</div></div>
-    <div class="card stat-tile"><div class="stat-value">${s.thisWeek || 0} ${trend}</div><div class="stat-label">This Week</div></div>
-    <div class="card stat-tile"><div class="stat-value">${s.thisMonth || 0}</div><div class="stat-label">This Month</div></div>
-    <div class="card stat-tile"><div class="stat-value" style="font-size:${topSrcSize}">${topSrc}</div><div class="stat-label">Top Source</div></div>
-  `;
+  var wow = m.weekOverWeek || '';
+  var trend = wow ? '<span class="stat-trend">' + wow + '</span>' : '';
+  var topSrc = m.topReferrer || '\u2014';
+  var topSrcSize = topSrc.length > 4 ? '22px' : '34px';
+  grid.innerHTML =
+    '<div class="card stat-tile"><div class="stat-value">' + (m.todayViews || 0) + '</div><div class="stat-label">Today</div></div>' +
+    '<div class="card stat-tile"><div class="stat-value">' + (m.thisWeekViews ? m.thisWeekViews.toLocaleString() : 0) + ' ' + trend + '</div><div class="stat-label">This Week</div></div>' +
+    '<div class="card stat-tile"><div class="stat-value">' + (m.thisMonthViews ? m.thisMonthViews.toLocaleString() : 0) + '</div><div class="stat-label">This Month</div></div>' +
+    '<div class="card stat-tile"><div class="stat-value" style="font-size:' + topSrcSize + '">' + topSrc + '</div><div class="stat-label">Top Source</div></div>';
 }
 
 /* ── Render Briefing ── */
 function renderBriefing(data) {
-  const b = data.briefing;
-  if (!b) {
+  if (!data.summary && (!data.actionItems || !data.actionItems.length)) {
     document.getElementById('briefingTitle').textContent = 'Your Game Plan';
     document.getElementById('briefingContent').innerHTML = '<div class="empty-state"><p>Welcome to your command center! Once traffic starts flowing, you\'ll see your game plan here.</p></div>';
     document.getElementById('briefingBadge').style.display = 'none';
     return;
   }
 
-  document.getElementById('briefingTitle').textContent = b.title || 'This Week';
+  document.getElementById('briefingTitle').textContent = 'This Week \u2014 ' + (data.weekRange || '');
 
-  // Badge
-  const badge = document.getElementById('briefingBadge');
-  const actionCount = b.actions ? b.actions.length : 0;
-  if (actionCount > 0) {
-    badge.textContent = actionCount;
+  // Badge — show warning count
+  var badge = document.getElementById('briefingBadge');
+  var warningCount = data.flags ? data.flags.filter(function(f) { return f.type === 'warning'; }).length : 0;
+  if (warningCount > 0) {
+    badge.textContent = warningCount;
     badge.style.display = 'inline-flex';
   } else {
     badge.style.display = 'none';
   }
 
-  // Content
-  let html = '<div class="briefing-cols"><div>';
+  var m = data.metrics || {};
+  var html = '<div class="briefing-cols"><div>';
   html += '<div class="briefing-col-label">What happened</div>';
-  html += '<div class="briefing-text">' + (b.summary || '') + '</div>';
+  html += '<div class="briefing-text">' + (data.summary || '') + '</div>';
 
-  // Metric pills
-  if (b.metrics && b.metrics.length) {
-    html += '<div class="metric-pills">';
-    b.metrics.forEach(m => {
-      const color = m.color === 'green' ? 'style="color:#4ade80"' : '';
-      html += `<span class="metric-pill"><span class="metric-val" ${color}>${m.value}</span><span class="metric-label">${m.label}</span></span>`;
-    });
-    html += '</div>';
-  }
+  // Metric pills from metrics
+  var wow = m.weekOverWeek || '';
+  var wowColor = wow.charAt(0) === '+' ? ' style="color:#4ade80"' : wow.charAt(0) === '-' ? ' style="color:#f87171"' : '';
+  html += '<div class="metric-pills">';
+  html += '<span class="metric-pill"><span class="metric-val">' + (m.thisWeekViews ? m.thisWeekViews.toLocaleString() : '\u2014') + '</span><span class="metric-label">this week</span></span>';
+  html += '<span class="metric-pill"><span class="metric-val"' + wowColor + '>' + (wow || '\u2014') + '</span><span class="metric-label">vs last week</span></span>';
+  html += '<span class="metric-pill"><span class="metric-val">' + (m.topReferrer || '\u2014') + '</span><span class="metric-label">top source</span></span>';
+  html += '</div>';
 
   html += '</div><div>';
   html += '<div class="briefing-col-label">Do this today</div>';
 
-  // Actions
-  if (b.actions && b.actions.length) {
-    b.actions.forEach(a => {
-      const pColors = { high: '#f87171', medium: '#fbbf24', low: '#4ade80' };
-      const pColor = pColors[a.priority] || '#fbbf24';
-      const tagClass = a.timeframe === 'now' ? 'tag-now' : a.timeframe === 'today' ? 'tag-today' : 'tag-this-week';
-      const tagLabel = a.timeframe === 'now' ? 'Now' : a.timeframe === 'today' ? 'Today' : 'This week';
-      html += `<div class="action-item">
-        <div class="action-priority" style="background:${pColor};box-shadow:0 0 6px ${pColor}66"></div>
-        <div class="action-text">${a.text}</div>
-        <span class="action-tag ${tagClass}">${tagLabel}</span>
-      </div>`;
+  // Action items
+  if (data.actionItems && data.actionItems.length) {
+    data.actionItems.forEach(function(a) {
+      var pColors = { high: '#f87171', medium: '#fbbf24', low: '#4ade80' };
+      var pColor = pColors[a.priority] || '#fbbf24';
+      var tf = a.timeframe || 'this_week';
+      var tagClass = tf === 'now' ? 'tag-now' : tf === 'today' ? 'tag-today' : 'tag-this-week';
+      var tagLabel = tf === 'now' ? 'Now' : tf === 'today' ? 'Today' : 'This week';
+      var text = '<strong>' + (a.action || '') + '</strong>';
+      if (a.reason) text += ' ' + a.reason;
+      if (a.suggestion) text += ' ' + a.suggestion;
+      html += '<div class="action-item">' +
+        '<div class="action-priority" style="background:' + pColor + ';box-shadow:0 0 6px ' + pColor + '66"></div>' +
+        '<div class="action-text">' + text + '</div>' +
+        '<span class="action-tag ' + tagClass + '">' + tagLabel + '</span>' +
+        '</div>';
     });
+  } else {
+    html += '<div class="empty-state"><p>Action items will appear once we analyze your data.</p></div>';
   }
 
   html += '</div></div>';
 
   // Flags
-  if (b.flags && b.flags.length) {
+  if (data.flags && data.flags.length) {
     html += '<div class="flag-row">';
-    b.flags.forEach(f => {
-      const cls = f.type === 'positive' ? 'flag-positive' : f.type === 'warning' ? 'flag-warning' : 'flag-info';
-      html += `<span class="flag-pill ${cls}">${f.text}</span>`;
+    data.flags.forEach(function(f) {
+      var cls = f.type === 'positive' ? 'flag-positive' : f.type === 'warning' ? 'flag-warning' : 'flag-info';
+      html += '<span class="flag-pill ' + cls + '">' + f.text + '</span>';
     });
     html += '</div>';
   }
@@ -996,41 +1000,41 @@ function renderCalendar(data) {
     return;
   }
 
-  const today = new Date().toDateString();
-  strip.innerHTML = cal.map(day => {
-    const d = day.date ? new Date(day.date) : null;
-    const isToday = d && d.toDateString() === today;
-    const typeClass = 'type-' + (day.type || 'rest').toLowerCase();
-    return `<div class="cal-day${isToday ? ' today' : ''}">
-      <div class="cal-day-name">${day.dayName || ''}</div>
-      <div class="cal-day-num">${day.dayNum || ''}</div>
-      <span class="cal-type ${typeClass}">${day.type || '\u2014'}</span>
-      <div class="cal-time">${day.time || '\u2014'}</div>
-      <div class="cal-idea">${day.idea || '\u2014'}</div>
-    </div>`;
+  var todayStr = new Date().toISOString().slice(0, 10);
+  strip.innerHTML = cal.map(function(day) {
+    var isToday = day.date === todayStr;
+    var typeClass = 'type-' + (day.type || 'rest').toLowerCase();
+    var dateNum = day.date ? new Date(day.date + 'T12:00:00').getDate() : '';
+    return '<div class="cal-day' + (isToday ? ' today' : '') + '">' +
+      '<div class="cal-day-name">' + (day.day || '') + '</div>' +
+      '<div class="cal-day-num">' + dateNum + '</div>' +
+      '<span class="cal-type ' + typeClass + '">' + (day.type || '\u2014') + '</span>' +
+      '<div class="cal-time">' + (day.time || '\u2014') + '</div>' +
+      '<div class="cal-idea">' + (day.idea || '\u2014') + '</div>' +
+      '</div>';
   }).join('');
 }
 
 /* ── Render Top Links ── */
 function renderLinks(data) {
-  const el = document.getElementById('topLinks');
-  const links = data.topLinks;
+  var el = document.getElementById('topLinks');
+  var links = data.clickList;
   if (!links || !links.length) {
     el.innerHTML = '<div class="empty-state"><p>Link click tracking will appear as visitors interact with your page.</p></div>';
     return;
   }
-  el.innerHTML = links.map(l => {
-    const isZero = l.clicks === 0;
-    const style = isZero ? ' style="opacity:0.4"' : '';
-    const countStyle = isZero ? ' style="color:#fbbf24"' : '';
-    return `<div class="list-item"${style}><span>${l.name}</span><span class="list-count"${countStyle}>${l.clicks} click${l.clicks !== 1 ? 's' : ''}</span></div>`;
+  el.innerHTML = links.slice(0, 6).map(function(l) {
+    var isZero = l.clicks === 0;
+    var style = isZero ? ' style="opacity:0.4"' : '';
+    var countStyle = isZero ? ' style="color:#fbbf24"' : '';
+    return '<div class="list-item"' + style + '><span>' + l.name + '</span><span class="list-count"' + countStyle + '>' + l.clicks + ' click' + (l.clicks !== 1 ? 's' : '') + '</span></div>';
   }).join('');
 }
 
 /* ── Render Brand Codes ── */
 function renderBrandCodes(data) {
-  const el = document.getElementById('brandCodes');
-  const links = data.topLinks || [];
+  var el = document.getElementById('brandCodes');
+  var links = data.clickList || [];
 
   // Match brand codes from CLIENT config to link data
   const codes = CLIENT.brandCodes.map(bc => {
@@ -1060,15 +1064,16 @@ function renderPulse(data) {
     el.innerHTML = '<div class="empty-state"><p>Trend insights will generate once we have a week of data.</p></div>';
     return;
   }
-  el.innerHTML = pulses.map(p => {
-    return `<div class="pulse-item">
-      <div class="pulse-icon">${p.emoji || '\ud83d\udcc8'}</div>
-      <div>
-        <div class="pulse-text">${p.text}</div>
-        <div class="pulse-meta">${p.meta || ''}</div>
-        <button class="pulse-cta" onclick="askFromPulse('${(p.cta || '').replace(/'/g, "\\'")}')">${p.ctaLabel || 'Ask advisor \u2192'}</button>
-      </div>
-    </div>`;
+  el.innerHTML = pulses.map(function(p) {
+    var prompt = (p.chatPrompt || '').replace(/'/g, "\\'");
+    return '<div class="pulse-item">' +
+      '<div class="pulse-icon">' + (p.icon || '\ud83d\udcc8') + '</div>' +
+      '<div>' +
+        '<div class="pulse-text"><strong>' + (p.headline || '') + '</strong> ' + (p.context || '') + '</div>' +
+        '<div class="pulse-meta">' + (p.meta || '') + '</div>' +
+        '<button class="pulse-cta" onclick="askFromPulse(\'' + prompt + '\')">Ask advisor for a content angle \u2192</button>' +
+      '</div>' +
+    '</div>';
   }).join('');
 }
 
@@ -1102,7 +1107,7 @@ function renderProactiveInsight(data) {
     <div class="chat-msg proactive">
       <div class="chat-bubble proactive-bubble">
         <div class="proactive-label">\ud83d\udd14 I noticed something</div>
-        ${insight.text}
+        ${insight.message}
         ${actionsHTML}
       </div>
     </div>
@@ -1112,20 +1117,20 @@ function renderProactiveInsight(data) {
 
 /* ── Render Health Bar ── */
 function renderHealthBar(data) {
-  const dot = document.getElementById('healthDot');
-  const text = document.getElementById('healthText');
-  const hb = data.healthBar;
-  if (!hb) {
-    dot.style.background = '#22c55e';
-    dot.style.boxShadow = '0 0 8px rgba(34,197,94,0.5)';
-    text.textContent = 'Your page is live';
-    return;
+  var dot = document.getElementById('healthDot');
+  var text = document.getElementById('healthText');
+  var warningCount = data.flags ? data.flags.filter(function(f) { return f.type === 'warning'; }).length : 0;
+  var c, msg;
+  if (warningCount >= 3) {
+    c = '#ef4444'; msg = 'Action needed \u2014 review your insights below';
+  } else if (warningCount >= 1) {
+    c = '#fbbf24'; msg = 'Some areas need attention';
+  } else {
+    c = '#22c55e'; msg = 'Your page is performing well';
   }
-  const colors = { green: '#22c55e', amber: '#fbbf24', red: '#ef4444' };
-  const c = colors[hb.status] || colors.green;
   dot.style.background = c;
-  dot.style.boxShadow = `0 0 8px ${c}80`;
-  text.textContent = hb.text || 'Your page is live';
+  dot.style.boxShadow = '0 0 8px ' + c + '80';
+  text.textContent = msg;
 }
 
 function renderEmptyStates() {

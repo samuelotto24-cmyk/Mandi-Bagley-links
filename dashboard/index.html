@@ -18,76 +18,114 @@
     // ── Client config ──────────────────────────────────────────────
     // Change these values for each new client deployment.
     const CLIENT = {
-      name:   'Mandi Bagley',
-      accent: '#B76E79',
-      mode:   'light',        // 'light' or 'dark'
-      font:   'cormorant',    // 'cormorant' | 'playfair' | 'bebas' | 'dm-serif'
+      name: 'Mandi Bagley',
+      niche: 'fitness',
+      nicheLabel: 'Fitness · Faith · Food',
+      url: 'https://mandibagley.com',
+      palette: {
+        bg: '#0C0809',
+        surface: '#141012',
+        surfaceElevated: '#1A1416',
+        border: 'rgba(255,255,255,0.07)',
+        text: '#F5EBE6',
+        textMuted: 'rgba(245,235,230,0.45)',
+        accent: '#E8527A',
+        accentGlow: '#FF2D78',
+        accentPale: 'rgba(232,82,122,0.15)',
+        accentBorder: 'rgba(232,82,122,0.25)',
+      },
+      gradient: 'neon-pink',
+      font: 'cormorant',
     };
     // ──────────────────────────────────────────────────────────────
   </script>
 
   <script>
-    // ── Auto-theme system ──────────────────────────────────────────
-    const THEMES = {
-      light: {
-        bg:'#FAF7F2', bgAlt:'#FDF9F5', surface:'#FFFFFF', text:'#2D1810',
-        muted:'#8B7B74', border:'#E8DDD7', headerBg:'#1A0F0B', headerText:'#FAF7F2',
-        shadow:'0 1px 3px rgba(45,24,16,0.05),0 4px 20px rgba(45,24,16,0.06)',
-        shadowHover:'0 4px 8px rgba(45,24,16,0.08),0 12px 32px rgba(45,24,16,0.10)',
-        skeleton:'linear-gradient(90deg,#f0e8e3 25%,#faf7f2 50%,#f0e8e3 75%)',
-        loginBg:'radial-gradient(ellipse at 50% 30%,rgba(240,224,216,0.6) 0%,#FAF7F2 70%)',
-        tooltipBg:'rgba(26,15,11,0.92)', tooltipBorder:'rgba(0,0,0,0.1)',
-        gridLine:'rgba(45,24,16,0.06)', inputBg:'#FAF7F2', inputFocus:'#F5EBE6',
-        mapBg:'#1A0F0B', mapCountry:'rgba(255,255,255,0.04)', mapStroke:'rgba(255,255,255,0.09)',
+    /* ── Gradient Presets ── */
+    const GRADIENT_PRESETS = {
+      'neon-pink': {
+        mesh1: ['rgba(255,45,120,0.55)','rgba(232,82,122,0.45)','rgba(255,80,150,0.35)','rgba(200,30,90,0.40)','rgba(255,60,130,0.30)'],
+        mesh2: ['rgba(255,45,120,0.30)','rgba(200,30,100,0.25)','rgba(255,80,140,0.20)'],
+        pulse: 'rgba(255,45,120,0.08)',
       },
-      dark: {
-        bg:'#08090D', bgAlt:'#0D1117', surface:'#111827', text:'#EEF2FF',
-        muted:'#8FA5C8', border:'#1F2D4A', headerBg:'#060A10', headerText:'#EEF2FF',
-        shadow:'0 1px 3px rgba(0,0,0,0.20),0 4px 20px rgba(0,0,0,0.25)',
-        shadowHover:'0 4px 8px rgba(0,0,0,0.30),0 12px 32px rgba(0,0,0,0.40)',
-        skeleton:'linear-gradient(90deg,#111827 25%,#1F2D4A 50%,#111827 75%)',
-        loginBg:'radial-gradient(ellipse at 50% 30%,rgba(13,29,58,0.6) 0%,#08090D 70%)',
-        tooltipBg:'rgba(6,10,16,0.95)', tooltipBorder:'rgba(59,130,246,0.25)',
-        gridLine:'rgba(31,45,74,0.6)', inputBg:'#0D1117', inputFocus:'#0D1D3A',
-        mapBg:'#060A10', mapCountry:'rgba(255,255,255,0.04)', mapStroke:'rgba(255,255,255,0.09)',
+      'warm-gold': {
+        mesh1: ['rgba(200,160,80,0.50)','rgba(180,130,60,0.40)','rgba(220,180,100,0.30)','rgba(160,120,50,0.35)','rgba(200,150,70,0.25)'],
+        mesh2: ['rgba(200,160,80,0.25)','rgba(180,130,60,0.20)','rgba(220,180,100,0.15)'],
+        pulse: 'rgba(200,160,80,0.08)',
+      },
+      'cool-blue': {
+        mesh1: ['rgba(60,100,255,0.50)','rgba(80,120,232,0.40)','rgba(40,80,200,0.35)','rgba(100,140,255,0.30)','rgba(60,90,220,0.25)'],
+        mesh2: ['rgba(60,100,255,0.25)','rgba(80,120,232,0.20)','rgba(40,80,200,0.15)'],
+        pulse: 'rgba(60,100,255,0.08)',
+      },
+      'aurora': {
+        mesh1: ['rgba(120,60,200,0.50)','rgba(200,80,180,0.40)','rgba(60,120,255,0.35)','rgba(160,40,220,0.30)','rgba(100,80,240,0.25)'],
+        mesh2: ['rgba(120,60,200,0.25)','rgba(200,80,180,0.20)','rgba(60,120,255,0.15)'],
+        pulse: 'rgba(120,60,200,0.08)',
+      },
+      'ember': {
+        mesh1: ['rgba(255,80,40,0.50)','rgba(232,120,60,0.40)','rgba(200,60,30,0.35)','rgba(255,100,50,0.30)','rgba(220,80,40,0.25)'],
+        mesh2: ['rgba(255,80,40,0.25)','rgba(232,120,60,0.20)','rgba(200,60,30,0.15)'],
+        pulse: 'rgba(255,80,40,0.08)',
       },
     };
 
     const FONT_MAP = {
-      cormorant: { family:"'Cormorant Garamond',serif", url:"Cormorant+Garamond:wght@400;500;600", uppercase:false },
-      playfair:  { family:"'Playfair Display',serif",    url:"Playfair+Display:wght@400;500;600", uppercase:false },
-      bebas:     { family:"'Bebas Neue',sans-serif",     url:"Bebas+Neue", uppercase:true },
-      'dm-serif':{ family:"'DM Serif Display',serif",    url:"DM+Serif+Display:ital@0;1", uppercase:false },
+      cormorant:  { family: "'Cormorant Garamond', Georgia, serif", url: 'Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400' },
+      playfair:   { family: "'Playfair Display', Georgia, serif", url: 'Playfair+Display:wght@400;500;600;700' },
+      bebas:      { family: "'Bebas Neue', Impact, sans-serif", url: 'Bebas+Neue&display=swap' },
+      'dm-serif': { family: "'DM Serif Display', Georgia, serif", url: 'DM+Serif+Display&display=swap' },
+      inter:      { family: "'Inter', system-ui, sans-serif", url: 'Inter:wght@300;400;500;600;700' },
     };
 
     // Apply theme immediately (before paint)
     (function() {
-      const t = THEMES[CLIENT.mode] || THEMES.light;
+      const p = CLIENT.palette;
       const f = FONT_MAP[CLIENT.font] || FONT_MAP.cormorant;
       const r = document.documentElement.style;
-      Object.entries({
-        '--bg':t.bg, '--bg-alt':t.bgAlt, '--surface':t.surface, '--text':t.text,
-        '--muted':t.muted, '--border':t.border, '--header-bg':t.headerBg,
-        '--header-text':t.headerText, '--shadow':t.shadow, '--shadow-hover':t.shadowHover,
-        '--skeleton':t.skeleton, '--login-bg':t.loginBg, '--tooltip-bg':t.tooltipBg,
-        '--tooltip-border':t.tooltipBorder, '--grid-line':t.gridLine,
-        '--input-bg':t.inputBg, '--input-focus':t.inputFocus,
-        '--map-bg':t.mapBg, '--map-country':t.mapCountry, '--map-stroke':t.mapStroke,
-        '--accent':CLIENT.accent, '--display-font':f.family,
-      }).forEach(function(kv){ r.setProperty(kv[0], kv[1]); });
 
-      // Accent-derived colors
-      r.setProperty('--accent-10', CLIENT.accent + '1a');
-      r.setProperty('--accent-20', CLIENT.accent + '33');
-      r.setProperty('--accent-40', CLIENT.accent + '66');
+      // Core palette
+      r.setProperty('--bg', p.bg);
+      r.setProperty('--surface', p.surface);
+      r.setProperty('--surface-elevated', p.surfaceElevated);
+      r.setProperty('--border', p.border);
+      r.setProperty('--text', p.text);
+      r.setProperty('--text-muted', p.textMuted);
+      r.setProperty('--muted', p.textMuted);
+      r.setProperty('--accent', p.accent);
+      r.setProperty('--accent-glow', p.accentGlow);
+      r.setProperty('--accent-pale', p.accentPale);
+      r.setProperty('--accent-border', p.accentBorder);
 
-      // Inject font
+      // Derived accent opacities
+      r.setProperty('--accent-10', p.accent + '1a');
+      r.setProperty('--accent-20', p.accent + '33');
+      r.setProperty('--accent-40', p.accent + '66');
+
+      // Typography
+      r.setProperty('--display-font', f.family);
+      r.setProperty('--sans', "'DM Sans', system-ui, sans-serif");
+      r.setProperty('--serif', f.family);
+
+      // Surfaces for legacy references
+      r.setProperty('--shadow', '0 1px 3px rgba(0,0,0,0.20), 0 4px 20px rgba(0,0,0,0.25)');
+      r.setProperty('--shadow-hover', '0 4px 8px rgba(0,0,0,0.30), 0 12px 32px rgba(0,0,0,0.40)');
+      r.setProperty('--grid-line', 'rgba(255,255,255,0.05)');
+      r.setProperty('--tooltip-bg', 'rgba(12,8,9,0.95)');
+      r.setProperty('--tooltip-border', p.accentBorder);
+
+      // Map colors
+      r.setProperty('--map-bg', p.bg);
+      r.setProperty('--map-country', 'rgba(255,255,255,0.04)');
+      r.setProperty('--map-stroke', 'rgba(255,255,255,0.09)');
+
+      // Load fonts
       var link = document.createElement('link');
       link.rel = 'stylesheet';
       link.href = 'https://fonts.googleapis.com/css2?family=' + f.url + '&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap';
       document.head.appendChild(link);
 
-      document.title = 'Analytics \u2014 ' + CLIENT.name;
+      document.title = 'Analytics — ' + CLIENT.name;
     })();
   </script>
 

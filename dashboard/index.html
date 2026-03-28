@@ -302,6 +302,51 @@
     /* ── Empty state ────────────────────────────── */
     .empty-state { text-align: center; color: var(--muted); font-size: 13px; padding: 28px 0; font-style: italic; }
 
+    /* ── Referral Management ──────────────────────── */
+    .referral-mgmt { margin-top: 14px; }
+    .referral-mgmt-row {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 18px;
+    }
+    .referral-mgmt-stat {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 24px; text-align: center;
+    }
+    .referral-mgmt-stat-value {
+      font-family: var(--display-font); font-size: 36px; font-weight: 400; color: var(--text);
+    }
+    .referral-mgmt-stat-label {
+      font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); margin-top: 6px;
+    }
+    .referral-mgmt-actions {
+      display: flex; gap: 10px; justify-content: center; margin-top: 18px;
+    }
+    .referral-mgmt-btn {
+      padding: 10px 24px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.22s ease; border: none;
+    }
+    .referral-mgmt-btn.add {
+      background: var(--accent); color: var(--surface);
+    }
+    .referral-mgmt-btn.add:hover { box-shadow: 0 0 20px var(--accent-20); }
+    .referral-mgmt-btn.subtract {
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+    }
+    .referral-mgmt-btn.subtract:hover { border-color: var(--accent-20); color: var(--text); }
+    .referral-mgmt-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .referral-mgmt-code {
+      text-align: center; margin-top: 14px; font-size: 13px; color: var(--muted);
+    }
+    .referral-mgmt-code strong { color: var(--accent); font-weight: 600; font-size: 16px; }
+    .referral-mgmt-status {
+      text-align: center; font-size: 12px; color: var(--accent); margin-top: 10px;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .referral-mgmt-status.show { opacity: 1; }
+    @media (max-width: 640px) {
+      .referral-mgmt-row { grid-template-columns: 1fr; }
+    }
+
     /* ── Map ────────────────────────────────────── */
     .map-card {
       background: var(--map-bg); border: 1px solid var(--accent-20);
@@ -590,6 +635,34 @@
       <div class="chart-card" style="margin-top:14px">
         <div class="card-title-row"><div class="card-title">Top Cities</div></div>
         <div id="citiesList"></div>
+      </div>
+
+      <!-- ═══ Referral Management ═══ -->
+      <div class="chart-card referral-mgmt" id="referralMgmt" style="margin-top:24px">
+        <div class="card-title-row">
+          <div class="card-title">Referral Program</div>
+          <div class="card-title-badge" id="referralBadge">Loading...</div>
+        </div>
+        <div class="referral-mgmt-row">
+          <div class="referral-mgmt-stat">
+            <div class="referral-mgmt-stat-value" id="mgmtCount">—</div>
+            <div class="referral-mgmt-stat-label">Creators Referred</div>
+          </div>
+          <div class="referral-mgmt-stat">
+            <div class="referral-mgmt-stat-value" id="mgmtFreeMonths">—</div>
+            <div class="referral-mgmt-stat-label">Free Months Earned</div>
+          </div>
+          <div class="referral-mgmt-stat">
+            <div class="referral-mgmt-stat-value" id="mgmtSaved">—</div>
+            <div class="referral-mgmt-stat-label">Total Saved</div>
+          </div>
+        </div>
+        <div class="referral-mgmt-code">Referral Code: <strong id="mgmtCode">—</strong></div>
+        <div class="referral-mgmt-actions">
+          <button class="referral-mgmt-btn add" id="addReferralBtn" onclick="addReferral()">+ Add Referral</button>
+          <button class="referral-mgmt-btn subtract" id="subtractReferralBtn" onclick="subtractReferral()">− Remove One</button>
+        </div>
+        <div class="referral-mgmt-status" id="referralStatus"></div>
       </div>
 
       <div class="dash-footer" id="dashFooter">
@@ -1529,6 +1602,88 @@
       requestAnimationFrame(updateGauge);
     }, 400);
   }
+
+  /* ── Referral Management ──────────────────────── */
+  var referralData = { code: '', count: 0, freeMonths: 0 };
+  var MONTHLY_RATE = 150; // Full Platform monthly rate for savings calc
+
+  async function loadReferralMgmt() {
+    var pw = sessionStorage.getItem('dash_pw');
+    if (!pw) return;
+    try {
+      var res = await fetch('/api/referral?password=' + encodeURIComponent(pw));
+      if (!res.ok) return;
+      var data = await res.json();
+      referralData = data;
+      renderReferralMgmt();
+    } catch(e) {
+      console.error('Referral load failed:', e);
+    }
+  }
+
+  function renderReferralMgmt() {
+    document.getElementById('mgmtCount').textContent = referralData.count || 0;
+    document.getElementById('mgmtFreeMonths').textContent = referralData.freeMonths || 0;
+    document.getElementById('mgmtSaved').textContent = '$' + ((referralData.freeMonths || 0) * MONTHLY_RATE).toLocaleString();
+    document.getElementById('mgmtCode').textContent = referralData.code || '—';
+    document.getElementById('referralBadge').textContent = (referralData.count || 0) + ' referrals';
+    document.getElementById('subtractReferralBtn').disabled = (referralData.count || 0) < 1;
+  }
+
+  async function updateReferral(newCount, newFreeMonths) {
+    var pw = sessionStorage.getItem('dash_pw');
+    if (!pw) return;
+    var btns = document.querySelectorAll('.referral-mgmt-btn');
+    btns.forEach(function(b) { b.disabled = true; });
+    try {
+      var res = await fetch('/api/referral?password=' + encodeURIComponent(pw), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ count: newCount, freeMonths: newFreeMonths }),
+      });
+      if (res.ok) {
+        referralData.count = newCount;
+        referralData.freeMonths = newFreeMonths;
+        renderReferralMgmt();
+        showReferralStatus('Updated!');
+      } else {
+        showReferralStatus('Error — try again');
+      }
+    } catch(e) {
+      showReferralStatus('Error — try again');
+    }
+    btns.forEach(function(b) { b.disabled = false; });
+    document.getElementById('subtractReferralBtn').disabled = (referralData.count || 0) < 1;
+  }
+
+  function addReferral() {
+    var newCount = (referralData.count || 0) + 1;
+    var newFreeMonths = (referralData.freeMonths || 0) + 1;
+    updateReferral(newCount, newFreeMonths);
+  }
+
+  function subtractReferral() {
+    if ((referralData.count || 0) < 1) return;
+    var newCount = referralData.count - 1;
+    var newFreeMonths = Math.max(0, referralData.freeMonths - 1);
+    updateReferral(newCount, newFreeMonths);
+  }
+
+  function showReferralStatus(msg) {
+    var el = document.getElementById('referralStatus');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(function() { el.classList.remove('show'); }, 2000);
+  }
+
+  // Load referral data when dashboard loads
+  var origLoadData = loadData;
+  loadData = async function(pw) {
+    await origLoadData(pw);
+    loadReferralMgmt();
+  };
+  // Also load if already logged in
+  if (sessionStorage.getItem('dash_pw')) loadReferralMgmt();
 </script>
 
 </body>

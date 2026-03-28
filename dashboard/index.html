@@ -221,7 +221,7 @@
       pointer-events: none;
     }
     .dash-header-inner {
-      max-width: 1180px; margin: 0 auto; padding: 36px 40px;
+      max-width: 1180px; margin: 0 auto; padding: 20px 28px;
       display: flex; align-items: center; justify-content: space-between;
       gap: 16px; position: relative; z-index: 1;
     }
@@ -233,17 +233,17 @@
     .dash-brand-sub { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
     .dash-updated { font-size: 12px; color: var(--muted); text-align: right; flex-shrink: 0; opacity: 0.6; }
 
-    .dash-wrap { max-width: 1180px; margin: 0 auto; padding: 36px 28px 60px; }
+    .dash-wrap { max-width: 1180px; margin: 0 auto; padding: 20px 28px 40px; }
 
     /* ── Summary cards ──────────────────────────── */
     .summary-row {
       display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 14px; margin-bottom: 18px;
+      gap: 10px; margin-bottom: 10px;
     }
     .s-card {
       background: rgba(20,16,18,0.75); backdrop-filter: blur(20px);
       border: 1px solid var(--border); border-radius: 16px;
-      padding: 24px 24px 20px;
+      padding: 18px 18px 14px;
       transition: transform 0.35s cubic-bezier(0.23,1,0.32,1), border-color 0.3s;
       opacity: 0; transform: translateY(20px);
       position: relative; overflow: hidden;
@@ -260,21 +260,21 @@
     /* ── Chart cards ─────────────────────────────── */
     .chart-card {
       background: rgba(20,16,18,0.75); backdrop-filter: blur(20px);
-      border: 1px solid var(--border); border-radius: 16px; padding: 26px 28px;
+      border: 1px solid var(--border); border-radius: 16px; padding: 20px 22px;
       opacity: 0; transform: translateY(18px);
       transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.23,1,0.32,1), border-color 0.3s;
     }
     .chart-card.revealed { opacity: 1; transform: translateY(0); }
     .chart-card:hover { border-color: var(--accent-border); }
-    .chart-card + .chart-card { margin-top: 14px; }
-    .card-title-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 22px; gap: 12px; }
+    .chart-card + .chart-card { margin-top: 10px; }
+    .card-title-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; gap: 12px; }
     .card-title { font-family: var(--display-font); font-size: 20px; font-weight: 500; color: var(--text); }
     .card-title-badge {
       font-size: 11px; font-family: 'DM Sans', sans-serif; font-weight: 500;
       color: var(--accent); background: var(--accent-10); border: 1px solid var(--accent-20);
       border-radius: 20px; padding: 3px 10px; white-space: nowrap; flex-shrink: 0;
     }
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px;
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;
       opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.23,1,0.32,1); }
     .two-col.revealed { opacity: 1; transform: translateY(0); }
     .chart-wrap { position: relative; height: 220px; }
@@ -359,7 +359,7 @@
     .empty-state { text-align: center; color: var(--muted); font-size: 13px; padding: 28px 0; font-style: italic; }
 
     /* ── Referral Management ──────────────────────── */
-    .referral-mgmt { margin-top: 14px; }
+    .referral-mgmt { margin-top: 10px; }
     .referral-mgmt-row {
       display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 18px;
     }
@@ -436,7 +436,7 @@
     .map-tooltip strong { display: block; font-size: 13px; margin-bottom: 2px; color: var(--accent); }
 
     /* ── 3D Globe ─────────────────────────────────── */
-    .globe-container { position: relative; width: 100%; height: 420px; border-radius: 8px; overflow: hidden; cursor: grab; }
+    .globe-container { position: relative; width: 100%; height: 340px; border-radius: 8px; overflow: hidden; cursor: grab; }
     .globe-container:active { cursor: grabbing; }
     .globe-container canvas { display: block; width: 100% !important; height: 100% !important; }
 
@@ -484,14 +484,14 @@
 
     /* ── Responsive ─────────────────────────────── */
     @media (max-width: 800px) {
-      .summary-row { grid-template-columns: 1fr 1fr; }
-      .two-col { grid-template-columns: 1fr; }
-      .dash-header-inner { padding: 28px 24px; }
+      .summary-row { grid-template-columns: 1fr 1fr !important; }
+      .two-col { grid-template-columns: 1fr !important; }
+      .dash-header-inner { padding: 16px 20px; }
       .heatmap-grid { font-size: 8px; }
     }
     @media (max-width: 480px) {
-      .summary-row { grid-template-columns: 1fr; }
-      .dash-wrap { padding: 24px 16px 48px; }
+      .summary-row { grid-template-columns: 1fr !important; }
+      .dash-wrap { padding: 16px 14px 36px; }
       .login-card { padding: 40px 28px; }
       .dash-brand { font-size: 28px; }
     }
@@ -551,7 +551,7 @@
       <!-- ═══ TIER 1: Revenue Signals ═══ -->
 
       <!-- Summary cards — revenue metrics first -->
-      <div class="summary-row" id="summaryRow">
+      <div class="summary-row" id="summaryRow" style="grid-template-columns:repeat(5,1fr);">
         <div class="s-card" id="card5">
           <div class="s-label">Booking Rate</div>
           <div class="s-value s-text" id="bookingRate">—</div>
@@ -567,10 +567,8 @@
           <div class="s-value s-text" id="engageRate">—</div>
           <div class="s-note" id="engageRateNote">scrolled 50%+ / views</div>
         </div>
-      </div>
-      <div class="summary-row">
         <div class="s-card" id="card0">
-          <div class="s-label">Pageviews (30 days)</div>
+          <div class="s-label">Pageviews (30d)</div>
           <div class="s-value" id="total30">—</div>
           <div class="s-note">total visits</div>
         </div>
@@ -580,7 +578,7 @@
           <div class="s-note">visits today</div>
         </div>
       </div>
-      <div class="summary-row" style="margin-bottom:18px">
+      <div class="summary-row">
         <div class="s-card" id="card2">
           <div class="s-label">Top Source</div>
           <div class="s-value s-text" id="topSource">—</div>
@@ -598,34 +596,34 @@
         </div>
       </div>
 
-      <!-- Conversion Rate Gauge -->
-      <div class="chart-card" id="gaugeCard" style="margin-bottom:14px;max-width:320px;margin-left:auto;margin-right:auto">
-        <div class="card-title-row" style="justify-content:center"><div class="card-title">Booking Rate</div></div>
-        <div class="gauge-wrap" id="gaugeWrap"></div>
-      </div>
-
-      <!-- Conversion Attribution — THE killer feature, right at the top -->
-      <div class="chart-card" id="convCard">
-        <div class="card-title-row">
-          <div class="card-title">Referrer → Conversion</div>
-          <div class="card-title-badge">which platform drives action</div>
+      <!-- Gauge + Conversion Attribution side by side -->
+      <div class="two-col" style="grid-template-columns:280px 1fr;">
+        <div class="chart-card" id="gaugeCard">
+          <div class="card-title-row" style="justify-content:center"><div class="card-title">Booking Rate</div></div>
+          <div class="gauge-wrap" id="gaugeWrap"></div>
         </div>
-        <div id="convTable"></div>
-      </div>
-
-      <!-- Link Clicks — what people are actually clicking -->
-      <div class="chart-card" style="margin-top:14px">
-        <div class="card-title-row"><div class="card-title">Link Clicks</div></div>
-        <div id="clicksList"></div>
-      </div>
-
-      <!-- Conversion Funnel -->
-      <div class="chart-card" style="margin-top:14px" id="funnelCard">
-        <div class="card-title-row">
-          <div class="card-title">Conversion Funnel</div>
-          <div class="card-title-badge">visitor journey</div>
+        <div class="chart-card" id="convCard">
+          <div class="card-title-row">
+            <div class="card-title">Referrer → Conversion</div>
+            <div class="card-title-badge">which platform drives action</div>
+          </div>
+          <div id="convTable"></div>
         </div>
-        <div class="funnel-wrap" id="funnelWrap"></div>
+      </div>
+
+      <!-- Link Clicks + Conversion Funnel side by side -->
+      <div class="two-col">
+        <div class="chart-card">
+          <div class="card-title-row"><div class="card-title">Link Clicks</div></div>
+          <div id="clicksList"></div>
+        </div>
+        <div class="chart-card" id="funnelCard">
+          <div class="card-title-row">
+            <div class="card-title">Conversion Funnel</div>
+            <div class="card-title-badge">visitor journey</div>
+          </div>
+          <div class="funnel-wrap" id="funnelWrap"></div>
+        </div>
       </div>
 
       <!-- ═══ TIER 2: Optimization Signals ═══ -->
@@ -642,23 +640,23 @@
         </div>
       </div>
 
-      <!-- Clock Heatmap — when to post -->
-      <div class="chart-card" style="margin-top:14px;position:relative">
-        <div class="card-title-row">
-          <div class="card-title">Best Time to Post</div>
-          <div class="card-title-badge">when your audience is online</div>
+      <!-- Clock Heatmap + Pageviews side by side -->
+      <div class="two-col">
+        <div class="chart-card" style="position:relative">
+          <div class="card-title-row">
+            <div class="card-title">Best Time to Post</div>
+            <div class="card-title-badge">when your audience is online</div>
+          </div>
+          <div class="clock-heatmap-wrap" id="clockHeatmapWrap"></div>
+          <div class="clock-tooltip" id="clockTooltip"></div>
         </div>
-        <div class="clock-heatmap-wrap" id="clockHeatmapWrap"></div>
-        <div class="clock-tooltip" id="clockTooltip"></div>
-      </div>
-
-      <!-- Pageviews chart -->
-      <div class="chart-card" style="margin-top:14px">
-        <div class="card-title-row">
-          <div class="card-title">Pageviews — Last 30 Days</div>
-          <div class="card-title-badge" id="pvTotalBadge"></div>
+        <div class="chart-card">
+          <div class="card-title-row">
+            <div class="card-title">Pageviews — Last 30 Days</div>
+            <div class="card-title-badge" id="pvTotalBadge"></div>
+          </div>
+          <div class="chart-wrap"><canvas id="pvChart"></canvas></div>
         </div>
-        <div class="chart-wrap"><canvas id="pvChart"></canvas></div>
       </div>
 
       <!-- ═══ TIER 3: Context ═══ -->
@@ -687,24 +685,24 @@
         </div>
       </div>
 
-      <!-- 3D Globe -->
-      <div class="map-card" id="globeCard">
-        <div class="card-title-row">
-          <div class="card-title">Visitor Map</div>
-          <div class="card-title-badge" id="mapCountBadge"></div>
+      <!-- Globe + Top Cities side by side -->
+      <div class="two-col" style="grid-template-columns:1fr 300px;">
+        <div class="map-card" id="globeCard">
+          <div class="card-title-row">
+            <div class="card-title">Visitor Map</div>
+            <div class="card-title-badge" id="mapCountBadge"></div>
+          </div>
+          <div class="globe-container" id="globeContainer" style="height:340px;"></div>
+          <div class="map-tooltip" id="mapTooltip"></div>
         </div>
-        <div class="globe-container" id="globeContainer"></div>
-        <div class="map-tooltip" id="mapTooltip"></div>
-      </div>
-
-      <!-- Top Cities -->
-      <div class="chart-card" style="margin-top:14px">
-        <div class="card-title-row"><div class="card-title">Top Cities</div></div>
-        <div id="citiesList"></div>
+        <div class="chart-card">
+          <div class="card-title-row"><div class="card-title">Top Cities</div></div>
+          <div id="citiesList"></div>
+        </div>
       </div>
 
       <!-- ═══ Referral Management ═══ -->
-      <div class="chart-card referral-mgmt" id="referralMgmt" style="margin-top:24px">
+      <div class="chart-card referral-mgmt" id="referralMgmt" style="margin-top:10px">
         <div class="card-title-row">
           <div class="card-title">Referral Program</div>
           <div class="card-title-badge" id="referralBadge">Loading...</div>

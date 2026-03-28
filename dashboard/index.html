@@ -283,8 +283,8 @@
     .bar-list { display: flex; flex-direction: column; gap: 11px; }
     .bar-row { display: flex; align-items: center; gap: 12px; }
     .bar-name { font-size: 13px; color: var(--text); width: 140px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .bar-track { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-    .bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-40)); border-radius: 3px; transition: width 0.9s cubic-bezier(0.16,1,0.3,1); }
+    .bar-track { flex: 1; height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+    .bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-pale)); border-radius: 3px; transition: width 0.9s cubic-bezier(0.16,1,0.3,1); }
     .bar-count { font-size: 12px; color: var(--muted); width: 40px; text-align: right; flex-shrink: 0; }
 
     /* ── Click rows ────────────────────────────── */
@@ -319,9 +319,9 @@
       font-weight: 600; padding: 2px 8px; border-radius: 10px;
       font-size: 12px; display: inline-block;
     }
-    .conv-rate.rate-high { color: #16a34a; background: rgba(22,163,74,0.12); }
-    .conv-rate.rate-mid  { color: #ca8a04; background: rgba(202,138,4,0.12); }
-    .conv-rate.rate-low  { color: #ef4444; background: rgba(239,68,68,0.12); }
+    .conv-rate.rate-high { color: #4ade80; background: rgba(74,222,128,0.12); }
+    .conv-rate.rate-mid  { color: #fbbf24; background: rgba(251,191,36,0.12); }
+    .conv-rate.rate-low  { color: #f87171; background: rgba(248,113,113,0.12); }
     .conv-rate.rate-none { color: var(--accent); background: var(--accent-10); }
 
     /* ── Hourly heatmap ────────────────────────── */
@@ -341,8 +341,8 @@
     .scroll-bars { display: flex; flex-direction: column; gap: 14px; }
     .scroll-bar-row { display: flex; align-items: center; gap: 12px; }
     .scroll-bar-label { font-size: 13px; color: var(--text); width: 50px; flex-shrink: 0; }
-    .scroll-bar-track { flex: 1; height: 22px; background: var(--border); border-radius: 6px; overflow: hidden; position: relative; }
-    .scroll-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-40)); border-radius: 6px; transition: width 1s cubic-bezier(0.16,1,0.3,1); display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; }
+    .scroll-bar-track { flex: 1; height: 22px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden; position: relative; }
+    .scroll-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-pale)); border-radius: 6px; transition: width 1s cubic-bezier(0.16,1,0.3,1); display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; }
     .scroll-bar-pct { font-size: 11px; font-weight: 600; color: #fff; }
 
     /* ── Skeleton ───────────────────────────────── */
@@ -419,7 +419,7 @@
       background: radial-gradient(ellipse, var(--accent-20) 0%, transparent 70%);
       pointer-events: none;
     }
-    .map-card .card-title { color: #FDF9F5; }
+    .map-card .card-title { color: var(--text); }
     .map-card .card-title-badge { background: var(--accent-20); color: var(--accent); }
     #worldMap { width: 100%; display: block; }
     .map-country { fill: var(--map-country); stroke: var(--map-stroke); stroke-width: 0.4; }
@@ -428,9 +428,9 @@
     @keyframes pulse-map { 0% { r: var(--pr); opacity: 0.55; } 100% { r: calc(var(--pr) * 3.2); opacity: 0; } }
     .map-pulse { fill: none; stroke: var(--accent); stroke-width: 1; opacity: 0; animation: pulse-map 2.4s ease-out infinite; }
     .map-tooltip {
-      position: absolute; background: var(--tooltip-bg); border: 1px solid var(--tooltip-border);
+      position: absolute; background: var(--tooltip-bg); backdrop-filter: blur(12px); border: 1px solid var(--tooltip-border);
       border-radius: 8px; padding: 8px 14px; font-family: 'DM Sans', sans-serif;
-      font-size: 12px; color: #EEF2FF; pointer-events: none; opacity: 0;
+      font-size: 12px; color: var(--text); pointer-events: none; opacity: 0;
       transition: opacity 0.15s; white-space: nowrap; z-index: 10;
     }
     .map-tooltip strong { display: block; font-size: 13px; margin-bottom: 2px; color: var(--accent); }
@@ -446,9 +446,9 @@
     .clock-wedge { transition: transform 0.2s ease, opacity 0.2s; transform-origin: center; cursor: pointer; }
     .clock-wedge:hover { filter: brightness(1.2); transform: scale(1.06); }
     .clock-tooltip {
-      position: absolute; background: var(--tooltip-bg); border: 1px solid var(--tooltip-border);
+      position: absolute; background: var(--tooltip-bg); backdrop-filter: blur(12px); border: 1px solid var(--tooltip-border);
       border-radius: 8px; padding: 8px 14px; font-family: 'DM Sans', sans-serif;
-      font-size: 12px; color: #EEF2FF; pointer-events: none; opacity: 0;
+      font-size: 12px; color: var(--text); pointer-events: none; opacity: 0;
       transition: opacity 0.15s; white-space: nowrap; z-index: 10;
     }
     .clock-tooltip strong { display: block; font-size: 13px; margin-bottom: 2px; color: var(--accent); }

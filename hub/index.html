@@ -216,7 +216,8 @@ const FONT_MAP = {
   .skeleton-heading { height: 34px; width: 50%; margin-bottom: 12px; border-radius: 8px; }
 
   /* ── FAB ── */
-  .fab-bar {
+  .fab-bar { display: none; }
+  .fab-bar-legacy {
     position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 100;
     display: flex; align-items: center; gap: 8px;
     background: rgba(20,16,18,0.85);
@@ -266,7 +267,7 @@ const FONT_MAP = {
   .login-error { color: #f87171; font-size: 12px; margin-top: 12px; display: none; }
 
   /* ── Content ── */
-  .hub-inner { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 48px 40px 100px; display: none; }
+  .hub-inner { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 32px 24px 100px; display: none; }
   .section-label { font-family: var(--sans); font-size: 10.5px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
   .divider { height: 1px; background: linear-gradient(to right, transparent, var(--border) 30%, var(--border) 70%, transparent); margin: 28px 0; }
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); }
@@ -592,6 +593,98 @@ const FONT_MAP = {
   }
   .show-more-btn:hover { color: var(--accent); border-color: var(--accent-border); }
 
+  /* ── Bento Grid ── */
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 16px;
+  }
+  .bento-card {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .bento-card:hover { border-color: var(--accent-border); }
+  .span-2 { grid-column: span 2; }
+  .span-3 { grid-column: span 3; }
+  .span-4 { grid-column: span 4; }
+  .span-6 { grid-column: span 6; }
+  .span-8 { grid-column: span 8; }
+  .span-12 { grid-column: span 12; }
+
+  .bento-card-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  }
+  .bento-card-icon { font-size: 14px; opacity: 0.7; }
+  .bento-card-title {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--accent);
+  }
+
+  /* Hub header */
+  .hub-header { grid-column: 1 / -1; margin-bottom: 8px; }
+  .hub-header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+  .hub-header-title { font-family: var(--serif); font-size: 42px; font-weight: 300; color: var(--text); line-height: 1.1; }
+  .hub-header-subtitle { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); margin-top: 8px; }
+  .hub-nav-pills { display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
+  .hub-nav-pill {
+    font-family: var(--sans); font-size: 11px; font-weight: 500; color: var(--text-muted);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 50px;
+    padding: 6px 14px; text-decoration: none; cursor: pointer;
+    transition: border-color 0.2s, color 0.2s; white-space: nowrap;
+  }
+  .hub-nav-pill:hover { border-color: var(--accent-border); color: var(--text); }
+  .ai-intro { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 14px; line-height: 1.6; font-style: italic; }
+  .ai-intro strong { color: var(--text); font-style: normal; }
+
+  /* Stat card (single stat in bento) */
+  .stat-card-value { font-family: var(--serif); font-size: 36px; font-weight: 400; color: var(--text); line-height: 1.1; }
+  .stat-card-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 6px; }
+  .stat-card-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+  /* Social chips */
+  .social-chips { display: flex; gap: 10px; flex-wrap: wrap; }
+  .social-chip {
+    flex: 1; display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; background: var(--surface-elevated);
+    border: 1px solid var(--border); border-radius: 12px;
+    transition: border-color 0.2s; min-width: 180px; position: relative;
+  }
+  .social-chip:hover { border-color: var(--accent-border); }
+  .social-chip-icon { font-size: 18px; }
+  .social-chip-name { font-size: 12px; font-weight: 600; color: var(--text); }
+  .social-chip-status { font-size: 10px; color: var(--text-muted); }
+  .social-chip-stat { font-size: 11px; color: var(--accent); font-weight: 600; margin-left: auto; }
+
+  /* Compact briefing in bento */
+  .bento-card .briefing-cols { grid-template-columns: 1fr; gap: 16px; }
+  .bento-card .briefing-card { padding: 0; background: transparent; border: none; }
+  .bento-card .briefing-header-row { display: none; }
+
+  /* Compact calendar in bento */
+  .bento-card .calendar-strip {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+  }
+  .bento-card .cal-day { padding: 8px 4px; }
+  .bento-card .cal-day-num { font-size: 16px; margin-bottom: 2px; }
+  .bento-card .cal-type { font-size: 7px; padding: 1px 4px; }
+  .bento-card .cal-time { font-size: 7px; margin-top: 2px; }
+  .bento-card .cal-idea { display: none; }
+
+  /* Compact chat in bento */
+  .bento-card .chat-section { border-radius: 12px; }
+  .bento-card .chat-glow, .bento-card .chat-outer-glow { display: none; }
+  .bento-card .chat-inner { border-radius: 12px; }
+  .bento-card .chat-header { padding: 16px 20px; }
+  .bento-card .chat-body { padding: 14px 20px; min-height: 60px; max-height: 300px; overflow-y: auto; }
+  .bento-card .chat-prompts { padding: 4px 20px 12px; }
+  .bento-card .chat-input-row { padding: 12px 20px; }
+
   /* ── Responsive ── */
   /* ── Tablet ── */
   @media (max-width: 960px) {
@@ -601,9 +694,26 @@ const FONT_MAP = {
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .paired-row { grid-template-columns: 1fr; }
     .briefing-cols { grid-template-columns: 1fr; }
+    .bento-grid { grid-template-columns: repeat(6, 1fr); }
+    .span-2, .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 3; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 6; }
+    .hub-header-top { flex-direction: column; }
+    .hub-nav-pills { justify-content: flex-start; }
   }
 
   /* ── Mobile ── */
+  @media (max-width: 768px) {
+    .hub-inner { padding: 20px 14px 90px; }
+    .bento-grid { grid-template-columns: 1fr; }
+    .span-2, .span-3, .span-4, .span-6, .span-8, .span-12 { grid-column: span 1; }
+    .hub-header-title { font-size: 28px; }
+    .hub-header-subtitle { font-size: 9px; }
+    .social-chips { flex-direction: column; }
+    .bento-card .calendar-strip { display: flex; overflow-x: auto; gap: 6px; }
+    .bento-card .calendar-strip .cal-day { min-width: 60px; flex-shrink: 0; }
+  }
   @media (max-width: 640px) {
     .hub-inner { padding: 24px 14px 90px; }
     .gradient-mesh { filter: blur(60px); }
@@ -1234,211 +1344,265 @@ const FONT_MAP = {
      ═══════════════════════════════════════════════════ -->
 <div class="hub-inner" id="hub">
 
-  <!-- Greeting row -->
-  <div class="greeting-row fade-up">
-    <a class="greeting-nav greeting-nav-left" id="navSite" href="#" target="_blank">
-      <span class="greeting-nav-icon">&#127760;</span>
-      View My Site
-      <span class="greeting-nav-arrow">&rarr;</span>
-    </a>
-    <div class="greeting">
-      <div class="greeting-label" id="greetingLabel"></div>
-      <h1 id="greetingH1"></h1>
-      <div class="greeting-date" id="greetingDate"></div>
-    </div>
-    <a class="greeting-nav greeting-nav-right" href="/dashboard" target="_blank">
-      <span class="greeting-nav-icon">&#128202;</span>
-      Full Analytics
-      <span class="greeting-nav-arrow">&rarr;</span>
-    </a>
-  </div>
-
-  <!-- Smart banner -->
+  <!-- Smart banner (overlay) -->
   <div class="smart-banner" id="smartBanner" style="display:none">
     <span class="smart-banner-icon" id="smartBannerIcon"></span>
     <span class="smart-banner-text" id="smartBannerText"></span>
   </div>
 
-  <!-- Growth Scoreboard -->
-  <div class="fade-up" style="margin-top:16px">
-    <div class="stats-grid" id="statsGrid">
-      <div class="card stat-tile skeleton" style="height:90px"></div>
-      <div class="card stat-tile skeleton" style="height:90px"></div>
-      <div class="card stat-tile skeleton" style="height:90px"></div>
-      <div class="card stat-tile skeleton" style="height:90px"></div>
-    </div>
-    <!-- Goal progress bar -->
-    <div class="goal-progress-bar" id="goalProgressBar" style="display:none">
-      <div class="goal-progress-info">
-        <span class="goal-progress-label" id="goalProgressLabel"></span>
-        <span class="goal-progress-pct" id="goalProgressPct"></span>
+  <div class="bento-grid">
+
+    <!-- HEADER -->
+    <div class="hub-header fade-up">
+      <div class="hub-header-top">
+        <div>
+          <div class="hub-header-title" id="greetingH1"></div>
+          <div class="hub-header-subtitle">AI-Powered &middot; Live Analytics &middot; Built for Your Brand</div>
+          <!-- hidden elements for JS compat -->
+          <div id="greetingLabel" style="display:none"></div>
+          <div id="greetingDate" style="display:none"></div>
+        </div>
+        <div class="hub-nav-pills">
+          <a class="hub-nav-pill" id="navSite" href="#" target="_blank">View Site</a>
+          <a class="hub-nav-pill" href="/dashboard" target="_blank">Analytics</a>
+          <button class="hub-nav-pill" onclick="openModal('message')">Message Sam</button>
+          <button class="hub-nav-pill" onclick="openModal('update')">Request Update</button>
+        </div>
       </div>
-      <div class="goal-bar-bg" style="height:4px;margin-top:6px">
-        <div class="goal-bar-fill" id="goalProgressFill" style="width:0%"></div>
-      </div>
+      <div class="ai-intro" id="aiIntro">Loading your briefing...</div>
     </div>
-  </div>
 
-  <!-- Goal card (hidden, used for data) -->
-  <div id="goalCard" style="display:none"></div>
-
-  <div class="divider"></div>
-
-  <!-- Game Plan -->
-  <div class="fade-up">
-    <div class="section-label">Your Game Plan</div>
-    <div class="card briefing-card" id="briefingCard">
-      <div class="briefing-header-row">
-        <div class="briefing-title" id="briefingTitle">Loading&hellip;</div>
-        <span class="briefing-badge" id="briefingBadge" style="display:none"></span>
-        <button class="briefing-refresh" id="briefingRefresh" onclick="refreshBriefing()" title="Refresh">&#8635;</button>
+    <!-- ROW 1: Game Plan | Calendar | Stats -->
+    <!-- Game Plan -->
+    <div class="bento-card span-4 fade-up">
+      <div class="bento-card-header">
+        <span class="bento-card-icon">&#127919;</span>
+        <span class="bento-card-title">Today's Plan</span>
+        <span class="briefing-badge" id="briefingBadge" style="display:none;margin-left:auto"></span>
+        <button class="briefing-refresh" id="briefingRefresh" onclick="refreshBriefing()" title="Refresh" style="margin-left:4px">&#8635;</button>
       </div>
-      <div id="briefingContent">
-        <div class="skeleton skeleton-text w80"></div>
-        <div class="skeleton skeleton-text w60"></div>
-        <div class="skeleton skeleton-text w80"></div>
-        <div class="skeleton skeleton-text w40"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- Content Calendar -->
-  <div class="fade-up">
-    <div class="section-label">This Week's Content Plan</div>
-    <div class="calendar-strip" id="calendarStrip">
-      <!-- filled by JS -->
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- Audience Actions (Links + Codes) -->
-  <div class="paired-row fade-up">
-    <div>
-      <div class="section-label">Top Links</div>
-      <div id="topLinks">
-        <div class="empty-state"><p>Link clicks will appear here.</p></div>
+      <div class="card briefing-card" id="briefingCard" style="background:transparent;border:none;padding:0">
+        <div class="briefing-header-row" style="display:none">
+          <div class="briefing-title" id="briefingTitle">Loading&hellip;</div>
+        </div>
+        <div id="briefingContent">
+          <div class="skeleton skeleton-text w80"></div>
+          <div class="skeleton skeleton-text w60"></div>
+          <div class="skeleton skeleton-text w80"></div>
+          <div class="skeleton skeleton-text w40"></div>
+        </div>
       </div>
     </div>
-    <div>
-      <div class="section-label">Brand Codes</div>
-      <div id="brandCodes">
-        <div class="empty-state"><p>Code usage will appear here.</p></div>
+
+    <!-- Content Calendar -->
+    <div class="bento-card span-4 fade-up">
+      <div class="bento-card-header">
+        <span class="bento-card-icon">&#128197;</span>
+        <span class="bento-card-title">Content Calendar</span>
       </div>
+      <div class="calendar-strip" id="calendarStrip"></div>
     </div>
-  </div>
 
-  <div class="divider"></div>
+    <!-- Stats / Growth -->
+    <div class="bento-card span-4 fade-up">
+      <div class="bento-card-header">
+        <span class="bento-card-icon">&#128200;</span>
+        <span class="bento-card-title">Growth</span>
+      </div>
+      <div class="stats-grid" id="statsGrid" style="grid-template-columns:repeat(2,1fr);gap:8px">
+        <div class="card stat-tile skeleton" style="height:70px"></div>
+        <div class="card stat-tile skeleton" style="height:70px"></div>
+        <div class="card stat-tile skeleton" style="height:70px"></div>
+      </div>
+      <div class="goal-progress-bar" id="goalProgressBar" style="display:none;margin-top:12px">
+        <div class="goal-progress-info">
+          <span class="goal-progress-label" id="goalProgressLabel"></span>
+          <span class="goal-progress-pct" id="goalProgressPct"></span>
+        </div>
+        <div class="goal-bar-bg" style="height:4px;margin-top:6px">
+          <div class="goal-bar-fill" id="goalProgressFill" style="width:0%"></div>
+        </div>
+      </div>
+      <div id="goalCard" style="display:none"></div>
+    </div>
 
-  <!-- Platform Details (connected only) -->
-  <div class="fade-up" id="platformDetailsSection" style="display:none">
-    <div class="section-label">Platform Details</div>
-    <div class="social-platforms" id="socialPlatforms">
-      <div class="social-platform-card" id="ytCard" style="position:relative;">
-        <div class="social-platform-icon">&#9654;&#65039;</div>
-        <div class="social-platform-name">YouTube</div>
-        <div class="social-platform-status" id="ytStatus">Not connected</div>
-        <a class="social-connect-btn" id="ytConnectBtn" href="#">Connect YouTube</a>
-        <button id="ytDisconnectBtn" style="display:none;position:absolute;top:14px;right:14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:border-color 0.2s,color 0.2s;" onmouseover="this.style.borderColor='#f87171';this.style.color='#f87171'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'" onclick="confirmDisconnectYouTube()">Disconnect</button>
-        <div id="ytDisconnectConfirm" style="display:none;position:absolute;top:14px;right:14px;background:var(--surface-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 16px;z-index:5;text-align:center;">
-          <div style="font-size:12px;color:var(--text);margin-bottom:10px;">Disconnect YouTube?</div>
-          <div style="display:flex;gap:8px;">
-            <button style="flex:1;padding:6px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);" onclick="cancelDisconnectYouTube()">Cancel</button>
-            <button style="flex:1;padding:6px 12px;background:#f87171;border:none;color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;" onclick="disconnectYouTube()">Confirm</button>
+    <!-- ROW 2: Platforms | Niche Pulse | Links & Codes -->
+    <!-- Platforms -->
+    <div class="bento-card span-6 fade-up">
+      <div class="bento-card-header">
+        <span class="bento-card-icon">&#128241;</span>
+        <span class="bento-card-title">Platforms</span>
+      </div>
+      <div class="social-chips" id="socialPlatforms">
+        <!-- YouTube chip -->
+        <div class="social-chip" id="ytCard">
+          <span class="social-chip-icon">&#9654;&#65039;</span>
+          <div>
+            <div class="social-chip-name">YouTube</div>
+            <div class="social-chip-status" id="ytStatus">Not connected</div>
+          </div>
+          <a class="hub-nav-pill" id="ytConnectBtn" href="#" style="margin-left:auto;font-size:10px">Connect</a>
+          <button id="ytDisconnectBtn" style="display:none;position:absolute;top:8px;right:8px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:border-color 0.2s,color 0.2s;" onmouseover="this.style.borderColor='#f87171';this.style.color='#f87171'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'" onclick="confirmDisconnectYouTube()">Disconnect</button>
+          <div id="ytDisconnectConfirm" style="display:none;position:absolute;top:8px;right:8px;background:var(--surface-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 16px;z-index:5;text-align:center;">
+            <div style="font-size:12px;color:var(--text);margin-bottom:10px;">Disconnect YouTube?</div>
+            <div style="display:flex;gap:8px;">
+              <button style="flex:1;padding:6px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);" onclick="cancelDisconnectYouTube()">Cancel</button>
+              <button style="flex:1;padding:6px 12px;background:#f87171;border:none;color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;" onclick="disconnectYouTube()">Confirm</button>
+            </div>
+          </div>
+          <div id="ytData" style="display:none;"></div>
+        </div>
+        <!-- Instagram chip -->
+        <div class="social-chip">
+          <span class="social-chip-icon">&#128247;</span>
+          <div>
+            <div class="social-chip-name">Instagram</div>
+            <div class="social-chip-status">Coming soon</div>
           </div>
         </div>
-        <div id="ytData" style="display:none;"></div>
-      </div>
-      <div class="social-platform-card" id="tiktokPlatformCard" style="position:relative;">
-        <div class="social-platform-icon">&#127925;</div>
-        <div class="social-platform-name">TikTok</div>
-        <div class="social-platform-status" id="tiktokStatus">Not connected</div>
-        <a class="social-connect-btn" id="tiktokConnectBtn" href="/api/tiktok-auth">Connect TikTok</a>
-        <button id="tiktokDisconnectBtn" style="display:none;position:absolute;top:14px;right:14px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:border-color 0.2s,color 0.2s;z-index:3;" onmouseover="this.style.borderColor='#f87171';this.style.color='#f87171'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'" onclick="confirmDisconnectTikTok()">Disconnect</button>
-        <div id="tiktokDisconnectConfirm" style="display:none;position:absolute;top:14px;right:14px;background:var(--surface-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 16px;z-index:5;text-align:center;">
-          <div style="font-size:12px;color:var(--text);margin-bottom:10px;">Disconnect TikTok?</div>
-          <div style="display:flex;gap:8px;">
-            <button style="flex:1;padding:6px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);" onclick="cancelDisconnectTikTok()">Cancel</button>
-            <button style="flex:1;padding:6px 12px;background:#f87171;border:none;color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;" onclick="disconnectTikTok()">Confirm</button>
+        <!-- TikTok chip -->
+        <div class="social-chip" id="tiktokPlatformCard">
+          <span class="social-chip-icon">&#127925;</span>
+          <div>
+            <div class="social-chip-name">TikTok</div>
+            <div class="social-chip-status" id="tiktokStatus">Not connected</div>
           </div>
-        </div>
-        <div id="tiktokData" style="display:none">
-          <div style="display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border)">
-            <img id="tiktokAvatar" src="" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--accent)" />
-            <div>
-              <div id="tiktokName" style="font-size:14px;font-weight:600;color:var(--text)"></div>
-              <div id="tiktokFollowers" style="font-size:11px;color:var(--text-muted)"></div>
-            </div>
-            <div style="margin-left:auto;background:#22c55e;color:#fff;font-size:10px;font-weight:600;padding:3px 10px;border-radius:50px">Connected</div>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--border)">
-            <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
-              <div id="tiktokViews" style="font-family:var(--serif);font-size:22px;color:var(--text)">—</div>
-              <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Views</div>
-            </div>
-            <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
-              <div id="tiktokLikes" style="font-family:var(--serif);font-size:22px;color:var(--text)">—</div>
-              <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Likes</div>
-            </div>
-            <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
-              <div id="tiktokComments" style="font-family:var(--serif);font-size:22px;color:var(--text)">—</div>
-              <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Comments</div>
-            </div>
-            <div style="padding:16px;text-align:center">
-              <div id="tiktokShares" style="font-family:var(--serif);font-size:22px;color:var(--text)">—</div>
-              <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Shares</div>
+          <a class="hub-nav-pill" id="tiktokConnectBtn" href="/api/tiktok-auth" style="margin-left:auto;font-size:10px">Connect</a>
+          <button id="tiktokDisconnectBtn" style="display:none;position:absolute;top:8px;right:8px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:border-color 0.2s,color 0.2s;z-index:3;" onmouseover="this.style.borderColor='#f87171';this.style.color='#f87171'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'" onclick="confirmDisconnectTikTok()">Disconnect</button>
+          <div id="tiktokDisconnectConfirm" style="display:none;position:absolute;top:8px;right:8px;background:var(--surface-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 16px;z-index:5;text-align:center;">
+            <div style="font-size:12px;color:var(--text);margin-bottom:10px;">Disconnect TikTok?</div>
+            <div style="display:flex;gap:8px;">
+              <button style="flex:1;padding:6px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);" onclick="cancelDisconnectTikTok()">Cancel</button>
+              <button style="flex:1;padding:6px 12px;background:#f87171;border:none;color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;" onclick="disconnectTikTok()">Confirm</button>
             </div>
           </div>
-          <div id="tiktokTopVideo" style="padding:16px 20px;display:none">
-            <div style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px">Top Performing Video</div>
-            <div style="display:flex;align-items:center;gap:12px">
-              <img id="tiktokTopCover" src="" style="width:48px;height:64px;border-radius:6px;object-fit:cover;border:1px solid var(--border)" />
-              <div style="flex:1;min-width:0">
-                <div id="tiktokTopTitle" style="font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
-                <div id="tiktokTopStats" style="font-size:11px;color:var(--text-muted);margin-top:3px"></div>
+          <div id="tiktokData" style="display:none">
+            <div style="display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border)">
+              <img id="tiktokAvatar" src="" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--accent)" />
+              <div>
+                <div id="tiktokName" style="font-size:14px;font-weight:600;color:var(--text)"></div>
+                <div id="tiktokFollowers" style="font-size:11px;color:var(--text-muted)"></div>
+              </div>
+              <div style="margin-left:auto;background:#22c55e;color:#fff;font-size:10px;font-weight:600;padding:3px 10px;border-radius:50px">Connected</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--border)">
+              <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
+                <div id="tiktokViews" style="font-family:var(--serif);font-size:22px;color:var(--text)">&#8212;</div>
+                <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Views</div>
+              </div>
+              <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
+                <div id="tiktokLikes" style="font-family:var(--serif);font-size:22px;color:var(--text)">&#8212;</div>
+                <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Likes</div>
+              </div>
+              <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
+                <div id="tiktokComments" style="font-family:var(--serif);font-size:22px;color:var(--text)">&#8212;</div>
+                <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Comments</div>
+              </div>
+              <div style="padding:16px;text-align:center">
+                <div id="tiktokShares" style="font-family:var(--serif);font-size:22px;color:var(--text)">&#8212;</div>
+                <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Shares</div>
+              </div>
+            </div>
+            <div id="tiktokTopVideo" style="padding:16px 20px;display:none">
+              <div style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px">Top Performing Video</div>
+              <div style="display:flex;align-items:center;gap:12px">
+                <img id="tiktokTopCover" src="" style="width:48px;height:64px;border-radius:6px;object-fit:cover;border:1px solid var(--border)" />
+                <div style="flex:1;min-width:0">
+                  <div id="tiktokTopTitle" style="font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+                  <div id="tiktokTopStats" style="font-size:11px;color:var(--text-muted);margin-top:3px"></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <!-- Hidden platformDetailsSection for JS compat -->
+      <div id="platformDetailsSection" style="display:none"></div>
     </div>
-    <div class="divider"></div>
-  </div>
 
-  <!-- AI Advisor Chat -->
-  <div class="fade-up">
-    <div class="section-label">AI Advisor</div>
-    <div class="chat-section" id="chatSection">
-      <div class="chat-outer-glow"></div>
-      <div class="chat-glow"></div>
-      <div class="chat-inner">
-        <div class="chat-header">
-          <div class="chat-icon-wrap">&#128172;</div>
-          <div class="chat-title-group">
-            <div class="chat-title">Ask Your Advisor</div>
-            <div class="chat-subtitle">Ask me anything about your content.</div>
+    <!-- Niche Pulse -->
+    <div class="bento-card span-3 fade-up">
+      <div class="bento-card-header">
+        <span class="bento-card-icon">&#128200;</span>
+        <span class="bento-card-title" id="pulseLabel">Niche Pulse</span>
+      </div>
+      <div class="pulse-items" id="pulseItems">
+        <div class="empty-state"><p>Trends will appear after one week of data.</p></div>
+      </div>
+    </div>
+
+    <!-- Links & Codes -->
+    <div class="bento-card span-3 fade-up">
+      <div class="bento-card-header">
+        <span class="bento-card-icon">&#128279;</span>
+        <span class="bento-card-title">Links &amp; Codes</span>
+      </div>
+      <div id="topLinks"><div class="empty-state"><p>Link clicks will appear here.</p></div></div>
+      <div style="height:1px;background:var(--border);margin:12px 0"></div>
+      <div id="brandCodes"><div class="empty-state"><p>Code usage will appear here.</p></div></div>
+    </div>
+
+    <!-- ROW 3: AI Strategist | Refer & Earn -->
+    <!-- AI Strategist -->
+    <div class="bento-card span-8 fade-up">
+      <div class="bento-card-header">
+        <span class="bento-card-icon">&#129302;</span>
+        <span class="bento-card-title">Your Strategist</span>
+        <span class="chat-live-dot" style="margin-left:auto">LIVE</span>
+      </div>
+      <div class="chat-section" id="chatSection">
+        <div class="chat-inner">
+          <div class="chat-body" id="chatBody">
+            <!-- proactive insight injected by JS -->
           </div>
-          <span class="chat-live-dot">LIVE</span>
-        </div>
-        <div class="chat-body" id="chatBody">
-          <!-- proactive insight injected by JS -->
-        </div>
-        <div class="chat-prompts" id="chatPrompts">
-          <span class="chat-prompt" onclick="askPrompt(this)">What's growing fastest?</span>
-          <span class="chat-prompt" onclick="askPrompt(this)">Write a caption</span>
-          <span class="chat-prompt" onclick="askPrompt(this)">Which platform should I focus on?</span>
-          <span class="chat-prompt" onclick="askPrompt(this)">Brand pitch draft</span>
-        </div>
-        <div class="chat-input-row" id="chatInputRow">
-          <input class="chat-input" id="chatInput" placeholder="Ask anything\u2026" onkeydown="if(event.key==='Enter')sendChat(event)">
-          <button class="chat-send" onclick="sendChat()">&#8594;</button>
+          <div class="chat-prompts" id="chatPrompts">
+            <span class="chat-prompt" onclick="askPrompt(this)">What's growing fastest?</span>
+            <span class="chat-prompt" onclick="askPrompt(this)">Write a caption</span>
+            <span class="chat-prompt" onclick="askPrompt(this)">Which platform should I focus on?</span>
+            <span class="chat-prompt" onclick="askPrompt(this)">Brand pitch draft</span>
+          </div>
+          <div class="chat-input-row" id="chatInputRow">
+            <input class="chat-input" id="chatInput" placeholder="Ask anything…" onkeydown="if(event.key==='Enter')sendChat(event)">
+            <button class="chat-send" onclick="sendChat()">&#8594;</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
+    <!-- Refer & Earn -->
+    <div class="bento-card span-4 fade-up">
+      <div class="bento-card-header">
+        <span class="bento-card-icon">&#127873;</span>
+        <span class="bento-card-title">Refer &amp; Earn</span>
+      </div>
+      <div class="referral-card" id="referralCard" style="background:transparent;border:none;padding:0">
+        <div class="referral-header">
+          <div class="referral-icon">&#127873;</div>
+          <div class="referral-header-text">
+            <h3>Share the Love</h3>
+            <p>Refer a creator and both earn rewards.</p>
+          </div>
+        </div>
+        <div class="referral-code-row">
+          <span class="referral-code-label">Your Code</span>
+          <span class="referral-code-value" id="referralCode">&#8212;</span>
+          <button class="referral-copy-btn" id="referralCopyBtn" onclick="copyReferralCode()">Copy</button>
+        </div>
+        <div class="referral-stats-row">
+          <div class="referral-stat">
+            <div class="referral-stat-value" id="referralCount">0</div>
+            <div class="referral-stat-label">Referrals</div>
+          </div>
+          <div class="referral-stat">
+            <div class="referral-stat-value" id="referralFreeMonths">0</div>
+            <div class="referral-stat-label">Free Months</div>
+          </div>
+        </div>
+        <div id="referralDetails"></div>
+      </div>
+    </div>
+
+  </div><!-- end bento-grid -->
 </div>
 
 <!-- Sticky chat input (mobile) -->
@@ -1574,7 +1738,7 @@ function showHub() {
   const firstName = CLIENT.name.split(' ')[0];
   const domain = CLIENT.url.replace(/^https?:\/\//, '');
   document.getElementById('greetingLabel').innerHTML = domain + ' / <span>backstage</span>';
-  document.getElementById('greetingH1').textContent = 'Hey, ' + firstName;
+  document.getElementById('greetingH1').textContent = CLIENT.name + '\u2019s Command Center';
   document.getElementById('navSite').href = CLIENT.url;
 
   // Date
@@ -1582,12 +1746,17 @@ function showHub() {
   const opts = { month: 'long', day: 'numeric', year: 'numeric' };
   document.getElementById('greetingDate').textContent = now.toLocaleDateString('en-US', opts) + ' \u00b7 Your Growth Engine';
 
+  // Pulse label
+  var pLabel = document.getElementById('pulseLabel');
+  if (pLabel) pLabel.textContent = (CLIENT.nicheLabel || CLIENT.niche || 'Niche') + ' Pulse';
+
   // Load data — quick stats first (pure Redis, ~200ms), then briefing (has LLM, slower)
   loadQuickStats();
   loadBriefing();
   loadGoal();
   loadSocialAnalytics();
   loadTikTok();
+  loadReferral();
 
   // Init scroll animations
   setTimeout(initScrollAnimations, 100);
@@ -1671,6 +1840,16 @@ function loadQuickStats() {
       renderStats({ metrics: quickMetrics });
       statsRendered = true;
 
+      // Quick AI intro from stats
+      var intro = document.getElementById('aiIntro');
+      if (intro && quickMetrics.thisWeekViews > 0) {
+        var parts = [];
+        if (quickMetrics.weekOverWeek) parts.push('<strong>' + quickMetrics.weekOverWeek + '</strong> vs last week');
+        if (quickMetrics.topReferrer) parts.push('Top source: <strong>' + quickMetrics.topReferrer + '</strong>');
+        parts.push(quickMetrics.thisWeekViews.toLocaleString() + ' views this week');
+        intro.innerHTML = parts.join(' &middot; ');
+      }
+
       // Render links and brand codes
       renderLinks({ clickList: clickList });
       renderBrandCodes({ clicks: raw.clicks || {}, clickList: clickList });
@@ -1697,6 +1876,12 @@ function loadBriefing(forceRefresh) {
       renderBrandCodes(data);
       renderProactiveInsight(data);
       renderSmartBanner(data);
+      renderPulse(data);
+      // Render AI intro sentence
+      var intro = document.getElementById('aiIntro');
+      if (intro && data.summary) {
+        intro.innerHTML = data.summary;
+      }
     })
     .catch(function() {
       renderEmptyStates();
@@ -1776,7 +1961,7 @@ function renderScoreboard() {
   tiles += '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + s.codeRedemptions + '">0</span></div><div class="stat-label">Code Uses</div></div>';
 
   // Adjust grid columns based on tile count
-  grid.style.gridTemplateColumns = hasSocial ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)';
+  grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
   grid.innerHTML = tiles;
 
   // Trigger count-up animations

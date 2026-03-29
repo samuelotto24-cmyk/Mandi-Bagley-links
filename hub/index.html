@@ -492,7 +492,7 @@ const FONT_MAP = {
   .chat-action-btn:hover { border-color: var(--accent-border); }
   .chat-action-btn.primary { background: var(--accent-pale); border-color: var(--accent-border); color: var(--accent); }
   .chat-prompts { display: flex; gap: 8px; flex-wrap: wrap; padding: 4px 28px 18px; }
-  .chat-prompt { font-family: var(--sans); font-size: 12px; font-weight: 500; color: var(--text); background: var(--accent-pale); border: 1px solid var(--accent-border); border-radius: 50px; padding: 8px 18px; cursor: pointer; transition: background 0.2s, box-shadow 0.2s, transform 0.15s; }
+  .chat-prompt { font-family: var(--sans); font-size: 11px; font-weight: 500; color: var(--text); background: var(--accent-pale); border: 1px solid var(--accent-border); border-radius: 50px; padding: 6px 14px; cursor: pointer; transition: background 0.2s, box-shadow 0.2s, transform 0.15s; }
   .chat-prompt:hover { background: var(--accent-border); box-shadow: 0 0 20px var(--accent-pale); transform: translateY(-1px); }
   .chat-input-row { display: flex; gap: 10px; padding: 18px 28px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.25); }
   .chat-input { flex: 1; padding: 13px 18px; border: 1.5px solid var(--border); border-radius: 12px; background: var(--surface-elevated); font-family: var(--sans); font-size: 14px; color: var(--text); outline: none; }
@@ -1162,7 +1162,7 @@ const FONT_MAP = {
   <!-- Social Analytics -->
   <div class="fade-up">
     <div class="section-label">Social Analytics</div>
-    <div class="social-section-header" id="socialHeader">Connect your platforms to unlock AI-powered strategy across all your channels</div>
+    <div class="social-section-header" id="socialHeader">Connect your platforms for cross-channel strategy</div>
     <div class="social-platforms" id="socialPlatforms">
       <div class="social-platform-card" id="ytCard" style="position:relative;">
         <div class="social-platform-icon">&#9654;&#65039;</div>
@@ -1183,7 +1183,6 @@ const FONT_MAP = {
         <div class="social-platform-icon">&#128247;</div>
         <div class="social-platform-name">Instagram</div>
         <div class="social-platform-status" style="color:var(--accent)">Coming soon</div>
-        <div style="font-size:11px;color:var(--text-muted);line-height:1.4">Post insights, follower growth, and engagement tracking.</div>
       </div>
       <div class="social-platform-card" id="tiktokPlatformCard" style="position:relative;">
         <div class="social-platform-icon">&#127925;</div>
@@ -1247,13 +1246,13 @@ const FONT_MAP = {
     <div>
       <div class="section-label">Top Links</div>
       <div id="topLinks">
-        <div class="empty-state"><p>Link click tracking will appear as visitors interact with your page.</p></div>
+        <div class="empty-state"><p>Link clicks will appear here.</p></div>
       </div>
     </div>
     <div>
       <div class="section-label">My Brand Codes</div>
       <div id="brandCodes">
-        <div class="empty-state"><p>Brand code usage will appear here.</p></div>
+        <div class="empty-state"><p>Code usage will appear here.</p></div>
       </div>
     </div>
   </div>
@@ -1264,7 +1263,7 @@ const FONT_MAP = {
   <div class="fade-up">
     <div class="section-label" id="pulseLabel">Niche Pulse</div>
     <div class="pulse-items" id="pulseItems">
-      <div class="empty-state"><p>Trend insights will generate once we have a week of data.</p></div>
+      <div class="empty-state"><p>Trends will appear after one week of data.</p></div>
     </div>
   </div>
 
@@ -1272,35 +1271,34 @@ const FONT_MAP = {
 
   <!-- Referral Program -->
   <div class="fade-up">
-    <div class="section-label">Referral Program</div>
+    <div class="section-label">Referrals</div>
     <div class="referral-card" id="referralCard">
-      <div class="referral-header">
-        <div class="referral-icon">&#127873;</div>
-        <div class="referral-header-text">
-          <h3>Share the Platform</h3>
-          <p>Refer a creator — every signup earns you a free month.</p>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <div class="referral-code-row" style="flex:1;margin:0;">
+          <span class="referral-code-label">Your Code</span>
+          <span class="referral-code-value" id="referralCode">—</span>
+          <button class="referral-copy-btn" id="referralCopyBtn" onclick="copyReferralCode()">Copy</button>
         </div>
       </div>
 
-      <div class="referral-stats-row">
+      <div class="referral-stats-row" style="margin-bottom:0;">
         <div class="referral-stat">
           <div class="referral-stat-value" id="referralCount">—</div>
-          <div class="referral-stat-label">Creators Referred</div>
+          <div class="referral-stat-label">Referred</div>
         </div>
         <div class="referral-stat">
           <div class="referral-stat-value" id="referralFreeMonths">—</div>
-          <div class="referral-stat-label">Free Months Earned</div>
+          <div class="referral-stat-label">Free Months</div>
         </div>
       </div>
 
-      <div class="referral-code-row">
-        <span class="referral-code-label">Your Code</span>
-        <span class="referral-code-value" id="referralCode">—</span>
-        <button class="referral-copy-btn" id="referralCopyBtn" onclick="copyReferralCode()">Copy</button>
+      <div style="text-align:center;margin-top:14px;">
+        <button onclick="var el=document.getElementById('referralDetails');el.style.display=el.style.display==='none'?'block':'none';this.textContent=el.style.display==='none'?'How it works \u25BC':'Hide \u25B2'" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;font-family:var(--sans);">How it works &#9660;</button>
       </div>
-
-      <div class="referral-reward">
-        When a creator signs up with your code, <strong>you get one month free</strong> and <strong>they get $100 off</strong> their setup.
+      <div id="referralDetails" style="display:none;">
+        <div class="referral-reward">
+          When a creator signs up with your code, <strong>you get one month free</strong> and <strong>they get $100 off</strong> their setup.
+        </div>
       </div>
     </div>
   </div>
@@ -1318,7 +1316,7 @@ const FONT_MAP = {
           <div class="chat-icon-wrap">&#128172;</div>
           <div class="chat-title-group">
             <div class="chat-title">Ask Your Advisor</div>
-            <div class="chat-subtitle">I know your data, your niche, and what's trending. Ask me anything or I'll tell you what I noticed.</div>
+            <div class="chat-subtitle">Ask me anything about your content.</div>
           </div>
           <span class="chat-live-dot">LIVE</span>
         </div>
@@ -1326,13 +1324,13 @@ const FONT_MAP = {
           <!-- proactive insight injected by JS -->
         </div>
         <div class="chat-prompts" id="chatPrompts">
-          <span class="chat-prompt" onclick="askPrompt(this)">Write me a caption for today</span>
-          <span class="chat-prompt" onclick="askPrompt(this)">What should I post this weekend?</span>
-          <span class="chat-prompt" onclick="askPrompt(this)">How do I grow faster?</span>
-          <span class="chat-prompt" onclick="askPrompt(this)">Draft a pitch to a brand</span>
+          <span class="chat-prompt" onclick="askPrompt(this)">Write a caption</span>
+          <span class="chat-prompt" onclick="askPrompt(this)">Weekend post ideas</span>
+          <span class="chat-prompt" onclick="askPrompt(this)">Growth tips</span>
+          <span class="chat-prompt" onclick="askPrompt(this)">Brand pitch</span>
         </div>
         <div class="chat-input-row" id="chatInputRow">
-          <input class="chat-input" id="chatInput" placeholder="Ask me anything \u2014 content ideas, strategy, captions\u2026" onkeydown="if(event.key==='Enter')sendChat(event)">
+          <input class="chat-input" id="chatInput" placeholder="Ask anything\u2026" onkeydown="if(event.key==='Enter')sendChat(event)">
           <button class="chat-send" onclick="sendChat()">&#8594;</button>
         </div>
       </div>
@@ -1657,7 +1655,7 @@ function renderStats(data) {
 function renderBriefing(data) {
   if (!data.summary && (!data.actionItems || !data.actionItems.length)) {
     document.getElementById('briefingTitle').textContent = 'Your Game Plan';
-    document.getElementById('briefingContent').innerHTML = '<div class="empty-state"><p>Welcome to your command center! Once traffic starts flowing, you\'ll see your game plan here.</p></div>';
+    document.getElementById('briefingContent').innerHTML = '<div class="empty-state"><p>Your game plan will appear once traffic data is available.</p></div>';
     document.getElementById('briefingBadge').style.display = 'none';
     return;
   }
@@ -1709,7 +1707,7 @@ function renderBriefing(data) {
         '</div>';
     });
   } else {
-    html += '<div class="empty-state"><p>Action items will appear once we analyze your data.</p></div>';
+    html += '<div class="empty-state"><p>Action items loading.</p></div>';
   }
 
   html += '</div></div>';
@@ -1776,7 +1774,7 @@ function renderLinks(data) {
   var el = document.getElementById('topLinks');
   var links = data.clickList;
   if (!links || !links.length) {
-    el.innerHTML = '<div class="empty-state"><p>Link click tracking will appear as visitors interact with your page.</p></div>';
+    el.innerHTML = '<div class="empty-state"><p>Link clicks will appear here.</p></div>';
     return;
   }
   var visible = links.slice(0, 3);
@@ -1814,7 +1812,7 @@ function renderBrandCodes(data) {
   });
 
   if (!codes.length) {
-    el.innerHTML = '<div class="empty-state"><p>Brand code usage will appear here.</p></div>';
+    el.innerHTML = '<div class="empty-state"><p>Code usage will appear here.</p></div>';
     return;
   }
 
@@ -1831,7 +1829,7 @@ function renderPulse(data) {
   var el = document.getElementById('pulseItems');
   var pulses = data.nichePulse;
   if (!pulses || !pulses.length) {
-    el.innerHTML = '<div class="empty-state"><p>Trend insights will generate once we have a week of data.</p></div>';
+    el.innerHTML = '<div class="empty-state"><p>Trends will appear after one week of data.</p></div>';
     return;
   }
   function pulseCard(p) {
@@ -1865,7 +1863,7 @@ function renderProactiveInsight(data) {
     body.innerHTML = `
       <div class="chat-msg">
         <div class="chat-bubble">
-          Hey! I'm your AI advisor. I have access to your traffic data, brand codes, and niche trends. Ask me anything \u2014 content ideas, strategy, captions, or analytics breakdowns.
+          Hey! Ask me anything \u2014 content ideas, strategy, captions, or analytics.
         </div>
       </div>
       <div class="chat-time">${formatTime(new Date())} \u00b7 Greeting</div>
@@ -1983,12 +1981,12 @@ function renderSmartBanner(data) {
 function renderEmptyStates() {
   document.getElementById('statsGrid').innerHTML = '<div class="card stat-tile" style="grid-column:1/-1"><div class="empty-state"><p>No traffic data yet.</p></div></div>';
   document.getElementById('briefingTitle').textContent = 'Your Game Plan';
-  document.getElementById('briefingContent').innerHTML = '<div class="empty-state"><p>Welcome to your command center! Once traffic starts flowing, you\'ll see your game plan here.</p></div>';
+  document.getElementById('briefingContent').innerHTML = '<div class="empty-state"><p>Your game plan will appear once traffic data is available.</p></div>';
   document.getElementById('briefingBadge').style.display = 'none';
   renderCalendar({});
-  document.getElementById('topLinks').innerHTML = '<div class="empty-state"><p>Link click tracking will appear as visitors interact with your page.</p></div>';
-  document.getElementById('brandCodes').innerHTML = '<div class="empty-state"><p>Brand code usage will appear here.</p></div>';
-  document.getElementById('pulseItems').innerHTML = '<div class="empty-state"><p>Trend insights will generate once we have a week of data.</p></div>';
+  document.getElementById('topLinks').innerHTML = '<div class="empty-state"><p>Link clicks will appear here.</p></div>';
+  document.getElementById('brandCodes').innerHTML = '<div class="empty-state"><p>Code usage will appear here.</p></div>';
+  document.getElementById('pulseItems').innerHTML = '<div class="empty-state"><p>Trends will appear after one week of data.</p></div>';
 }
 
 /* ═══════════════════════════════════════════════════
@@ -2145,7 +2143,7 @@ async function disconnectYouTube() {
       document.getElementById('ytData').innerHTML = '';
       document.getElementById('ytStatus').textContent = 'Not connected';
       document.getElementById('ytCard').classList.remove('connected');
-      document.getElementById('socialHeader').textContent = 'Connect your platforms to unlock AI-powered strategy across all your channels';
+      document.getElementById('socialHeader').textContent = 'Connect more platforms for full cross-channel insights';
     }
   } catch (e) {
     console.error('Disconnect failed:', e);
@@ -2165,11 +2163,11 @@ function updateSocialHeader() {
   if (document.getElementById('tiktokStatus').textContent.startsWith('Connected')) connected.push('TikTok');
   var header = document.getElementById('socialHeader');
   if (connected.length === 0) {
-    header.textContent = 'Connect your platforms to unlock AI-powered strategy across all your channels';
+    header.textContent = 'Connect your platforms for cross-channel strategy';
   } else if (connected.length === 1) {
-    header.textContent = connected[0] + ' connected — Instagram coming soon';
+    header.textContent = connected[0] + ' connected';
   } else {
-    header.textContent = connected.join(' + ') + ' connected — your AI advisor analyzes cross-platform performance';
+    header.textContent = connected.join(' + ') + ' connected';
   }
 }
 

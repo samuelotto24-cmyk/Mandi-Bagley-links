@@ -817,6 +817,20 @@ const FONT_MAP = {
   .cal-notes::placeholder { color: var(--text-muted); }
   .cal-notes:focus { border-color: var(--accent-border); }
 
+  .cal-nav-btn {
+    width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--border);
+    background: transparent; color: var(--text-muted); font-size: 14px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .cal-nav-btn:hover { border-color: var(--accent-border); color: var(--text); }
+  .cal-nav-label { font-size: 11px; color: var(--text-muted); font-weight: 500; min-width: 100px; text-align: center; }
+  .cal-nav-today {
+    font-family: var(--sans); font-size: 10px; font-weight: 600; padding: 5px 12px;
+    border-radius: 50px; border: 1px solid var(--border); background: transparent;
+    color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+  }
+  .cal-nav-today:hover { border-color: var(--accent-border); color: var(--text); }
   .cal-close-btn {
     position: absolute; top: 8px; right: 8px; width: 24px; height: 24px;
     border-radius: 50%; border: 1px solid var(--border); background: rgba(0,0,0,0.5);
@@ -1705,8 +1719,8 @@ const FONT_MAP = {
           <div id="greetingDate" style="display:none"></div>
         </div>
         <div class="hub-nav-pills">
-          <a class="hub-nav-pill" id="navSite" href="#" target="_blank">View Site</a>
-          <a class="hub-nav-pill" href="/dashboard" target="_blank">Analytics</a>
+          <a class="hub-nav-pill hub-nav-glow" id="navSite" href="#" target="_blank">&#127760; View My Site</a>
+          <a class="hub-nav-pill hub-nav-glow" href="/dashboard" target="_blank">&#128202; Full Analytics Dashboard</a>
           <button class="hub-nav-pill hub-nav-glow" onclick="openModal('message')">&#9993;&#65039; Message Sam</button>
           <button class="hub-nav-pill hub-nav-glow" onclick="openModal('update')">&#128260; Request Update</button>
         </div>
@@ -1763,6 +1777,12 @@ const FONT_MAP = {
       <div class="bento-card-header">
         <span class="bento-card-icon">&#128197;</span>
         <span class="bento-card-title">Weekly Planner</span>
+        <div class="cal-nav" style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <button class="cal-nav-btn" onclick="shiftCalendarWeek(-1)" title="Previous week">&larr;</button>
+          <span class="cal-nav-label" id="calWeekLabel"></span>
+          <button class="cal-nav-btn" onclick="shiftCalendarWeek(1)" title="Next week">&rarr;</button>
+          <button class="cal-nav-today" onclick="shiftCalendarWeek(0)" title="Go to this week">Today</button>
+        </div>
       </div>
       <div class="calendar-strip" id="calendarStrip"></div>
     </div>
@@ -2537,6 +2557,17 @@ var calendarSuggestions = {
   rest: [],
 };
 
+var calWeekOffset = 0; // 0 = this week, -1 = last week, +1 = next week
+
+function shiftCalendarWeek(dir) {
+  if (dir === 0) {
+    calWeekOffset = 0;
+  } else {
+    calWeekOffset += dir;
+  }
+  renderCalendar(window.lastBriefing || {});
+}
+
 function getCalendarNotes() {
   try { return JSON.parse(localStorage.getItem('calendarNotes') || '{}'); } catch { return {}; }
 }
@@ -2551,13 +2582,24 @@ function renderCalendar(data) {
   const cal = data.calendar;
   const saved = getCalendarNotes();
 
-  // Build 7 days (Mon-Sun) whether we have AI data or not
+  // Build 7 days (Mon-Sun) with week offset
   const dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   const today = new Date();
   const todayStr = today.toISOString().slice(0, 10);
   const dow = today.getDay();
   const monday = new Date(today);
-  monday.setDate(today.getDate() - ((dow + 6) % 7));
+  monday.setDate(today.getDate() - ((dow + 6) % 7) + (calWeekOffset * 7));
+
+  // Update week label
+  var sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  var labelEl = document.getElementById('calWeekLabel');
+  if (labelEl) {
+    var fmt = function(d) { return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); };
+    var label = fmt(monday) + ' – ' + fmt(sunday);
+    if (calWeekOffset === 0) label += ' (this week)';
+    labelEl.textContent = label;
+  }
 
   var html = '';
   for (var i = 0; i < 7; i++) {

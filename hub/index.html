@@ -722,6 +722,26 @@ const FONT_MAP = {
     transition: border-color 0.2s, color 0.2s; white-space: nowrap;
   }
   .hub-nav-pill:hover { border-color: var(--accent-border); color: var(--text); }
+
+  /* ── Contact glow buttons ── */
+  .hub-nav-glow {
+    font-size: 13px; font-weight: 600; padding: 9px 20px;
+    color: var(--text); background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow: 0 0 12px rgba(255,255,255,0.06), inset 0 0 12px rgba(255,255,255,0.03);
+    animation: contactPulse 3s ease-in-out infinite;
+  }
+  .hub-nav-glow:hover {
+    color: #fff; background: rgba(255,255,255,0.14);
+    border-color: rgba(255,255,255,0.30);
+    box-shadow: 0 0 24px rgba(255,255,255,0.12), inset 0 0 16px rgba(255,255,255,0.05);
+    animation: none;
+  }
+  @keyframes contactPulse {
+    0%, 100% { box-shadow: 0 0 12px rgba(255,255,255,0.06), inset 0 0 12px rgba(255,255,255,0.03); }
+    50% { box-shadow: 0 0 20px rgba(255,255,255,0.12), inset 0 0 16px rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.25); }
+  }
+
   .ai-intro { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 14px; line-height: 1.6; font-style: italic; }
   .ai-intro strong { color: var(--text); font-style: normal; }
 
@@ -1595,8 +1615,8 @@ const FONT_MAP = {
         <div class="hub-nav-pills">
           <a class="hub-nav-pill" id="navSite" href="#" target="_blank">View Site</a>
           <a class="hub-nav-pill" href="/dashboard" target="_blank">Analytics</a>
-          <button class="hub-nav-pill" onclick="openModal('message')">Message Sam</button>
-          <button class="hub-nav-pill" onclick="openModal('update')">Request Update</button>
+          <button class="hub-nav-pill hub-nav-glow" onclick="openModal('message')">&#9993;&#65039; Message Sam</button>
+          <button class="hub-nav-pill hub-nav-glow" onclick="openModal('update')">&#128260; Request Update</button>
         </div>
       </div>
       <div class="ai-intro" id="aiIntro"><span class="typing-cursor">|</span></div>

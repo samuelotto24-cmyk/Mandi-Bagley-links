@@ -1042,6 +1042,115 @@ const FONT_MAP = {
   .yt-stats-grid { grid-template-columns: 1fr; }
   .yt-demo-row { grid-template-columns: 1fr; }
 }
+
+/* ══════════════════════════════════════════════════
+   MOBILE CONDENSING — dramatically reduce scroll
+   Desktop completely untouched.
+   ══════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  /* ── Global: tighter spacing ── */
+  .hub-inner { padding: 16px 12px 80px !important; }
+  .divider { margin: 12px 0 !important; }
+  .section-label { font-size: 8px !important; letter-spacing: 0.18em; margin-bottom: 6px !important; }
+  .card { border-radius: 12px; }
+
+  /* ── Greeting: compact ── */
+  .greeting-row { gap: 8px !important; }
+  .greeting h1 { font-size: 28px !important; }
+  .greeting-label { font-size: 7px !important; margin-bottom: 6px !important; }
+  .greeting-date { font-size: 8px !important; }
+  .greeting-nav { font-size: 10px !important; padding: 6px 10px !important; }
+
+  /* ── Health bar: smaller ── */
+  .health-bar { margin: 6px 0 10px !important; }
+
+  /* ── Stats: compact tiles ── */
+  .stats-grid { gap: 6px !important; }
+  .stat-tile { padding: 10px 8px !important; }
+  .stat-value { font-size: 20px !important; }
+  .stat-label { font-size: 7px !important; margin-top: 2px !important; }
+  .stat-trend { font-size: 8px !important; }
+
+  /* ── Goal card: tighter ── */
+  .goal-card { padding: 10px 12px !important; }
+  .goal-current { font-size: 22px !important; }
+  .goal-target { font-size: 10px !important; }
+  .goal-title { font-size: 8px !important; }
+  .goal-progress { height: 4px !important; }
+
+  /* ── Briefing / Game Plan: condense ── */
+  .briefing-card { padding: 12px !important; }
+  .briefing-title { font-size: 15px !important; }
+  .briefing-text { font-size: 11px !important; line-height: 1.5 !important; }
+  .action-item { padding: 10px !important; margin-bottom: 6px !important; }
+  .action-headline { font-size: 13px !important; }
+  .action-data { font-size: 10px !important; }
+  .action-caption { font-size: 11px !important; }
+  .metric-pills { gap: 4px !important; margin-top: 6px !important; }
+  .metric-pill { font-size: 9px !important; padding: 3px 6px !important; }
+  .action-tag { font-size: 6px !important; }
+
+  /* ── Calendar: smaller day tiles ── */
+  .cal-day { min-width: 66px !important; padding: 8px 6px !important; }
+  .cal-day-name { font-size: 7px !important; }
+  .cal-day-num { font-size: 14px !important; margin-bottom: 2px !important; }
+  .cal-type { font-size: 6px !important; padding: 2px 4px !important; }
+  .cal-time { font-size: 7px !important; }
+  .cal-idea { font-size: 7px !important; }
+  .calendar-strip { min-height: 90px !important; }
+
+  /* ── Social Analytics: compact cards ── */
+  .social-platform-card { padding: 12px !important; }
+  .social-platform-icon { font-size: 20px !important; }
+  .social-platform-name { font-size: 13px !important; }
+  .social-platform-status { font-size: 10px !important; }
+  .social-connect-btn { font-size: 10px !important; padding: 6px 12px !important; }
+
+  /* ── Links + Codes: tighter ── */
+  .list-item { padding: 8px 10px !important; margin-bottom: 4px !important; font-size: 11px !important; }
+  .list-count { font-size: 11px !important; }
+  .code-name { font-size: 11px !important; }
+  .code-text { font-size: 8px !important; }
+  .code-uses { font-size: 8px !important; }
+
+  /* ── Niche Pulse: compact ── */
+  .pulse-item { padding: 8px 10px !important; gap: 6px !important; }
+  .pulse-icon { font-size: 13px !important; }
+  .pulse-text { font-size: 10px !important; }
+  .pulse-meta { font-size: 7px !important; }
+
+  /* ── Referral: compact ── */
+  .referral-card { padding: 16px !important; gap: 12px !important; }
+  .referral-code-label { font-size: 8px !important; }
+  .referral-code-value { font-size: 14px !important; }
+  .referral-stat-value { font-size: 20px !important; }
+  .referral-stat-label { font-size: 8px !important; }
+
+  /* ── Chat: already has sticky, tighten section ── */
+  .chat-header { padding: 10px 12px !important; }
+  .chat-icon-wrap { width: 30px !important; height: 30px !important; font-size: 15px !important; }
+  .chat-title { font-size: 14px !important; }
+  .chat-subtitle { font-size: 9px !important; }
+  .chat-body { padding: 10px 12px !important; min-height: 120px !important; }
+  .chat-bubble { font-size: 12px !important; padding: 9px 12px !important; }
+  .chat-prompts { padding: 2px 12px 8px !important; gap: 4px !important; }
+  .chat-prompt { font-size: 9px !important; padding: 5px 10px !important; }
+
+  /* ── FAB bar: tighter ── */
+  .fab-bar { bottom: 52px !important; }
+  .fab-btn { font-size: 9px !important; padding: 5px 10px !important; }
+}
+
+/* ── Extra small phones ── */
+@media (max-width: 380px) {
+  .hub-inner { padding: 14px 8px 75px !important; }
+  .greeting h1 { font-size: 24px !important; }
+  .stat-value { font-size: 18px !important; }
+  .briefing-title { font-size: 14px !important; }
+  .action-headline { font-size: 12px !important; }
+  .cal-day { min-width: 58px !important; }
+}
 </style>
 </head>
 

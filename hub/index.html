@@ -779,6 +779,49 @@ const FONT_MAP = {
   .bento-card .cal-time { font-size: 7px; margin-top: 2px; }
   .bento-card .cal-idea { display: none; }
 
+  /* ── Expandable Calendar Day ── */
+  .cal-day { cursor: pointer; position: relative; }
+  .cal-day.expanded {
+    grid-column: span 3; text-align: left; padding: 16px;
+    border-color: var(--accent-border); background: var(--surface-elevated);
+  }
+  .cal-day-summary { display: flex; align-items: center; gap: 6px; }
+  .cal-day.expanded .cal-day-summary { margin-bottom: 12px; }
+  .cal-day:not(.expanded) .cal-expand-body { display: none; }
+  .cal-day.expanded .cal-type { display: none; }
+  .cal-day.expanded .cal-time { display: none; }
+
+  .cal-expand-body { }
+  .cal-type-pills { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+  .cal-type-pill {
+    font-family: var(--sans); font-size: 10px; font-weight: 600; padding: 5px 10px;
+    border-radius: 50px; border: 1px solid var(--border); background: transparent;
+    color: var(--text-muted); cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .cal-type-pill:hover { border-color: var(--accent-border); color: var(--text); }
+  .cal-type-pill.selected { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 700; }
+
+  .cal-suggestions { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+  .cal-suggestion {
+    font-family: var(--sans); font-size: 10px; padding: 4px 10px;
+    border-radius: 50px; border: 1px solid var(--border); background: rgba(255,255,255,0.03);
+    color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+  }
+  .cal-suggestion:hover { border-color: var(--accent-border); color: var(--text); background: rgba(255,255,255,0.06); }
+
+  .cal-notes {
+    width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px;
+    background: rgba(255,255,255,0.02); color: var(--text); font-family: var(--sans);
+    font-size: 12px; outline: none; resize: none; min-height: 50px;
+  }
+  .cal-notes::placeholder { color: var(--text-muted); }
+  .cal-notes:focus { border-color: var(--accent-border); }
+
+  .cal-day-saved-indicator {
+    width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
+    position: absolute; top: 6px; right: 6px;
+  }
+
   /* Compact chat in bento */
   .bento-card .chat-section { border-radius: 12px; }
   .bento-card .chat-glow, .bento-card .chat-outer-glow { display: none; }
@@ -1666,11 +1709,11 @@ const FONT_MAP = {
       <div id="goalCard" style="display:none"></div>
     </div>
 
-    <!-- ROW 2: Content Calendar (span-12) -->
+    <!-- ROW 2: Weekly Planner (span-12) -->
     <div class="bento-card span-12" data-order="3">
       <div class="bento-card-header">
         <span class="bento-card-icon">&#128197;</span>
-        <span class="bento-card-title">Content Calendar</span>
+        <span class="bento-card-title">Weekly Planner</span>
       </div>
       <div class="calendar-strip" id="calendarStrip"></div>
     </div>
@@ -2405,39 +2448,148 @@ function renderBriefing(data) {
 }
 
 /* ── Render Calendar ── */
+var calendarSuggestions = {
+  reel: ['Workout routine', 'Day in my life', 'Recipe walkthrough', 'Before & after', 'Get ready with me'],
+  story: ['Q&A session', 'Behind the scenes', 'Poll / this or that', 'Daily check-in', 'Product review'],
+  tiktok: ['Trending sound + niche spin', 'POV content', 'Quick tip / hack', 'Stitch or duet', 'Transformation'],
+  youtube: ['Full tutorial', 'Vlog', 'Review / comparison', 'Day of eating', 'Routine breakdown'],
+  post: ['Carousel tips', 'Motivational quote', 'Client results', 'Affiliate spotlight', 'Personal story'],
+  rest: [],
+};
+
+function getCalendarNotes() {
+  try { return JSON.parse(localStorage.getItem('calendarNotes') || '{}'); } catch { return {}; }
+}
+function saveCalendarNote(dateKey, type, notes) {
+  var all = getCalendarNotes();
+  all[dateKey] = { type: type, notes: notes };
+  localStorage.setItem('calendarNotes', JSON.stringify(all));
+}
+
 function renderCalendar(data) {
   const strip = document.getElementById('calendarStrip');
   const cal = data.calendar;
+  const saved = getCalendarNotes();
 
-  if (!cal || !cal.length) {
-    // Empty state: 7 blank days
-    const dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    const today = new Date();
-    const dow = today.getDay();
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - ((dow + 6) % 7));
-    strip.innerHTML = dayNames.map((name, i) => {
-      const d = new Date(monday);
-      d.setDate(monday.getDate() + i);
-      const isToday = d.toDateString() === today.toDateString();
-      return `<div class="cal-day${isToday ? ' today' : ''}"><div class="cal-day-name">${name}</div><div class="cal-day-num">${d.getDate()}</div><span class="cal-type type-rest">&mdash;</span><div class="cal-time">&mdash;</div><div class="cal-idea">&mdash;</div></div>`;
-    }).join('');
-    return;
+  // Build 7 days (Mon-Sun) whether we have AI data or not
+  const dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+  const dow = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - ((dow + 6) % 7));
+
+  var html = '';
+  for (var i = 0; i < 7; i++) {
+    var d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    var dateStr = d.toISOString().slice(0, 10);
+    var isToday = dateStr === todayStr;
+    var dayName = dayNames[i];
+    var dateNum = d.getDate();
+
+    // AI suggestion for this day (if available)
+    var aiDay = cal && cal[i] ? cal[i] : null;
+    var aiType = aiDay ? (aiDay.type || '').toLowerCase() : '';
+    var aiIdea = aiDay ? (aiDay.idea || '') : '';
+    var aiTime = aiDay ? (aiDay.time || '') : '';
+
+    // Saved note for this day
+    var note = saved[dateStr] || null;
+    var savedType = note ? note.type : aiType;
+    var savedNotes = note ? note.notes : '';
+    var hasSaved = note && (note.notes || note.type);
+
+    var typeClass = savedType ? 'type-' + savedType : 'type-rest';
+    var typeLabel = savedType || (aiType || '\u2014');
+
+    html += '<div class="cal-day' + (isToday ? ' today' : '') + '" data-date="' + dateStr + '" onclick="toggleCalDay(this,event)">';
+    if (hasSaved) html += '<div class="cal-day-saved-indicator"></div>';
+    html += '<div class="cal-day-summary">';
+    html += '<div><div class="cal-day-name">' + dayName + '</div>';
+    html += '<div class="cal-day-num">' + dateNum + '</div></div>';
+    html += '</div>';
+    html += '<span class="cal-type ' + typeClass + '">' + typeLabel + '</span>';
+    if (aiTime) html += '<div class="cal-time">' + aiTime + '</div>';
+
+    // Expandable body
+    html += '<div class="cal-expand-body">';
+    html += '<div class="cal-type-pills" data-date="' + dateStr + '">';
+    var types = [
+      { key: 'reel', icon: '&#128249;', label: 'Reel' },
+      { key: 'story', icon: '&#128248;', label: 'Story' },
+      { key: 'tiktok', icon: '&#127925;', label: 'TikTok' },
+      { key: 'youtube', icon: '&#9654;&#65039;', label: 'YouTube' },
+      { key: 'post', icon: '&#128221;', label: 'Post' },
+      { key: 'rest', icon: '&#128564;', label: 'Rest' },
+    ];
+    types.forEach(function(t) {
+      var sel = savedType === t.key ? ' selected' : '';
+      html += '<button class="cal-type-pill' + sel + '" data-type="' + t.key + '" onclick="selectCalType(this,\'' + dateStr + '\',\'' + t.key + '\',event)">' + t.icon + ' ' + t.label + '</button>';
+    });
+    html += '</div>';
+
+    // Suggestions area
+    html += '<div class="cal-suggestions" id="calSuggestions_' + dateStr + '">';
+    var sugType = savedType || aiType || 'reel';
+    var sugs = calendarSuggestions[sugType] || [];
+    if (aiIdea && sugs.indexOf(aiIdea) === -1) sugs = [aiIdea].concat(sugs.slice(0, 3));
+    sugs.slice(0, 4).forEach(function(s) {
+      html += '<button class="cal-suggestion" onclick="useCalSuggestion(this,\'' + dateStr + '\',event)">' + s + '</button>';
+    });
+    html += '</div>';
+
+    // Notes textarea
+    html += '<textarea class="cal-notes" id="calNotes_' + dateStr + '" placeholder="What do you want to create?" oninput="saveCalNote(\'' + dateStr + '\')" onclick="event.stopPropagation()">' + (savedNotes || '') + '</textarea>';
+    html += '</div>'; // end expand body
+
+    html += '</div>'; // end cal-day
   }
+  strip.innerHTML = html;
+}
 
-  var todayStr = new Date().toISOString().slice(0, 10);
-  strip.innerHTML = cal.map(function(day) {
-    var isToday = day.date === todayStr;
-    var typeClass = 'type-' + (day.type || 'rest').toLowerCase();
-    var dateNum = day.date ? new Date(day.date + 'T12:00:00').getDate() : '';
-    return '<div class="cal-day' + (isToday ? ' today' : '') + '">' +
-      '<div class="cal-day-name">' + (day.day || '') + '</div>' +
-      '<div class="cal-day-num">' + dateNum + '</div>' +
-      '<span class="cal-type ' + typeClass + '">' + (day.type || '\u2014') + '</span>' +
-      '<div class="cal-time">' + (day.time || '\u2014') + '</div>' +
-      '<div class="cal-idea">' + (day.idea || '\u2014') + '</div>' +
-      '</div>';
+function toggleCalDay(el, e) {
+  if (e.target.closest('.cal-type-pill') || e.target.closest('.cal-suggestion') || e.target.closest('.cal-notes')) return;
+  var wasExpanded = el.classList.contains('expanded');
+  // Collapse all
+  document.querySelectorAll('.cal-day.expanded').forEach(function(d) { d.classList.remove('expanded'); });
+  // Expand clicked (if it wasn't already open)
+  if (!wasExpanded) el.classList.add('expanded');
+}
+
+function selectCalType(btn, dateStr, type, e) {
+  e.stopPropagation();
+  var pills = btn.parentElement;
+  pills.querySelectorAll('.cal-type-pill').forEach(function(p) { p.classList.remove('selected'); });
+  btn.classList.add('selected');
+
+  // Update suggestions
+  var sugEl = document.getElementById('calSuggestions_' + dateStr);
+  var sugs = calendarSuggestions[type] || [];
+  sugEl.innerHTML = sugs.slice(0, 4).map(function(s) {
+    return '<button class="cal-suggestion" onclick="useCalSuggestion(this,\'' + dateStr + '\',event)">' + s + '</button>';
   }).join('');
+
+  // Save
+  var notes = document.getElementById('calNotes_' + dateStr);
+  saveCalendarNote(dateStr, type, notes ? notes.value : '');
+}
+
+function useCalSuggestion(btn, dateStr, e) {
+  e.stopPropagation();
+  var notes = document.getElementById('calNotes_' + dateStr);
+  if (notes) {
+    notes.value = (notes.value ? notes.value + '\n' : '') + btn.textContent;
+    saveCalNote(dateStr);
+  }
+}
+
+function saveCalNote(dateStr) {
+  var notes = document.getElementById('calNotes_' + dateStr);
+  var pills = document.querySelector('.cal-type-pills[data-date="' + dateStr + '"]');
+  var selectedPill = pills ? pills.querySelector('.cal-type-pill.selected') : null;
+  var type = selectedPill ? selectedPill.getAttribute('data-type') : '';
+  saveCalendarNote(dateStr, type, notes ? notes.value : '');
 }
 
 /* ── Friendly link name ── */

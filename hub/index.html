@@ -2059,7 +2059,8 @@ const FONT_MAP = {
 
 <!-- Connect Platforms Reminder -->
 <div class="connect-reminder-overlay" id="connectReminder" style="display:none">
-  <div class="connect-reminder-card">
+  <div class="connect-reminder-card" style="position:relative">
+    <button class="modal-close" onclick="closeConnectReminder()" style="position:absolute;top:16px;right:16px">&times;</button>
     <div class="connect-reminder-icon">&#128279;</div>
     <h3 class="connect-reminder-title">Connect your platforms</h3>
     <p class="connect-reminder-text">Link your YouTube, Instagram, and TikTok for a full analytics debrief — cross-platform followers, views, content performance, and AI strategy powered by your real data.</p>

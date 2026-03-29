@@ -260,34 +260,44 @@
     .nav-newsletter-btn {
       background: var(--rose) !important;
       color: #fff !important;
-      padding: 7px 16px !important;
+      padding: 5px 12px !important;
       border-radius: 50px;
       font-weight: 600 !important;
-      font-size: 12px !important;
-      letter-spacing: 0.04em !important;
+      font-size: 11px !important;
+      letter-spacing: 0.03em !important;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       transition: box-shadow var(--ease), transform var(--ease) !important;
       text-decoration: none;
     }
     .nav-newsletter-btn:hover {
-      box-shadow: 0 0 20px rgba(232,82,122,0.4);
+      box-shadow: 0 0 14px rgba(232,82,122,0.35);
       transform: translateY(-1px);
       color: #fff !important;
     }
-    .nav-newsletter-btn i { font-size: 11px; }
+    .nav-newsletter-btn i { font-size: 10px; }
 
-    .nav-drawer-newsletter {
-      background: var(--rose) !important;
-      color: #fff !important;
-      text-align: center;
+    /* Mobile: show newsletter next to logo, hide from drawer */
+    .nav-mobile-newsletter {
+      display: none;
+      align-items: center;
+      gap: 5px;
+      background: var(--rose);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 50px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
       font-weight: 600;
-      border-radius: 8px;
-      margin: 8px 16px;
-      padding: 14px !important;
+      letter-spacing: 0.03em;
+      text-decoration: none;
+      margin-left: auto;
+      margin-right: 12px;
     }
-    .nav-drawer-newsletter i { margin-right: 6px; }
+    .nav-mobile-newsletter i { font-size: 9px; }
+
+    .nav-drawer-newsletter { display: none; }
 
     /* Hamburger button */
     .nav-toggle {
@@ -1744,9 +1754,10 @@
        RESPONSIVE — mobile breakpoint
        ============================================================ */
     @media (max-width: 660px) {
-      /* Hide desktop nav links, show hamburger */
+      /* Hide desktop nav links, show hamburger + mobile newsletter */
       .nav-links   { display: none; }
       .nav-toggle  { display: flex; }
+      .nav-mobile-newsletter { display: inline-flex; }
 
       /* About: stack vertically, photo on top */
       .about-grid {
@@ -2001,28 +2012,28 @@
     .hero-newsletter-cta {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      margin-top: 20px;
-      padding: 12px 22px;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 9px 18px;
       background: linear-gradient(135deg, var(--rose), #c73a5a);
       color: #fff;
       border-radius: 50px;
       font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       letter-spacing: 0.03em;
       text-decoration: none;
       transition: box-shadow var(--ease), transform var(--ease);
-      box-shadow: 0 4px 20px rgba(232,82,122,0.3);
+      box-shadow: 0 3px 14px rgba(232,82,122,0.25);
     }
     .hero-newsletter-cta:hover {
-      box-shadow: 0 6px 30px rgba(232,82,122,0.5);
-      transform: translateY(-2px);
+      box-shadow: 0 5px 22px rgba(232,82,122,0.4);
+      transform: translateY(-1px);
     }
-    .hero-newsletter-cta i:first-child { font-size: 14px; }
-    .hero-newsletter-cta i:last-child { font-size: 11px; opacity: 0.7; }
+    .hero-newsletter-cta i:first-child { font-size: 12px; }
+    .hero-newsletter-cta i:last-child { font-size: 10px; opacity: 0.7; }
     @media (max-width: 600px) {
-      .hero-newsletter-cta { font-size: 12px; padding: 10px 18px; gap: 8px; }
+      .hero-newsletter-cta { font-size: 11px; padding: 8px 14px; gap: 6px; }
     }
 
     /* ── Program card 3D tilt ────────────────────────────────────── */
@@ -2166,6 +2177,7 @@
     <div class="nav-inner">
 
       <a href="#hero" class="nav-logo">Mandi Bagley</a>
+      <a href="#newsletter" class="nav-mobile-newsletter"><i class="fa-solid fa-envelope"></i> Newsletter</a>
 
       <!-- Desktop links -->
       <ul class="nav-links" role="list">

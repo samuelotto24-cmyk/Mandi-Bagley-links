@@ -408,12 +408,16 @@ const FONT_MAP = {
   .metric-val { font-weight: 700; color: var(--accent); }
   .metric-label { color: var(--text-muted); }
 
-  .action-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; background: var(--surface-elevated); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; transition: border-color 0.2s; }
+  .action-item { padding: 16px; background: var(--surface-elevated); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; transition: border-color 0.2s; }
   .action-item:hover { border-color: var(--accent-border); }
-  .action-priority { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 7px; }
-  .action-text { font-size: 13px; line-height: 1.6; color: rgba(245,235,230,0.85); flex: 1; }
-  .action-text strong { color: var(--text); font-weight: 600; }
-  .action-tag { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 50px; flex-shrink: 0; margin-top: 2px; }
+  .action-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .action-priority { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .action-headline { font-family: var(--serif); font-size: 16px; font-weight: 500; color: var(--text); flex: 1; }
+  .action-tag { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 50px; flex-shrink: 0; }
+  .action-data { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4; }
+  .action-caption { position: relative; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; padding-right: 60px; font-size: 13px; color: rgba(245,235,230,0.85); line-height: 1.5; font-style: italic; }
+  .action-caption-copy { position: absolute; top: 8px; right: 8px; background: var(--accent-pale); border: 1px solid var(--accent-border); border-radius: 6px; color: var(--accent); font-size: 10px; font-family: var(--sans); padding: 4px 10px; cursor: pointer; transition: background 0.2s; font-style: normal; }
+  .action-caption-copy:hover { background: var(--accent); color: var(--bg); }
   .tag-now { background: rgba(239,68,68,0.15); color: #f87171; }
   .tag-today { background: rgba(251,191,36,0.15); color: #fbbf24; }
   .tag-this-week { background: rgba(34,197,94,0.12); color: #4ade80; }
@@ -635,8 +639,11 @@ const FONT_MAP = {
     .briefing-text { font-size: 12px; line-height: 1.55; }
     .metric-pills { gap: 5px; margin-top: 10px; }
     .metric-pill { font-size: 10px; padding: 4px 8px; }
-    .action-item { padding: 10px 12px; gap: 8px; margin-bottom: 6px; }
-    .action-text { font-size: 11px; line-height: 1.5; }
+    .action-item { padding: 12px; margin-bottom: 8px; }
+    .action-headline { font-size: 14px; }
+    .action-data { font-size: 11px; }
+    .action-caption { font-size: 12px; padding-right: 14px; }
+    .action-caption-copy { position: static; display: block; margin-top: 8px; text-align: center; }
     .action-tag { font-size: 7px; padding: 2px 6px; }
     .flag-row { gap: 5px; }
     .flag-pill { font-size: 9px; padding: 3px 8px; }
@@ -732,7 +739,7 @@ const FONT_MAP = {
     .briefing-card { padding: 12px; }
     .briefing-title { font-size: 16px; }
     .briefing-text { font-size: 11px; }
-    .action-text { font-size: 10px; }
+    .action-headline { font-size: 13px; }
     .greeting-nav { font-size: 10px; padding: 6px 10px; }
     .fab-bar { bottom: 56px; }
     .fab-btn { font-size: 9px; padding: 6px 10px; }
@@ -1691,20 +1698,30 @@ function renderBriefing(data) {
 
   // Action items
   if (data.actionItems && data.actionItems.length) {
-    data.actionItems.forEach(function(a) {
+    data.actionItems.forEach(function(a, idx) {
       var pColors = { high: '#f87171', medium: '#fbbf24', low: '#4ade80' };
       var pColor = pColors[a.priority] || '#fbbf24';
       var tf = a.timeframe || 'this_week';
       var tagClass = tf === 'now' ? 'tag-now' : tf === 'today' ? 'tag-today' : 'tag-this-week';
-      var tagLabel = tf === 'now' ? 'Now' : tf === 'today' ? 'Today' : 'This week';
-      var text = '<strong>' + (a.action || '') + '</strong>';
-      if (a.reason) text += ' ' + a.reason;
-      if (a.suggestion) text += ' ' + a.suggestion;
-      html += '<div class="action-item">' +
-        '<div class="action-priority" style="background:' + pColor + ';box-shadow:0 0 6px ' + pColor + '66"></div>' +
-        '<div class="action-text">' + text + '</div>' +
-        '<span class="action-tag ' + tagClass + '">' + tagLabel + '</span>' +
-        '</div>';
+      var tagLabel = a.time ? (tf === 'now' ? 'Now' : tf === 'today' ? 'Today' : 'This week') + ' · ' + a.time : (tf === 'now' ? 'Now' : tf === 'today' ? 'Today' : 'This week');
+      // Use new fields if available, fall back to old format
+      var headline = a.headline || a.action || '';
+      var dataPoint = a.dataPoint || a.reason || '';
+      var caption = a.caption || a.suggestion || '';
+      var captionId = 'actionCaption' + idx;
+      html += '<div class="action-item">';
+      html += '<div class="action-header">';
+      html += '<div class="action-priority" style="background:' + pColor + ';box-shadow:0 0 6px ' + pColor + '66"></div>';
+      html += '<div class="action-headline">' + headline + '</div>';
+      html += '<span class="action-tag ' + tagClass + '">' + tagLabel + '</span>';
+      html += '</div>';
+      if (dataPoint) html += '<div class="action-data">' + dataPoint + '</div>';
+      if (caption) {
+        html += '<div class="action-caption" id="' + captionId + '">' + caption;
+        html += '<button class="action-caption-copy" onclick="copyActionCaption(\'' + captionId + '\',this)">Copy</button>';
+        html += '</div>';
+      }
+      html += '</div>';
     });
   } else {
     html += '<div class="empty-state"><p>Action items loading.</p></div>';
@@ -2538,6 +2555,17 @@ function appendMsg(role, text) {
   document.getElementById('chatBody').appendChild(el);
   document.getElementById('chatBody').scrollTop = document.getElementById('chatBody').scrollHeight;
   return el;
+}
+
+function copyActionCaption(id, btn) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  // Get text content without the "Copy" button text
+  var text = el.textContent.replace(/Copy$/, '').trim();
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+  });
 }
 
 function askPrompt(btn) {

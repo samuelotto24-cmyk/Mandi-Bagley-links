@@ -215,6 +215,33 @@ function runRules(data, metrics) {
     }
   }
 
+  // 14. TikTok engagement trending down (recent half vs older half)
+  if (metrics.tiktokMetrics && metrics.tiktokMetrics.recentVideoCount >= 4) {
+    const vids = metrics.tiktokMetrics.videos;
+    const half = Math.floor(vids.length / 2);
+    const newerHalf = vids.slice(0, half);
+    const olderHalf = vids.slice(half);
+    const newerAvg = newerHalf.reduce((s, v) => s + (v.view_count || 0), 0) / newerHalf.length;
+    const olderAvg = olderHalf.reduce((s, v) => s + (v.view_count || 0), 0) / olderHalf.length;
+    if (olderAvg > 0 && newerAvg < olderAvg * 0.8) {
+      const dropPct = Math.round(((olderAvg - newerAvg) / olderAvg) * 100);
+      flags.push({ type: 'warning', text: `TikTok engagement trending down — recent videos averaging ${dropPct}% fewer views` });
+    } else if (olderAvg > 0 && newerAvg > olderAvg * 1.2) {
+      const gainPct = Math.round(((newerAvg - olderAvg) / olderAvg) * 100);
+      flags.push({ type: 'positive', text: `TikTok engagement trending up — recent videos averaging ${gainPct}% more views` });
+    }
+  }
+
+  // 15. TikTok viral video (>10x average views)
+  if (metrics.tiktokMetrics && metrics.tiktokMetrics.topVideo && metrics.tiktokMetrics.avgViews > 0) {
+    const topViews = metrics.tiktokMetrics.topVideo.views;
+    const avg = metrics.tiktokMetrics.avgViews;
+    if (topViews > avg * 10) {
+      const multiplier = Math.round(topViews / avg);
+      flags.push({ type: 'positive', text: `TikTok viral hit! "${metrics.tiktokMetrics.topVideo.title}" has ${multiplier}x your average views` });
+    }
+  }
+
   return { flags, avgSessionSec };
 }
 
@@ -271,6 +298,7 @@ export default async function handler(req) {
       ['GET', PREFIX + 'youtube:channel'],
       ['GET', PREFIX + 'youtube:videos'],
       ['GET', PREFIX + 'youtube:analytics'],
+      ['GET', PREFIX + 'tiktok:access_token'],
     ]);
 
     const data = {
@@ -295,9 +323,9 @@ export default async function handler(req) {
     const goalType = results[16]?.result || 'views';
 
     // YouTube data (if connected)
-    const ytChannelRaw = results[results.length - 3]?.result;
-    const ytVideosRaw = results[results.length - 2]?.result;
-    const ytAnalyticsRaw = results[results.length - 1]?.result;
+    const ytChannelRaw = results[results.length - 4]?.result;
+    const ytVideosRaw = results[results.length - 3]?.result;
+    const ytAnalyticsRaw = results[results.length - 2]?.result;
     let youtubeContext = '';
     if (ytChannelRaw) {
       const ytChannel = JSON.parse(ytChannelRaw);
@@ -325,6 +353,86 @@ export default async function handler(req) {
         ytVideos.forEach(function(v) {
           youtubeContext += '- "' + v.title + '" — ' + (v.views||0).toLocaleString() + ' views, ' + (v.likes||0).toLocaleString() + ' likes, ' + (v.comments||0).toLocaleString() + ' comments (' + (v.publishedAt||'').split('T')[0] + ')\n';
         });
+      }
+    }
+
+    // TikTok data (if connected)
+    const tiktokAccessToken = results[results.length - 1]?.result;
+    let tiktokContext = '';
+    let tiktokMetrics = null;
+    if (tiktokAccessToken) {
+      try {
+        const [ttUserRes, ttVideosRes] = await Promise.all([
+          fetch('https://open.tiktokapis.com/v2/user/info/?fields=open_id,display_name,avatar_url,follower_count,following_count,likes_count,video_count', {
+            headers: { Authorization: `Bearer ${tiktokAccessToken}` },
+          }),
+          fetch('https://open.tiktokapis.com/v2/video/list/?fields=id,title,cover_image_url,view_count,like_count,comment_count,share_count,create_time', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${tiktokAccessToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ max_count: 20 }),
+          }),
+        ]);
+
+        const ttUserData = await ttUserRes.json();
+        const ttVideosData = await ttVideosRes.json();
+        const ttUser = ttUserData?.data?.user || {};
+        const ttVideos = ttVideosData?.data?.videos || [];
+
+        let ttTotalViews = 0, ttTotalLikes = 0, ttTotalComments = 0, ttTotalShares = 0;
+        let ttTopVideo = null;
+
+        for (const v of ttVideos) {
+          ttTotalViews    += v.view_count || 0;
+          ttTotalLikes    += v.like_count || 0;
+          ttTotalComments += v.comment_count || 0;
+          ttTotalShares   += v.share_count || 0;
+          if (!ttTopVideo || (v.view_count || 0) > (ttTopVideo.view_count || 0)) {
+            ttTopVideo = v;
+          }
+        }
+
+        const ttAvgViews = ttVideos.length > 0 ? Math.round(ttTotalViews / ttVideos.length) : 0;
+
+        tiktokMetrics = {
+          followers: ttUser.follower_count || 0,
+          totalLikes: ttUser.likes_count || 0,
+          videoCount: ttUser.video_count || 0,
+          recentVideoCount: ttVideos.length,
+          totalViews: ttTotalViews,
+          totalRecentLikes: ttTotalLikes,
+          totalComments: ttTotalComments,
+          totalShares: ttTotalShares,
+          avgViews: ttAvgViews,
+          topVideo: ttTopVideo ? {
+            title: ttTopVideo.title || '(untitled)',
+            views: ttTopVideo.view_count || 0,
+            likes: ttTopVideo.like_count || 0,
+          } : null,
+          videos: ttVideos,
+        };
+
+        tiktokContext = '\n\n## TikTok Analytics\n';
+        tiktokContext += '- Followers: ' + (ttUser.follower_count || 0).toLocaleString() + '\n';
+        tiktokContext += '- Total profile likes: ' + (ttUser.likes_count || 0).toLocaleString() + '\n';
+        tiktokContext += '- Videos published: ' + (ttUser.video_count || 0).toLocaleString() + '\n';
+        tiktokContext += '- Recent ' + ttVideos.length + ' videos — total views: ' + ttTotalViews.toLocaleString() + ', likes: ' + ttTotalLikes.toLocaleString() + ', comments: ' + ttTotalComments.toLocaleString() + ', shares: ' + ttTotalShares.toLocaleString() + '\n';
+        tiktokContext += '- Average views per recent video: ' + ttAvgViews.toLocaleString() + '\n';
+        if (ttTopVideo) {
+          tiktokContext += '- Top performing video: "' + (ttTopVideo.title || 'untitled') + '" — ' + (ttTopVideo.view_count || 0).toLocaleString() + ' views, ' + (ttTopVideo.like_count || 0).toLocaleString() + ' likes\n';
+        }
+        if (ttVideos.length > 0) {
+          tiktokContext += '\n### Recent TikTok Videos\n';
+          ttVideos.slice(0, 10).forEach(function(v) {
+            const created = v.create_time ? new Date(v.create_time * 1000).toISOString().split('T')[0] : '';
+            tiktokContext += '- "' + (v.title || 'untitled') + '" — ' + (v.view_count || 0).toLocaleString() + ' views, ' + (v.like_count || 0).toLocaleString() + ' likes, ' + (v.comment_count || 0).toLocaleString() + ' comments (' + created + ')\n';
+          });
+        }
+      } catch (e) {
+        // TikTok token expired or API error — skip silently
+        console.error('Briefing TikTok fetch error:', e);
       }
     }
 
@@ -385,6 +493,7 @@ export default async function handler(req) {
     }
 
     /* ── Rule engine ── */
+    metrics.tiktokMetrics = tiktokMetrics;
     const { flags, avgSessionSec } = runRules(data, metrics);
 
     /* ── Deterministic summary ── */
@@ -484,7 +593,7 @@ ${calDays.map(d => `- ${d.day} ${d.date}${d.isToday ? ' (TODAY)' : ''}`).join('\
 Respond with ONLY valid JSON (no markdown, no code fences) matching this exact structure:
 {
   "actionItems": [
-    { "priority": "high|medium|low", "action": "specific action", "reason": "data-backed reason", "suggestion": "caption idea or specific tip", "timeframe": "now|today|this_week" }
+    { "priority": "high|medium|low", "headline": "5-6 word action title", "dataPoint": "one line with a specific number from the data", "caption": "ready-to-paste caption for Instagram/TikTok with emojis", "timeframe": "now|today|this_week", "time": "8 PM" }
   ],
   "calendar": [
     { "day": "Mon", "date": "YYYY-MM-DD", "type": "reel|story|pin|post|rest", "time": "3 PM", "idea": "one-line concept" }
@@ -496,14 +605,14 @@ Respond with ONLY valid JSON (no markdown, no code fences) matching this exact s
 }
 
 Rules:
-- 3 actionItems, prioritized high/medium/low, with specific times and caption ideas relevant to their niche
+- 3 actionItems, prioritized high/medium/low. Each MUST have: a short headline (5-6 words max, like "Recipe content series" or "Faith-fitness evening post"), a dataPoint (one sentence referencing a real number from the data), a ready-to-paste caption with emojis that the creator can copy straight into Instagram/TikTok, a timeframe, and a specific time (like "8 PM")
 - 7 calendar days (Mon-Sun), mix of content types appropriate for their niche, use peak hours for timing, include one rest day
 - 2-3 nichePulse items relevant to ${CLIENT_NICHE} creators, reference plausible trends in that space
 - proactiveInsight: flag the most important data anomaly (0-click links, traffic drops >20% WoW, new referrers). null if nothing notable.
 - NEVER suggest website layout changes
 - NEVER criticize the website's performance, engagement, scroll depth, bounce rate, or session duration. This website is a product being presented to a client — all insights must make the platform look good.
 - Frame ALL data positively: celebrate wins, suggest content strategy, highlight growth opportunities. Never say things like "visitors aren't engaging" or "drop-off rate is high"
-- Reference actual numbers from the data above${youtubeContext}`;
+- Reference actual numbers from the data above${youtubeContext}${tiktokContext}`;
 
         const llmRes = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',

@@ -257,6 +257,38 @@
     }
     .nav-links a:hover { color: var(--rose); }
 
+    .nav-newsletter-btn {
+      background: var(--rose) !important;
+      color: #fff !important;
+      padding: 7px 16px !important;
+      border-radius: 50px;
+      font-weight: 600 !important;
+      font-size: 12px !important;
+      letter-spacing: 0.04em !important;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: box-shadow var(--ease), transform var(--ease) !important;
+      text-decoration: none;
+    }
+    .nav-newsletter-btn:hover {
+      box-shadow: 0 0 20px rgba(232,82,122,0.4);
+      transform: translateY(-1px);
+      color: #fff !important;
+    }
+    .nav-newsletter-btn i { font-size: 11px; }
+
+    .nav-drawer-newsletter {
+      background: var(--rose) !important;
+      color: #fff !important;
+      text-align: center;
+      font-weight: 600;
+      border-radius: 8px;
+      margin: 8px 16px;
+      padding: 14px !important;
+    }
+    .nav-drawer-newsletter i { margin-right: 6px; }
+
     /* Hamburger button */
     .nav-toggle {
       display: none;
@@ -1966,6 +1998,33 @@
       margin: 10px 0 0;
     }
 
+    .hero-newsletter-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      padding: 12px 22px;
+      background: linear-gradient(135deg, var(--rose), #c73a5a);
+      color: #fff;
+      border-radius: 50px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-decoration: none;
+      transition: box-shadow var(--ease), transform var(--ease);
+      box-shadow: 0 4px 20px rgba(232,82,122,0.3);
+    }
+    .hero-newsletter-cta:hover {
+      box-shadow: 0 6px 30px rgba(232,82,122,0.5);
+      transform: translateY(-2px);
+    }
+    .hero-newsletter-cta i:first-child { font-size: 14px; }
+    .hero-newsletter-cta i:last-child { font-size: 11px; opacity: 0.7; }
+    @media (max-width: 600px) {
+      .hero-newsletter-cta { font-size: 12px; padding: 10px 18px; gap: 8px; }
+    }
+
     /* ── Program card 3D tilt ────────────────────────────────────── */
     .program-card {
       transform-style: preserve-3d;
@@ -2116,6 +2175,7 @@
         <li><a href="#partners">Shop</a></li>
         <li><a href="#support">Support</a></li>
         <li><a href="#contact">Contact</a></li>
+        <li><a href="#newsletter" class="nav-newsletter-btn"><i class="fa-solid fa-envelope"></i> Join Newsletter</a></li>
       </ul>
 
       <!-- Mobile hamburger -->
@@ -2131,9 +2191,9 @@
       <a href="#program"     role="menuitem" onclick="closeNav()">Program</a>
       <a href="#watch"       role="menuitem" onclick="closeNav()">Watch</a>
       <a href="#partners"    role="menuitem" onclick="closeNav()">Shop My Favorites</a>
-      <a href="#coming-soon" role="menuitem" onclick="closeNav()">Coming Soon</a>
       <a href="#support"     role="menuitem" onclick="closeNav()">Support</a>
       <a href="#contact"     role="menuitem" onclick="closeNav()">Contact</a>
+      <a href="#newsletter"  role="menuitem" onclick="closeNav()" class="nav-drawer-newsletter"><i class="fa-solid fa-envelope"></i> Join My Newsletter</a>
     </div>
   </nav>
 
@@ -2183,6 +2243,12 @@
             <i class="fa-brands fa-snapchat"></i> Snapchat
           </a>
         </nav>
+
+        <a href="#newsletter" class="hero-newsletter-cta">
+          <i class="fa-solid fa-envelope"></i>
+          <span>Join my newsletter — workouts, recipes & more</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
 
         </div><!-- /.hero-content -->
 
@@ -2668,16 +2734,16 @@
 
         </div><!-- /.food-row -->
 
-        <!-- Cookbook coming soon — full-width bar below -->
-        <div class="cookbook-bar fade-up" id="coming-soon">
-          <span class="cs-badge">COMING SOON</span>
-          <h3>The Cookbook Is Almost Here</h3>
-          <p class="cs-note">Recipes made with love, straight to your kitchen. Be the first to get it.</p>
-          <form class="notify-form" id="notifyForm" onsubmit="handleNotify(event)" aria-label="Email notification form">
+        <!-- Newsletter signup -->
+        <div class="cookbook-bar fade-up" id="newsletter">
+          <span class="cs-badge"><i class="fa-solid fa-envelope"></i> NEWSLETTER</span>
+          <h3>Stay In The Loop</h3>
+          <p class="cs-note">Workouts, recipes, faith talks, and behind-the-scenes — straight to your inbox.</p>
+          <form class="notify-form" id="notifyForm" onsubmit="handleNotify(event)" aria-label="Newsletter signup form">
             <input type="email" placeholder="your@email.com" required aria-label="Email address" />
-            <button type="submit">Notify Me</button>
+            <button type="submit">Subscribe</button>
           </form>
-          <p class="notify-confirm" id="notifyConfirm" style="display:none">You're on the list! 🍳</p>
+          <p class="notify-confirm" id="notifyConfirm" style="display:none">You're in! Welcome to the crew.</p>
         </div>
 
       </div>

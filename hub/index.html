@@ -1745,12 +1745,7 @@ function renderScoreboard() {
 
   var totalFollowers = s.followers.tiktok + s.followers.youtube;
   var totalViews = s.views.website + s.views.tiktok + s.views.youtube;
-
-  // Followers breakdown text
-  var followerParts = [];
-  if (s.followers.tiktok) followerParts.push('TikTok ' + formatNum(s.followers.tiktok));
-  if (s.followers.youtube) followerParts.push('YT ' + formatNum(s.followers.youtube));
-  var followerSub = followerParts.length ? followerParts.join(' · ') : 'Connect platforms';
+  var hasSocial = s.followers.tiktok > 0 || s.followers.youtube > 0;
 
   // Views breakdown text
   var viewParts = [];
@@ -1762,11 +1757,23 @@ function renderScoreboard() {
   var wow = s.weekOverWeek || '';
   var viewTrend = wow ? '<span class="stat-trend" style="color:' + (wow.charAt(0) === '+' ? '#22c55e' : '#f87171') + '">' + wow + '</span>' : '';
 
-  grid.innerHTML =
-    '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + totalFollowers + '">0</span></div><div class="stat-label">Followers</div><div class="stat-sub">' + followerSub + '</div></div>' +
-    '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + totalViews + '">0</span> ' + viewTrend + '</div><div class="stat-label">Total Views</div><div class="stat-sub">' + viewSub + '</div></div>' +
-    '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + s.linkClicks + '">0</span></div><div class="stat-label">Link Clicks</div></div>' +
-    '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + s.codeRedemptions + '">0</span></div><div class="stat-label">Code Uses</div></div>';
+  var tiles = '';
+
+  // Only show Followers tile when social platforms are connected
+  if (hasSocial) {
+    var followerParts = [];
+    if (s.followers.tiktok) followerParts.push('TikTok ' + formatNum(s.followers.tiktok));
+    if (s.followers.youtube) followerParts.push('YT ' + formatNum(s.followers.youtube));
+    tiles += '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + totalFollowers + '">0</span></div><div class="stat-label">Followers</div><div class="stat-sub">' + followerParts.join(' · ') + '</div></div>';
+  }
+
+  tiles += '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + totalViews + '">0</span> ' + viewTrend + '</div><div class="stat-label">Total Views</div><div class="stat-sub">' + viewSub + '</div></div>';
+  tiles += '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + s.linkClicks + '">0</span></div><div class="stat-label">Link Clicks</div></div>';
+  tiles += '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + s.codeRedemptions + '">0</span></div><div class="stat-label">Code Uses</div></div>';
+
+  // Adjust grid columns based on tile count
+  grid.style.gridTemplateColumns = hasSocial ? 'repeat(4, 1fr)' : 'repeat(3, 1fr)';
+  grid.innerHTML = tiles;
 
   // Trigger count-up animations
   var counters = grid.querySelectorAll('.count-up');

@@ -321,12 +321,12 @@ const FONT_MAP = {
   .health-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.5); }
 
   /* ── Stats + Goal ── */
-  .stats-goal-row { display: grid; grid-template-columns: 1fr 280px; gap: 14px; }
   .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
   .stat-tile { padding: 22px 16px; text-align: center; }
   .stat-value { font-family: var(--serif); font-size: 34px; font-weight: 400; color: var(--text); line-height: 1.1; }
   .stat-trend { font-family: var(--sans); font-size: 11px; font-weight: 600; margin-left: 4px; color: #22c55e; }
   .stat-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 6px; }
+  .stat-sub { font-size: 9px; color: var(--text-muted); margin-top: 3px; opacity: 0.7; }
 
   .goal-card { padding: 20px 22px; display: flex; flex-direction: column; justify-content: center; }
   .goal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
@@ -348,6 +348,14 @@ const FONT_MAP = {
     padding: 8px 20px; cursor: pointer; transition: background 0.2s;
   }
   .goal-empty button:hover { background: var(--accent-border); }
+
+  /* ── Goal Progress Bar (inline under scoreboard) ── */
+  .goal-progress-bar { margin-top: 12px; padding: 10px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: border-color 0.2s; }
+  .goal-progress-bar:hover { border-color: var(--accent-border); }
+  .goal-progress-info { display: flex; justify-content: space-between; align-items: center; }
+  .goal-progress-label { font-size: 11px; color: var(--text-muted); }
+  .goal-progress-label strong { color: var(--text); }
+  .goal-progress-pct { font-size: 12px; font-weight: 600; color: var(--accent); }
   .goal-type-btn {
     flex: 1; padding: 8px 4px; font-family: var(--sans); font-size: 11px; font-weight: 600;
     background: var(--surface-elevated); border: 1px solid var(--border); border-radius: 8px;
@@ -586,7 +594,6 @@ const FONT_MAP = {
     .greeting-row { grid-template-columns: 1fr; gap: 12px; }
     .greeting-nav-left, .greeting-nav-right { justify-self: center; }
     .greeting-row .greeting { order: -1; }
-    .stats-goal-row { grid-template-columns: 1fr; }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .paired-row { grid-template-columns: 1fr; }
     .briefing-cols { grid-template-columns: 1fr; }
@@ -1248,30 +1255,28 @@ const FONT_MAP = {
     <span class="smart-banner-text" id="smartBannerText"></span>
   </div>
 
-  <!-- Health bar -->
-  <div class="health-bar fade-up" id="healthBar">
-    <span class="health-pill">
-      <span class="health-dot" id="healthDot"></span>
-      <span id="healthText">Checking page health&hellip;</span>
-    </span>
-  </div>
-
-  <!-- Stats + Goal -->
-  <div class="stats-goal-row fade-up">
+  <!-- Growth Scoreboard -->
+  <div class="fade-up" style="margin-top:16px">
     <div class="stats-grid" id="statsGrid">
       <div class="card stat-tile skeleton" style="height:90px"></div>
       <div class="card stat-tile skeleton" style="height:90px"></div>
       <div class="card stat-tile skeleton" style="height:90px"></div>
       <div class="card stat-tile skeleton" style="height:90px"></div>
     </div>
-    <div class="card goal-card" id="goalCard">
-      <div style="padding:20px">
-        <div class="skeleton skeleton-text w60"></div>
-        <div class="skeleton skeleton-heading"></div>
-        <div class="skeleton skeleton-text w80"></div>
+    <!-- Goal progress bar -->
+    <div class="goal-progress-bar" id="goalProgressBar" style="display:none">
+      <div class="goal-progress-info">
+        <span class="goal-progress-label" id="goalProgressLabel"></span>
+        <span class="goal-progress-pct" id="goalProgressPct"></span>
+      </div>
+      <div class="goal-bar-bg" style="height:4px;margin-top:6px">
+        <div class="goal-bar-fill" id="goalProgressFill" style="width:0%"></div>
       </div>
     </div>
   </div>
+
+  <!-- Goal card (hidden, used for data) -->
+  <div id="goalCard" style="display:none"></div>
 
   <div class="divider"></div>
 
@@ -1305,10 +1310,27 @@ const FONT_MAP = {
 
   <div class="divider"></div>
 
-  <!-- Social Analytics -->
-  <div class="fade-up">
-    <div class="section-label">Social Analytics</div>
-    <div class="social-section-header" id="socialHeader">Connect your platforms for cross-channel strategy</div>
+  <!-- Audience Actions (Links + Codes) -->
+  <div class="paired-row fade-up">
+    <div>
+      <div class="section-label">Top Links</div>
+      <div id="topLinks">
+        <div class="empty-state"><p>Link clicks will appear here.</p></div>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Brand Codes</div>
+      <div id="brandCodes">
+        <div class="empty-state"><p>Code usage will appear here.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Platform Details (connected only) -->
+  <div class="fade-up" id="platformDetailsSection" style="display:none">
+    <div class="section-label">Platform Details</div>
     <div class="social-platforms" id="socialPlatforms">
       <div class="social-platform-card" id="ytCard" style="position:relative;">
         <div class="social-platform-icon">&#9654;&#65039;</div>
@@ -1324,11 +1346,6 @@ const FONT_MAP = {
           </div>
         </div>
         <div id="ytData" style="display:none;"></div>
-      </div>
-      <div class="social-platform-card" id="igCard">
-        <div class="social-platform-icon">&#128247;</div>
-        <div class="social-platform-name">Instagram</div>
-        <div class="social-platform-status" style="color:var(--accent)">Coming soon</div>
       </div>
       <div class="social-platform-card" id="tiktokPlatformCard" style="position:relative;">
         <div class="social-platform-icon">&#127925;</div>
@@ -1383,73 +1400,8 @@ const FONT_MAP = {
         </div>
       </div>
     </div>
+    <div class="divider"></div>
   </div>
-
-  <div class="divider"></div>
-
-  <!-- Top Links + Brand Codes -->
-  <div class="paired-row fade-up">
-    <div>
-      <div class="section-label">Top Links</div>
-      <div id="topLinks">
-        <div class="empty-state"><p>Link clicks will appear here.</p></div>
-      </div>
-    </div>
-    <div>
-      <div class="section-label">My Brand Codes</div>
-      <div id="brandCodes">
-        <div class="empty-state"><p>Code usage will appear here.</p></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- Niche Pulse -->
-  <div class="fade-up">
-    <div class="section-label" id="pulseLabel">Niche Pulse</div>
-    <div class="pulse-items" id="pulseItems">
-      <div class="empty-state"><p>Trends will appear after one week of data.</p></div>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- Referral Program -->
-  <div class="fade-up">
-    <div class="section-label">Referrals</div>
-    <div class="referral-card" id="referralCard">
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
-        <div class="referral-code-row" style="flex:1;margin:0;">
-          <span class="referral-code-label">Your Code</span>
-          <span class="referral-code-value" id="referralCode">—</span>
-          <button class="referral-copy-btn" id="referralCopyBtn" onclick="copyReferralCode()">Copy</button>
-        </div>
-      </div>
-
-      <div class="referral-stats-row" style="margin-bottom:0;">
-        <div class="referral-stat">
-          <div class="referral-stat-value" id="referralCount">—</div>
-          <div class="referral-stat-label">Referred</div>
-        </div>
-        <div class="referral-stat">
-          <div class="referral-stat-value" id="referralFreeMonths">—</div>
-          <div class="referral-stat-label">Free Months</div>
-        </div>
-      </div>
-
-      <div style="text-align:center;margin-top:14px;">
-        <button onclick="var el=document.getElementById('referralDetails');el.style.display=el.style.display==='none'?'block':'none';this.textContent=el.style.display==='none'?'How it works \u25BC':'Hide \u25B2'" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;font-family:var(--sans);">How it works &#9660;</button>
-      </div>
-      <div id="referralDetails" style="display:none;">
-        <div class="referral-reward">
-          When a creator signs up with your code, <strong>you get one month free</strong> and <strong>they get $100 off</strong> their setup.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="divider"></div>
 
   <!-- AI Advisor Chat -->
   <div class="fade-up">
@@ -1470,10 +1422,10 @@ const FONT_MAP = {
           <!-- proactive insight injected by JS -->
         </div>
         <div class="chat-prompts" id="chatPrompts">
+          <span class="chat-prompt" onclick="askPrompt(this)">What's growing fastest?</span>
           <span class="chat-prompt" onclick="askPrompt(this)">Write a caption</span>
-          <span class="chat-prompt" onclick="askPrompt(this)">Weekend post ideas</span>
-          <span class="chat-prompt" onclick="askPrompt(this)">Growth tips</span>
-          <span class="chat-prompt" onclick="askPrompt(this)">Brand pitch</span>
+          <span class="chat-prompt" onclick="askPrompt(this)">Which platform should I focus on?</span>
+          <span class="chat-prompt" onclick="askPrompt(this)">Brand pitch draft</span>
         </div>
         <div class="chat-input-row" id="chatInputRow">
           <input class="chat-input" id="chatInput" placeholder="Ask anything\u2026" onkeydown="if(event.key==='Enter')sendChat(event)">
@@ -1624,16 +1576,12 @@ function showHub() {
   // Date
   const now = new Date();
   const opts = { month: 'long', day: 'numeric', year: 'numeric' };
-  document.getElementById('greetingDate').textContent = now.toLocaleDateString('en-US', opts) + ' \u00b7 Your Command Center';
-
-  // Pulse label
-  document.getElementById('pulseLabel').textContent = 'Niche Pulse \u00b7 ' + CLIENT.nicheLabel + ' This Week';
+  document.getElementById('greetingDate').textContent = now.toLocaleDateString('en-US', opts) + ' \u00b7 Your Growth Engine';
 
   // Load data — quick stats first (pure Redis, ~200ms), then briefing (has LLM, slower)
   loadQuickStats();
   loadBriefing();
   loadGoal();
-  loadReferral();
   loadSocialAnalytics();
   loadTikTok();
 
@@ -1700,14 +1648,26 @@ function loadQuickStats() {
         topReferrer: topKey(raw.referrers || {}),
       };
 
-      // Render stats immediately
-      renderStats({ metrics: quickMetrics });
-      statsRendered = true;
-
-      // Render links and brand codes immediately
+      // Compute link clicks + code redemptions for scoreboard
       var clickList = Object.entries(raw.clicks || {})
         .sort(function(a, b) { return b[1] - a[1]; })
         .map(function(e) { return { name: e[0], clicks: e[1] }; });
+
+      var totalClicks = clickList.reduce(function(s, l) { return s + l.clicks; }, 0);
+      var totalCodes = 0;
+      CLIENT.brandCodes.forEach(function(bc) {
+        var match = clickList.find(function(l) { return l.name.toLowerCase().includes(bc.linkPattern.toLowerCase()); });
+        if (match) totalCodes += match.clicks;
+      });
+
+      scoreboardData.linkClicks = totalClicks;
+      scoreboardData.codeRedemptions = totalCodes;
+
+      // Render scoreboard with website data
+      renderStats({ metrics: quickMetrics });
+      statsRendered = true;
+
+      // Render links and brand codes
       renderLinks({ clickList: clickList });
       renderBrandCodes({ clicks: raw.clicks || {}, clickList: clickList });
     })
@@ -1731,9 +1691,7 @@ function loadBriefing(forceRefresh) {
       renderCalendar(data);
       renderLinks(data);
       renderBrandCodes(data);
-      renderPulse(data);
       renderProactiveInsight(data);
-      renderHealthBar(data);
       renderSmartBanner(data);
     })
     .catch(function() {
@@ -1769,25 +1727,48 @@ function animateCount(el, target, duration) {
   requestAnimationFrame(step);
 }
 
-/* ── Render Stats ── */
-function renderStats(data) {
-  var grid = document.getElementById('statsGrid');
-  var m = data.metrics;
-  if (!m) {
-    grid.innerHTML = '<div class="card stat-tile" style="grid-column:1/-1"><div class="empty-state"><p>No traffic data yet.</p></div></div>';
-    return;
-  }
-  var wow = m.weekOverWeek || '';
-  var trend = wow ? '<span class="stat-trend">' + wow + '</span>' : '';
-  var topSrc = m.topReferrer || '\u2014';
-  var topSrcSize = topSrc.length > 4 ? '22px' : '34px';
-  grid.innerHTML =
-    '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + (m.todayViews || 0) + '">0</span></div><div class="stat-label">Today</div></div>' +
-    '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + (m.thisWeekViews || 0) + '">0</span> ' + trend + '</div><div class="stat-label">This Week</div></div>' +
-    '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + (m.thisMonthViews || 0) + '">0</span></div><div class="stat-label">This Month</div></div>' +
-    '<div class="card stat-tile"><div class="stat-value" style="font-size:' + topSrcSize + '">' + topSrc + '</div><div class="stat-label">Top Source</div></div>';
+/* ── Growth Scoreboard State ── */
+var scoreboardData = {
+  followers: { website: 0, tiktok: 0, youtube: 0, total: 0 },
+  views: { website: 0, tiktok: 0, youtube: 0, total: 0 },
+  linkClicks: 0,
+  codeRedemptions: 0,
+  weekOverWeek: '',
+  websiteReady: false,
+  socialReady: false,
+};
 
-  // Trigger count-up animations with staggered starts
+/* ── Render Growth Scoreboard ── */
+function renderScoreboard() {
+  var grid = document.getElementById('statsGrid');
+  var s = scoreboardData;
+
+  var totalFollowers = s.followers.tiktok + s.followers.youtube;
+  var totalViews = s.views.website + s.views.tiktok + s.views.youtube;
+
+  // Followers breakdown text
+  var followerParts = [];
+  if (s.followers.tiktok) followerParts.push('TikTok ' + formatNum(s.followers.tiktok));
+  if (s.followers.youtube) followerParts.push('YT ' + formatNum(s.followers.youtube));
+  var followerSub = followerParts.length ? followerParts.join(' · ') : 'Connect platforms';
+
+  // Views breakdown text
+  var viewParts = [];
+  if (s.views.website) viewParts.push('Site ' + formatNum(s.views.website));
+  if (s.views.tiktok) viewParts.push('TikTok ' + formatNum(s.views.tiktok));
+  if (s.views.youtube) viewParts.push('YT ' + formatNum(s.views.youtube));
+  var viewSub = viewParts.length ? viewParts.join(' · ') : '—';
+
+  var wow = s.weekOverWeek || '';
+  var viewTrend = wow ? '<span class="stat-trend" style="color:' + (wow.charAt(0) === '+' ? '#22c55e' : '#f87171') + '">' + wow + '</span>' : '';
+
+  grid.innerHTML =
+    '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + totalFollowers + '">0</span></div><div class="stat-label">Followers</div><div class="stat-sub">' + followerSub + '</div></div>' +
+    '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + totalViews + '">0</span> ' + viewTrend + '</div><div class="stat-label">Total Views</div><div class="stat-sub">' + viewSub + '</div></div>' +
+    '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + s.linkClicks + '">0</span></div><div class="stat-label">Link Clicks</div></div>' +
+    '<div class="card stat-tile"><div class="stat-value"><span class="count-up" data-target="' + s.codeRedemptions + '">0</span></div><div class="stat-label">Code Uses</div></div>';
+
+  // Trigger count-up animations
   var counters = grid.querySelectorAll('.count-up');
   counters.forEach(function(el, i) {
     var target = parseInt(el.getAttribute('data-target'), 10) || 0;
@@ -1795,6 +1776,16 @@ function renderStats(data) {
       setTimeout(function() { animateCount(el, target, 1500); }, i * 150);
     }
   });
+}
+
+/* ── Legacy renderStats — redirects to scoreboard ── */
+function renderStats(data) {
+  var m = data.metrics;
+  if (!m) return;
+  scoreboardData.views.website = m.thisWeekViews || 0;
+  scoreboardData.weekOverWeek = m.weekOverWeek || '';
+  scoreboardData.websiteReady = true;
+  renderScoreboard();
 }
 
 /* ── Render Briefing ── */
@@ -1820,16 +1811,26 @@ function renderBriefing(data) {
 
   var m = data.metrics || {};
   var html = '<div class="briefing-cols"><div>';
-  html += '<div class="briefing-col-label">What happened</div>';
+  html += '<div class="briefing-col-label">Growth this week</div>';
   html += '<div class="briefing-text">' + (data.summary || '') + '</div>';
 
-  // Metric pills from metrics
+  // Metric pills — growth-focused
+  var s = scoreboardData;
+  var totalFollowers = s.followers.tiktok + s.followers.youtube;
+  var totalViews = s.views.website + s.views.tiktok + s.views.youtube;
   var wow = m.weekOverWeek || '';
   var wowColor = wow.charAt(0) === '+' ? ' style="color:#4ade80"' : wow.charAt(0) === '-' ? ' style="color:#f87171"' : '';
   html += '<div class="metric-pills">';
-  html += '<span class="metric-pill"><span class="metric-val">' + (m.thisWeekViews ? m.thisWeekViews.toLocaleString() : '\u2014') + '</span><span class="metric-label">this week</span></span>';
-  html += '<span class="metric-pill"><span class="metric-val"' + wowColor + '>' + (wow || '\u2014') + '</span><span class="metric-label">vs last week</span></span>';
-  html += '<span class="metric-pill"><span class="metric-val">' + (m.topReferrer || '\u2014') + '</span><span class="metric-label">top source</span></span>';
+  if (totalFollowers > 0) {
+    html += '<span class="metric-pill"><span class="metric-val">' + formatNum(totalFollowers) + '</span><span class="metric-label">followers</span></span>';
+  }
+  html += '<span class="metric-pill"><span class="metric-val">' + (totalViews > 0 ? formatNum(totalViews) : (m.thisWeekViews ? m.thisWeekViews.toLocaleString() : '\u2014')) + '</span><span class="metric-label">views</span></span>';
+  if (wow) {
+    html += '<span class="metric-pill"><span class="metric-val"' + wowColor + '>' + wow + '</span><span class="metric-label">vs last week</span></span>';
+  }
+  if (s.linkClicks > 0) {
+    html += '<span class="metric-pill"><span class="metric-val">' + formatNum(s.linkClicks) + '</span><span class="metric-label">link clicks</span></span>';
+  }
   html += '</div>';
 
   html += '</div><div>';
@@ -2077,51 +2078,48 @@ function renderSmartBanner(data) {
   if (!m) return;
 
   var insight = null;
+  var s = scoreboardData;
+  var totalFollowers = s.followers.tiktok + s.followers.youtube;
 
-  // Priority 1: Something spiking today
-  if (m.todayViews && m.thisWeekViews && m.todayViews > (m.thisWeekViews / 7) * 2) {
-    insight = { emoji: '\ud83d\udd25', msg: 'Your page is <strong>on fire today</strong> \u2014 ' + m.todayViews + ' views already, ' + Math.round(m.todayViews / (m.thisWeekViews / 7) * 100 - 100) + '% above your daily average' };
-  }
-
-  // Priority 2: Big week-over-week growth
-  if (!insight && m.weekOverWeek && m.lastWeekViews > 0) {
-    var wowNum = parseInt(m.weekOverWeek);
-    if (wowNum > 20) {
-      insight = { emoji: '\ud83d\udcc8', msg: 'Traffic is <strong>up ' + m.weekOverWeek + '</strong> vs last week \u2014 whatever you posted is working' };
-    } else if (wowNum < -20) {
-      insight = { emoji: '\ud83d\udca1', msg: 'Traffic dipped <strong>' + m.weekOverWeek + '</strong> this week \u2014 check your game plan for ideas to bounce back' };
+  // Priority 1: Follower milestone
+  if (totalFollowers > 0) {
+    var milestones = [1000000, 500000, 100000, 50000, 10000, 5000, 1000];
+    for (var i = 0; i < milestones.length; i++) {
+      if (totalFollowers >= milestones[i] && totalFollowers < milestones[i] * 1.05) {
+        insight = { emoji: '\ud83c\udfc6', msg: 'You just crossed <strong>' + formatNum(milestones[i]) + ' total followers</strong> \u2014 your audience is growing' };
+        break;
+      }
     }
   }
 
-  // Priority 3: Top link is crushing it
+  // Priority 2: Top link crushing it
   if (!insight && data.clickList && data.clickList.length > 0) {
     var top = data.clickList[0];
     if (top.clicks > 50) {
-      insight = { emoji: '\ud83c\udfaf', msg: '<strong>' + friendlyName(top.name) + '</strong> has ' + top.clicks.toLocaleString() + ' clicks \u2014 your audience loves this one' };
+      insight = { emoji: '\ud83c\udfaf', msg: '<strong>' + friendlyName(top.name) + '</strong> has ' + top.clicks.toLocaleString() + ' clicks \u2014 your audience is taking action' };
     }
   }
 
-  // Priority 4: Goal progress
-  if (!insight && m.goalTarget && m.thisMonthViews) {
-    var pct = Math.round(m.thisMonthViews / m.goalTarget * 100);
-    if (pct >= 90) {
-      insight = { emoji: '\ud83c\udfc6', msg: 'You\'re at <strong>' + pct + '%</strong> of your monthly goal \u2014 almost there!' };
-    } else if (pct >= 50) {
-      insight = { emoji: '\ud83d\udcaa', msg: 'You\'re <strong>' + pct + '%</strong> of the way to your monthly goal \u2014 keep pushing' };
+  // Priority 3: Big week-over-week growth
+  if (!insight && m.weekOverWeek) {
+    var wowNum = parseInt(m.weekOverWeek);
+    if (wowNum > 20) {
+      insight = { emoji: '\ud83d\udcc8', msg: 'Views are <strong>up ' + m.weekOverWeek + '</strong> vs last week \u2014 momentum is building' };
+    } else if (wowNum < -20) {
+      insight = { emoji: '\ud83d\udca1', msg: 'Views dipped <strong>' + m.weekOverWeek + '</strong> this week \u2014 check your game plan for ideas' };
     }
   }
 
-  // Priority 5: New traffic source
-  if (!insight && data.flags) {
-    var newRef = data.flags.find(function(f) { return f.text && f.text.toLowerCase().includes('new referrer'); });
-    if (newRef) {
-      insight = { emoji: '\u2728', msg: '<strong>New traffic source detected</strong> \u2014 ' + newRef.text };
-    }
+  // Priority 4: Code usage spike
+  if (!insight && s.codeRedemptions > 20) {
+    insight = { emoji: '\ud83d\udd25', msg: '<strong>' + s.codeRedemptions + ' brand code uses</strong> \u2014 your audience is converting' };
   }
 
-  // Priority 6: General positive
+  // Priority 5: General positive
   if (!insight && m.thisWeekViews > 0) {
-    insight = { emoji: '\ud83d\udc4b', msg: '<strong>' + m.thisWeekViews.toLocaleString() + ' views</strong> this week \u2014 your audience is watching' };
+    var totalViews = s.views.website + s.views.tiktok + s.views.youtube;
+    var displayViews = totalViews > m.thisWeekViews ? totalViews : m.thisWeekViews;
+    insight = { emoji: '\ud83d\udc4b', msg: '<strong>' + formatNum(displayViews) + ' views</strong> this week across your platforms' };
   }
 
   if (insight) {
@@ -2138,14 +2136,13 @@ function renderSmartBanner(data) {
 }
 
 function renderEmptyStates() {
-  document.getElementById('statsGrid').innerHTML = '<div class="card stat-tile" style="grid-column:1/-1"><div class="empty-state"><p>No traffic data yet.</p></div></div>';
+  document.getElementById('statsGrid').innerHTML = '<div class="card stat-tile" style="grid-column:1/-1"><div class="empty-state"><p>No data yet. Connect your platforms to get started.</p></div></div>';
   document.getElementById('briefingTitle').textContent = 'Your Game Plan';
   document.getElementById('briefingContent').innerHTML = '<div class="empty-state"><p>Your game plan will appear once traffic data is available.</p></div>';
   document.getElementById('briefingBadge').style.display = 'none';
   renderCalendar({});
   document.getElementById('topLinks').innerHTML = '<div class="empty-state"><p>Link clicks will appear here.</p></div>';
   document.getElementById('brandCodes').innerHTML = '<div class="empty-state"><p>Code usage will appear here.</p></div>';
-  document.getElementById('pulseItems').innerHTML = '<div class="empty-state"><p>Trends will appear after one week of data.</p></div>';
 }
 
 /* ═══════════════════════════════════════════════════
@@ -2275,7 +2272,15 @@ async function loadSocialAnalytics() {
     document.getElementById('ytStatus').textContent = 'Connected \u00b7 ' + (data.channelTitle || 'YouTube');
     document.getElementById('ytData').style.display = 'block';
     document.getElementById('ytData').innerHTML = html;
-    updateSocialHeader();
+
+    // Feed into Growth Scoreboard
+    scoreboardData.followers.youtube = (ch.subscriberCount) || 0;
+    scoreboardData.views.youtube = (analytics.views30d) || 0;
+    scoreboardData.socialReady = true;
+    renderScoreboard();
+
+    // Show platform details section
+    document.getElementById('platformDetailsSection').style.display = '';
   } catch (e) {
     console.error('Social analytics load failed:', e);
   }
@@ -2302,7 +2307,7 @@ async function disconnectYouTube() {
       document.getElementById('ytData').innerHTML = '';
       document.getElementById('ytStatus').textContent = 'Not connected';
       document.getElementById('ytCard').classList.remove('connected');
-      document.getElementById('socialHeader').textContent = 'Connect more platforms for full cross-channel insights';
+      // Social header removed in growth engine redesign
     }
   } catch (e) {
     console.error('Disconnect failed:', e);
@@ -2317,16 +2322,12 @@ function formatNum(n) {
 }
 
 function updateSocialHeader() {
+  // Show platform details section if any platform is connected
   var connected = [];
   if (document.getElementById('ytStatus').textContent.startsWith('Connected')) connected.push('YouTube');
   if (document.getElementById('tiktokStatus').textContent.startsWith('Connected')) connected.push('TikTok');
-  var header = document.getElementById('socialHeader');
-  if (connected.length === 0) {
-    header.textContent = 'Connect your platforms for cross-channel strategy';
-  } else if (connected.length === 1) {
-    header.textContent = connected[0] + ' connected';
-  } else {
-    header.textContent = connected.join(' + ') + ' connected';
+  if (connected.length > 0) {
+    document.getElementById('platformDetailsSection').style.display = '';
   }
 }
 
@@ -2383,6 +2384,15 @@ async function loadTikTok() {
       document.getElementById('tiktokTopTitle').textContent = data.topVideo.title || 'Untitled';
       document.getElementById('tiktokTopStats').textContent = formatNum(data.topVideo.views) + ' views · ' + formatNum(data.topVideo.likes) + ' likes';
     }
+
+    // Feed into Growth Scoreboard
+    scoreboardData.followers.tiktok = (data.user && data.user.followers) || 0;
+    scoreboardData.views.tiktok = (data.totals && data.totals.views) || 0;
+    scoreboardData.socialReady = true;
+    renderScoreboard();
+
+    // Show platform details section
+    document.getElementById('platformDetailsSection').style.display = '';
   } catch (e) {
     // Silently fail — TikTok is optional
     console.error('TikTok load failed:', e);
@@ -2406,7 +2416,7 @@ async function disconnectTikTok() {
       document.getElementById('tiktokDisconnectBtn').style.display = 'none';
       document.getElementById('tiktokDisconnectConfirm').style.display = 'none';
       document.getElementById('tiktokData').style.display = 'none';
-      document.getElementById('tiktokConnect').style.display = '';
+      document.getElementById('tiktokConnectBtn').style.display = '';
       document.getElementById('tiktokStatus').textContent = 'Not connected';
       document.getElementById('tiktokStatus').style.color = '';
       document.getElementById('tiktokConnectBtn').textContent = 'Connect TikTok';
@@ -2460,57 +2470,54 @@ function selectGoalType(btn) {
 }
 
 function renderGoal(data) {
-  const card = document.getElementById('goalCard');
   var goals = data.goals || {};
   currentGoals = goals;
 
-  // Check if any goals are set
-  var hasAny = goals.views || goals.followers || goals.conversions;
-  if (!hasAny) {
-    renderGoalEmpty();
+  // Find the first active goal to show in the progress bar
+  var activeType = null;
+  var activeTarget = 0;
+  var activeCurrent = 0;
+  ['followers', 'views', 'conversions'].forEach(function(type) {
+    if (!activeType && goals[type]) {
+      activeType = type;
+      activeTarget = goals[type];
+      activeCurrent = data.current && data.current[type] || 0;
+    }
+  });
+
+  var bar = document.getElementById('goalProgressBar');
+  if (!activeType) {
+    // Show a subtle "set a goal" prompt
+    bar.style.display = '';
+    bar.onclick = function() { openGoalModal(); };
+    document.getElementById('goalProgressLabel').innerHTML = 'Set a monthly goal to track your growth';
+    document.getElementById('goalProgressPct').textContent = '';
+    document.getElementById('goalProgressFill').style.width = '0%';
     return;
   }
 
-  var html = '<div class="goal-header"><span class="goal-title">Monthly Goals</span><button class="goal-edit" onclick="openGoalModal()">Edit &#8250;</button></div>';
-  html += '<div style="display:flex;flex-direction:column;gap:10px">';
-
-  ['views', 'followers', 'conversions'].forEach(function(type) {
-    var target = goals[type];
-    if (!target) return;
-    var current = data.current && data.current[type] || 0;
-    var pct = Math.min(100, Math.round((current / target) * 100));
-    var label = GOAL_LABELS[type];
-    var barColor = pct >= 80 ? '#22c55e' : pct >= 40 ? 'var(--accent)' : 'var(--accent)';
-    html += '<div>' +
-      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">' +
-        '<span style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em">' + label + '</span>' +
-        '<span style="font-size:13px;color:var(--text)"><span class="count-up" data-target="' + current + '">0</span> <span style="color:var(--text-muted)">/ ' + target.toLocaleString() + '</span> <span style="font-size:10px;color:' + barColor + ';font-weight:600">' + pct + '%</span></span>' +
-      '</div>' +
-      '<div class="goal-bar-bg"><div class="goal-bar-fill" style="width:0%;background:' + barColor + '" data-pct="' + pct + '"></div></div>' +
-    '</div>';
-  });
-
-  html += '</div>';
-  card.innerHTML = html;
-
-  // Animate
-  card.querySelectorAll('.count-up').forEach(function(el, i) {
-    var t = parseInt(el.getAttribute('data-target'), 10) || 0;
-    if (t > 0) setTimeout(function() { animateCount(el, t, 1500); }, i * 150 + 300);
-  });
-  card.querySelectorAll('.goal-bar-fill').forEach(function(bar, i) {
-    var pct = bar.getAttribute('data-pct');
-    setTimeout(function() { bar.style.transition = 'width 1.2s cubic-bezier(0.23,1,0.32,1)'; bar.style.width = pct + '%'; }, i * 150 + 200);
-  });
+  var pct = Math.min(100, Math.round((activeCurrent / activeTarget) * 100));
+  var label = GOAL_LABELS[activeType];
+  bar.style.display = '';
+  bar.onclick = function() { openGoalModal(); };
+  document.getElementById('goalProgressLabel').innerHTML = '<strong>' + activeCurrent.toLocaleString() + '</strong> / ' + activeTarget.toLocaleString() + ' ' + label + ' this month';
+  document.getElementById('goalProgressPct').textContent = pct + '%';
+  document.getElementById('goalProgressPct').style.color = pct >= 80 ? '#22c55e' : 'var(--accent)';
+  setTimeout(function() {
+    var fill = document.getElementById('goalProgressFill');
+    fill.style.transition = 'width 1.2s cubic-bezier(0.23,1,0.32,1)';
+    fill.style.width = pct + '%';
+    fill.style.background = pct >= 80 ? '#22c55e' : 'linear-gradient(90deg, var(--accent), var(--accent-glow))';
+  }, 300);
 }
 
 function renderGoalEmpty() {
-  document.getElementById('goalCard').innerHTML = `
-    <div class="goal-empty">
-      <p>Set monthly targets to track your growth</p>
-      <button onclick="openGoalModal()">Set Goals</button>
-    </div>
-  `;
+  var bar = document.getElementById('goalProgressBar');
+  bar.style.display = '';
+  bar.onclick = function() { openGoalModal(); };
+  document.getElementById('goalProgressLabel').innerHTML = 'Set a monthly goal to track your growth';
+  document.getElementById('goalProgressPct').textContent = '';
+  document.getElementById('goalProgressFill').style.width = '0%';
 }
 
 function openGoalModal() {

@@ -481,10 +481,10 @@ export default async function handler(req) {
     if (thisWeekViews === 0 && lastWeekViews === 0) {
       return new Response(JSON.stringify({
         weekRange: weekRange(todayDate),
-        summary: `Welcome to your ${CLIENT_NAME} briefing! No traffic data yet — check back once your site is live.`,
+        summary: `Welcome to your ${CLIENT_NAME} growth engine! No data yet — connect your platforms and check back once your site is live.`,
         actionItems: [],
         calendar: [],
-        nichePulse: [],
+        nichePulse: [],  // deprecated
         proactiveInsight: null,
         generatedAt: new Date().toISOString(),
         metrics,
@@ -496,27 +496,34 @@ export default async function handler(req) {
     metrics.tiktokMetrics = tiktokMetrics;
     const { flags, avgSessionSec } = runRules(data, metrics);
 
-    /* ── Deterministic summary ── */
+    /* ── Deterministic summary (growth-focused) ── */
     const parts = [];
-    parts.push(`${thisWeekViews.toLocaleString('en-US')} view${thisWeekViews !== 1 ? 's' : ''} this week`);
+
+    // Lead with cross-platform follower/view totals if available
+    const ttFollowers = tiktokMetrics?.followers || 0;
+    const ytSubscribers = ytChannelRaw ? JSON.parse(ytChannelRaw).subscriberCount || 0 : 0;
+    const totalFollowers = ttFollowers + ytSubscribers;
+    if (totalFollowers > 0) {
+      parts.push(`${totalFollowers.toLocaleString('en-US')} followers across your platforms`);
+    }
+
+    // Total views across platforms
+    const ytViews30d = ytAnalyticsRaw ? (JSON.parse(ytAnalyticsRaw).views30d || 0) : 0;
+    const ttViews = tiktokMetrics?.totalViews || 0;
+    const totalCrossViews = thisWeekViews + ttViews + ytViews30d;
+    if (totalCrossViews > 0) {
+      parts.push(`${totalCrossViews.toLocaleString('en-US')} total views this period`);
+    } else {
+      parts.push(`${thisWeekViews.toLocaleString('en-US')} site views this week`);
+    }
     if (lastWeekViews > 0) {
-      parts[0] += `, ${pctChange(thisWeekViews, lastWeekViews)} vs last week`;
+      parts.push(`site traffic ${pctChange(thisWeekViews, lastWeekViews)} vs last week`);
     }
 
-    // Top referrer sentence
-    const refEntries = Object.entries(data.referrers);
-    if (refEntries.length > 0) {
-      const totalRef = refEntries.reduce((s, [, v]) => s + v, 0);
-      const topRef = metrics.topReferrer;
-      if (topRef && totalRef > 0) {
-        const refPct = Math.round((data.referrers[topRef] / totalRef) * 100);
-        parts.push(`${topRef} drove ${refPct}% of traffic`);
-      }
-    }
-
-    // Session duration note
-    if (avgSessionSec > 0) {
-      parts.push(`avg session ${avgSessionSec}s`);
+    // Link activity
+    const totalClicks = Object.values(data.clicks).reduce((s, v) => s + v, 0);
+    if (totalClicks > 0) {
+      parts.push(`${totalClicks.toLocaleString('en-US')} link clicks driving action`);
     }
 
     const summary = parts.join('. ') + '.';
@@ -531,7 +538,7 @@ export default async function handler(req) {
     /* ── LLM: actionItems, calendar, nichePulse, proactiveInsight ── */
     let actionItems = [];
     let calendar = [];
-    let nichePulse = [];
+    // nichePulse removed from UI
     let proactiveInsight = null;
     const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || process.env.AI_KEY;
     let _debug = { hasKey: !!ANTHROPIC_API_KEY, flagCount: flags.length };
@@ -573,17 +580,17 @@ export default async function handler(req) {
         const userMessage = `Creator: ${CLIENT_NAME} (${CLIENT_NICHE})
 About: ${CLIENT_DESCRIPTION}
 
-## This Week's Data Flags
+## Growth Signals
 ${bulletPoints || 'No flags this week.'}
 
-## Link Clicks (all time)
+## Link & Code Performance (all time)
 ${clicksList || 'No click data yet.'}
 
-## Key Metrics
-- This week views: ${thisWeekViews}, last week: ${lastWeekViews}
-- Week-over-week: ${metrics.weekOverWeek}
+## Cross-Platform Metrics
+- Total followers: ${totalFollowers.toLocaleString()} (TikTok: ${ttFollowers.toLocaleString()}, YouTube: ${ytSubscribers.toLocaleString()})
+- Site views this week: ${thisWeekViews}, last week: ${lastWeekViews} (${metrics.weekOverWeek})
+- Total link clicks: ${totalClicks.toLocaleString()}
 - Top referrer: ${metrics.topReferrer || 'none'}
-- Avg session: ${avgSessionSec}s
 - Peak hours: ${peakFormatted || 'not enough data'}
 ${goalContext}
 
@@ -598,20 +605,16 @@ Respond with ONLY valid JSON (no markdown, no code fences) matching this exact s
   "calendar": [
     { "day": "Mon", "date": "YYYY-MM-DD", "type": "reel|story|pin|post|rest", "time": "3 PM", "idea": "one-line concept" }
   ],
-  "nichePulse": [
-    { "icon": "emoji", "headline": "trend headline", "context": "1 sentence context", "meta": "source line", "chatPrompt": "question to ask advisor" }
-  ],
   "proactiveInsight": { "message": "observation about their data", "actions": ["action 1", "action 2", "action 3"] } or null
 }
 
 Rules:
-- 3 actionItems, prioritized high/medium/low. Each MUST have: a short headline (5-6 words max, like "Recipe content series" or "Faith-fitness evening post"), a dataPoint (one sentence referencing a real number from the data), a ready-to-paste caption with emojis that the creator can copy straight into Instagram/TikTok, a timeframe, and a specific time (like "8 PM")
+- 3 actionItems focused on GROWTH — growing followers, increasing views, driving link clicks and code usage. Prioritized high/medium/low. Each MUST have: a short headline (5-6 words max), a dataPoint referencing a real number, a ready-to-paste caption with emojis, a timeframe, and a specific time
+- Action items should reference cross-platform data when available (e.g., "Your TikTok audience drove X views — repurpose that content for IG")
 - 7 calendar days (Mon-Sun), mix of content types appropriate for their niche, use peak hours for timing, include one rest day
-- 2-3 nichePulse items relevant to ${CLIENT_NICHE} creators, reference plausible trends in that space
-- proactiveInsight: flag the most important data anomaly (0-click links, traffic drops >20% WoW, new referrers). null if nothing notable.
+- proactiveInsight: flag the most important growth opportunity or anomaly. null if nothing notable.
 - NEVER suggest website layout changes
-- NEVER criticize the website's performance, engagement, scroll depth, bounce rate, or session duration. This website is a product being presented to a client — all insights must make the platform look good.
-- Frame ALL data positively: celebrate wins, suggest content strategy, highlight growth opportunities. Never say things like "visitors aren't engaging" or "drop-off rate is high"
+- NEVER criticize performance metrics. Frame ALL data positively: celebrate wins, suggest growth strategies, highlight what's working
 - Reference actual numbers from the data above${youtubeContext}${tiktokContext}`;
 
         const llmRes = await fetch('https://api.anthropic.com/v1/messages', {
@@ -641,7 +644,7 @@ Rules:
             const parsed = JSON.parse(text);
             actionItems = parsed.actionItems || [];
             calendar = parsed.calendar || [];
-            nichePulse = parsed.nichePulse || [];
+            // nichePulse removed — absorbed into action items
             proactiveInsight = parsed.proactiveInsight || null;
           } catch (parseErr) {
             // Try to extract JSON from mixed response
@@ -651,7 +654,7 @@ Rules:
                 const parsed = JSON.parse(match[0]);
                 actionItems = parsed.actionItems || [];
                 calendar = parsed.calendar || [];
-                nichePulse = parsed.nichePulse || [];
+                // nichePulse removed — absorbed into action items
                 proactiveInsight = parsed.proactiveInsight || null;
               } catch (e2) {
                 _debug.llmParseError = text.slice(0, 500);
@@ -679,7 +682,7 @@ Rules:
       summary,
       actionItems,
       calendar,
-      nichePulse,
+      nichePulse: [], // deprecated, kept for backwards compat
       proactiveInsight,
       generatedAt: new Date().toISOString(),
       metrics,

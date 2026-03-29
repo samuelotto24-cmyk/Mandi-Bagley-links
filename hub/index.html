@@ -25,23 +25,22 @@ const CLIENT = {
   nicheLabel: 'Fitness \u00b7 Faith \u00b7 Food',
   url: 'https://mandibagley.com',
   palette: {
-    bg: '#0C0809',
-    surface: '#141012',
-    surfaceElevated: '#1A1416',
-    border: 'rgba(255,255,255,0.07)',
-    text: '#F5EBE6',
-    textMuted: 'rgba(245,235,230,0.45)',
-    accent: '#E8527A',
-    accentGlow: '#FF2D78',
-    accentPale: 'rgba(232,82,122,0.15)',
-    accentBorder: 'rgba(232,82,122,0.25)',
+    bg: '#0A0A0A',
+    surface: '#111111',
+    surfaceElevated: '#181818',
+    border: 'rgba(255,255,255,0.08)',
+    text: '#F0F0F0',
+    textMuted: 'rgba(255,255,255,0.40)',
+    accent: '#FFFFFF',
+    accentGlow: '#FFFFFF',
+    accentPale: 'rgba(255,255,255,0.08)',
+    accentBorder: 'rgba(255,255,255,0.18)',
   },
-  gradient: 'neon-pink',
+  gradient: 'monochrome',
   particleColors: [
-    { r: 255, g: 45, b: 120, weight: 0.4 },
-    { r: 232, g: 82, b: 122, weight: 0.3 },
-    { r: 255, g: 150, b: 180, weight: 0.15 },
-    { r: 245, g: 235, b: 230, weight: 0.15 },
+    { r: 255, g: 255, b: 255, weight: 0.5 },
+    { r: 200, g: 200, b: 200, weight: 0.3 },
+    { r: 160, g: 160, b: 160, weight: 0.2 },
   ],
   font: 'cormorant',
   brandCodes: [
@@ -78,6 +77,11 @@ const GRADIENT_PRESETS = {
     mesh1: ['rgba(232,92,58,0.55)','rgba(255,127,80,0.45)','rgba(212,87,74,0.35)','rgba(200,60,40,0.40)','rgba(255,100,60,0.30)'],
     mesh2: ['rgba(232,92,58,0.30)','rgba(200,60,40,0.25)','rgba(255,127,80,0.20)'],
     pulse: 'rgba(232,92,58,0.12)',
+  },
+  'monochrome': {
+    mesh1: ['rgba(255,255,255,0.06)','rgba(200,200,200,0.05)','rgba(255,255,255,0.04)','rgba(180,180,180,0.05)','rgba(255,255,255,0.03)'],
+    mesh2: ['rgba(255,255,255,0.04)','rgba(200,200,200,0.03)','rgba(255,255,255,0.02)'],
+    pulse: 'rgba(255,255,255,0.04)',
   },
 };
 
@@ -228,7 +232,7 @@ const FONT_MAP = {
     transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
     text-decoration: none; white-space: nowrap;
   }
-  .fab-btn:hover { border-color: var(--accent-border); background: rgba(232,82,122,0.08); }
+  .fab-btn:hover { border-color: var(--accent-border); background: var(--accent-pale); }
   .fab-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 16px var(--accent-pale); }
   .fab-btn.primary:hover { box-shadow: 0 0 28px var(--accent-border); }
   .fab-sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
@@ -276,7 +280,7 @@ const FONT_MAP = {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-pill);
     transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; white-space: nowrap;
   }
-  .greeting-nav:hover { border-color: var(--accent-border); box-shadow: 0 0 20px var(--accent-pale); background: rgba(232,82,122,0.06); }
+  .greeting-nav:hover { border-color: var(--accent-border); box-shadow: 0 0 20px var(--accent-pale); background: var(--accent-pale); }
   .greeting-nav-icon { font-size: 16px; }
   .greeting-nav-arrow { font-size: 11px; color: var(--text-muted); transition: color 0.2s; }
   .greeting-nav:hover .greeting-nav-arrow { color: var(--accent); }
@@ -454,7 +458,7 @@ const FONT_MAP = {
   .type-pin { background: rgba(239,68,68,0.12); color: #f87171; }
   .type-rest { background: rgba(255,255,255,0.04); color: var(--text-muted); }
   .type-carousel { background: rgba(34,197,94,0.12); color: #4ade80; }
-  .type-live { background: rgba(255,45,120,0.15); color: var(--accent-glow); }
+  .type-live { background: var(--accent-pale); color: var(--accent-glow); }
   .cal-time { font-size: 9px; color: var(--text-muted); margin-top: 4px; }
   .cal-idea { font-size: 10px; color: rgba(245,235,230,0.6); margin-top: 4px; line-height: 1.3; }
 
@@ -499,7 +503,7 @@ const FONT_MAP = {
   .chat-msg.user { justify-content: flex-end; }
   .chat-bubble { max-width: 80%; padding: 14px 18px; border-radius: 16px; font-size: 14px; line-height: 1.65; background: var(--surface-elevated); border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 4px; }
   .chat-msg.user .chat-bubble { border-bottom-left-radius: 16px; border-bottom-right-radius: 4px; background: var(--accent-pale); border-color: var(--accent-border); }
-  .chat-bubble.proactive-bubble { border-color: var(--accent-border); background: rgba(232,82,122,0.06); }
+  .chat-bubble.proactive-bubble { border-color: var(--accent-border); background: var(--accent-pale); }
   .chat-bubble .proactive-label { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
   .chat-time { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
   .chat-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }

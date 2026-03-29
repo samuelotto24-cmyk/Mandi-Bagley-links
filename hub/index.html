@@ -853,46 +853,28 @@ const FONT_MAP = {
   .bento-card .chat-prompts { padding: 4px 20px 12px; }
   .bento-card .chat-input-row { padding: 12px 20px; }
 
-  /* ── Connect Reminder Popup ── */
-  .connect-reminder-overlay {
-    position: fixed; inset: 0; z-index: 250; display: flex; align-items: center; justify-content: center;
-    background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    animation: fadeIn 0.3s ease;
+  /* ── Connect Banner (inline) ── */
+  .connect-banner {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; margin-bottom: 4px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 12px;
   }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  .connect-reminder-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
-    padding: 36px 32px; width: 440px; max-width: 90vw; text-align: center;
-    box-shadow: 0 24px 80px rgba(0,0,0,0.6);
-    animation: slideUp 0.4s cubic-bezier(0.23,1,0.32,1);
+  .connect-banner-icon { font-size: 16px; flex-shrink: 0; }
+  .connect-banner-text { font-size: 12px; color: var(--text-muted); flex: 1; }
+  .connect-banner-btn {
+    font-family: var(--sans); font-size: 11px; font-weight: 600; padding: 6px 14px;
+    border-radius: 50px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.08);
+    color: var(--text); cursor: pointer; white-space: nowrap; transition: all 0.2s;
   }
-  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  .connect-reminder-icon { font-size: 36px; margin-bottom: 12px; }
-  .connect-reminder-title { font-family: var(--serif); font-size: 24px; font-weight: 400; color: var(--text); margin-bottom: 8px; }
-  .connect-reminder-text { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
-  .connect-reminder-platforms {
-    display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;
+  .connect-banner-btn:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.25); }
+  .connect-banner-close {
+    width: 22px; height: 22px; border-radius: 50%; border: none;
+    background: transparent; color: var(--text-muted); font-size: 14px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: color 0.2s;
   }
-  .connect-reminder-platform {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 16px; background: var(--surface-elevated); border: 1px solid var(--border);
-    border-radius: 10px; font-size: 13px; color: var(--text);
-  }
-  .connect-reminder-status { font-size: 11px; color: var(--text-muted); }
-  .connect-reminder-status.connected { color: #22c55e; }
-  .connect-reminder-buttons { display: flex; flex-direction: column; gap: 8px; }
-  .connect-reminder-btn {
-    width: 100%; padding: 13px; border: none; border-radius: 12px;
-    font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer;
-    transition: opacity 0.2s;
-  }
-  .connect-reminder-btn.primary {
-    background: var(--accent); color: #000;
-  }
-  .connect-reminder-btn.dismiss {
-    background: transparent; color: var(--text-muted); border: 1px solid var(--border);
-  }
-  .connect-reminder-btn:hover { opacity: 0.85; }
+  .connect-banner-close:hover { color: var(--text); }
 
   /* ── Platform CTA ── */
   .platform-cta {
@@ -1728,6 +1710,14 @@ const FONT_MAP = {
       <div class="ai-intro" id="aiIntro"><span class="typing-cursor">|</span></div>
     </div>
 
+    <!-- Connect Banner (inline, not a popup) -->
+    <div class="connect-banner" id="connectBanner" style="display:none;grid-column:1/-1">
+      <span class="connect-banner-icon">&#128279;</span>
+      <span class="connect-banner-text">Connect YouTube and TikTok to unlock cross-platform analytics</span>
+      <button class="connect-banner-btn" onclick="closeConnectBanner();document.querySelector('#socialPlatforms').scrollIntoView({behavior:'smooth'})">Connect &rarr;</button>
+      <button class="connect-banner-close" onclick="dismissConnectBanner()">&times;</button>
+    </div>
+
     <!-- ROW 1: Today's Plan (span-6) | Stats (span-6 split into two span-3) -->
     <div class="bento-card span-6" data-order="1">
       <div class="bento-card-header">
@@ -2085,33 +2075,7 @@ const FONT_MAP = {
   </div>
 </div>
 
-<!-- Connect Platforms Reminder -->
-<div class="connect-reminder-overlay" id="connectReminder" style="display:none">
-  <div class="connect-reminder-card" style="position:relative">
-    <button class="modal-close" onclick="closeConnectReminder()" style="position:absolute;top:16px;right:16px">&times;</button>
-    <div class="connect-reminder-icon">&#128279;</div>
-    <h3 class="connect-reminder-title">Connect your platforms</h3>
-    <p class="connect-reminder-text">Link your YouTube, Instagram, and TikTok for a full analytics debrief — cross-platform followers, views, content performance, and AI strategy powered by your real data.</p>
-    <div class="connect-reminder-platforms">
-      <div class="connect-reminder-platform">
-        <span>&#9654;&#65039; YouTube</span>
-        <span class="connect-reminder-status" id="connectReminderYT">Not connected</span>
-      </div>
-      <div class="connect-reminder-platform">
-        <span>&#128247; Instagram</span>
-        <span class="connect-reminder-status">Coming soon</span>
-      </div>
-      <div class="connect-reminder-platform">
-        <span>&#127925; TikTok</span>
-        <span class="connect-reminder-status" id="connectReminderTT">Not connected</span>
-      </div>
-    </div>
-    <div class="connect-reminder-buttons">
-      <button class="connect-reminder-btn primary" onclick="closeConnectReminder();document.querySelector('#socialPlatforms').scrollIntoView({behavior:'smooth'})">Connect Now</button>
-      <button class="connect-reminder-btn dismiss" onclick="dismissConnectReminder()">Don't show this again</button>
-    </div>
-  </div>
-</div>
+<!-- Connect popup removed — replaced with inline banner -->
 
 <!-- ═══════════════════════════════════════════════════
      JAVASCRIPT
@@ -3790,38 +3754,22 @@ function typeGreeting(text) {
    CONNECT PLATFORMS REMINDER
    ═══════════════════════════════════════════════════ */
 function showConnectReminder() {
-  // Don't show if user dismissed it
-  if (localStorage.getItem('connectReminderDismissed')) return;
-
-  // Check which platforms are connected
+  if (localStorage.getItem('connectBannerDismissed')) return;
   var ytConnected = document.getElementById('ytStatus') && document.getElementById('ytStatus').textContent.startsWith('Connected');
   var ttConnected = document.getElementById('tiktokStatus') && document.getElementById('tiktokStatus').textContent.startsWith('Connected');
-
-  // Don't show if both are connected
   if (ytConnected && ttConnected) return;
-
-  // Update statuses in the reminder
-  var ytLabel = document.getElementById('connectReminderYT');
-  var ttLabel = document.getElementById('connectReminderTT');
-  if (ytLabel) {
-    ytLabel.textContent = ytConnected ? 'Connected' : 'Not connected';
-    if (ytConnected) ytLabel.classList.add('connected');
-  }
-  if (ttLabel) {
-    ttLabel.textContent = ttConnected ? 'Connected' : 'Not connected';
-    if (ttConnected) ttLabel.classList.add('connected');
-  }
-
-  document.getElementById('connectReminder').style.display = 'flex';
+  var banner = document.getElementById('connectBanner');
+  if (banner) banner.style.display = 'flex';
 }
 
-function closeConnectReminder() {
-  document.getElementById('connectReminder').style.display = 'none';
+function closeConnectBanner() {
+  var banner = document.getElementById('connectBanner');
+  if (banner) banner.style.display = 'none';
 }
 
-function dismissConnectReminder() {
-  localStorage.setItem('connectReminderDismissed', '1');
-  document.getElementById('connectReminder').style.display = 'none';
+function dismissConnectBanner() {
+  localStorage.setItem('connectBannerDismissed', '1');
+  closeConnectBanner();
 }
 
 /* ═══════════════════════════════════════════════════

@@ -418,6 +418,9 @@ const FONT_MAP = {
   .action-caption { position: relative; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; padding-right: 60px; font-size: 13px; color: rgba(245,235,230,0.85); line-height: 1.5; font-style: italic; }
   .action-caption-copy { position: absolute; top: 8px; right: 8px; background: var(--accent-pale); border: 1px solid var(--accent-border); border-radius: 6px; color: var(--accent); font-size: 10px; font-family: var(--sans); padding: 4px 10px; cursor: pointer; transition: background 0.2s; font-style: normal; }
   .action-caption-copy:hover { background: var(--accent); color: var(--bg); }
+  /* Desktop: always show captions, hide toggle button */
+  .action-caption-toggle { display: none; }
+  .action-caption-collapsed { display: block !important; }
   .tag-now { background: rgba(239,68,68,0.15); color: #f87171; }
   .tag-today { background: rgba(251,191,36,0.15); color: #fbbf24; }
   .tag-this-week { background: rgba(34,197,94,0.12); color: #4ade80; }
@@ -1127,6 +1130,33 @@ const FONT_MAP = {
   .referral-stat-value { font-size: 20px !important; }
   .referral-stat-label { font-size: 8px !important; }
 
+  /* ── Action captions: collapsed by default on mobile ── */
+  .action-caption-toggle {
+    display: block;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-family: var(--sans);
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .action-caption-toggle:hover {
+    color: var(--accent);
+    border-color: var(--accent-border);
+  }
+  .action-caption-collapsed {
+    display: none !important;
+  }
+  .action-caption-expanded {
+    display: block !important;
+  }
+
+  /* Also hide briefing summary text on mobile — metrics say enough */
+  .briefing-text { display: none !important; }
+
   /* ── Chat: already has sticky, tighten section ── */
   .chat-header { padding: 10px 12px !important; }
   .chat-icon-wrap { width: 30px !important; height: 30px !important; font-size: 15px !important; }
@@ -1826,8 +1856,11 @@ function renderBriefing(data) {
       html += '</div>';
       if (dataPoint) html += '<div class="action-data">' + dataPoint + '</div>';
       if (caption) {
-        html += '<div class="action-caption" id="' + captionId + '">' + caption;
+        html += '<div class="action-caption-wrap">';
+        html += '<button class="action-caption-toggle" onclick="toggleCaption(this)">Show caption ↓</button>';
+        html += '<div class="action-caption action-caption-collapsed" id="' + captionId + '">' + caption;
         html += '<button class="action-caption-copy" onclick="copyActionCaption(\'' + captionId + '\',this)">Copy</button>';
+        html += '</div>';
         html += '</div>';
       }
       html += '</div>';
@@ -2664,6 +2697,21 @@ function appendMsg(role, text) {
   document.getElementById('chatBody').appendChild(el);
   document.getElementById('chatBody').scrollTop = document.getElementById('chatBody').scrollHeight;
   return el;
+}
+
+function toggleCaption(btn) {
+  var wrap = btn.closest('.action-caption-wrap');
+  var caption = wrap.querySelector('.action-caption');
+  var isCollapsed = caption.classList.contains('action-caption-collapsed');
+  if (isCollapsed) {
+    caption.classList.remove('action-caption-collapsed');
+    caption.classList.add('action-caption-expanded');
+    btn.textContent = 'Hide caption ↑';
+  } else {
+    caption.classList.remove('action-caption-expanded');
+    caption.classList.add('action-caption-collapsed');
+    btn.textContent = 'Show caption ↓';
+  }
 }
 
 function copyActionCaption(id, btn) {

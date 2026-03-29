@@ -165,7 +165,7 @@ const FONT_MAP = {
   .gradient-mesh {
     position: absolute; inset: -50%; width: 200%; height: 200%;
     background: var(--gradient-mesh-1);
-    animation: meshDrift 20s ease-in-out infinite; filter: blur(80px);
+    animation: meshDrift 25s ease-in-out infinite; filter: blur(80px); opacity: 0.20;
   }
   @keyframes meshDrift {
     0%   { transform: translate(0%,0%) rotate(0deg) scale(1); }
@@ -179,7 +179,7 @@ const FONT_MAP = {
   .gradient-mesh-2 {
     position: absolute; inset: -30%; width: 160%; height: 160%;
     background: var(--gradient-mesh-2);
-    animation: meshDrift2 28s ease-in-out infinite; filter: blur(100px);
+    animation: meshDrift2 32s ease-in-out infinite; filter: blur(100px); opacity: 0.18;
   }
   @keyframes meshDrift2 {
     0%   { transform: translate(0%,0%) rotate(0deg) scale(1); }
@@ -194,6 +194,41 @@ const FONT_MAP = {
     animation: pulse 6s ease-in-out infinite;
   }
   @keyframes pulse { 0%,100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
+
+  /* Aurora blobs */
+  .aurora-blob {
+    position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none;
+  }
+  .aurora-blob-1 {
+    width: 600px; height: 600px; top: -10%; left: 10%;
+    background: rgba(255,255,255,0.15);
+    animation: auroraFloat1 25s ease-in-out infinite;
+  }
+  .aurora-blob-2 {
+    width: 500px; height: 500px; top: 30%; right: -5%;
+    background: rgba(200,200,200,0.12);
+    animation: auroraFloat2 32s ease-in-out infinite;
+  }
+  .aurora-blob-3 {
+    width: 700px; height: 700px; bottom: -15%; left: 30%;
+    background: rgba(255,255,255,0.10);
+    animation: auroraFloat3 40s ease-in-out infinite;
+  }
+  .aurora-blob-4 {
+    width: 450px; height: 450px; top: 60%; left: -8%;
+    background: rgba(180,180,180,0.15);
+    animation: auroraFloat4 28s ease-in-out infinite;
+  }
+  .aurora-blob-5 {
+    width: 550px; height: 550px; top: 10%; right: 20%;
+    background: rgba(255,255,255,0.08);
+    animation: auroraFloat5 35s ease-in-out infinite;
+  }
+  @keyframes auroraFloat1 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(60px,-40px) scale(1.1); } 66% { transform: translate(-30px,50px) scale(0.95); } }
+  @keyframes auroraFloat2 { 0%,100% { transform: translate(0,0) scale(1); } 40% { transform: translate(-50px,30px) scale(1.08); } 70% { transform: translate(40px,-60px) scale(0.92); } }
+  @keyframes auroraFloat3 { 0%,100% { transform: translate(0,0) scale(1); } 25% { transform: translate(40px,20px) scale(1.05); } 50% { transform: translate(-60px,-30px) scale(0.97); } 75% { transform: translate(20px,-40px) scale(1.03); } }
+  @keyframes auroraFloat4 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(50px,-50px) scale(1.12); } }
+  @keyframes auroraFloat5 { 0%,100% { transform: translate(0,0) scale(1); } 35% { transform: translate(-40px,60px) scale(1.06); } 65% { transform: translate(30px,-20px) scale(0.94); } }
 
   #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
@@ -241,7 +276,9 @@ const FONT_MAP = {
   /* ── Login ── */
   .login-screen { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; }
   .login-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md);
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.10); border-radius: var(--r-md);
     padding: 48px 40px; width: 380px; max-width: 90vw; text-align: center;
     position: relative; z-index: 1;
     box-shadow: 0 24px 80px rgba(0,0,0,0.6);
@@ -601,20 +638,64 @@ const FONT_MAP = {
     gap: 16px;
   }
   .bento-card {
-    background: rgba(255,255,255,0.03);
+    background: rgba(255,255,255,0.04);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 16px;
     padding: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     overflow: hidden;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
     align-self: start;
+    opacity: 0;
+    transform: translateY(20px);
   }
-  .bento-card:hover { border-color: var(--accent-border); }
+  .bento-card.card-visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out, border-color 0.2s, box-shadow 0.2s;
+  }
+  .bento-card:hover {
+    border-color: rgba(255,255,255,0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  }
+  .bento-card.card-visible:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Typing cursor */
+  .typing-cursor {
+    display: inline-block;
+    animation: blinkCursor 1s step-end infinite;
+    color: var(--accent);
+    font-weight: 300;
+  }
+  @keyframes blinkCursor { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* Stat tile pulse ring */
+  .stat-tile { position: relative; }
+  .stat-tile .stat-value { position: relative; z-index: 1; }
+  @keyframes statPulse {
+    0% { transform: scale(0.8); opacity: 0.4; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+  .stat-tile::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 40px; height: 40px;
+    margin-top: -20px; margin-left: -20px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    animation: statPulse 3s ease-out infinite;
+    pointer-events: none;
+  }
   .span-2 { grid-column: span 2; }
   .span-3 { grid-column: span 3; }
   .span-4 { grid-column: span 4; }
+  .span-5 { grid-column: span 5; }
   .span-6 { grid-column: span 6; }
   .span-8 { grid-column: span 8; }
   .span-12 { grid-column: span 12; }
@@ -629,7 +710,7 @@ const FONT_MAP = {
   }
 
   /* Hub header */
-  .hub-header { grid-column: 1 / -1; margin-bottom: 8px; }
+  .hub-header { grid-column: 1 / -1; margin-bottom: 8px; opacity: 1 !important; transform: none !important; }
   .hub-header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
   .hub-header-title { font-family: var(--serif); font-size: 42px; font-weight: 300; color: var(--text); line-height: 1.1; }
   .hub-header-subtitle { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); margin-top: 8px; }
@@ -824,6 +905,7 @@ const FONT_MAP = {
     .bento-grid { grid-template-columns: repeat(6, 1fr); }
     .span-2, .span-3 { grid-column: span 3; }
     .span-4 { grid-column: span 3; }
+    .span-5 { grid-column: span 3; }
     .span-6 { grid-column: span 6; }
     .span-8 { grid-column: span 6; }
     .hub-header-top { flex-direction: column; }
@@ -834,12 +916,28 @@ const FONT_MAP = {
   @media (max-width: 768px) {
     .hub-inner { padding: 20px 14px 90px; }
     .bento-grid { grid-template-columns: 1fr; }
-    .span-2, .span-3, .span-4, .span-6, .span-8, .span-12 { grid-column: span 1; }
+    .span-2, .span-3, .span-4, .span-5, .span-6, .span-8, .span-12 { grid-column: span 1; }
     .hub-header-title { font-size: 28px; }
     .hub-header-subtitle { font-size: 9px; }
     .social-chips { flex-direction: column; }
     .bento-card .calendar-strip { display: flex; overflow-x: auto; gap: 6px; }
     .bento-card .calendar-strip .cal-day { min-width: 60px; flex-shrink: 0; }
+    /* Mobile card order */
+    .bento-card[data-order="1"] { order: 1; } /* Today's Plan */
+    .bento-card[data-order="2"] { order: 2; } /* Stats */
+    .bento-card[data-order="3"] { order: 3; } /* Calendar */
+    .bento-card[data-order="4"] { order: 4; } /* Platforms */
+    .bento-card[data-order="5"] { order: 5; } /* Strategist */
+    .bento-card[data-order="6"] { order: 6; } /* Heatmap */
+    .bento-card[data-order="7"] { order: 7; } /* Niche Pulse */
+    .bento-card[data-order="8"] { order: 8; } /* Links */
+    .bento-card[data-order="9"] { order: 9; } /* Codes */
+    .bento-card[data-order="10"] { order: 10; } /* Create Post */
+    .bento-card[data-order="11"] { order: 11; } /* Refer & Earn */
+    /* Stats tiles: horizontal scroll on mobile */
+    .stats-grid { display: flex !important; overflow-x: auto; gap: 8px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .stats-grid::-webkit-scrollbar { display: none; }
+    .stats-grid .stat-tile { min-width: 120px; flex-shrink: 0; }
   }
   @media (max-width: 640px) {
     .hub-inner { padding: 24px 14px 90px; }
@@ -1441,6 +1539,11 @@ const FONT_MAP = {
   <div class="gradient-mesh"></div>
   <div class="gradient-mesh-2"></div>
   <div class="gradient-pulse"></div>
+  <div class="aurora-blob aurora-blob-1"></div>
+  <div class="aurora-blob aurora-blob-2"></div>
+  <div class="aurora-blob aurora-blob-3"></div>
+  <div class="aurora-blob aurora-blob-4"></div>
+  <div class="aurora-blob aurora-blob-5"></div>
 </div>
 <canvas id="particles"></canvas>
 
@@ -1479,8 +1582,8 @@ const FONT_MAP = {
 
   <div class="bento-grid">
 
-    <!-- HEADER -->
-    <div class="hub-header fade-up">
+    <!-- HEADER (full width, above grid) -->
+    <div class="hub-header">
       <div class="hub-header-top">
         <div>
           <div class="hub-header-title" id="greetingH1"></div>
@@ -1496,12 +1599,11 @@ const FONT_MAP = {
           <button class="hub-nav-pill" onclick="openModal('update')">Request Update</button>
         </div>
       </div>
-      <div class="ai-intro" id="aiIntro">Loading your briefing...</div>
+      <div class="ai-intro" id="aiIntro"><span class="typing-cursor">|</span></div>
     </div>
 
-    <!-- ROW 1: Game Plan | Calendar | Stats -->
-    <!-- Game Plan -->
-    <div class="bento-card span-4 fade-up">
+    <!-- ROW 1: Today's Plan (span-6) | Stats (span-6 split into two span-3) -->
+    <div class="bento-card span-6" data-order="1">
       <div class="bento-card-header">
         <span class="bento-card-icon">&#127919;</span>
         <span class="bento-card-title">Today's Plan</span>
@@ -1521,17 +1623,8 @@ const FONT_MAP = {
       </div>
     </div>
 
-    <!-- Content Calendar -->
-    <div class="bento-card span-4 fade-up">
-      <div class="bento-card-header">
-        <span class="bento-card-icon">&#128197;</span>
-        <span class="bento-card-title">Content Calendar</span>
-      </div>
-      <div class="calendar-strip" id="calendarStrip"></div>
-    </div>
-
-    <!-- Stats / Growth -->
-    <div class="bento-card span-4 fade-up">
+    <!-- Stats (span-6, contains the grid of stat tiles) -->
+    <div class="bento-card span-6" data-order="2">
       <div class="bento-card-header">
         <span class="bento-card-icon">&#128200;</span>
         <span class="bento-card-title">Growth</span>
@@ -1553,8 +1646,17 @@ const FONT_MAP = {
       <div id="goalCard" style="display:none"></div>
     </div>
 
-    <!-- Audience Heatmap -->
-    <div class="bento-card span-4 fade-up">
+    <!-- ROW 2: Content Calendar (span-12) -->
+    <div class="bento-card span-12" data-order="3">
+      <div class="bento-card-header">
+        <span class="bento-card-icon">&#128197;</span>
+        <span class="bento-card-title">Content Calendar</span>
+      </div>
+      <div class="calendar-strip" id="calendarStrip"></div>
+    </div>
+
+    <!-- ROW 3: Audience Heatmap (span-4) | Platforms (span-5) | Niche Pulse (span-3) -->
+    <div class="bento-card span-4" data-order="6">
       <div class="bento-card-header">
         <span class="bento-card-icon">&#128293;</span>
         <span class="bento-card-title">When Your Audience Shows Up</span>
@@ -1565,9 +1667,7 @@ const FONT_MAP = {
       <div class="heatmap-tooltip" id="heatmapTooltip" style="display:none"></div>
     </div>
 
-    <!-- ROW 2: Platforms | Niche Pulse | Links & Codes -->
-    <!-- Platforms -->
-    <div class="bento-card span-6 fade-up">
+    <div class="bento-card span-5" data-order="4">
       <div class="bento-card-header">
         <span class="bento-card-icon">&#128241;</span>
         <span class="bento-card-title">Platforms</span>
@@ -1666,8 +1766,7 @@ const FONT_MAP = {
       <div id="platformDetailsSection" style="display:none"></div>
     </div>
 
-    <!-- Niche Pulse -->
-    <div class="bento-card span-3 fade-up">
+    <div class="bento-card span-3" data-order="7">
       <div class="bento-card-header">
         <span class="bento-card-icon">&#128200;</span>
         <span class="bento-card-title" id="pulseLabel">Niche Pulse</span>
@@ -1677,20 +1776,8 @@ const FONT_MAP = {
       </div>
     </div>
 
-    <!-- Links & Codes -->
-    <div class="bento-card span-3 fade-up">
-      <div class="bento-card-header">
-        <span class="bento-card-icon">&#128279;</span>
-        <span class="bento-card-title">Links &amp; Codes</span>
-      </div>
-      <div id="topLinks"><div class="empty-state"><p>Link clicks will appear here.</p></div></div>
-      <div style="height:1px;background:var(--border);margin:12px 0"></div>
-      <div id="brandCodes"><div class="empty-state"><p>Code usage will appear here.</p></div></div>
-    </div>
-
-    <!-- ROW 3: AI Strategist | Refer & Earn -->
-    <!-- AI Strategist -->
-    <div class="bento-card span-8 fade-up">
+    <!-- ROW 4: Your Strategist (span-6) | Top Links (span-3) | Brand Codes (span-3) -->
+    <div class="bento-card span-6" data-order="5">
       <div class="bento-card-header">
         <span class="bento-card-icon">&#129302;</span>
         <span class="bento-card-title">Your Strategist</span>
@@ -1715,41 +1802,24 @@ const FONT_MAP = {
       </div>
     </div>
 
-    <!-- Refer & Earn -->
-    <div class="bento-card span-4 fade-up">
+    <div class="bento-card span-3" data-order="8">
       <div class="bento-card-header">
-        <span class="bento-card-icon">&#127873;</span>
-        <span class="bento-card-title">Refer &amp; Earn</span>
+        <span class="bento-card-icon">&#128279;</span>
+        <span class="bento-card-title">Top Links</span>
       </div>
-      <div class="referral-card" id="referralCard" style="background:transparent;border:none;padding:0">
-        <div class="referral-header">
-          <div class="referral-icon">&#127873;</div>
-          <div class="referral-header-text">
-            <h3>Share the Love</h3>
-            <p>Refer a creator and both earn rewards.</p>
-          </div>
-        </div>
-        <div class="referral-code-row">
-          <span class="referral-code-label">Your Code</span>
-          <span class="referral-code-value" id="referralCode">&#8212;</span>
-          <button class="referral-copy-btn" id="referralCopyBtn" onclick="copyReferralCode()">Copy</button>
-        </div>
-        <div class="referral-stats-row">
-          <div class="referral-stat">
-            <div class="referral-stat-value" id="referralCount">0</div>
-            <div class="referral-stat-label">Referrals</div>
-          </div>
-          <div class="referral-stat">
-            <div class="referral-stat-value" id="referralFreeMonths">0</div>
-            <div class="referral-stat-label">Free Months</div>
-          </div>
-        </div>
-        <div id="referralDetails"></div>
-      </div>
+      <div id="topLinks"><div class="empty-state"><p>Link clicks will appear here.</p></div></div>
     </div>
 
-    <!-- ROW 4: Create Post -->
-    <div class="bento-card span-8 fade-up" id="createPostCard">
+    <div class="bento-card span-3" data-order="9">
+      <div class="bento-card-header">
+        <span class="bento-card-icon">&#127991;</span>
+        <span class="bento-card-title">Brand Codes</span>
+      </div>
+      <div id="brandCodes"><div class="empty-state"><p>Code usage will appear here.</p></div></div>
+    </div>
+
+    <!-- ROW 5: Create Post (span-8) | Refer & Earn (span-4) -->
+    <div class="bento-card span-8" data-order="10" id="createPostCard">
       <div class="bento-card-header">
         <span class="bento-card-icon">&#9997;&#65039;</span>
         <span class="bento-card-title">Create Post</span>
@@ -1787,6 +1857,38 @@ const FONT_MAP = {
           <div class="create-post-meta-item" id="createPostHashtags"></div>
           <div class="create-post-meta-item" id="createPostTips"></div>
         </div>
+      </div>
+    </div>
+
+    <div class="bento-card span-4" data-order="11">
+      <div class="bento-card-header">
+        <span class="bento-card-icon">&#127873;</span>
+        <span class="bento-card-title">Refer &amp; Earn</span>
+      </div>
+      <div class="referral-card" id="referralCard" style="background:transparent;border:none;padding:0">
+        <div class="referral-header">
+          <div class="referral-icon">&#127873;</div>
+          <div class="referral-header-text">
+            <h3>Share the Love</h3>
+            <p>Refer a creator and both earn rewards.</p>
+          </div>
+        </div>
+        <div class="referral-code-row">
+          <span class="referral-code-label">Your Code</span>
+          <span class="referral-code-value" id="referralCode">&#8212;</span>
+          <button class="referral-copy-btn" id="referralCopyBtn" onclick="copyReferralCode()">Copy</button>
+        </div>
+        <div class="referral-stats-row">
+          <div class="referral-stat">
+            <div class="referral-stat-value" id="referralCount">0</div>
+            <div class="referral-stat-label">Referrals</div>
+          </div>
+          <div class="referral-stat">
+            <div class="referral-stat-value" id="referralFreeMonths">0</div>
+            <div class="referral-stat-label">Free Months</div>
+          </div>
+        </div>
+        <div id="referralDetails"></div>
       </div>
     </div>
 
@@ -1938,6 +2040,14 @@ function showHub() {
   var pLabel = document.getElementById('pulseLabel');
   if (pLabel) pLabel.textContent = (CLIENT.nicheLabel || CLIENT.niche || 'Niche') + ' Pulse';
 
+  // Stagger animate bento cards
+  var cards = hub.querySelectorAll('.bento-card');
+  cards.forEach(function(card, i) {
+    setTimeout(function() {
+      card.classList.add('card-visible');
+    }, i * 80);
+  });
+
   // Load data — quick stats first (pure Redis, ~200ms), then briefing (has LLM, slower)
   loadQuickStats();
   loadBriefing();
@@ -2035,10 +2145,10 @@ function loadQuickStats() {
       var intro = document.getElementById('aiIntro');
       if (intro && quickMetrics.thisWeekViews > 0) {
         var parts = [];
-        if (quickMetrics.weekOverWeek) parts.push('<strong>' + quickMetrics.weekOverWeek + '</strong> vs last week');
-        if (quickMetrics.topReferrer) parts.push('Top source: <strong>' + quickMetrics.topReferrer + '</strong>');
+        if (quickMetrics.weekOverWeek) parts.push(quickMetrics.weekOverWeek + ' vs last week');
+        if (quickMetrics.topReferrer) parts.push('Top source: ' + quickMetrics.topReferrer);
         parts.push(quickMetrics.thisWeekViews.toLocaleString() + ' views this week');
-        intro.innerHTML = parts.join(' &middot; ');
+        typeGreeting(parts.join(' \u00b7 '));
       }
 
       // Render links and brand codes
@@ -2072,9 +2182,8 @@ function loadBriefing(forceRefresh) {
       renderSmartBanner(data);
       renderPulse(data);
       // Render AI intro sentence
-      var intro = document.getElementById('aiIntro');
-      if (intro && data.summary) {
-        intro.innerHTML = data.summary;
+      if (data.summary) {
+        typeGreeting(data.summary);
       }
     })
     .catch(function() {
@@ -3249,18 +3358,61 @@ function initStickyChat() {
 }
 
 /* ═══════════════════════════════════════════════════
+   TYPING GREETING
+   ═══════════════════════════════════════════════════ */
+var _typeGreetingTimer = null;
+function typeGreeting(text) {
+  var el = document.getElementById('aiIntro');
+  if (!el) return;
+  // Cancel any previous typing
+  if (_typeGreetingTimer) clearInterval(_typeGreetingTimer);
+  // Strip HTML tags for typing (we'll type plain text)
+  var plain = text.replace(/<[^>]+>/g, '');
+  var i = 0;
+  el.innerHTML = '<span class="typing-cursor">|</span>';
+  _typeGreetingTimer = setInterval(function() {
+    if (i < plain.length) {
+      el.textContent = plain.slice(0, i + 1);
+      // Re-add cursor
+      var cursor = document.createElement('span');
+      cursor.className = 'typing-cursor';
+      cursor.textContent = '|';
+      el.appendChild(cursor);
+      i++;
+    } else {
+      clearInterval(_typeGreetingTimer);
+      _typeGreetingTimer = null;
+      // Remove cursor after typing done
+      var c = el.querySelector('.typing-cursor');
+      if (c) {
+        setTimeout(function() { if (c.parentNode) c.parentNode.removeChild(c); }, 2000);
+      }
+    }
+  }, 40);
+}
+
+/* ═══════════════════════════════════════════════════
    PARTICLES
    ═══════════════════════════════════════════════════ */
 (function() {
   var canvas = document.getElementById('particles');
   var ctx = canvas.getContext('2d');
   var particles = [];
-  var COUNT = 60;
+  var COUNT = window.innerWidth < 768 ? 30 : 70;
   var mouse = { x: -1000, y: -1000 };
 
-  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
   resize();
-  window.addEventListener('resize', resize);
+  window.addEventListener('resize', function() {
+    resize();
+    // Adjust count on resize
+    var newCount = window.innerWidth < 768 ? 30 : 70;
+    while (particles.length > newCount) particles.pop();
+    while (particles.length < newCount) particles.push(new P());
+  });
   document.addEventListener('mousemove', function(e) { mouse.x = e.clientX; mouse.y = e.clientY; });
 
   // Weighted random color selection
@@ -3277,12 +3429,12 @@ function initStickyChat() {
   function P() { this.reset(); this.y = Math.random() * canvas.height; }
   P.prototype.reset = function() {
     this.x = Math.random() * canvas.width;
-    this.y = canvas.height + 20;
-    this.sz = Math.random() * 2.5 + 0.5;
-    this.sy = -(Math.random() * 0.4 + 0.1);
+    this.y = Math.random() * canvas.height;
+    this.sz = 1.5;
+    this.sy = (Math.random() - 0.5) * 0.3;
     this.sx = (Math.random() - 0.5) * 0.3;
-    this.op = Math.random() * 0.5 + 0.1;
-    this.ws = Math.random() * 0.02 + 0.005;
+    this.op = 0.4;
+    this.ws = Math.random() * 0.01 + 0.003;
     this.wo = Math.random() * Math.PI * 2;
     this.life = 0;
     var c = pickColor();
@@ -3290,21 +3442,21 @@ function initStickyChat() {
   };
   P.prototype.update = function() {
     this.life++;
-    this.y += this.sy;
-    this.x += this.sx + Math.sin(this.life * this.ws + this.wo) * 0.3;
+    this.y += this.sy + Math.cos(this.life * this.ws + this.wo) * 0.15;
+    this.x += this.sx + Math.sin(this.life * this.ws + this.wo) * 0.15;
+    // Mouse repulsion within 100px
     var dx = this.x - mouse.x, dy = this.y - mouse.y, d = Math.sqrt(dx * dx + dy * dy);
-    if (d < 120) { var f = (120 - d) / 120 * 0.5; this.x += (dx / d) * f; this.y += (dy / d) * f; }
-    this.cop = this.life < 60 ? this.op * (this.life / 60) : this.op;
-    if (this.y < -20 || this.x < -20 || this.x > canvas.width + 20) this.reset();
+    if (d < 100 && d > 0) { var f = (100 - d) / 100 * 0.4; this.x += (dx / d) * f; this.y += (dy / d) * f; }
+    this.cop = this.op;
+    // Wrap around edges
+    if (this.x < -10) this.x = canvas.width + 10;
+    if (this.x > canvas.width + 10) this.x = -10;
+    if (this.y < -10) this.y = canvas.height + 10;
+    if (this.y > canvas.height + 10) this.y = -10;
   };
   P.prototype.draw = function() {
     ctx.beginPath(); ctx.arc(this.x, this.y, this.sz, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(' + this.r + ',' + this.g + ',' + this.b + ',' + this.cop + ')'; ctx.fill();
-    // Glow halo on large particles
-    if (this.sz > 1.5) {
-      ctx.beginPath(); ctx.arc(this.x, this.y, this.sz * 3, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(' + this.r + ',' + this.g + ',' + this.b + ',' + (this.cop * 0.15) + ')'; ctx.fill();
-    }
   };
 
   for (var i = 0; i < COUNT; i++) particles.push(new P());
@@ -3312,16 +3464,17 @@ function initStickyChat() {
   function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for (var i = 0; i < particles.length; i++) { particles[i].update(); particles[i].draw(); }
-    // Connection lines
+    // Connection lines between particles within 120px
     for (var i = 0; i < particles.length; i++) {
       for (var j = i + 1; j < particles.length; j++) {
         var dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
         var d = Math.sqrt(dx * dx + dy * dy);
-        if (d < 100) {
+        if (d < 120) {
+          var alpha = (1 - d / 120) * 0.08;
           ctx.beginPath();
           ctx.moveTo(particles[i].x, particles[i].y);
           ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle = 'rgba(' + Math.round((particles[i].r + particles[j].r) / 2) + ',' + Math.round((particles[i].g + particles[j].g) / 2) + ',' + Math.round((particles[i].b + particles[j].b) / 2) + ',' + ((1 - d / 100) * 0.06) + ')';
+          ctx.strokeStyle = 'rgba(' + Math.round((particles[i].r + particles[j].r) / 2) + ',' + Math.round((particles[i].g + particles[j].g) / 2) + ',' + Math.round((particles[i].b + particles[j].b) / 2) + ',' + alpha + ')';
           ctx.lineWidth = 0.5;
           ctx.stroke();
         }

@@ -597,6 +597,7 @@ const FONT_MAP = {
   .bento-grid {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
+    grid-auto-rows: min-content;
     gap: 16px;
   }
   .bento-card {
@@ -608,6 +609,7 @@ const FONT_MAP = {
     padding: 20px;
     overflow: hidden;
     transition: border-color 0.2s;
+    align-self: start;
   }
   .bento-card:hover { border-color: var(--accent-border); }
   .span-2 { grid-column: span 2; }

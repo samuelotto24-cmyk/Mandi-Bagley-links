@@ -609,8 +609,12 @@ Respond with ONLY valid JSON (no markdown, no code fences) matching this exact s
 }
 
 Rules:
-- 3 actionItems focused on GROWTH — growing followers, increasing views, driving link clicks and code usage. Prioritized high/medium/low. Each MUST have: a short headline (5-6 words max), a dataPoint referencing a real number, a ready-to-paste caption with emojis, a timeframe, and a specific time
-- Action items should reference cross-platform data when available (e.g., "Your TikTok audience drove X views — repurpose that content for IG")
+- 3 actionItems focused on GROWTH. Prioritized high/medium/low. Each MUST have: a short headline (5-6 words max), a dataPoint referencing a real number, a ready-to-paste caption with emojis, a timeframe, and a specific time
+- Headlines must be SPECIFIC CONTENT IDEAS, not vague strategy. Good: "Post DFYNE workout reel at peak" or "Share meal prep transformation story". Bad: "Bridge conversion gap", "Optimize engagement metrics", "Leverage cross-platform synergy"
+- Captions must sound like a REAL PERSON wrote them — conversational, authentic to the creator's voice. No corporate marketing speak. No "tag someone who needs this". No "let's finish strong together". Write like the creator actually talks to their audience.
+- dataPoint should cite a specific number from the data and explain WHY the action matters (e.g., "Your last fitness reel got 12K views — 3x your average")
+- Action items should reference cross-platform data when available
+- NEVER reference internal goals, conversion gaps, or dashboard metrics in headlines or captions. The creator posts content, they don't "bridge gaps"
 - 7 calendar days (Mon-Sun), mix of content types appropriate for their niche, use peak hours for timing, include one rest day
 - proactiveInsight: flag the most important growth opportunity or anomaly. null if nothing notable.
 - NEVER suggest website layout changes

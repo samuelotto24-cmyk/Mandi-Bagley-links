@@ -1765,8 +1765,8 @@
       }
       .about-photo { order: -1; }
 
-      /* Brand grid: single column */
-      .brand-grid { grid-template-columns: 1fr; }
+      /* Brand grid: 2x2 on mobile */
+      .brand-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
     }
 
     /* Always hide mobile drawer on wide screens */
@@ -1825,9 +1825,14 @@
       .program-payment-note { font-size: 9px !important; }
       .program-cta { font-size: 13px !important; padding: 10px 16px !important; }
 
-      /* Brand cards: tighter */
-      .brand-card { padding: 18px 16px; gap: 10px; }
-      .brand-grid { gap: 12px; }
+      /* Brand cards: compact for 2x2 */
+      .brand-card { padding: 12px 10px; gap: 8px; }
+      .brand-grid { gap: 10px; }
+      .brand-name { font-size: 16px; }
+      .brand-desc { font-size: 11px; line-height: 1.5; }
+      .code-row { flex-wrap: wrap; gap: 6px; }
+      .code-pill { font-size: 11px; padding: 5px 10px; }
+      .brand-link { font-size: 11px; padding: 7px 12px; }
 
       /* Testimonials: smaller cards and text */
       .testimonial-card { flex: 0 0 220px; min-width: 190px; padding: 10px 13px; gap: 5px; }

@@ -817,6 +817,14 @@ const FONT_MAP = {
   .cal-notes::placeholder { color: var(--text-muted); }
   .cal-notes:focus { border-color: var(--accent-border); }
 
+  .cal-close-btn {
+    position: absolute; top: 8px; right: 8px; width: 24px; height: 24px;
+    border-radius: 50%; border: 1px solid var(--border); background: rgba(0,0,0,0.5);
+    color: var(--text-muted); font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .cal-close-btn:hover { color: var(--text); border-color: var(--accent-border); }
   .cal-day-saved-indicator {
     width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
     position: absolute; top: 6px; right: 6px;
@@ -2586,6 +2594,7 @@ function renderCalendar(data) {
 
     // Expandable body
     html += '<div class="cal-expand-body">';
+    html += '<button class="cal-close-btn" onclick="collapseCalDay(event)" title="Close">&times;</button>';
     html += '<div class="cal-type-pills" data-date="' + dateStr + '">';
     var types = [
       { key: 'reel', icon: '&#128249;', label: 'Reel' },
@@ -2621,12 +2630,18 @@ function renderCalendar(data) {
 }
 
 function toggleCalDay(el, e) {
-  if (e.target.closest('.cal-type-pill') || e.target.closest('.cal-suggestion') || e.target.closest('.cal-notes')) return;
+  if (e.target.closest('.cal-type-pill') || e.target.closest('.cal-suggestion') || e.target.closest('.cal-notes') || e.target.closest('.cal-close-btn')) return;
   var wasExpanded = el.classList.contains('expanded');
   // Collapse all
   document.querySelectorAll('.cal-day.expanded').forEach(function(d) { d.classList.remove('expanded'); });
   // Expand clicked (if it wasn't already open)
   if (!wasExpanded) el.classList.add('expanded');
+}
+
+function collapseCalDay(e) {
+  e.stopPropagation();
+  var day = e.target.closest('.cal-day');
+  if (day) day.classList.remove('expanded');
 }
 
 function selectCalType(btn, dateStr, type, e) {

@@ -831,6 +831,47 @@ const FONT_MAP = {
   .bento-card .chat-prompts { padding: 4px 20px 12px; }
   .bento-card .chat-input-row { padding: 12px 20px; }
 
+  /* ── Connect Reminder Popup ── */
+  .connect-reminder-overlay {
+    position: fixed; inset: 0; z-index: 250; display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .connect-reminder-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+    padding: 36px 32px; width: 440px; max-width: 90vw; text-align: center;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+    animation: slideUp 0.4s cubic-bezier(0.23,1,0.32,1);
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .connect-reminder-icon { font-size: 36px; margin-bottom: 12px; }
+  .connect-reminder-title { font-family: var(--serif); font-size: 24px; font-weight: 400; color: var(--text); margin-bottom: 8px; }
+  .connect-reminder-text { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
+  .connect-reminder-platforms {
+    display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;
+  }
+  .connect-reminder-platform {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px; background: var(--surface-elevated); border: 1px solid var(--border);
+    border-radius: 10px; font-size: 13px; color: var(--text);
+  }
+  .connect-reminder-status { font-size: 11px; color: var(--text-muted); }
+  .connect-reminder-status.connected { color: #22c55e; }
+  .connect-reminder-buttons { display: flex; flex-direction: column; gap: 8px; }
+  .connect-reminder-btn {
+    width: 100%; padding: 13px; border: none; border-radius: 12px;
+    font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .connect-reminder-btn.primary {
+    background: var(--accent); color: #000;
+  }
+  .connect-reminder-btn.dismiss {
+    background: transparent; color: var(--text-muted); border: 1px solid var(--border);
+  }
+  .connect-reminder-btn:hover { opacity: 0.85; }
+
   /* ── Platform CTA ── */
   .platform-cta {
     display: flex; align-items: flex-start; gap: 12px;
@@ -2016,6 +2057,33 @@ const FONT_MAP = {
   </div>
 </div>
 
+<!-- Connect Platforms Reminder -->
+<div class="connect-reminder-overlay" id="connectReminder" style="display:none">
+  <div class="connect-reminder-card">
+    <div class="connect-reminder-icon">&#128279;</div>
+    <h3 class="connect-reminder-title">Connect your platforms</h3>
+    <p class="connect-reminder-text">Link your YouTube, Instagram, and TikTok for a full analytics debrief — cross-platform followers, views, content performance, and AI strategy powered by your real data.</p>
+    <div class="connect-reminder-platforms">
+      <div class="connect-reminder-platform">
+        <span>&#9654;&#65039; YouTube</span>
+        <span class="connect-reminder-status" id="connectReminderYT">Not connected</span>
+      </div>
+      <div class="connect-reminder-platform">
+        <span>&#128247; Instagram</span>
+        <span class="connect-reminder-status">Coming soon</span>
+      </div>
+      <div class="connect-reminder-platform">
+        <span>&#127925; TikTok</span>
+        <span class="connect-reminder-status" id="connectReminderTT">Not connected</span>
+      </div>
+    </div>
+    <div class="connect-reminder-buttons">
+      <button class="connect-reminder-btn primary" onclick="closeConnectReminder();document.querySelector('#socialPlatforms').scrollIntoView({behavior:'smooth'})">Connect Now</button>
+      <button class="connect-reminder-btn dismiss" onclick="dismissConnectReminder()">Don't show this again</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════════════════════════
      JAVASCRIPT
      ═══════════════════════════════════════════════════ -->
@@ -2127,6 +2195,9 @@ function showHub() {
 
   // Init create post
   initCreatePost();
+
+  // Show connect reminder if platforms aren't connected and not dismissed
+  setTimeout(showConnectReminder, 1200);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -3656,6 +3727,44 @@ function typeGreeting(text) {
   }
   animate();
 })();
+
+/* ═══════════════════════════════════════════════════
+   CONNECT PLATFORMS REMINDER
+   ═══════════════════════════════════════════════════ */
+function showConnectReminder() {
+  // Don't show if user dismissed it
+  if (localStorage.getItem('connectReminderDismissed')) return;
+
+  // Check which platforms are connected
+  var ytConnected = document.getElementById('ytStatus') && document.getElementById('ytStatus').textContent.startsWith('Connected');
+  var ttConnected = document.getElementById('tiktokStatus') && document.getElementById('tiktokStatus').textContent.startsWith('Connected');
+
+  // Don't show if both are connected
+  if (ytConnected && ttConnected) return;
+
+  // Update statuses in the reminder
+  var ytLabel = document.getElementById('connectReminderYT');
+  var ttLabel = document.getElementById('connectReminderTT');
+  if (ytLabel) {
+    ytLabel.textContent = ytConnected ? 'Connected' : 'Not connected';
+    if (ytConnected) ytLabel.classList.add('connected');
+  }
+  if (ttLabel) {
+    ttLabel.textContent = ttConnected ? 'Connected' : 'Not connected';
+    if (ttConnected) ttLabel.classList.add('connected');
+  }
+
+  document.getElementById('connectReminder').style.display = 'flex';
+}
+
+function closeConnectReminder() {
+  document.getElementById('connectReminder').style.display = 'none';
+}
+
+function dismissConnectReminder() {
+  localStorage.setItem('connectReminderDismissed', '1');
+  document.getElementById('connectReminder').style.display = 'none';
+}
 
 /* ═══════════════════════════════════════════════════
    AUDIENCE HEATMAP

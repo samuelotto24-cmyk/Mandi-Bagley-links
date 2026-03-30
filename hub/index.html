@@ -826,7 +826,7 @@ const FONT_MAP = {
 
   /* ── Mobile ── */
   @media (max-width: 768px) {
-    .hub-main { padding: 20px 14px 90px; }
+    .hub-main { padding: 16px 16px 180px !important; }
     .social-chips { flex-direction: column; }
     /* Stats tiles: horizontal scroll on mobile */
     .stats-grid { display: flex !important; overflow-x: auto; gap: 8px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
@@ -834,7 +834,7 @@ const FONT_MAP = {
     .stats-grid .stat-tile { min-width: 120px; flex-shrink: 0; }
   }
   @media (max-width: 640px) {
-    .hub-main { padding: 24px 14px 90px; }
+    .hub-main { padding: 16px 12px 180px !important; }
     .gradient-mesh { filter: blur(60px); }
     .gradient-mesh-2 { filter: blur(70px); }
 
@@ -957,7 +957,7 @@ const FONT_MAP = {
 
   /* ── Small phones ── */
   @media (max-width: 380px) {
-    .hub-main { padding: 20px 10px 85px; }
+    .hub-main { padding: 16px 10px 180px !important; }
     .stat-value { font-size: 20px; }
     .stat-tile { padding: 10px 6px; }
     .briefing-card { padding: 12px; }
@@ -1271,7 +1271,7 @@ const FONT_MAP = {
 @media (max-width: 640px) {
 
   /* ── Global: tighter spacing ── */
-  .hub-main { padding: 16px 12px 80px !important; }
+  .hub-main { padding: 16px 12px 180px !important; }
   .divider { margin: 12px 0 !important; }
   .section-label { font-size: 8px !important; letter-spacing: 0.18em; margin-bottom: 6px !important; }
   .card { border-radius: 12px; }
@@ -1382,7 +1382,7 @@ const FONT_MAP = {
 
 /* ── Extra small phones ── */
 @media (max-width: 380px) {
-  .hub-main { padding: 14px 8px 75px !important; }
+  .hub-main { padding: 14px 8px 180px !important; }
   .stat-value { font-size: 18px !important; }
   .briefing-title { font-size: 14px !important; }
   .action-headline { font-size: 12px !important; }
@@ -1548,18 +1548,31 @@ const FONT_MAP = {
 @media (max-width: 768px) {
   .hub-shell { grid-template-columns: 1fr; }
   .hub-sidebar {
-    position: fixed; bottom: 0; left: 0; right: 0; height: auto;
-    flex-direction: row; justify-content: center;
-    padding: 8px 16px; gap: 24px; border-right: none;
+    position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
+    flex-direction: row; justify-content: space-around; align-items: center;
+    padding: 4px 8px 8px; gap: 0; border-right: none;
     border-top: 1px solid var(--border);
-    background: rgba(10,10,10,0.95); backdrop-filter: blur(20px);
+    background: rgba(10,10,10,0.98); backdrop-filter: blur(20px);
     z-index: 100;
   }
   .hub-sidebar .sidebar-logo { display: none; }
   .hub-sidebar .sidebar-spacer { display: none; }
-  .hub-sidebar .sidebar-label { display: none; }
+  /* Hide Site and Dashboard links (the <a> tags) on mobile */
+  .hub-sidebar a.sidebar-nav-item { display: none !important; }
+  .hub-sidebar a.sidebar-nav-item + .sidebar-label { display: none !important; }
+  /* Show labels on mobile nav buttons */
+  .hub-sidebar .sidebar-label {
+    display: block; font-size: 9px; margin-top: 1px; color: var(--text-muted);
+  }
+  /* Nav item layout for buttons */
+  .hub-sidebar button.sidebar-nav-item {
+    width: auto; height: auto; flex-direction: column;
+    display: flex; align-items: center; justify-content: center;
+    gap: 2px; font-size: 20px; padding: 4px 12px;
+  }
   .hub-sidebar .sidebar-nav-item.active::before { display: none; }
-  .hub-main { padding: 20px 16px 80px; }
+  .hub-sidebar .sidebar-nav-item.active { background: transparent; }
+  .hub-main { padding: 16px 16px 180px !important; }
 }
 
 /* ── Home View Layout ── */
@@ -1660,9 +1673,25 @@ const FONT_MAP = {
 }
 
 @media (max-width: 768px) {
-  .home-grid { grid-template-columns: 1fr; }
-  .home-create-post { grid-row: auto; }
-  .home-bottom-row { grid-template-columns: 1fr; }
+  .home-greeting { margin-bottom: 16px; }
+  .home-greeting h1 { font-size: 22px; }
+  .home-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .home-create-post { grid-row: auto; order: 1; }
+  .home-card { padding: 16px; }
+  #homeBriefingCard { order: 0; }
+  #homeStatsCard { order: 2; }
+  .home-stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .home-stat-tile { padding: 10px; }
+  .home-stat-tile .stat-value { font-size: 20px; }
+  .home-goal-strip { margin-bottom: 12px; padding: 12px 16px; }
+  .home-bottom-row { grid-template-columns: 1fr; gap: 12px; }
+  .section-divider { margin: 16px 0; }
+  .home-card-label { font-size: 9px; }
+  .home-card-hint { font-size: 10px; }
 }
 
 /* ── Analytics View ── */
@@ -1672,7 +1701,11 @@ const FONT_MAP = {
   color: var(--text-muted); margin-bottom: 12px; font-weight: 600;
 }
 .analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-@media (max-width: 768px) { .analytics-grid { grid-template-columns: 1fr; } }
+@media (max-width: 768px) {
+  .analytics-grid { grid-template-columns: 1fr; gap: 12px; }
+  #viewAnalytics .home-greeting h1 { font-size: 22px; }
+  .social-chips { gap: 12px; }
+}
 
 /* ── Floating Chat Agent ── */
 .chat-fab-btn {
@@ -1822,12 +1855,40 @@ const FONT_MAP = {
 .contact-bar-sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
 
 @media (max-width: 768px) {
-  .chat-fab-btn { bottom: 100px; }
+  /* Chat FAB — above contact bar */
+  .chat-fab-btn { bottom: 128px; right: 16px; width: 44px; height: 44px; font-size: 18px; }
+  /* Chat panel — full width */
   .chat-panel { width: 100vw; }
-  #viewStrategist { height: calc(100vh - 120px); }
+  /* Strategist view — fit mobile viewport */
+  #viewStrategist.active {
+    height: calc(100vh - 240px);
+  }
+  .strategist-view-header h1 { font-size: 22px; }
+  .strategist-view-header { margin-bottom: 12px; }
+  .strategist-insight { padding: 14px; margin-bottom: 12px; }
+  .strategist-insight-text { font-size: 13px; }
+  .strategist-prompts { gap: 6px; margin-bottom: 12px; }
+  .strategist-prompt-chip { font-size: 11px; padding: 6px 12px; }
   .strategist-chat-container { min-height: 120px; }
-  .contact-bar { bottom: 64px; left: 50%; }
-  .contact-bar-btn { font-size: 11px; padding: 8px 14px; }
+  /* Contact bar — dock above bottom nav */
+  .contact-bar {
+    bottom: 64px; left: 8px; right: 8px; transform: none;
+    width: auto;
+  }
+  .contact-bar-btn { font-size: 11px; padding: 8px 14px; flex: 1; justify-content: center; }
+  /* Planner view — horizontal scroll for calendar days */
+  #viewPlanner .home-greeting h1 { font-size: 22px; }
+  .calendar-strip {
+    display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    gap: 8px; padding-bottom: 8px;
+    scroll-snap-type: x mandatory;
+  }
+  .calendar-strip .cal-day {
+    min-width: 120px; flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+  /* Gradient background — reduce on mobile */
+  .gradient-bg { opacity: 0.3; }
 }
 
 /* ── Section Color Accents ── */

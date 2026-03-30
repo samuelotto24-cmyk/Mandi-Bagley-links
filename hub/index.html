@@ -595,6 +595,143 @@ const FONT_MAP = {
   .social-chip-status { font-size: 10px; color: var(--text-muted); }
   .social-chip-stat { font-size: 11px; color: var(--accent); font-weight: 600; margin-left: auto; }
 
+  /* ── Platform Cards ── */
+  .platform-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .platform-card-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .platform-card-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    object-fit: cover;
+  }
+  .platform-card-info { flex: 1; }
+  .platform-card-name {
+    font-size: 15px; font-weight: 600; color: var(--text);
+  }
+  .platform-card-handle {
+    font-size: 12px; color: var(--text-muted);
+  }
+  .platform-card-badge {
+    font-size: 10px; font-weight: 600; padding: 4px 12px;
+    border-radius: 50px;
+  }
+  .platform-card-badge.connected {
+    background: rgba(34,197,94,0.12); color: #22c55e;
+  }
+  .platform-card-badge.disconnected {
+    background: rgba(255,255,255,0.06); color: var(--text-muted);
+  }
+
+  .platform-card-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--border);
+  }
+  .platform-card-stat {
+    padding: 16px; text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .platform-card-stat:last-child { border-right: none; }
+  .platform-card-stat-value {
+    font-family: var(--serif); font-size: 22px; color: var(--text);
+  }
+  .platform-card-stat-label {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--text-muted); margin-top: 4px;
+  }
+
+  .platform-card-section {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .platform-card-section:last-child { border-bottom: none; }
+  .platform-card-section-title {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-muted); font-weight: 600; margin-bottom: 12px;
+  }
+
+  /* Top post */
+  .platform-top-post {
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .platform-top-post img {
+    width: 80px; height: 80px; border-radius: 8px;
+    object-fit: cover; border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .platform-top-post-caption {
+    font-size: 13px; color: var(--text); line-height: 1.5;
+    display: -webkit-box; -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .platform-top-post-stats {
+    font-size: 11px; color: var(--text-muted); margin-top: 6px;
+  }
+
+  /* Recent posts grid */
+  .platform-recent-posts {
+    display: flex; gap: 8px; overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+  .platform-recent-post {
+    width: 100px; flex-shrink: 0; position: relative;
+  }
+  .platform-recent-post img {
+    width: 100px; height: 100px; border-radius: 8px;
+    object-fit: cover; border: 1px solid var(--border);
+  }
+  .platform-recent-post-likes {
+    position: absolute; bottom: 6px; left: 6px;
+    background: rgba(0,0,0,0.7); border-radius: 4px;
+    padding: 2px 6px; font-size: 10px; color: #fff;
+    backdrop-filter: blur(4px);
+  }
+
+  /* Disconnected state */
+  .platform-card-empty {
+    padding: 32px 20px; text-align: center;
+  }
+  .platform-card-empty-icon {
+    font-size: 32px; margin-bottom: 12px;
+  }
+  .platform-card-empty-title {
+    font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 6px;
+  }
+  .platform-card-empty-text {
+    font-size: 12px; color: var(--text-muted); line-height: 1.5;
+    margin-bottom: 16px; max-width: 320px; margin-left: auto; margin-right: auto;
+  }
+  .platform-card-connect-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 24px; border-radius: 50px;
+    font-family: var(--sans); font-size: 13px; font-weight: 600;
+    text-decoration: none; transition: all 0.2s;
+    cursor: pointer; border: none;
+  }
+  .platform-card-connect-btn.instagram {
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    color: #fff;
+  }
+  .platform-card-connect-btn.tiktok {
+    background: #00f2ea; color: #000;
+  }
+  .platform-card-connect-btn.youtube {
+    background: #ff0000; color: #fff;
+  }
+  .platform-card-connect-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+
+  /* Platform-specific accents */
+  .platform-card.instagram .platform-card-header { border-bottom-color: rgba(225,48,108,0.2); }
+  .platform-card.tiktok .platform-card-header { border-bottom-color: rgba(0,242,234,0.2); }
+  .platform-card.youtube .platform-card-header { border-bottom-color: rgba(255,0,0,0.2); }
 
   /* ── Expandable Calendar Day ── */
   .cal-day { cursor: pointer; position: relative; }
@@ -828,6 +965,11 @@ const FONT_MAP = {
   @media (max-width: 768px) {
     .hub-main { padding: 16px 16px 180px !important; }
     .social-chips { flex-direction: column; }
+    .platform-card-stats { grid-template-columns: repeat(2, 1fr); }
+    .platform-card-stat { padding: 12px; }
+    .platform-card-stat-value { font-size: 18px; }
+    .platform-recent-post { width: 80px; }
+    .platform-recent-post img { width: 80px; height: 80px; }
     /* Stats tiles: horizontal scroll on mobile */
     .stats-grid { display: flex !important; overflow-x: auto; gap: 8px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
     .stats-grid::-webkit-scrollbar { display: none; }
@@ -2180,114 +2322,112 @@ const FONT_MAP = {
     <div class="home-subtitle">Your social platforms and audience insights</div>
   </div>
 
-  <!-- Connect Banner -->
-  <div class="connect-banner" id="connectBanner" style="display:none;">
-    <span class="connect-banner-icon">&#9888;&#65039;</span>
-    <span class="connect-banner-text">Action needed — connect your platforms to activate full analytics</span>
-    <button class="connect-banner-btn" onclick="closeConnectBanner();document.querySelector('#socialPlatforms').scrollIntoView({behavior:'smooth'})">Connect &rarr;</button>
-    <button class="connect-banner-close" onclick="dismissConnectBanner()">&times;</button>
+  <!-- Instagram Card -->
+  <div class="platform-card instagram" id="igCard">
+    <div class="platform-card-header">
+      <span style="font-size:24px">&#128247;</span>
+      <div class="platform-card-info">
+        <div class="platform-card-name">Instagram</div>
+        <div class="platform-card-handle" id="igStatus">Not connected</div>
+      </div>
+      <span class="platform-card-badge disconnected" id="igBadge">Not Connected</span>
+      <a class="platform-card-connect-btn instagram" id="igConnectBtn" href="/api/instagram-auth">Connect</a>
+    </div>
+    <div id="igData" style="display:none;"></div>
+    <div id="igEmptyState" class="platform-card-empty">
+      <div class="platform-card-empty-icon">&#128247;</div>
+      <div class="platform-card-empty-title">Connect Instagram</div>
+      <div class="platform-card-empty-text">See your follower growth, engagement rate, top posts, and content performance — all in one place.</div>
+    </div>
   </div>
 
-  <!-- Platforms Section -->
-  <div class="analytics-section">
-    <div class="analytics-section-title">Platforms</div>
-    <div class="platform-cta" id="platformCta">
-      <div class="platform-cta-icon">&#128279;</div>
-      <div class="platform-cta-text">
-        <strong>Connect your platforms to unlock full analytics</strong>
-        <span>Link YouTube, TikTok, and Instagram to see followers, cross-platform views, content performance, and AI-powered strategy across all your channels.</span>
+  <!-- TikTok Card -->
+  <div class="platform-card tiktok" id="tiktokPlatformCard">
+    <div class="platform-card-header">
+      <span style="font-size:24px">&#127925;</span>
+      <div class="platform-card-info">
+        <div class="platform-card-name">TikTok</div>
+        <div class="platform-card-handle" id="tiktokStatus">Not connected</div>
       </div>
+      <span class="platform-card-badge disconnected" id="tiktokBadge">Not Connected</span>
+      <a class="platform-card-connect-btn tiktok" id="tiktokConnectBtn" href="/api/tiktok-auth">Connect</a>
+      <button id="tiktokDisconnectBtn" style="display:none;background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text-muted);font-size:11px;cursor:pointer;" onclick="confirmDisconnectTikTok()">Disconnect</button>
     </div>
-    <div class="social-chips" id="socialPlatforms">
-      <!-- YouTube chip -->
-      <div class="social-chip" id="ytCard">
-        <span class="social-chip-icon">&#9654;&#65039;</span>
+    <div id="tiktokDisconnectConfirm" style="display:none;padding:12px 20px;background:rgba(239,68,68,0.08);border-bottom:1px solid var(--border);">
+      <span style="font-size:12px;color:#f87171;">Disconnect TikTok? You'll need to reconnect to see analytics.</span>
+      <button onclick="disconnectTikTok()" style="margin-left:12px;background:#f87171;color:#fff;border:none;border-radius:6px;padding:4px 12px;font-size:11px;cursor:pointer;">Yes, disconnect</button>
+      <button onclick="cancelDisconnectTikTok()" style="margin-left:6px;background:none;border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:11px;color:var(--text-muted);cursor:pointer;">Cancel</button>
+    </div>
+    <div id="tiktokData" style="display:none">
+      <div style="display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border)">
+        <img id="tiktokAvatar" src="" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--accent)" />
         <div>
-          <div class="social-chip-name">YouTube</div>
-          <div class="social-chip-status" id="ytStatus">Not connected</div>
+          <div id="tiktokName" style="font-size:14px;font-weight:600;color:var(--text)"></div>
+          <div id="tiktokFollowers" style="font-size:11px;color:var(--text-muted)"></div>
         </div>
-        <a class="hub-nav-pill" id="ytConnectBtn" href="#" style="margin-left:auto;font-size:10px">Connect</a>
-        <button id="ytDisconnectBtn" style="display:none;position:absolute;top:8px;right:8px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:border-color 0.2s,color 0.2s;" onmouseover="this.style.borderColor='#f87171';this.style.color='#f87171'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'" onclick="confirmDisconnectYouTube()">Disconnect</button>
-        <div id="ytDisconnectConfirm" style="display:none;position:absolute;top:8px;right:8px;background:var(--surface-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 16px;z-index:5;text-align:center;">
-          <div style="font-size:12px;color:var(--text);margin-bottom:10px;">Disconnect YouTube?</div>
-          <div style="display:flex;gap:8px;">
-            <button style="flex:1;padding:6px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);" onclick="cancelDisconnectYouTube()">Cancel</button>
-            <button style="flex:1;padding:6px 12px;background:#f87171;border:none;color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;" onclick="disconnectYouTube()">Confirm</button>
-          </div>
-        </div>
-        <div id="ytData" style="display:none;"></div>
       </div>
-      <!-- Instagram chip -->
-      <div class="social-chip" id="igCard">
-        <span class="social-chip-icon">&#128247;</span>
-        <div>
-          <div class="social-chip-name">Instagram</div>
-          <div class="social-chip-status" id="igStatus">Not connected</div>
+      <div class="platform-card-stats">
+        <div class="platform-card-stat">
+          <div class="platform-card-stat-value" id="tiktokViews">&#8212;</div>
+          <div class="platform-card-stat-label">Views</div>
         </div>
-        <a class="hub-nav-pill" id="igConnectBtn" href="/api/instagram-auth" style="margin-left:auto;font-size:10px">Connect</a>
-        <div id="igData" style="display:none;grid-column:1/-1"></div>
+        <div class="platform-card-stat">
+          <div class="platform-card-stat-value" id="tiktokLikes">&#8212;</div>
+          <div class="platform-card-stat-label">Likes</div>
+        </div>
+        <div class="platform-card-stat">
+          <div class="platform-card-stat-value" id="tiktokComments">&#8212;</div>
+          <div class="platform-card-stat-label">Comments</div>
+        </div>
+        <div class="platform-card-stat">
+          <div class="platform-card-stat-value" id="tiktokShares">&#8212;</div>
+          <div class="platform-card-stat-label">Shares</div>
+        </div>
       </div>
-      <!-- TikTok chip -->
-      <div class="social-chip" id="tiktokPlatformCard">
-        <span class="social-chip-icon">&#127925;</span>
-        <div>
-          <div class="social-chip-name">TikTok</div>
-          <div class="social-chip-status" id="tiktokStatus">Not connected</div>
-        </div>
-        <a class="hub-nav-pill" id="tiktokConnectBtn" href="/api/tiktok-auth" style="margin-left:auto;font-size:10px">Connect</a>
-        <button id="tiktokDisconnectBtn" style="display:none;position:absolute;top:8px;right:8px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:border-color 0.2s,color 0.2s;z-index:3;" onmouseover="this.style.borderColor='#f87171';this.style.color='#f87171'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'" onclick="confirmDisconnectTikTok()">Disconnect</button>
-        <div id="tiktokDisconnectConfirm" style="display:none;position:absolute;top:8px;right:8px;background:var(--surface-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 16px;z-index:5;text-align:center;">
-          <div style="font-size:12px;color:var(--text);margin-bottom:10px;">Disconnect TikTok?</div>
-          <div style="display:flex;gap:8px;">
-            <button style="flex:1;padding:6px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);" onclick="cancelDisconnectTikTok()">Cancel</button>
-            <button style="flex:1;padding:6px 12px;background:#f87171;border:none;color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;" onclick="disconnectTikTok()">Confirm</button>
-          </div>
-        </div>
-        <div id="tiktokData" style="display:none">
-          <div style="display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border)">
-            <img id="tiktokAvatar" src="" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--accent)" />
-            <div>
-              <div id="tiktokName" style="font-size:14px;font-weight:600;color:var(--text)"></div>
-              <div id="tiktokFollowers" style="font-size:11px;color:var(--text-muted)"></div>
-            </div>
-            <div style="margin-left:auto;background:#22c55e;color:#fff;font-size:10px;font-weight:600;padding:3px 10px;border-radius:50px">Connected</div>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--border)">
-            <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
-              <div id="tiktokViews" style="font-family:var(--serif);font-size:22px;color:var(--text)">&#8212;</div>
-              <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Views</div>
-            </div>
-            <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
-              <div id="tiktokLikes" style="font-family:var(--serif);font-size:22px;color:var(--text)">&#8212;</div>
-              <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Likes</div>
-            </div>
-            <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
-              <div id="tiktokComments" style="font-family:var(--serif);font-size:22px;color:var(--text)">&#8212;</div>
-              <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Comments</div>
-            </div>
-            <div style="padding:16px;text-align:center">
-              <div id="tiktokShares" style="font-family:var(--serif);font-size:22px;color:var(--text)">&#8212;</div>
-              <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Shares</div>
-            </div>
-          </div>
-          <div id="tiktokTopVideo" style="padding:16px 20px;display:none">
-            <div style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px">Top Performing Video</div>
-            <div style="display:flex;align-items:center;gap:12px">
-              <img id="tiktokTopCover" src="" style="width:48px;height:64px;border-radius:6px;object-fit:cover;border:1px solid var(--border)" />
-              <div style="flex:1;min-width:0">
-                <div id="tiktokTopTitle" style="font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
-                <div id="tiktokTopStats" style="font-size:11px;color:var(--text-muted);margin-top:3px"></div>
-              </div>
-            </div>
+      <div id="tiktokTopVideo" class="platform-card-section" style="display:none">
+        <div class="platform-card-section-title">Top Performing Video</div>
+        <div class="platform-top-post">
+          <img id="tiktokTopCover" src="" style="width:48px;height:64px;border-radius:6px;object-fit:cover;border:1px solid var(--border)" />
+          <div style="flex:1;min-width:0">
+            <div id="tiktokTopTitle" style="font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+            <div id="tiktokTopStats" style="font-size:11px;color:var(--text-muted);margin-top:3px"></div>
           </div>
         </div>
       </div>
     </div>
-    <!-- Hidden platformDetailsSection for JS compat -->
-    <div id="platformDetailsSection" style="display:none"></div>
+    <div id="tiktokEmptyState" class="platform-card-empty">
+      <div class="platform-card-empty-icon">&#127925;</div>
+      <div class="platform-card-empty-title">Connect TikTok</div>
+      <div class="platform-card-empty-text">Track your video views, likes, comments, and shares. See which content performs best and when to post.</div>
+    </div>
   </div>
 
-  <!-- Heatmap + Brand Codes side by side -->
+  <!-- YouTube Card -->
+  <div class="platform-card youtube" id="ytCard">
+    <div class="platform-card-header">
+      <span style="font-size:24px">&#9654;&#65039;</span>
+      <div class="platform-card-info">
+        <div class="platform-card-name">YouTube</div>
+        <div class="platform-card-handle" id="ytStatus">Not connected</div>
+      </div>
+      <span class="platform-card-badge disconnected" id="ytBadge">Not Connected</span>
+      <a class="platform-card-connect-btn youtube" id="ytConnectBtn" href="#">Connect</a>
+      <button id="ytDisconnectBtn" style="display:none;background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text-muted);font-size:11px;cursor:pointer;" onclick="confirmDisconnectYouTube()">Disconnect</button>
+    </div>
+    <div id="ytDisconnectConfirm" style="display:none;padding:12px 20px;background:rgba(239,68,68,0.08);border-bottom:1px solid var(--border);">
+      <span style="font-size:12px;color:#f87171;">Disconnect YouTube? You'll need to reconnect to see analytics.</span>
+      <button onclick="disconnectYouTube()" style="margin-left:12px;background:#f87171;color:#fff;border:none;border-radius:6px;padding:4px 12px;font-size:11px;cursor:pointer;">Yes, disconnect</button>
+      <button onclick="cancelDisconnectYouTube()" style="margin-left:6px;background:none;border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:11px;color:var(--text-muted);cursor:pointer;">Cancel</button>
+    </div>
+    <div id="ytData" style="display:none;"></div>
+    <div id="ytEmptyState" class="platform-card-empty">
+      <div class="platform-card-empty-icon">&#9654;&#65039;</div>
+      <div class="platform-card-empty-title">Connect YouTube</div>
+      <div class="platform-card-empty-text">Monitor subscriber growth, watch hours, video performance, and audience demographics.</div>
+    </div>
+  </div>
+
+  <!-- Audience Activity + Brand Codes -->
   <div class="analytics-grid">
     <div class="analytics-section">
       <div class="analytics-section-title">Audience Activity</div>
@@ -2313,6 +2453,10 @@ const FONT_MAP = {
       <div id="topLinks"><div class="empty-state"><p>Link clicks will appear here.</p></div></div>
     </div>
   </div>
+
+  <div id="platformDetailsSection" style="display:none"></div>
+  <div id="connectBanner" style="display:none;"></div>
+  <div id="platformCta" style="display:none;"></div>
 </div>
 
 <div class="hub-view" id="viewPlanner">
@@ -3571,6 +3715,10 @@ async function loadSocialAnalytics() {
     document.getElementById('ytStatus').textContent = 'Connected \u00b7 ' + (data.channelTitle || 'YouTube');
     document.getElementById('ytData').style.display = 'block';
     document.getElementById('ytData').innerHTML = html;
+    var ytBadge = document.getElementById('ytBadge');
+    if (ytBadge) { ytBadge.textContent = 'Connected'; ytBadge.className = 'platform-card-badge connected'; }
+    var ytEmpty = document.getElementById('ytEmptyState');
+    if (ytEmpty) ytEmpty.style.display = 'none';
 
     // Feed into Growth Scoreboard
     scoreboardData.followers.youtube = (ch.subscriberCount) || 0;
@@ -3606,7 +3754,10 @@ async function disconnectYouTube() {
       document.getElementById('ytData').innerHTML = '';
       document.getElementById('ytStatus').textContent = 'Not connected';
       document.getElementById('ytCard').classList.remove('connected');
-      // Social header removed in growth engine redesign
+      var ytBadge = document.getElementById('ytBadge');
+      if (ytBadge) { ytBadge.textContent = 'Not Connected'; ytBadge.className = 'platform-card-badge disconnected'; }
+      var ytEmpty = document.getElementById('ytEmptyState');
+      if (ytEmpty) ytEmpty.style.display = '';
     }
   } catch (e) {
     console.error('Disconnect failed:', e);
@@ -3659,6 +3810,10 @@ async function loadTikTok() {
     // Show connected data + disconnect button
     document.getElementById('tiktokData').style.display = '';
     document.getElementById('tiktokDisconnectBtn').style.display = 'block';
+    var tiktokBadge = document.getElementById('tiktokBadge');
+    if (tiktokBadge) { tiktokBadge.textContent = 'Connected'; tiktokBadge.className = 'platform-card-badge connected'; }
+    var tiktokEmpty = document.getElementById('tiktokEmptyState');
+    if (tiktokEmpty) tiktokEmpty.style.display = 'none';
 
     // Update social header
     updateSocialHeader();
@@ -3720,9 +3875,12 @@ async function disconnectTikTok() {
       document.getElementById('tiktokConnectBtn').style.display = '';
       document.getElementById('tiktokStatus').textContent = 'Not connected';
       document.getElementById('tiktokStatus').style.color = '';
-      document.getElementById('tiktokConnectBtn').textContent = 'Connect TikTok';
+      document.getElementById('tiktokConnectBtn').textContent = 'Connect';
       document.getElementById('tiktokConnectBtn').href = '/api/tiktok-auth';
-      document.getElementById('tiktokPlatformCard').querySelector('.social-connect-btn').textContent = 'Connect TikTok';
+      var tiktokBadge = document.getElementById('tiktokBadge');
+      if (tiktokBadge) { tiktokBadge.textContent = 'Not Connected'; tiktokBadge.className = 'platform-card-badge disconnected'; }
+      var tiktokEmpty = document.getElementById('tiktokEmptyState');
+      if (tiktokEmpty) tiktokEmpty.style.display = '';
     }
   } catch (e) {
     console.error('TikTok disconnect failed:', e);
@@ -4996,35 +5154,76 @@ function loadInstagramData() {
   })
   .then(function(r) { return r.json(); })
   .then(function(data) {
-    var el = document.getElementById('igStatus');
-    var btn = document.getElementById('igConnectBtn');
-    if (data.connected) {
-      if (el) el.textContent = data.username ? '@' + data.username : 'Connected ✓';
-      if (btn) { btn.textContent = 'Connected'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
+    var statusEl = document.getElementById('igStatus');
+    var connectBtn = document.getElementById('igConnectBtn');
+    var badge = document.getElementById('igBadge');
+    var igData = document.getElementById('igData');
+    var emptyState = document.getElementById('igEmptyState');
 
-      // Show stats in the Instagram expanded section if it exists
-      var igData = document.getElementById('igData');
+    if (data.connected) {
+      if (statusEl) statusEl.textContent = data.username ? '@' + data.username : 'Connected';
+      if (connectBtn) connectBtn.style.display = 'none';
+      if (badge) { badge.textContent = 'Connected'; badge.className = 'platform-card-badge connected'; }
+      if (emptyState) emptyState.style.display = 'none';
+
       if (igData) {
         igData.style.display = 'block';
-        igData.innerHTML = ''
-          + '<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-top:1px solid var(--border)">'
-          + (data.profilePic ? '<img src="' + data.profilePic + '" style="width:36px;height:36px;border-radius:50%;border:2px solid #e1306c" />' : '')
-          + '<div>'
-          + '<div style="font-size:14px;font-weight:600;color:var(--text)">' + (data.name || data.username) + '</div>'
-          + '<div style="font-size:11px;color:var(--text-muted)">' + (data.followers || 0).toLocaleString() + ' followers</div>'
-          + '</div>'
-          + '<div style="margin-left:auto;background:#22c55e;color:#fff;font-size:10px;font-weight:600;padding:3px 10px;border-radius:50px">Connected</div>'
-          + '</div>'
-          + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border)">'
-          + '<div style="padding:12px;text-align:center;border-right:1px solid var(--border)"><div style="font-family:var(--serif);font-size:20px;color:var(--text)">' + (data.followers || 0).toLocaleString() + '</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px">Followers</div></div>'
-          + '<div style="padding:12px;text-align:center;border-right:1px solid var(--border)"><div style="font-family:var(--serif);font-size:20px;color:var(--text)">' + (data.posts || 0).toLocaleString() + '</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px">Posts</div></div>'
-          + '<div style="padding:12px;text-align:center;border-right:1px solid var(--border)"><div style="font-family:var(--serif);font-size:20px;color:var(--text)">' + (data.engagementRate || '0') + '%</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px">Engagement</div></div>'
-          + '<div style="padding:12px;text-align:center"><div style="font-family:var(--serif);font-size:20px;color:var(--text)">' + (data.avgLikes || 0).toLocaleString() + '</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px">Avg Likes</div></div>'
+        var html = '';
+
+        // Profile header with avatar
+        if (data.profilePic) {
+          html += '<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--border)">'
+            + '<img src="' + data.profilePic + '" class="platform-card-avatar" style="border:2px solid #e1306c" />'
+            + '<div style="flex:1">'
+            + '<div style="font-size:15px;font-weight:600;color:var(--text)">' + (data.name || data.username) + '</div>'
+            + '<div style="font-size:12px;color:var(--text-muted)">@' + (data.username || '') + ' · ' + (data.accountType || '').replace('_', ' ').toLowerCase() + '</div>'
+            + '</div></div>';
+        }
+
+        // Stats grid
+        html += '<div class="platform-card-stats">'
+          + '<div class="platform-card-stat"><div class="platform-card-stat-value">' + (data.followers || 0).toLocaleString() + '</div><div class="platform-card-stat-label">Followers</div></div>'
+          + '<div class="platform-card-stat"><div class="platform-card-stat-value">' + (data.posts || 0) + '</div><div class="platform-card-stat-label">Posts</div></div>'
+          + '<div class="platform-card-stat"><div class="platform-card-stat-value">' + (data.engagementRate || '0') + '%</div><div class="platform-card-stat-label">Engagement</div></div>'
+          + '<div class="platform-card-stat"><div class="platform-card-stat-value">' + (data.avgLikes || 0).toLocaleString() + '</div><div class="platform-card-stat-label">Avg Likes</div></div>'
           + '</div>';
+
+        // Top Post
+        if (data.topPost) {
+          html += '<div class="platform-card-section">'
+            + '<div class="platform-card-section-title">Top Post</div>'
+            + '<div class="platform-top-post">'
+            + (data.topPost.url ? '<img src="' + data.topPost.url + '" alt="Top post" />' : '')
+            + '<div>'
+            + '<div class="platform-top-post-caption">' + (data.topPost.caption || '').substring(0, 120) + '</div>'
+            + '<div class="platform-top-post-stats">' + (data.topPost.likes || 0).toLocaleString() + ' likes · ' + (data.topPost.comments || 0) + ' comments</div>'
+            + '</div></div></div>';
+        }
+
+        // Recent Posts
+        if (data.recentPosts && data.recentPosts.length > 0) {
+          html += '<div class="platform-card-section">'
+            + '<div class="platform-card-section-title">Recent Posts</div>'
+            + '<div class="platform-recent-posts">';
+          data.recentPosts.forEach(function(post) {
+            html += '<div class="platform-recent-post">'
+              + (post.url ? '<img src="' + post.url + '" alt="" />' : '')
+              + '<div class="platform-recent-post-likes">' + (post.likes || 0) + '</div>'
+              + '</div>';
+          });
+          html += '</div></div>';
+        }
+
+        igData.innerHTML = html;
+      }
+
+      // Update scoreboard if available
+      if (typeof renderHomeStats === 'function') {
+        window._igFollowers = data.followers;
       }
     }
   })
-  .catch(function() { /* not connected, leave as-is */ });
+  .catch(function(e) { console.error('Instagram load failed:', e); });
 }
 
 // Check URL params for fresh connection
@@ -5044,7 +5243,7 @@ showHub = function() {
   _origShowHub();
   loadAutomations();
   loadLeads();
-  loadInstagramData();
+  setTimeout(function() { loadInstagramData(); }, 500);
 };
 </script>
 </body>

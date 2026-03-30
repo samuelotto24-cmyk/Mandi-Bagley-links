@@ -304,7 +304,7 @@ const FONT_MAP = {
   .login-error { color: #f87171; font-size: 12px; margin-top: 12px; display: none; }
 
   /* ── Content ── */
-  .hub-inner { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 32px 24px 100px; display: none; }
+  .hub-main { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 28px 32px 100px; }
   .section-label { font-family: var(--sans); font-size: 10.5px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
   .divider { height: 1px; background: linear-gradient(to right, transparent, var(--border) 30%, var(--border) 70%, transparent); margin: 28px 0; }
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); }
@@ -1028,7 +1028,7 @@ const FONT_MAP = {
 
   /* ── Mobile ── */
   @media (max-width: 768px) {
-    .hub-inner { padding: 20px 14px 90px; }
+    .hub-main { padding: 20px 14px 90px; }
     .bento-grid { grid-template-columns: 1fr; }
     .span-2, .span-3, .span-4, .span-5, .span-6, .span-8, .span-12 { grid-column: span 1; }
     .hub-header-title { font-size: 28px; }
@@ -1054,7 +1054,7 @@ const FONT_MAP = {
     .stats-grid .stat-tile { min-width: 120px; flex-shrink: 0; }
   }
   @media (max-width: 640px) {
-    .hub-inner { padding: 24px 14px 90px; }
+    .hub-main { padding: 24px 14px 90px; }
     .gradient-mesh { filter: blur(60px); }
     .gradient-mesh-2 { filter: blur(70px); }
 
@@ -1195,7 +1195,7 @@ const FONT_MAP = {
 
   /* ── Small phones ── */
   @media (max-width: 380px) {
-    .hub-inner { padding: 20px 10px 85px; }
+    .hub-main { padding: 20px 10px 85px; }
     .greeting h1 { font-size: 30px; }
     .stat-value { font-size: 20px; }
     .stat-tile { padding: 10px 6px; }
@@ -1513,7 +1513,7 @@ const FONT_MAP = {
 @media (max-width: 640px) {
 
   /* ── Global: tighter spacing ── */
-  .hub-inner { padding: 16px 12px 80px !important; }
+  .hub-main { padding: 16px 12px 80px !important; }
   .divider { margin: 12px 0 !important; }
   .section-label { font-size: 8px !important; letter-spacing: 0.18em; margin-bottom: 6px !important; }
   .card { border-radius: 12px; }
@@ -1634,7 +1634,7 @@ const FONT_MAP = {
 
 /* ── Extra small phones ── */
 @media (max-width: 380px) {
-  .hub-inner { padding: 14px 8px 75px !important; }
+  .hub-main { padding: 14px 8px 75px !important; }
   .greeting h1 { font-size: 24px !important; }
   .stat-value { font-size: 18px !important; }
   .briefing-title { font-size: 14px !important; }
@@ -1760,6 +1760,60 @@ const FONT_MAP = {
 .cp-post-status.success { background: rgba(74,222,128,0.1); color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
 .cp-post-status.error { background: rgba(248,113,113,0.1); color: #f87171; border: 1px solid rgba(248,113,113,0.2); }
 .cp-post-status.loading { background: var(--accent-pale); color: var(--text-muted); border: 1px solid var(--border); }
+
+/* ── Sidebar + View Shell ── */
+.hub-shell { display: grid; grid-template-columns: 64px 1fr; min-height: 100vh; position: relative; z-index: 1; }
+.hub-sidebar {
+  position: sticky; top: 0; height: 100vh;
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 20px 0; gap: 8px; z-index: 10;
+}
+.hub-sidebar .sidebar-logo {
+  width: 32px; height: 32px; background: var(--accent-pale);
+  border: 1px solid var(--border); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif); font-size: 16px; color: var(--text);
+  margin-bottom: 16px;
+}
+.hub-sidebar .sidebar-nav-item {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; cursor: pointer; transition: all 0.2s;
+  color: var(--text-muted); position: relative; border: none; background: none;
+}
+.hub-sidebar .sidebar-nav-item:hover { background: var(--accent-pale); color: var(--text); }
+.hub-sidebar .sidebar-nav-item.active { background: rgba(255,255,255,0.1); color: var(--text); }
+.hub-sidebar .sidebar-nav-item.active::before {
+  content: ''; position: absolute; left: -12px;
+  width: 3px; height: 20px; background: var(--accent);
+  border-radius: 0 2px 2px 0;
+}
+.hub-sidebar .sidebar-label {
+  font-size: 9px; color: var(--text-muted); letter-spacing: 0.3px;
+  margin-top: 2px; text-align: center;
+}
+.hub-sidebar .sidebar-spacer { flex: 1; }
+
+.hub-view { display: none; }
+.hub-view.active { display: block; }
+
+@media (max-width: 768px) {
+  .hub-shell { grid-template-columns: 1fr; }
+  .hub-sidebar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: auto;
+    flex-direction: row; justify-content: center;
+    padding: 8px 16px; gap: 24px; border-right: none;
+    border-top: 1px solid var(--border);
+    background: rgba(10,10,10,0.95); backdrop-filter: blur(20px);
+    z-index: 100;
+  }
+  .hub-sidebar .sidebar-logo { display: none; }
+  .hub-sidebar .sidebar-spacer { display: none; }
+  .hub-sidebar .sidebar-label { display: none; }
+  .hub-sidebar .sidebar-nav-item.active::before { display: none; }
+  .hub-main { padding: 20px 16px 80px; }
+}
 </style>
 </head>
 
@@ -1805,7 +1859,21 @@ const FONT_MAP = {
 <!-- ═══════════════════════════════════════════════════
      HUB CONTENT
      ═══════════════════════════════════════════════════ -->
-<div class="hub-inner" id="hub">
+<div class="hub-shell" id="hub" style="display:none;">
+
+<nav class="hub-sidebar">
+  <div class="sidebar-logo" id="sidebarLogo">M</div>
+  <button class="sidebar-nav-item active" data-view="home" onclick="switchView('home')" title="Home">&#9997;&#65039;</button>
+  <div class="sidebar-label">Home</div>
+  <button class="sidebar-nav-item" data-view="analytics" onclick="switchView('analytics')" title="Analytics">&#128202;</button>
+  <div class="sidebar-label">Analytics</div>
+  <button class="sidebar-nav-item" data-view="planner" onclick="switchView('planner')" title="Planner">&#128197;</button>
+  <div class="sidebar-label">Planner</div>
+  <div class="sidebar-spacer"></div>
+</nav>
+
+<div class="hub-main">
+<div class="hub-view active" id="viewHome">
 
   <!-- Smart banner (overlay) -->
   <div class="smart-banner" id="smartBanner" style="display:none">
@@ -2188,7 +2256,18 @@ const FONT_MAP = {
     </div>
 
   </div><!-- end bento-grid -->
+</div><!-- end viewHome -->
+
+<div class="hub-view" id="viewAnalytics">
+  <!-- Analytics view content will go here -->
 </div>
+
+<div class="hub-view" id="viewPlanner">
+  <!-- Planner view content will go here -->
+</div>
+
+</div><!-- end hub-main -->
+</div><!-- end hub-shell -->
 
 <!-- Sticky chat input (mobile) -->
 <div class="chat-input-sticky" id="stickyChat">
@@ -2323,7 +2402,11 @@ function login() {
    ═══════════════════════════════════════════════════ */
 function showHub() {
   const hub = document.getElementById('hub');
-  hub.style.display = 'block';
+  hub.style.display = 'grid';
+
+  // Set sidebar logo initial
+  var sidebarLogo = document.getElementById('sidebarLogo');
+  if (sidebarLogo) sidebarLogo.textContent = CLIENT.name.charAt(0);
 
   // Populate greeting
   const firstName = CLIENT.name.split(' ')[0];
@@ -2369,6 +2452,19 @@ function showHub() {
 
   // Show connect reminder if platforms aren't connected and not dismissed
   setTimeout(showConnectReminder, 1200);
+}
+
+/* ═══════════════════════════════════════════════════
+   VIEW SWITCHING
+   ═══════════════════════════════════════════════════ */
+function switchView(viewName) {
+  document.querySelectorAll('.hub-view').forEach(function(v) { v.classList.remove('active'); });
+  var target = document.getElementById('view' + viewName.charAt(0).toUpperCase() + viewName.slice(1));
+  if (target) target.classList.add('active');
+  document.querySelectorAll('.sidebar-nav-item').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.view === viewName);
+  });
+  window.scrollTo(0, 0);
 }
 
 /* ═══════════════════════════════════════════════════

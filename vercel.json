@@ -9,6 +9,9 @@
       "schedule": "0 15 * * 1"
     }
   ],
+  "rewrites": [
+    { "source": "/g/:slug", "destination": "/api/capture?slug=:slug" }
+  ],
   "headers": [
     {
       "source": "/hub(.*)",

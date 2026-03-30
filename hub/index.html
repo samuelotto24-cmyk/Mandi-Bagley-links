@@ -1738,7 +1738,7 @@ const FONT_MAP = {
   flex: 1; min-height: 200px; overflow: hidden;
 }
 #viewStrategist {
-  display: none; flex-direction: column; height: calc(100vh - 56px);
+  display: none; flex-direction: column; height: calc(100vh - 160px); overflow: hidden;
 }
 #viewStrategist.active { display: flex; }
 .strategist-chat-container .chat-body {
@@ -1747,7 +1747,7 @@ const FONT_MAP = {
 .strategist-chat-container .chat-prompts { display: none; }
 .strategist-chat-container .chat-input-row {
   padding: 12px 20px; border-top: 1px solid var(--border);
-  display: flex; gap: 8px;
+  display: flex; gap: 8px; flex-shrink: 0;
 }
 
 /* ── Chat Drawer Overlay ── */
@@ -1823,8 +1823,8 @@ const FONT_MAP = {
 @media (max-width: 768px) {
   .chat-fab-btn { bottom: 100px; }
   .chat-panel { width: 100vw; }
-  #viewStrategist { height: calc(100vh - 80px); }
-  .strategist-chat-container { min-height: 150px; }
+  #viewStrategist { height: calc(100vh - 120px); }
+  .strategist-chat-container { min-height: 120px; }
   .contact-bar { bottom: 64px; left: 50%; }
   .contact-bar-btn { font-size: 11px; padding: 8px 14px; }
 }

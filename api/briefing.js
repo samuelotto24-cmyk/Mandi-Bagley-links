@@ -326,9 +326,9 @@ export default async function handler(req) {
     const goalType = results[16]?.result || 'views';
 
     // YouTube data (if connected)
-    const ytChannelRaw = results[results.length - 4]?.result;
-    const ytVideosRaw = results[results.length - 3]?.result;
-    const ytAnalyticsRaw = results[results.length - 2]?.result;
+    const ytChannelRaw = results[results.length - 5]?.result;
+    const ytVideosRaw = results[results.length - 4]?.result;
+    const ytAnalyticsRaw = results[results.length - 3]?.result;
     let youtubeContext = '';
     if (ytChannelRaw) {
       const ytChannel = JSON.parse(ytChannelRaw);
@@ -360,7 +360,7 @@ export default async function handler(req) {
     }
 
     // TikTok data (if connected)
-    const tiktokAccessToken = results[results.length - 1]?.result;
+    const tiktokAccessToken = results[results.length - 2]?.result;
     let tiktokContext = '';
     let tiktokMetrics = null;
     if (tiktokAccessToken) {

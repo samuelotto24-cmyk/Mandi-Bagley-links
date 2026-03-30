@@ -1913,6 +1913,15 @@ const FONT_MAP = {
   .home-create-post { grid-row: auto; }
   .home-bottom-row { grid-template-columns: 1fr; }
 }
+
+/* ── Analytics View ── */
+.analytics-section { margin-bottom: 28px; }
+.analytics-section-title {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--text-muted); margin-bottom: 12px; font-weight: 600;
+}
+.analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 768px) { .analytics-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 
@@ -2068,30 +2077,10 @@ const FONT_MAP = {
 </div><!-- end viewHome -->
 
 <div class="hub-view" id="viewAnalytics">
-  <!-- Analytics view content will go here -->
-</div>
-
-<div class="hub-view" id="viewPlanner">
-  <!-- Planner view content will go here -->
-</div>
-
-<!-- ═══════════════════════════════════════════════════
-     PARKED BENTO CARDS (temporarily outside views, kept in DOM for JS compat)
-     ═══════════════════════════════════════════════════ -->
-<div id="parkedCards" style="display:none;">
-
-  <!-- Old header elements for JS compat -->
-  <div class="hub-header-title" style="display:none"></div>
-  <div class="hub-header-subtitle" style="display:none">AI-Powered &middot; Live Analytics &middot; Built for Your Brand</div>
-  <div id="greetingLabel" style="display:none"></div>
-  <div id="greetingDate" style="display:none"></div>
-  <div class="hub-nav-pills" style="display:none">
-    <a class="hub-nav-pill hub-nav-glow" id="navSite" href="#" target="_blank">&#127760; View My Site</a>
-    <a class="hub-nav-pill hub-nav-glow" href="/dashboard" target="_blank">&#128202; Full Analytics Dashboard</a>
-    <button class="hub-nav-pill hub-nav-glow" onclick="openModal('message')">&#9993;&#65039; Message Sam</button>
-    <button class="hub-nav-pill hub-nav-glow" onclick="openModal('update')">&#128260; Request Update</button>
+  <div class="home-greeting">
+    <h1>Analytics</h1>
+    <div class="home-subtitle">Your social platforms and audience insights</div>
   </div>
-  <div class="ai-intro" id="aiIntro" style="display:none"><span class="typing-cursor">|</span></div>
 
   <!-- Connect Banner -->
   <div class="connect-banner" id="connectBanner" style="display:none;">
@@ -2101,82 +2090,9 @@ const FONT_MAP = {
     <button class="connect-banner-close" onclick="dismissConnectBanner()">&times;</button>
   </div>
 
-  <!-- Today's Plan / Briefing -->
-  <div class="bento-card span-6" data-order="1">
-    <div class="bento-card-header">
-      <span class="bento-card-icon">&#127919;</span>
-      <span class="bento-card-title">Today's Plan</span>
-      <span class="briefing-badge" id="briefingBadge" style="display:none;margin-left:auto"></span>
-    </div>
-    <div class="card briefing-card" id="briefingCard" style="background:transparent;border:none;padding:0">
-      <div class="briefing-header-row" style="display:none">
-        <div class="briefing-title" id="briefingTitle">Loading&hellip;</div>
-      </div>
-      <div id="briefingContent">
-        <div class="skeleton skeleton-text w80"></div>
-        <div class="skeleton skeleton-text w60"></div>
-        <div class="skeleton skeleton-text w80"></div>
-        <div class="skeleton skeleton-text w40"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Stats / Growth -->
-  <div class="bento-card span-6" data-order="2">
-    <div class="bento-card-header">
-      <span class="bento-card-icon">&#128200;</span>
-      <span class="bento-card-title">Growth</span>
-    </div>
-    <div class="stats-grid" id="statsGrid" style="grid-template-columns:repeat(2,1fr);gap:8px">
-      <div class="card stat-tile skeleton" style="height:70px"></div>
-      <div class="card stat-tile skeleton" style="height:70px"></div>
-      <div class="card stat-tile skeleton" style="height:70px"></div>
-    </div>
-    <div class="goal-progress-bar" id="goalProgressBar" style="display:none;margin-top:12px">
-      <div class="goal-progress-info">
-        <span class="goal-progress-label" id="goalProgressLabel"></span>
-        <span class="goal-progress-pct" id="goalProgressPct"></span>
-      </div>
-      <div class="goal-bar-bg" style="height:4px;margin-top:6px">
-        <div class="goal-bar-fill" id="goalProgressFill" style="width:0%"></div>
-      </div>
-    </div>
-    <div id="goalCard" style="display:none"></div>
-  </div>
-
-  <!-- Weekly Planner -->
-  <div class="bento-card span-12" data-order="3">
-    <div class="bento-card-header">
-      <span class="bento-card-icon">&#128197;</span>
-      <span class="bento-card-title">Weekly Planner</span>
-      <div class="cal-nav" style="margin-left:auto;display:flex;align-items:center;gap:8px">
-        <button class="cal-nav-btn" onclick="shiftCalendarWeek(-1)" title="Previous week">&larr;</button>
-        <span class="cal-nav-label" id="calWeekLabel"></span>
-        <button class="cal-nav-btn" onclick="shiftCalendarWeek(1)" title="Next week">&rarr;</button>
-        <button class="cal-nav-today" onclick="shiftCalendarWeek(0)" title="Go to this week">Today</button>
-      </div>
-    </div>
-    <div class="calendar-strip" id="calendarStrip"></div>
-  </div>
-
-  <!-- Audience Heatmap -->
-  <div class="bento-card span-4" data-order="6">
-    <div class="bento-card-header">
-      <span class="bento-card-icon">&#128293;</span>
-      <span class="bento-card-title">When Your Audience Shows Up</span>
-    </div>
-    <div class="heatmap-wrap" id="heatmapWrap">
-      <div class="heatmap-loading">Loading activity data...</div>
-    </div>
-    <div class="heatmap-tooltip" id="heatmapTooltip" style="display:none"></div>
-  </div>
-
-  <!-- Platforms -->
-  <div class="bento-card span-5" data-order="4">
-    <div class="bento-card-header">
-      <span class="bento-card-icon">&#128241;</span>
-      <span class="bento-card-title">Platforms</span>
-    </div>
+  <!-- Platforms Section -->
+  <div class="analytics-section">
+    <div class="analytics-section-title">Platforms</div>
     <div class="platform-cta" id="platformCta">
       <div class="platform-cta-icon">&#128279;</div>
       <div class="platform-cta-text">
@@ -2272,6 +2188,114 @@ const FONT_MAP = {
     <div id="platformDetailsSection" style="display:none"></div>
   </div>
 
+  <!-- Heatmap + Brand Codes side by side -->
+  <div class="analytics-grid">
+    <div class="analytics-section">
+      <div class="analytics-section-title">Audience Activity</div>
+      <div class="home-card" style="padding:20px;">
+        <div class="heatmap-wrap" id="heatmapWrap">
+          <div class="heatmap-loading">Loading activity data...</div>
+        </div>
+        <div class="heatmap-tooltip" id="heatmapTooltip" style="display:none"></div>
+      </div>
+    </div>
+    <div class="analytics-section">
+      <div class="analytics-section-title">Brand Code Performance</div>
+      <div class="home-card" style="padding:20px;">
+        <div id="brandCodes"><div class="empty-state"><p>Code usage will appear here.</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Links -->
+  <div class="analytics-section">
+    <div class="analytics-section-title">Top Links</div>
+    <div class="home-card" style="padding:20px;">
+      <div id="topLinks"><div class="empty-state"><p>Link clicks will appear here.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="hub-view" id="viewPlanner">
+  <!-- Planner view content will go here -->
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     PARKED BENTO CARDS (temporarily outside views, kept in DOM for JS compat)
+     ═══════════════════════════════════════════════════ -->
+<div id="parkedCards" style="display:none;">
+
+  <!-- Old header elements for JS compat -->
+  <div class="hub-header-title" style="display:none"></div>
+  <div class="hub-header-subtitle" style="display:none">AI-Powered &middot; Live Analytics &middot; Built for Your Brand</div>
+  <div id="greetingLabel" style="display:none"></div>
+  <div id="greetingDate" style="display:none"></div>
+  <div class="hub-nav-pills" style="display:none">
+    <a class="hub-nav-pill hub-nav-glow" id="navSite" href="#" target="_blank">&#127760; View My Site</a>
+    <a class="hub-nav-pill hub-nav-glow" href="/dashboard" target="_blank">&#128202; Full Analytics Dashboard</a>
+    <button class="hub-nav-pill hub-nav-glow" onclick="openModal('message')">&#9993;&#65039; Message Sam</button>
+    <button class="hub-nav-pill hub-nav-glow" onclick="openModal('update')">&#128260; Request Update</button>
+  </div>
+  <div class="ai-intro" id="aiIntro" style="display:none"><span class="typing-cursor">|</span></div>
+
+  <!-- Today's Plan / Briefing -->
+  <div class="bento-card span-6" data-order="1">
+    <div class="bento-card-header">
+      <span class="bento-card-icon">&#127919;</span>
+      <span class="bento-card-title">Today's Plan</span>
+      <span class="briefing-badge" id="briefingBadge" style="display:none;margin-left:auto"></span>
+    </div>
+    <div class="card briefing-card" id="briefingCard" style="background:transparent;border:none;padding:0">
+      <div class="briefing-header-row" style="display:none">
+        <div class="briefing-title" id="briefingTitle">Loading&hellip;</div>
+      </div>
+      <div id="briefingContent">
+        <div class="skeleton skeleton-text w80"></div>
+        <div class="skeleton skeleton-text w60"></div>
+        <div class="skeleton skeleton-text w80"></div>
+        <div class="skeleton skeleton-text w40"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats / Growth -->
+  <div class="bento-card span-6" data-order="2">
+    <div class="bento-card-header">
+      <span class="bento-card-icon">&#128200;</span>
+      <span class="bento-card-title">Growth</span>
+    </div>
+    <div class="stats-grid" id="statsGrid" style="grid-template-columns:repeat(2,1fr);gap:8px">
+      <div class="card stat-tile skeleton" style="height:70px"></div>
+      <div class="card stat-tile skeleton" style="height:70px"></div>
+      <div class="card stat-tile skeleton" style="height:70px"></div>
+    </div>
+    <div class="goal-progress-bar" id="goalProgressBar" style="display:none;margin-top:12px">
+      <div class="goal-progress-info">
+        <span class="goal-progress-label" id="goalProgressLabel"></span>
+        <span class="goal-progress-pct" id="goalProgressPct"></span>
+      </div>
+      <div class="goal-bar-bg" style="height:4px;margin-top:6px">
+        <div class="goal-bar-fill" id="goalProgressFill" style="width:0%"></div>
+      </div>
+    </div>
+    <div id="goalCard" style="display:none"></div>
+  </div>
+
+  <!-- Weekly Planner -->
+  <div class="bento-card span-12" data-order="3">
+    <div class="bento-card-header">
+      <span class="bento-card-icon">&#128197;</span>
+      <span class="bento-card-title">Weekly Planner</span>
+      <div class="cal-nav" style="margin-left:auto;display:flex;align-items:center;gap:8px">
+        <button class="cal-nav-btn" onclick="shiftCalendarWeek(-1)" title="Previous week">&larr;</button>
+        <span class="cal-nav-label" id="calWeekLabel"></span>
+        <button class="cal-nav-btn" onclick="shiftCalendarWeek(1)" title="Next week">&rarr;</button>
+        <button class="cal-nav-today" onclick="shiftCalendarWeek(0)" title="Go to this week">Today</button>
+      </div>
+    </div>
+    <div class="calendar-strip" id="calendarStrip"></div>
+  </div>
+
   <!-- Niche Pulse -->
   <div class="bento-card span-3" data-order="7">
     <div class="bento-card-header">
@@ -2307,24 +2331,6 @@ const FONT_MAP = {
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Top Links -->
-  <div class="bento-card span-3" data-order="8">
-    <div class="bento-card-header">
-      <span class="bento-card-icon">&#128279;</span>
-      <span class="bento-card-title">Top Links</span>
-    </div>
-    <div id="topLinks"><div class="empty-state"><p>Link clicks will appear here.</p></div></div>
-  </div>
-
-  <!-- Brand Codes (old) -->
-  <div class="bento-card span-3" data-order="9">
-    <div class="bento-card-header">
-      <span class="bento-card-icon">&#127991;</span>
-      <span class="bento-card-title">Brand Codes</span>
-    </div>
-    <div id="brandCodes"><div class="empty-state"><p>Code usage will appear here.</p></div></div>
   </div>
 
   <!-- Refer & Earn -->

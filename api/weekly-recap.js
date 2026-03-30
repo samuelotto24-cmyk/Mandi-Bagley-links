@@ -85,6 +85,7 @@ export default async function handler(req) {
       ['HGETALL', PREFIX + 'visitors'],
       ['HGETALL', PREFIX + 'duration'],
       ['HGETALL', PREFIX + 'duration_count'],
+      ['GET', PREFIX + 'automations'],
     ]);
 
     const pageviews = parseHash(results[0]);
@@ -94,6 +95,26 @@ export default async function handler(req) {
     const visitors = parseHash(results[4]);
     const duration = parseHash(results[5]);
     const durationCount = parseHash(results[6]);
+
+    // Engagement automations
+    const automationsRaw = results[7]?.result;
+    const recapAutomations = automationsRaw ? JSON.parse(automationsRaw) : [];
+    let automationRows = '';
+    if (recapAutomations.length > 0) {
+      const funnelCmds = recapAutomations.map(a => ['HGETALL', PREFIX + 'funnel:' + a.keyword]);
+      const funnelRes = await redis(funnelCmds);
+      automationRows = '<tr><td colspan="2" style="padding:24px 0 8px;font-size:18px;font-weight:600;border-top:1px solid #eee">Engagement Automations</td></tr>';
+      recapAutomations.forEach(function(a, i) {
+        const fr = funnelRes[i]?.result || [];
+        const stats = {};
+        for (let j = 0; j < fr.length; j += 2) stats[fr[j]] = parseInt(fr[j + 1], 10) || 0;
+        const pct = stats.comments > 0 ? Math.round((stats.captured || 0) / stats.comments * 100) : 0;
+        automationRows += '<tr><td style="padding:6px 0;font-size:14px"><strong>' + a.keyword + '</strong>: '
+          + (stats.captured || 0) + ' emails captured (' + pct + '% conversion) — '
+          + (stats.comments || 0) + ' comments, ' + (stats.dms || 0) + ' DMs, '
+          + (stats.clicks || 0) + ' clicks</td></tr>';
+      });
+    }
 
     const today = new Date();
     const thisWeekDates = dateRange(today, 0, 7);
@@ -251,6 +272,12 @@ Write 2 short, specific action items for this week. Be direct and conversational
   </td></tr>
 
   <!-- Reply section -->
+  ${automationRows ? `<tr><td style="padding:0 0 24px">
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-radius:12px;overflow:hidden">
+      ${automationRows}
+    </table>
+  </td></tr>` : ''}
+
   <tr><td style="padding:0 0 24px">
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#FDF9F5;border:1px solid #EAD0C8;border-radius:12px;overflow:hidden">
       <tr><td style="padding:24px;text-align:center">

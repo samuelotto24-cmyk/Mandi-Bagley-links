@@ -301,6 +301,7 @@ export default async function handler(req) {
       ['GET', PREFIX + 'youtube:videos'],
       ['GET', PREFIX + 'youtube:analytics'],
       ['GET', PREFIX + 'tiktok:access_token'],
+      ['GET', PREFIX + 'automations'],
     ]);
 
     const data = {
@@ -436,6 +437,26 @@ export default async function handler(req) {
         // TikTok token expired or API error — skip silently
         console.error('Briefing TikTok fetch error:', e);
       }
+    }
+
+    // Engagement automations (if any)
+    const automationsRaw = results[results.length - 1]?.result;
+    const automations = automationsRaw ? JSON.parse(automationsRaw) : [];
+    let automationsContext = '';
+    if (automations.length > 0) {
+      // Fetch funnel stats for each automation
+      const funnelCommands = automations.map(a => ['HGETALL', PREFIX + 'funnel:' + a.keyword]);
+      const funnelResults = funnelCommands.length > 0 ? await redis(funnelCommands) : [];
+      automationsContext = '\n\n## Engagement Automations\n';
+      automations.forEach(function(a, i) {
+        const fr = funnelResults[i]?.result || [];
+        const stats = {};
+        for (let j = 0; j < fr.length; j += 2) stats[fr[j]] = parseInt(fr[j + 1], 10) || 0;
+        const pct = stats.comments > 0 ? Math.round((stats.captured || 0) / stats.comments * 100) : 0;
+        automationsContext += '- ' + a.keyword + ' (' + (a.active ? 'active' : 'paused') + '): '
+          + (stats.comments || 0) + ' comments → ' + (stats.dms || 0) + ' DMs → '
+          + (stats.clicks || 0) + ' clicks → ' + (stats.captured || 0) + ' emails (' + pct + '% conversion)\n';
+      });
     }
 
     /* ── Compute aggregations ── */
@@ -621,7 +642,7 @@ Rules:
 - proactiveInsight: flag the most important growth opportunity or anomaly. null if nothing notable.
 - NEVER suggest website layout changes
 - NEVER criticize performance metrics. Frame ALL data positively: celebrate wins, suggest growth strategies, highlight what's working
-- Reference actual numbers from the data above${youtubeContext}${tiktokContext}`;
+- Reference actual numbers from the data above${youtubeContext}${tiktokContext}${automationsContext}`;
 
         const llmRes = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',

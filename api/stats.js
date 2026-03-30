@@ -26,8 +26,9 @@ function parseHash(item) {
 }
 
 export default async function handler(req) {
-  const url = new URL(req.url);
-  if (url.searchParams.get('password') !== PASSWORD) {
+  const authHeader = req.headers.get('authorization');
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (token !== PASSWORD) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
@@ -70,7 +71,7 @@ export default async function handler(req) {
       duration_count: parseHash(results[13]),
       conversions:    parseHash(results[14]),
     }), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'private, max-age=120' },
     });
   } catch {
     return new Response(JSON.stringify({ error: 'Failed to load data' }), { status: 500 });

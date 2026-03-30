@@ -31,8 +31,9 @@ export default async function handler(req) {
     return new Response('Method not allowed', { status: 405 });
   }
 
-  const url = new URL(req.url);
-  if (url.searchParams.get('password') !== PASSWORD) {
+  const authHeader = req.headers.get('authorization');
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (token !== PASSWORD) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401, headers: { 'Content-Type': 'application/json' },
     });

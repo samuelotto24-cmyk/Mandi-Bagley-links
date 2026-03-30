@@ -15,19 +15,31 @@ async function redis(commands) {
 }
 
 export default async function handler(req) {
-  const url = new URL(req.url);
-  if (url.searchParams.get('password') !== PASSWORD) {
+  const authHeader = req.headers.get('authorization');
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (token !== PASSWORD) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401, headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  const results = await redis([
+  // Build all commands in a single pipeline (data + 7-day subscriber history)
+  const commands = [
     ['GET', PREFIX + 'youtube:tokens'],
     ['GET', PREFIX + 'youtube:channel'],
     ['GET', PREFIX + 'youtube:videos'],
     ['GET', PREFIX + 'youtube:analytics'],
-  ]);
+  ];
+  const historyDates = [];
+  for (var i = 0; i < 7; i++) {
+    var d = new Date();
+    d.setDate(d.getDate() - i);
+    var dateStr = d.toISOString().split('T')[0];
+    historyDates.push(dateStr);
+    commands.push(['GET', PREFIX + 'youtube:subscribers:' + dateStr]);
+  }
+
+  const results = await redis(commands);
 
   const tokens = results[0]?.result ? JSON.parse(results[0].result) : null;
   if (!tokens) {
@@ -40,18 +52,10 @@ export default async function handler(req) {
   const videos = results[2]?.result ? JSON.parse(results[2].result) : [];
   const analytics = results[3]?.result ? JSON.parse(results[3].result) : null;
 
-  const historyCommands = [];
-  for (var i = 0; i < 7; i++) {
-    var d = new Date();
-    d.setDate(d.getDate() - i);
-    historyCommands.push(['GET', PREFIX + 'youtube:subscribers:' + d.toISOString().split('T')[0]]);
-  }
-  const historyResults = await redis(historyCommands);
-  const subscriberHistory = historyResults.map(function(r, idx) {
-    var d = new Date();
-    d.setDate(d.getDate() - idx);
+  const subscriberHistory = historyDates.map(function(date, idx) {
+    var r = results[4 + idx];
     return {
-      date: d.toISOString().split('T')[0],
+      date: date,
       count: r?.result ? parseInt(r.result, 10) : null,
     };
   }).filter(function(h) { return h.count !== null; });
@@ -65,6 +69,6 @@ export default async function handler(req) {
     analytics: analytics,
     subscriberHistory: subscriberHistory,
   }), {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'private, max-age=120' },
   });
 }

@@ -5,7 +5,9 @@ const PASSWORD = process.env.DASHBOARD_PASSWORD || 'Password2024';
 
 export default async function handler(req) {
   const url = new URL(req.url);
-  const pw = url.searchParams.get('password');
+  // Accept either Authorization header (fetch) or query param (browser redirect)
+  const authHeader = req.headers.get('authorization');
+  const pw = (authHeader && authHeader.startsWith('Bearer ')) ? authHeader.slice(7) : url.searchParams.get('password');
 
   if (pw !== PASSWORD) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {

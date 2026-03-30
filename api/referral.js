@@ -15,8 +15,9 @@ async function redis(commands) {
 }
 
 export default async function handler(req) {
-  const url = new URL(req.url);
-  if (url.searchParams.get('password') !== PASSWORD) {
+  const authHeader = req.headers.get('authorization');
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (token !== PASSWORD) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401, headers: { 'Content-Type': 'application/json' },
     });
@@ -33,7 +34,7 @@ export default async function handler(req) {
     const count = results[1]?.result ? parseInt(results[1].result, 10) : 0;
     const freeMonths = results[2]?.result ? parseInt(results[2].result, 10) : 0;
     return new Response(JSON.stringify({ code, count, freeMonths }), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'private, max-age=120' },
     });
   }
 

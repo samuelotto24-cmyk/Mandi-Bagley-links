@@ -26,9 +26,8 @@ function parseHash(item) {
 }
 
 export default async function handler(req) {
-  const authHeader = req.headers.get('authorization');
-  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
-  if (token !== PASSWORD) {
+  const url = new URL(req.url);
+  if (url.searchParams.get('password') !== PASSWORD) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },

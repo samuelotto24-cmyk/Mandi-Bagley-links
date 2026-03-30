@@ -1739,6 +1739,27 @@ const FONT_MAP = {
   border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif;
 }
 .leads-export:hover { background: var(--accent-pale); color: var(--text); }
+
+/* ── Create Post Actions ── */
+.create-post-actions {
+  display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap;
+}
+.cp-action-btn {
+  flex: 1; min-width: 140px; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
+  background: transparent; color: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: background 0.2s, border-color 0.2s;
+}
+.cp-action-btn:hover { background: var(--accent-pale); border-color: var(--accent-border); }
+.cp-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.cp-action-ig { background: var(--accent-pale); border-color: var(--accent-border); font-weight: 600; }
+.cp-action-ig:hover { background: var(--accent); color: var(--bg); }
+.cp-post-status {
+  margin-top: 10px; padding: 10px 14px; border-radius: 8px; font-size: 13px; text-align: center;
+}
+.cp-post-status.success { background: rgba(74,222,128,0.1); color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
+.cp-post-status.error { background: rgba(248,113,113,0.1); color: #f87171; border: 1px solid rgba(248,113,113,0.2); }
+.cp-post-status.loading { background: var(--accent-pale); color: var(--text-muted); border: 1px solid var(--border); }
 </style>
 </head>
 
@@ -2084,6 +2105,18 @@ const FONT_MAP = {
           <div class="create-post-meta-item" id="createPostHashtags"></div>
           <div class="create-post-meta-item" id="createPostTips"></div>
         </div>
+        <div class="create-post-actions" id="createPostActions" style="display:none">
+          <button class="cp-action-btn cp-action-ig" id="cpPostIg" onclick="postToInstagram()">
+            <span>&#128247;</span> Post to Instagram
+          </button>
+          <button class="cp-action-btn cp-action-copy" onclick="copyAndOpen('tiktok')">
+            <span>&#127925;</span> Copy &amp; Open TikTok
+          </button>
+          <button class="cp-action-btn cp-action-copy" onclick="copyAndOpen('youtube')">
+            <span>&#9654;&#65039;</span> Copy &amp; Open YouTube
+          </button>
+        </div>
+        <div class="cp-post-status" id="cpPostStatus" style="display:none"></div>
       </div>
     </div>
 
@@ -4096,6 +4129,8 @@ function generatePost() {
   output.style.display = 'block';
   caption.textContent = '';
   meta.style.display = 'none';
+  document.getElementById('createPostActions').style.display = 'none';
+  document.getElementById('cpPostStatus').style.display = 'none';
 
   var fullText = '';
 
@@ -4137,9 +4172,11 @@ function generatePost() {
               tipsEl.innerHTML = '&#128161; ' + parsed.platformTips.join(' · ');
             }
             meta.style.display = 'flex';
+            showPostActions(parsed);
           } catch (e) {
             // If JSON parse fails, just show the raw text
             caption.textContent = fullText;
+            showPostActions(null);
           }
           btn.textContent = 'Generate Caption';
           btn.disabled = false;
@@ -4177,10 +4214,113 @@ function generatePost() {
 function copyGeneratedCaption() {
   var text = document.getElementById('createPostCaption').textContent;
   if (!text) return;
-  navigator.clipboard.writeText(text).then(function() {
+  var hashtags = document.getElementById('createPostHashtags');
+  var fullText = text;
+  if (hashtags && hashtags.textContent) {
+    var tags = hashtags.textContent.replace(/^[^\#]*/, '').trim();
+    if (tags) fullText += '\n\n' + tags;
+  }
+  navigator.clipboard.writeText(fullText).then(function() {
     var btn = document.getElementById('createPostCopyBtn');
     btn.textContent = 'Copied!';
     setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+  });
+}
+
+var generatedCaptionData = null;
+
+function showPostActions(parsed) {
+  generatedCaptionData = parsed;
+  var actions = document.getElementById('createPostActions');
+  var status = document.getElementById('cpPostStatus');
+  actions.style.display = 'flex';
+  status.style.display = 'none';
+}
+
+function getFullCaption() {
+  if (!generatedCaptionData) return document.getElementById('createPostCaption').textContent || '';
+  var text = generatedCaptionData.caption || '';
+  if (generatedCaptionData.hashtags && generatedCaptionData.hashtags.length) {
+    text += '\n\n' + generatedCaptionData.hashtags.map(function(h) { return '#' + h.replace(/^#/, ''); }).join(' ');
+  }
+  return text;
+}
+
+function postToInstagram() {
+  var btn = document.getElementById('cpPostIg');
+  var status = document.getElementById('cpPostStatus');
+
+  if (!createPostImage) {
+    status.className = 'cp-post-status error';
+    status.textContent = 'No image to post';
+    status.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span>&#128247;</span> Uploading...';
+  status.className = 'cp-post-status loading';
+  status.textContent = 'Uploading image...';
+  status.style.display = 'block';
+
+  // Step 1: Upload image to get a public URL
+  fetch('/api/upload-image', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + password },
+    body: JSON.stringify({ image: createPostImage }),
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    if (!data.ok) throw new Error(data.error || 'Upload failed');
+
+    status.textContent = 'Publishing to Instagram...';
+
+    // Step 2: Publish to Instagram
+    var caption = getFullCaption();
+    return fetch('/api/ig-publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + password },
+      body: JSON.stringify({ imageUrl: data.url, caption: caption }),
+    });
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    if (data.error) throw new Error(data.details || data.error);
+
+    status.className = 'cp-post-status success';
+    status.textContent = 'Posted to Instagram!';
+    btn.innerHTML = '<span>&#10003;</span> Posted!';
+    setTimeout(function() {
+      btn.disabled = false;
+      btn.innerHTML = '<span>&#128247;</span> Post to Instagram';
+    }, 5000);
+  })
+  .catch(function(err) {
+    console.error('Instagram post error:', err);
+    status.className = 'cp-post-status error';
+    status.textContent = err.message || 'Failed to post to Instagram';
+    btn.disabled = false;
+    btn.innerHTML = '<span>&#128247;</span> Post to Instagram';
+  });
+}
+
+function copyAndOpen(platform) {
+  var caption = getFullCaption();
+  navigator.clipboard.writeText(caption).then(function() {
+    var status = document.getElementById('cpPostStatus');
+    status.className = 'cp-post-status success';
+    status.textContent = 'Caption copied! Opening ' + platform + '...';
+    status.style.display = 'block';
+
+    var urls = {
+      tiktok: 'https://www.tiktok.com/upload',
+      youtube: 'https://studio.youtube.com/channel/upload',
+    };
+    setTimeout(function() {
+      window.open(urls[platform] || urls.tiktok, '_blank');
+    }, 500);
+
+    setTimeout(function() { status.style.display = 'none'; }, 4000);
   });
 }
 </script>

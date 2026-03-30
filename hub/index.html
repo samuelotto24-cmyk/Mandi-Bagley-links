@@ -1720,9 +1720,36 @@ const FONT_MAP = {
   display: flex; gap: 8px;
 }
 
+/* ── Floating Contact Bar ── */
+.contact-bar {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 90;
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(20,16,18,0.9); border: 1px solid var(--border);
+  border-radius: 50px; padding: 6px 8px;
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+.contact-bar-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--sans); font-size: 12px; font-weight: 600; color: var(--text);
+  background: var(--surface-elevated); border: 1px solid var(--border); border-radius: 50px;
+  padding: 10px 20px; cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  white-space: nowrap; text-decoration: none;
+}
+.contact-bar-btn:hover { border-color: var(--accent-border); background: var(--accent-pale); }
+.contact-bar-btn.primary {
+  background: var(--accent); border-color: var(--accent); color: var(--bg);
+  box-shadow: 0 0 16px var(--accent-pale);
+}
+.contact-bar-btn.primary:hover { box-shadow: 0 0 28px var(--accent-border); }
+.contact-bar-sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
+
 @media (max-width: 768px) {
-  .chat-fab-btn { bottom: 72px; }
+  .chat-fab-btn { bottom: 100px; }
   .chat-drawer { width: 100vw; height: 80vh; border-radius: var(--r-md) var(--r-md) 0 0; }
+  .contact-bar { bottom: 64px; left: 50%; }
+  .contact-bar-btn { font-size: 11px; padding: 8px 14px; }
 }
 </style>
 </head>
@@ -1770,8 +1797,6 @@ const FONT_MAP = {
   <div class="sidebar-label">Site</div>
   <a class="sidebar-nav-item" href="/dashboard" target="_blank" title="Full Analytics Dashboard">📊</a>
   <div class="sidebar-label">Dashboard</div>
-  <button class="sidebar-nav-item" onclick="openModal('message')" title="Message Sam">✉️</button>
-  <div class="sidebar-label">Message</div>
 </nav>
 
 <div class="hub-main">
@@ -2030,6 +2055,13 @@ const FONT_MAP = {
 
 </div><!-- end hub-main -->
 </div><!-- end hub-shell -->
+
+<!-- Floating Contact Bar -->
+<div class="contact-bar">
+  <button class="contact-bar-btn primary" onclick="openModal('message')">✉️ Message Sam</button>
+  <div class="contact-bar-sep"></div>
+  <button class="contact-bar-btn" onclick="openModal('update')">🔄 Request Update</button>
+</div>
 
 <!-- Floating Chat Agent -->
 <button class="chat-fab-btn" id="chatFab" onclick="toggleChatDrawer()">&#128172;</button>

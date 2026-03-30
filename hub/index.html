@@ -195,41 +195,6 @@ const FONT_MAP = {
   }
   @keyframes pulse { 0%,100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
 
-  /* Aurora blobs */
-  .aurora-blob {
-    position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none;
-  }
-  .aurora-blob-1 {
-    width: 600px; height: 600px; top: -10%; left: 10%;
-    background: rgba(255,255,255,0.15);
-    animation: auroraFloat1 25s ease-in-out infinite;
-  }
-  .aurora-blob-2 {
-    width: 500px; height: 500px; top: 30%; right: -5%;
-    background: rgba(200,200,200,0.12);
-    animation: auroraFloat2 32s ease-in-out infinite;
-  }
-  .aurora-blob-3 {
-    width: 700px; height: 700px; bottom: -15%; left: 30%;
-    background: rgba(255,255,255,0.10);
-    animation: auroraFloat3 40s ease-in-out infinite;
-  }
-  .aurora-blob-4 {
-    width: 450px; height: 450px; top: 60%; left: -8%;
-    background: rgba(180,180,180,0.15);
-    animation: auroraFloat4 28s ease-in-out infinite;
-  }
-  .aurora-blob-5 {
-    width: 550px; height: 550px; top: 10%; right: 20%;
-    background: rgba(255,255,255,0.08);
-    animation: auroraFloat5 35s ease-in-out infinite;
-  }
-  @keyframes auroraFloat1 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(60px,-40px) scale(1.1); } 66% { transform: translate(-30px,50px) scale(0.95); } }
-  @keyframes auroraFloat2 { 0%,100% { transform: translate(0,0) scale(1); } 40% { transform: translate(-50px,30px) scale(1.08); } 70% { transform: translate(40px,-60px) scale(0.92); } }
-  @keyframes auroraFloat3 { 0%,100% { transform: translate(0,0) scale(1); } 25% { transform: translate(40px,20px) scale(1.05); } 50% { transform: translate(-60px,-30px) scale(0.97); } 75% { transform: translate(20px,-40px) scale(1.03); } }
-  @keyframes auroraFloat4 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(50px,-50px) scale(1.12); } }
-  @keyframes auroraFloat5 { 0%,100% { transform: translate(0,0) scale(1); } 35% { transform: translate(-40px,60px) scale(1.06); } 65% { transform: translate(30px,-20px) scale(0.94); } }
-
   #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
   /* ── Scroll animations ── */
@@ -249,29 +214,6 @@ const FONT_MAP = {
   .skeleton-text.w80 { width: 80%; }
   .skeleton-text.w40 { width: 40%; }
   .skeleton-heading { height: 34px; width: 50%; margin-bottom: 12px; border-radius: 8px; }
-
-  /* ── FAB ── */
-  .fab-bar { display: none; }
-  .fab-bar-legacy {
-    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 100;
-    display: flex; align-items: center; gap: 8px;
-    background: rgba(20,16,18,0.85);
-    border: 1px solid var(--border); border-radius: 50px; padding: 6px 8px;
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 20px var(--accent-pale);
-  }
-  .fab-btn {
-    display: inline-flex; align-items: center; gap: 7px;
-    font-family: var(--sans); font-size: 12px; font-weight: 600; color: var(--text);
-    background: var(--surface-elevated); border: 1px solid var(--border); border-radius: 50px;
-    padding: 10px 20px; cursor: pointer;
-    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
-    text-decoration: none; white-space: nowrap;
-  }
-  .fab-btn:hover { border-color: var(--accent-border); background: var(--accent-pale); }
-  .fab-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 16px var(--accent-pale); }
-  .fab-btn.primary:hover { box-shadow: 0 0 28px var(--accent-border); }
-  .fab-sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
 
   /* ── Login ── */
   .login-screen { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; }
@@ -308,28 +250,6 @@ const FONT_MAP = {
   .section-label { font-family: var(--sans); font-size: 10.5px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
   .divider { height: 1px; background: linear-gradient(to right, transparent, var(--border) 30%, var(--border) 70%, transparent); margin: 28px 0; }
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); }
-
-  /* ── Greeting row ── */
-  .greeting-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 8px; }
-  .greeting-nav {
-    display: flex; align-items: center; gap: 8px;
-    font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--text);
-    text-decoration: none; padding: 10px 20px;
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-pill);
-    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; white-space: nowrap;
-  }
-  .greeting-nav:hover { border-color: var(--accent-border); box-shadow: 0 0 20px var(--accent-pale); background: var(--accent-pale); }
-  .greeting-nav-icon { font-size: 16px; }
-  .greeting-nav-arrow { font-size: 11px; color: var(--text-muted); transition: color 0.2s; }
-  .greeting-nav:hover .greeting-nav-arrow { color: var(--accent); }
-  .greeting-nav-left { justify-self: start; }
-  .greeting-nav-right { justify-self: end; }
-
-  .greeting { text-align: center; }
-  .greeting-label { font-family: var(--sans); font-size: 10px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px; }
-  .greeting-label span { color: var(--accent); font-weight: 600; }
-  .greeting h1 { font-family: var(--serif); font-size: 56px; font-weight: 300; color: var(--text); }
-  .greeting-date { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; }
 
   /* ── Smart banner ── */
   .smart-banner {
@@ -623,39 +543,6 @@ const FONT_MAP = {
   .show-more-btn:hover { color: var(--accent); border-color: var(--accent-border); }
 
   /* ── Bento Grid ── */
-  .bento-grid {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    grid-auto-rows: min-content;
-    gap: 16px;
-  }
-  .bento-card {
-    background: rgba(255,255,255,0.04);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    overflow: hidden;
-    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
-    align-self: start;
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  .bento-card.card-visible {
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.4s ease-out, transform 0.4s ease-out, border-color 0.2s, box-shadow 0.2s;
-  }
-  .bento-card:hover {
-    border-color: rgba(255,255,255,0.15);
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
-  }
-  .bento-card.card-visible:hover {
-    transform: translateY(-2px);
-  }
 
   /* Typing cursor */
   .typing-cursor {
@@ -684,29 +571,7 @@ const FONT_MAP = {
     animation: statPulse 3s ease-out infinite;
     pointer-events: none;
   }
-  .span-2 { grid-column: span 2; }
-  .span-3 { grid-column: span 3; }
-  .span-4 { grid-column: span 4; }
-  .span-5 { grid-column: span 5; }
-  .span-6 { grid-column: span 6; }
-  .span-8 { grid-column: span 8; }
-  .span-12 { grid-column: span 12; }
 
-  .bento-card-header {
-    display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
-  }
-  .bento-card-icon { font-size: 14px; opacity: 0.7; }
-  .bento-card-title {
-    font-size: 10px; font-weight: 600; letter-spacing: 0.16em;
-    text-transform: uppercase; color: var(--accent);
-  }
-
-  /* Hub header */
-  .hub-header { grid-column: 1 / -1; margin-bottom: 8px; opacity: 1 !important; transform: none !important; }
-  .hub-header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
-  .hub-header-title { font-family: var(--serif); font-size: 42px; font-weight: 300; color: var(--text); line-height: 1.1; }
-  .hub-header-subtitle { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); margin-top: 8px; }
-  .hub-nav-pills { display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
   .hub-nav-pill {
     font-family: var(--sans); font-size: 11px; font-weight: 500; color: var(--text-muted);
     background: var(--surface); border: 1px solid var(--border); border-radius: 50px;
@@ -715,32 +580,6 @@ const FONT_MAP = {
   }
   .hub-nav-pill:hover { border-color: var(--accent-border); color: var(--text); }
 
-  /* ── Contact glow buttons ── */
-  .hub-nav-glow {
-    font-size: 13px; font-weight: 600; padding: 9px 20px;
-    color: var(--text); background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.18);
-    box-shadow: 0 0 12px rgba(255,255,255,0.06), inset 0 0 12px rgba(255,255,255,0.03);
-    animation: contactPulse 3s ease-in-out infinite;
-  }
-  .hub-nav-glow:hover {
-    color: #fff; background: rgba(255,255,255,0.14);
-    border-color: rgba(255,255,255,0.30);
-    box-shadow: 0 0 24px rgba(255,255,255,0.12), inset 0 0 16px rgba(255,255,255,0.05);
-    animation: none;
-  }
-  @keyframes contactPulse {
-    0%, 100% { box-shadow: 0 0 12px rgba(255,255,255,0.06), inset 0 0 12px rgba(255,255,255,0.03); }
-    50% { box-shadow: 0 0 20px rgba(255,255,255,0.12), inset 0 0 16px rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.25); }
-  }
-
-  .ai-intro { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 14px; line-height: 1.6; font-style: italic; }
-  .ai-intro strong { color: var(--text); font-style: normal; }
-
-  /* Stat card (single stat in bento) */
-  .stat-card-value { font-family: var(--serif); font-size: 36px; font-weight: 400; color: var(--text); line-height: 1.1; }
-  .stat-card-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 6px; }
-  .stat-card-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
 
   /* Social chips */
   .social-chips { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -756,20 +595,6 @@ const FONT_MAP = {
   .social-chip-status { font-size: 10px; color: var(--text-muted); }
   .social-chip-stat { font-size: 11px; color: var(--accent); font-weight: 600; margin-left: auto; }
 
-  /* Compact briefing in bento */
-  .bento-card .briefing-cols { grid-template-columns: 1fr; gap: 16px; }
-  .bento-card .briefing-card { padding: 0; background: transparent; border: none; }
-  .bento-card .briefing-header-row { display: none; }
-
-  /* Compact calendar in bento */
-  .bento-card .calendar-strip {
-    display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
-  }
-  .bento-card .cal-day { padding: 8px 4px; }
-  .bento-card .cal-day-num { font-size: 16px; margin-bottom: 2px; }
-  .bento-card .cal-type { font-size: 7px; padding: 1px 4px; }
-  .bento-card .cal-time { font-size: 7px; margin-top: 2px; }
-  .bento-card .cal-idea { display: none; }
 
   /* ── Expandable Calendar Day ── */
   .cal-day { cursor: pointer; position: relative; }
@@ -836,14 +661,6 @@ const FONT_MAP = {
     position: absolute; top: 6px; right: 6px;
   }
 
-  /* Compact chat in bento */
-  .bento-card .chat-section { border-radius: 12px; }
-  .bento-card .chat-glow, .bento-card .chat-outer-glow { display: none; }
-  .bento-card .chat-inner { border-radius: 12px; }
-  .bento-card .chat-header { padding: 16px 20px; }
-  .bento-card .chat-body { padding: 14px 20px; min-height: 60px; max-height: 300px; overflow-y: auto; }
-  .bento-card .chat-prompts { padding: 4px 20px 12px; }
-  .bento-card .chat-input-row { padding: 12px 20px; }
 
   /* ── Connect Banner (inline, amber glow) ── */
   .connect-banner {
@@ -1002,44 +819,15 @@ const FONT_MAP = {
   /* ── Responsive ── */
   /* ── Tablet ── */
   @media (max-width: 960px) {
-    .greeting-row { grid-template-columns: 1fr; gap: 12px; }
-    .greeting-nav-left, .greeting-nav-right { justify-self: center; }
-    .greeting-row .greeting { order: -1; }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .paired-row { grid-template-columns: 1fr; }
     .briefing-cols { grid-template-columns: 1fr; }
-    .bento-grid { grid-template-columns: repeat(6, 1fr); }
-    .span-2, .span-3 { grid-column: span 3; }
-    .span-4 { grid-column: span 3; }
-    .span-5 { grid-column: span 3; }
-    .span-6 { grid-column: span 6; }
-    .span-8 { grid-column: span 6; }
-    .hub-header-top { flex-direction: column; }
-    .hub-nav-pills { justify-content: flex-start; }
   }
 
   /* ── Mobile ── */
   @media (max-width: 768px) {
     .hub-main { padding: 20px 14px 90px; }
-    .bento-grid { grid-template-columns: 1fr; }
-    .span-2, .span-3, .span-4, .span-5, .span-6, .span-8, .span-12 { grid-column: span 1; }
-    .hub-header-title { font-size: 28px; }
-    .hub-header-subtitle { font-size: 9px; }
     .social-chips { flex-direction: column; }
-    .bento-card .calendar-strip { display: flex; overflow-x: auto; gap: 6px; }
-    .bento-card .calendar-strip .cal-day { min-width: 60px; flex-shrink: 0; }
-    /* Mobile card order */
-    .bento-card[data-order="1"] { order: 1; } /* Today's Plan */
-    .bento-card[data-order="2"] { order: 2; } /* Stats */
-    .bento-card[data-order="3"] { order: 3; } /* Calendar */
-    .bento-card[data-order="4"] { order: 4; } /* Platforms */
-    /* data-order 5 (Strategist) removed — now floating drawer */
-    .bento-card[data-order="6"] { order: 6; } /* Heatmap */
-    .bento-card[data-order="7"] { order: 7; } /* Niche Pulse */
-    .bento-card[data-order="8"] { order: 8; } /* Links */
-    .bento-card[data-order="9"] { order: 9; } /* Codes */
-    .bento-card[data-order="10"] { order: 10; } /* Create Post */
-    .bento-card[data-order="11"] { order: 11; } /* Refer & Earn */
     /* Stats tiles: horizontal scroll on mobile */
     .stats-grid { display: flex !important; overflow-x: auto; gap: 8px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
     .stats-grid::-webkit-scrollbar { display: none; }
@@ -1049,13 +837,6 @@ const FONT_MAP = {
     .hub-main { padding: 24px 14px 90px; }
     .gradient-mesh { filter: blur(60px); }
     .gradient-mesh-2 { filter: blur(70px); }
-
-    /* Greeting */
-    .greeting-label { font-size: 8px; letter-spacing: 0.18em; margin-bottom: 10px; }
-    .greeting h1 { font-size: 36px; }
-    .greeting-date { font-size: 9px; margin-top: 3px; }
-    .greeting-nav { font-size: 11px; padding: 8px 14px; }
-    .greeting-nav-icon { font-size: 13px; }
 
     /* Smart banner */
     .smart-banner { font-size: 11px; padding: 10px 14px; gap: 8px; border-radius: 10px; }
@@ -1154,11 +935,6 @@ const FONT_MAP = {
 
     /* (sticky chat input removed — replaced by floating drawer) */
 
-    /* FAB */
-    .fab-bar { bottom: 60px; padding: 4px 6px; gap: 6px; }
-    .fab-btn { font-size: 10px; padding: 7px 12px; gap: 5px; }
-    .fab-sep { height: 16px; }
-
     /* Modal */
     .modal-card { max-width: 100%; border-radius: 14px; }
     .modal-header { padding: 14px 16px; }
@@ -1182,16 +958,12 @@ const FONT_MAP = {
   /* ── Small phones ── */
   @media (max-width: 380px) {
     .hub-main { padding: 20px 10px 85px; }
-    .greeting h1 { font-size: 30px; }
     .stat-value { font-size: 20px; }
     .stat-tile { padding: 10px 6px; }
     .briefing-card { padding: 12px; }
     .briefing-title { font-size: 16px; }
     .briefing-text { font-size: 11px; }
     .action-headline { font-size: 13px; }
-    .greeting-nav { font-size: 10px; padding: 6px 10px; }
-    .fab-bar { bottom: 56px; }
-    .fab-btn { font-size: 9px; padding: 6px 10px; }
   }
 
 /* ── Referral Section ── */
@@ -1504,13 +1276,6 @@ const FONT_MAP = {
   .section-label { font-size: 8px !important; letter-spacing: 0.18em; margin-bottom: 6px !important; }
   .card { border-radius: 12px; }
 
-  /* ── Greeting: compact ── */
-  .greeting-row { gap: 8px !important; }
-  .greeting h1 { font-size: 28px !important; }
-  .greeting-label { font-size: 7px !important; margin-bottom: 6px !important; }
-  .greeting-date { font-size: 8px !important; }
-  .greeting-nav { font-size: 10px !important; padding: 6px 10px !important; }
-
   /* ── Health bar: smaller ── */
   .health-bar { margin: 6px 0 10px !important; }
 
@@ -1613,15 +1378,11 @@ const FONT_MAP = {
   .chat-prompts { padding: 2px 12px 8px !important; gap: 4px !important; }
   .chat-prompt { font-size: 9px !important; padding: 5px 10px !important; }
 
-  /* ── FAB bar: tighter ── */
-  .fab-bar { bottom: 52px !important; }
-  .fab-btn { font-size: 9px !important; padding: 5px 10px !important; }
 }
 
 /* ── Extra small phones ── */
 @media (max-width: 380px) {
   .hub-main { padding: 14px 8px 75px !important; }
-  .greeting h1 { font-size: 24px !important; }
   .stat-value { font-size: 18px !important; }
   .briefing-title { font-size: 14px !important; }
   .action-headline { font-size: 12px !important; }
@@ -1975,11 +1736,6 @@ const FONT_MAP = {
   <div class="gradient-mesh"></div>
   <div class="gradient-mesh-2"></div>
   <div class="gradient-pulse"></div>
-  <div class="aurora-blob aurora-blob-1"></div>
-  <div class="aurora-blob aurora-blob-2"></div>
-  <div class="aurora-blob aurora-blob-3"></div>
-  <div class="aurora-blob aurora-blob-4"></div>
-  <div class="aurora-blob aurora-blob-5"></div>
 </div>
 <canvas id="particles"></canvas>
 
@@ -1994,15 +1750,6 @@ const FONT_MAP = {
     <button class="login-btn" onclick="login()">Enter</button>
     <div class="login-error" id="loginError">Incorrect password. Try again.</div>
   </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════
-     FAB
-     ═══════════════════════════════════════════════════ -->
-<div class="fab-bar">
-  <button class="fab-btn primary" onclick="openModal('message')">&#9993;&#65039; Message Sam</button>
-  <div class="fab-sep"></div>
-  <button class="fab-btn" onclick="openModal('update')">&#128260; Request Update</button>
 </div>
 
 <!-- ═══════════════════════════════════════════════════
@@ -2275,151 +2022,6 @@ const FONT_MAP = {
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════
-     PARKED BENTO CARDS (temporarily outside views, kept in DOM for JS compat)
-     ═══════════════════════════════════════════════════ -->
-<div id="parkedCards" style="display:none;">
-
-  <!-- Old header elements for JS compat -->
-  <div class="hub-header-title" style="display:none"></div>
-  <div class="hub-header-subtitle" style="display:none">AI-Powered &middot; Live Analytics &middot; Built for Your Brand</div>
-  <div id="greetingLabel" style="display:none"></div>
-  <div id="greetingDate" style="display:none"></div>
-  <div class="hub-nav-pills" style="display:none">
-    <a class="hub-nav-pill hub-nav-glow" id="navSite" href="#" target="_blank">&#127760; View My Site</a>
-    <a class="hub-nav-pill hub-nav-glow" href="/dashboard" target="_blank">&#128202; Full Analytics Dashboard</a>
-    <button class="hub-nav-pill hub-nav-glow" onclick="openModal('message')">&#9993;&#65039; Message Sam</button>
-    <button class="hub-nav-pill hub-nav-glow" onclick="openModal('update')">&#128260; Request Update</button>
-  </div>
-  <div class="ai-intro" id="aiIntro" style="display:none"><span class="typing-cursor">|</span></div>
-
-  <!-- Today's Plan / Briefing -->
-  <div class="bento-card span-6" data-order="1">
-    <div class="bento-card-header">
-      <span class="bento-card-icon">&#127919;</span>
-      <span class="bento-card-title">Today's Plan</span>
-      <span class="briefing-badge" id="briefingBadge" style="display:none;margin-left:auto"></span>
-    </div>
-    <div class="card briefing-card" id="briefingCard" style="background:transparent;border:none;padding:0">
-      <div class="briefing-header-row" style="display:none">
-        <div class="briefing-title" id="briefingTitle">Loading&hellip;</div>
-      </div>
-      <div id="briefingContent">
-        <div class="skeleton skeleton-text w80"></div>
-        <div class="skeleton skeleton-text w60"></div>
-        <div class="skeleton skeleton-text w80"></div>
-        <div class="skeleton skeleton-text w40"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Stats / Growth -->
-  <div class="bento-card span-6" data-order="2">
-    <div class="bento-card-header">
-      <span class="bento-card-icon">&#128200;</span>
-      <span class="bento-card-title">Growth</span>
-    </div>
-    <div class="stats-grid" id="statsGrid" style="grid-template-columns:repeat(2,1fr);gap:8px">
-      <div class="card stat-tile skeleton" style="height:70px"></div>
-      <div class="card stat-tile skeleton" style="height:70px"></div>
-      <div class="card stat-tile skeleton" style="height:70px"></div>
-    </div>
-    <div class="goal-progress-bar" id="goalProgressBar" style="display:none;margin-top:12px">
-      <div class="goal-progress-info">
-        <span class="goal-progress-label" id="goalProgressLabel"></span>
-        <span class="goal-progress-pct" id="goalProgressPct"></span>
-      </div>
-      <div class="goal-bar-bg" style="height:4px;margin-top:6px">
-        <div class="goal-bar-fill" id="goalProgressFill" style="width:0%"></div>
-      </div>
-    </div>
-    <div id="goalCard" style="display:none"></div>
-  </div>
-
-  <!-- Niche Pulse -->
-  <div class="bento-card span-3" data-order="7">
-    <div class="bento-card-header">
-      <span class="bento-card-icon">&#128200;</span>
-      <span class="bento-card-title" id="pulseLabel">Niche Pulse</span>
-    </div>
-    <div class="pulse-items" id="pulseItems">
-      <div class="empty-state"><p>Trends will appear after one week of data.</p></div>
-    </div>
-  </div>
-
-  <!-- (Strategist chat card removed — now floating drawer) -->
-
-  <!-- Refer & Earn -->
-  <div class="bento-card span-4" data-order="11">
-    <div class="bento-card-header">
-      <span class="bento-card-icon">&#127873;</span>
-      <span class="bento-card-title">Refer &amp; Earn</span>
-    </div>
-    <div class="referral-card" id="referralCard" style="background:transparent;border:none;padding:0">
-      <div class="referral-header">
-        <div class="referral-icon">&#127873;</div>
-        <div class="referral-header-text">
-          <h3>Share the Love</h3>
-          <p>Refer a creator and both earn rewards.</p>
-        </div>
-      </div>
-      <div class="referral-code-row">
-        <span class="referral-code-label">Your Code</span>
-        <span class="referral-code-value" id="referralCode">&#8212;</span>
-        <button class="referral-copy-btn" id="referralCopyBtn" onclick="copyReferralCode()">Copy</button>
-      </div>
-      <div class="referral-stats-row">
-        <div class="referral-stat">
-          <div class="referral-stat-value" id="referralCount">0</div>
-          <div class="referral-stat-label">Referrals</div>
-        </div>
-        <div class="referral-stat">
-          <div class="referral-stat-value" id="referralFreeMonths">0</div>
-          <div class="referral-stat-label">Free Months</div>
-        </div>
-      </div>
-      <div id="referralDetails"></div>
-    </div>
-  </div>
-
-  <!-- Automations -->
-  <div class="bento-card span-6" data-order="12">
-    <div class="bento-card-header">
-      <span class="bento-card-icon">&#129302;</span>
-      <span class="bento-card-title">Automations</span>
-      <button class="briefing-refresh" onclick="openAutomationModal()" title="New Automation" style="margin-left:auto;font-size:16px">+</button>
-    </div>
-    <div id="automationsList" class="automations-list">
-      <div class="automation-empty">Loading...</div>
-    </div>
-  </div>
-
-  <!-- Conversion Funnel -->
-  <div class="bento-card span-6" data-order="13">
-    <div class="bento-card-header">
-      <span class="bento-card-icon">&#128202;</span>
-      <span class="bento-card-title">Conversion Funnel</span>
-    </div>
-    <div id="funnelList" class="funnel-list">
-      <div class="automation-empty">No automations yet</div>
-    </div>
-    <div class="funnel-total" id="funnelTotal"></div>
-  </div>
-
-  <!-- Recent Leads (full-width) -->
-  <div class="bento-card span-12" data-order="14">
-    <div class="bento-card-header">
-      <span class="bento-card-icon">&#128293;</span>
-      <span class="bento-card-title">Recent Leads</span>
-    </div>
-    <div id="leadsList" class="leads-list">
-      <div class="automation-empty">No leads yet &mdash; create an automation to get started</div>
-    </div>
-    <button class="leads-export" id="leadsExportBtn" style="display:none" onclick="exportLeads()">Export Emails &#8595;</button>
-  </div>
-
-</div><!-- end parkedCards -->
-
 </div><!-- end hub-main -->
 </div><!-- end hub-shell -->
 
@@ -2581,7 +2183,8 @@ function showHub() {
   // Populate greeting
   const firstName = CLIENT.name.split(' ')[0];
   const domain = CLIENT.url.replace(/^https?:\/\//, '');
-  document.getElementById('greetingLabel').innerHTML = domain + ' / <span>backstage</span>';
+  var greetingLabel = document.getElementById('greetingLabel');
+  if (greetingLabel) greetingLabel.innerHTML = domain + ' / <span>backstage</span>';
   // Time-based greeting for Home view
   var greetHour = new Date().getHours();
   var greetText = greetHour < 12 ? 'Good morning' : greetHour < 17 ? 'Good afternoon' : 'Good evening';
@@ -2592,7 +2195,8 @@ function showHub() {
   // Date
   const now = new Date();
   const opts = { month: 'long', day: 'numeric', year: 'numeric' };
-  document.getElementById('greetingDate').textContent = now.toLocaleDateString('en-US', opts) + ' \u00b7 Your Growth Engine';
+  var greetingDate = document.getElementById('greetingDate');
+  if (greetingDate) greetingDate.textContent = now.toLocaleDateString('en-US', opts) + ' \u00b7 Your Growth Engine';
 
   // Pulse label
   var pLabel = document.getElementById('pulseLabel');
@@ -2890,6 +2494,7 @@ function renderHomeSubtitle() {
 function renderScoreboard() {
   var grid = document.getElementById('statsGrid');
   var s = scoreboardData;
+  if (!grid) { renderHomeStats(); return; }
 
   var totalFollowers = s.followers.tiktok + s.followers.youtube;
   var totalViews = s.views.website + s.views.tiktok + s.views.youtube;
@@ -2946,23 +2551,30 @@ function renderStats(data) {
 
 /* ── Render Briefing ── */
 function renderBriefing(data) {
+  var _bTitle = document.getElementById('briefingTitle');
+  var _bContent = document.getElementById('briefingContent');
+  var _bBadge = document.getElementById('briefingBadge');
+
   if (!data.summary && (!data.actionItems || !data.actionItems.length)) {
-    document.getElementById('briefingTitle').textContent = 'Your Game Plan';
-    document.getElementById('briefingContent').innerHTML = '<div class="empty-state"><p>Your game plan will appear once traffic data is available.</p></div>';
-    document.getElementById('briefingBadge').style.display = 'none';
+    if (_bTitle) _bTitle.textContent = 'Your Game Plan';
+    if (_bContent) _bContent.innerHTML = '<div class="empty-state"><p>Your game plan will appear once traffic data is available.</p></div>';
+    if (_bBadge) _bBadge.style.display = 'none';
+    renderHomeBriefing(data);
     return;
   }
 
-  document.getElementById('briefingTitle').textContent = 'This Week \u2014 ' + (data.weekRange || '');
+  if (_bTitle) _bTitle.textContent = 'This Week \u2014 ' + (data.weekRange || '');
 
   // Badge — show warning count
-  var badge = document.getElementById('briefingBadge');
+  var badge = _bBadge;
   var warningCount = data.flags ? data.flags.filter(function(f) { return f.type === 'warning'; }).length : 0;
-  if (warningCount > 0) {
-    badge.textContent = warningCount;
-    badge.style.display = 'inline-flex';
-  } else {
-    badge.style.display = 'none';
+  if (badge) {
+    if (warningCount > 0) {
+      badge.textContent = warningCount;
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.style.display = 'none';
+    }
   }
 
   var m = data.metrics || {};
@@ -3038,7 +2650,7 @@ function renderBriefing(data) {
     html += '</div>';
   }
 
-  document.getElementById('briefingContent').innerHTML = html;
+  if (_bContent) _bContent.innerHTML = html;
   renderHomeBriefing(data);
   renderHomeSubtitle();
 }
@@ -3438,13 +3050,19 @@ function renderSmartBanner(data) {
 }
 
 function renderEmptyStates() {
-  document.getElementById('statsGrid').innerHTML = '<div class="card stat-tile" style="grid-column:1/-1"><div class="empty-state"><p>No data yet. Connect your platforms to get started.</p></div></div>';
-  document.getElementById('briefingTitle').textContent = 'Your Game Plan';
-  document.getElementById('briefingContent').innerHTML = '<div class="empty-state"><p>Your game plan will appear once traffic data is available.</p></div>';
-  document.getElementById('briefingBadge').style.display = 'none';
+  var sg = document.getElementById('statsGrid');
+  if (sg) sg.innerHTML = '<div class="card stat-tile" style="grid-column:1/-1"><div class="empty-state"><p>No data yet. Connect your platforms to get started.</p></div></div>';
+  var bt = document.getElementById('briefingTitle');
+  if (bt) bt.textContent = 'Your Game Plan';
+  var bc = document.getElementById('briefingContent');
+  if (bc) bc.innerHTML = '<div class="empty-state"><p>Your game plan will appear once traffic data is available.</p></div>';
+  var bb = document.getElementById('briefingBadge');
+  if (bb) bb.style.display = 'none';
   renderCalendar({});
-  document.getElementById('topLinks').innerHTML = '<div class="empty-state"><p>Link clicks will appear here.</p></div>';
-  document.getElementById('brandCodes').innerHTML = '<div class="empty-state"><p>Code usage will appear here.</p></div>';
+  var tl = document.getElementById('topLinks');
+  if (tl) tl.innerHTML = '<div class="empty-state"><p>Link clicks will appear here.</p></div>';
+  var brc = document.getElementById('brandCodes');
+  if (brc) brc.innerHTML = '<div class="empty-state"><p>Code usage will appear here.</p></div>';
 }
 
 /* ═══════════════════════════════════════════════════
@@ -3792,23 +3410,35 @@ function renderGoal(data) {
   var bar = document.getElementById('goalProgressBar');
   if (!activeType) {
     // Show a subtle "set a goal" prompt
-    bar.style.display = '';
-    bar.onclick = function() { openGoalModal(); };
-    document.getElementById('goalProgressLabel').innerHTML = 'Set a monthly goal to track your growth';
-    document.getElementById('goalProgressPct').textContent = '';
-    document.getElementById('goalProgressFill').style.width = '0%';
+    if (bar) {
+      bar.style.display = '';
+      bar.onclick = function() { openGoalModal(); };
+    }
+    var gpl = document.getElementById('goalProgressLabel');
+    if (gpl) gpl.innerHTML = 'Set a monthly goal to track your growth';
+    var gpp = document.getElementById('goalProgressPct');
+    if (gpp) gpp.textContent = '';
+    var gpf = document.getElementById('goalProgressFill');
+    if (gpf) gpf.style.width = '0%';
     return;
   }
 
   var pct = Math.min(100, Math.round((activeCurrent / activeTarget) * 100));
   var label = GOAL_LABELS[activeType];
-  bar.style.display = '';
-  bar.onclick = function() { openGoalModal(); };
-  document.getElementById('goalProgressLabel').innerHTML = '<strong>' + activeCurrent.toLocaleString() + '</strong> / ' + activeTarget.toLocaleString() + ' ' + label + ' this month';
-  document.getElementById('goalProgressPct').textContent = pct + '%';
-  document.getElementById('goalProgressPct').style.color = pct >= 80 ? '#22c55e' : 'var(--accent)';
+  if (bar) {
+    bar.style.display = '';
+    bar.onclick = function() { openGoalModal(); };
+  }
+  var gpl2 = document.getElementById('goalProgressLabel');
+  if (gpl2) gpl2.innerHTML = '<strong>' + activeCurrent.toLocaleString() + '</strong> / ' + activeTarget.toLocaleString() + ' ' + label + ' this month';
+  var gpp2 = document.getElementById('goalProgressPct');
+  if (gpp2) {
+    gpp2.textContent = pct + '%';
+    gpp2.style.color = pct >= 80 ? '#22c55e' : 'var(--accent)';
+  }
   setTimeout(function() {
     var fill = document.getElementById('goalProgressFill');
+    if (!fill) return;
     fill.style.transition = 'width 1.2s cubic-bezier(0.23,1,0.32,1)';
     fill.style.width = pct + '%';
     fill.style.background = pct >= 80 ? '#22c55e' : 'linear-gradient(90deg, var(--accent), var(--accent-glow))';
@@ -3832,11 +3462,16 @@ function renderGoal(data) {
 
 function renderGoalEmpty() {
   var bar = document.getElementById('goalProgressBar');
-  bar.style.display = '';
-  bar.onclick = function() { openGoalModal(); };
-  document.getElementById('goalProgressLabel').innerHTML = 'Set a monthly goal to track your growth';
-  document.getElementById('goalProgressPct').textContent = '';
-  document.getElementById('goalProgressFill').style.width = '0%';
+  if (bar) {
+    bar.style.display = '';
+    bar.onclick = function() { openGoalModal(); };
+  }
+  var gpl = document.getElementById('goalProgressLabel');
+  if (gpl) gpl.innerHTML = 'Set a monthly goal to track your growth';
+  var gpp = document.getElementById('goalProgressPct');
+  if (gpp) gpp.textContent = '';
+  var gpf = document.getElementById('goalProgressFill');
+  if (gpf) gpf.style.width = '0%';
 }
 
 function openGoalModal() {
@@ -4742,6 +4377,7 @@ function loadAutomations() {
 
 function renderAutomations() {
   var container = document.getElementById('automationsList');
+  if (!container) return;
   if (!automationsData.length) {
     container.innerHTML = '<div class="automation-empty">No automations yet — tap + to create one</div>';
     return;
@@ -4867,8 +4503,9 @@ function loadLeads() {
     .then(function(data) {
       renderFunnel(data.funnels || {});
       renderLeads(data.recentLeads || []);
-      if (data.totalEmails > 0) {
-        document.getElementById('leadsExportBtn').style.display = '';
+      var exportBtn = document.getElementById('leadsExportBtn');
+      if (data.totalEmails > 0 && exportBtn) {
+        exportBtn.style.display = '';
       }
       // Update automation card stats
       var funnels = data.funnels || {};
@@ -4886,10 +4523,12 @@ function loadLeads() {
 
 function renderFunnel(funnels) {
   var container = document.getElementById('funnelList');
+  if (!container) return;
   var entries = Object.entries(funnels);
   if (!entries.length) {
     container.innerHTML = '<div class="automation-empty">No data yet</div>';
-    document.getElementById('funnelTotal').textContent = '';
+    var ft = document.getElementById('funnelTotal');
+    if (ft) ft.textContent = '';
     return;
   }
   var totalEmails = 0;
@@ -4906,11 +4545,13 @@ function renderFunnel(funnels) {
       '<div class="funnel-steps">' + f.comments + ' comments → ' + f.dms + ' DMs → ' + f.clicks + ' clicks → ' + f.captured + ' emails</div>' +
     '</div>';
   }).join('');
-  document.getElementById('funnelTotal').textContent = totalEmails + ' emails captured';
+  var ft2 = document.getElementById('funnelTotal');
+  if (ft2) ft2.textContent = totalEmails + ' emails captured';
 }
 
 function renderLeads(leads) {
   var container = document.getElementById('leadsList');
+  if (!container) { renderHomeLeads(leads || []); return; }
   if (!leads.length) {
     container.innerHTML = '<div class="automation-empty">No leads yet — create an automation to get started</div>';
     renderHomeLeads([]);

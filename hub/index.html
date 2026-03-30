@@ -2217,7 +2217,21 @@ const FONT_MAP = {
 </div>
 
 <div class="hub-view" id="viewPlanner">
-  <!-- Planner view content will go here -->
+  <div class="home-greeting">
+    <h1>Weekly Planner</h1>
+    <div class="home-subtitle">Plan your content for the week</div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+    <button class="cal-nav-btn" onclick="shiftCalendarWeek(-1)">&larr;</button>
+    <span class="cal-nav-label" id="calWeekLabel"></span>
+    <button class="cal-nav-btn" onclick="shiftCalendarWeek(1)">&rarr;</button>
+    <button class="cal-nav-today" onclick="shiftCalendarWeek(0)">Today</button>
+  </div>
+
+  <div class="calendar-strip" id="calendarStrip">
+    <!-- renderCalendar() populates this -->
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════
@@ -2279,21 +2293,6 @@ const FONT_MAP = {
       </div>
     </div>
     <div id="goalCard" style="display:none"></div>
-  </div>
-
-  <!-- Weekly Planner -->
-  <div class="bento-card span-12" data-order="3">
-    <div class="bento-card-header">
-      <span class="bento-card-icon">&#128197;</span>
-      <span class="bento-card-title">Weekly Planner</span>
-      <div class="cal-nav" style="margin-left:auto;display:flex;align-items:center;gap:8px">
-        <button class="cal-nav-btn" onclick="shiftCalendarWeek(-1)" title="Previous week">&larr;</button>
-        <span class="cal-nav-label" id="calWeekLabel"></span>
-        <button class="cal-nav-btn" onclick="shiftCalendarWeek(1)" title="Next week">&rarr;</button>
-        <button class="cal-nav-today" onclick="shiftCalendarWeek(0)" title="Go to this week">Today</button>
-      </div>
-    </div>
-    <div class="calendar-strip" id="calendarStrip"></div>
   </div>
 
   <!-- Niche Pulse -->

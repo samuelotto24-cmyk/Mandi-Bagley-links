@@ -99,6 +99,7 @@ export default async function handler(req) {
         videos = (videosData.items || []).map(function(v) {
           return {
             title: v.snippet.title,
+            description: v.snippet.description || '',
             videoId: v.id,
             publishedAt: v.snippet.publishedAt,
             views: parseInt(v.statistics.viewCount || '0', 10),

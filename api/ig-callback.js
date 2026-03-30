@@ -91,6 +91,21 @@ export default async function handler(req) {
       redisSet(`${PREFIX}ig:connected_at`, new Date().toISOString()),
     ]);
 
+    // 6. Fetch and store recent Instagram captions for voice training
+    try {
+      const mediaRes = await fetch(
+        `https://graph.facebook.com/v21.0/${igAccountId}/media?fields=caption,timestamp&limit=30&access_token=${longToken}`
+      );
+      const mediaData = await mediaRes.json();
+      const captions = (mediaData.data || [])
+        .map(m => m.caption)
+        .filter(Boolean)
+        .filter(c => c.length > 20);
+      if (captions.length) {
+        await redisSet(`${PREFIX}ig:captions`, JSON.stringify(captions));
+      }
+    } catch {} // Non-critical — don't block the redirect
+
     return new Response(null, {
       status: 302,
       headers: { Location: '/hub/?instagram=connected' },

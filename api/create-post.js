@@ -76,31 +76,48 @@ export default async function handler(req) {
       ['GET', PREFIX + 'tiktok:cache'],
       ['GET', PREFIX + 'youtube:videos'],
       ['HGETALL', PREFIX + 'hourly'],
+      ['GET', PREFIX + 'ig:captions'],
     ]);
 
-    // Assemble voice examples
+    // Assemble voice examples — full captions, not just titles
     const voiceParts = [];
 
-    // TikTok titles
-    const tiktokCache = results[0]?.result;
-    if (tiktokCache) {
+    // Instagram captions (the richest voice data)
+    const igCaptions = results[3]?.result;
+    if (igCaptions) {
       try {
-        const ttData = JSON.parse(tiktokCache);
-        const titles = (ttData.recentVideos || []).map(v => v.title).filter(Boolean);
-        if (titles.length) {
-          voiceParts.push('TikTok posts:\n' + titles.map(t => `- "${t}"`).join('\n'));
+        const captions = JSON.parse(igCaptions);
+        if (captions.length) {
+          voiceParts.push('Instagram captions (THIS IS THE PRIMARY VOICE REFERENCE — match this style closely):\n' +
+            captions.slice(0, 15).map((c, i) => `${i + 1}. "${c}"`).join('\n\n'));
         }
       } catch {}
     }
 
-    // YouTube titles
+    // TikTok titles + descriptions
+    const tiktokCache = results[0]?.result;
+    if (tiktokCache) {
+      try {
+        const ttData = JSON.parse(tiktokCache);
+        const posts = (ttData.recentVideos || []).filter(v => v.title);
+        if (posts.length) {
+          voiceParts.push('TikTok posts:\n' + posts.map(v => `- "${v.title}"`).join('\n'));
+        }
+      } catch {}
+    }
+
+    // YouTube titles + descriptions
     const ytVideos = results[1]?.result;
     if (ytVideos) {
       try {
         const videos = JSON.parse(ytVideos);
-        const titles = (Array.isArray(videos) ? videos : []).map(v => v.title).filter(Boolean);
-        if (titles.length) {
-          voiceParts.push('YouTube videos:\n' + titles.map(t => `- "${t}"`).join('\n'));
+        const vids = (Array.isArray(videos) ? videos : []).filter(v => v.title);
+        if (vids.length) {
+          const ytExamples = vids.map(v => {
+            const desc = v.description ? v.description.split('\n').slice(0, 3).join('\n') : '';
+            return desc ? `- Title: "${v.title}"\n  Description: "${desc}"` : `- "${v.title}"`;
+          });
+          voiceParts.push('YouTube videos:\n' + ytExamples.join('\n'));
         }
       } catch {}
     }
@@ -137,10 +154,18 @@ export default async function handler(req) {
 
     const systemPrompt = `You are the personal social media copywriter for ${CLIENT_NAME}, a ${CLIENT_NICHE} creator.
 
-Your job: Look at this image and write a ${platform} post that sounds exactly like ${CLIENT_NAME} wrote it.
+Your job: Look at this image and write a ${platform} post that sounds EXACTLY like ${CLIENT_NAME} wrote it — not like an AI, not like a marketer, like HER.
 
-VOICE TRAINING — match this tone, energy, and vocabulary:
+VOICE TRAINING — study these examples carefully and match this person's actual writing style:
 ${voiceExamples}
+
+VOICE ANALYSIS — before writing, internalize:
+- How does ${CLIENT_NAME} start posts? (hook style, first words)
+- What emojis does she actually use? (only use ones from her examples)
+- How long are her typical captions? (match the length)
+- Does she use all caps, abbreviations, slang? (mirror it)
+- How does she do CTAs? (match her style, not generic marketing)
+- What's her hashtag style? (number, type, placement)
 
 PLATFORM RULES:
 ${platformRules[platform] || platformRules.instagram}
@@ -159,10 +184,11 @@ Respond with ONLY valid JSON (no markdown, no code fences):
 
 Rules:
 - Write in first person as ${CLIENT_NAME}
-- Sound like a real person, NOT a marketing bot
-- Match the energy and vocabulary from the voice training examples
-- The caption should feel authentic and conversational
-- Never use corporate language like "leverage", "optimize", or "drive engagement"`;
+- The caption must be indistinguishable from her real posts
+- Match her exact emoji patterns, sentence structure, and energy
+- If her examples use lowercase, use lowercase. If she uses caps for emphasis, do the same.
+- Never use corporate language like "leverage", "optimize", or "drive engagement"
+- If no voice examples are available, write naturally for a ${CLIENT_NICHE} creator`;
 
     // Call Claude Sonnet with vision
     const llmRes = await fetch('https://api.anthropic.com/v1/messages', {

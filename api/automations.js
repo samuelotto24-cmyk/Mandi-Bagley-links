@@ -16,10 +16,10 @@ async function redisGet(key) {
 }
 
 async function redisSet(key, value) {
-  const res = await fetch(`${REDIS_URL}/set/${encodeURIComponent(key)}`, {
+  const res = await fetch(`${REDIS_URL}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${REDIS_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(value),
+    body: JSON.stringify(['SET', key, value]),
   });
   return res.json();
 }

@@ -1814,6 +1814,105 @@ const FONT_MAP = {
   .hub-sidebar .sidebar-nav-item.active::before { display: none; }
   .hub-main { padding: 20px 16px 80px; }
 }
+
+/* ── Home View Layout ── */
+.home-greeting { margin-bottom: 24px; }
+.home-greeting h1 { font-family: var(--serif); font-size: 28px; font-weight: 300; color: var(--text); margin-bottom: 4px; }
+.home-greeting .home-subtitle { font-size: 13px; color: var(--text-muted); }
+.home-greeting .home-subtitle strong { color: var(--text); font-weight: 500; }
+
+.home-grid {
+  display: grid; grid-template-columns: 1.5fr 1fr;
+  grid-template-rows: auto auto; gap: 16px; margin-bottom: 20px;
+}
+.home-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 20px; transition: border-color 0.2s;
+}
+.home-card:hover { border-color: var(--accent-border); }
+.home-card .home-card-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--text-muted); margin-bottom: 12px; font-weight: 600;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* Create Post Hero */
+.home-create-post { grid-row: 1 / 3; border-color: var(--accent-border); display: flex; flex-direction: column; }
+.home-create-post .create-post-drop { flex: 1; min-height: 140px; }
+
+/* Home Stats Grid */
+.home-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.home-stat-tile { background: var(--surface-elevated); border-radius: 10px; padding: 14px; }
+.home-stat-tile .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.home-stat-tile .stat-value { font-family: var(--serif); font-size: 24px; color: var(--text); font-weight: 400; }
+.home-stat-tile .stat-change { font-size: 11px; color: #22c55e; margin-top: 2px; }
+
+/* Goal Strip */
+.home-goal-strip {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px 20px; display: flex; align-items: center; gap: 16px;
+  margin-bottom: 20px; cursor: pointer; transition: border-color 0.2s;
+}
+.home-goal-strip:hover { border-color: var(--accent-border); }
+.home-goal-strip .goal-label { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+.home-goal-strip .goal-label strong { color: var(--text); font-weight: 500; }
+.home-goal-strip .goal-bar { flex: 1; height: 6px; background: var(--surface-elevated); border-radius: 3px; overflow: hidden; }
+.home-goal-strip .goal-fill {
+  height: 100%; background: linear-gradient(90deg, rgba(255,255,255,0.3), var(--accent));
+  border-radius: 3px; transition: width 0.6s ease;
+}
+.home-goal-strip .goal-pct { font-family: var(--serif); font-size: 18px; color: var(--text); min-width: 40px; text-align: right; }
+
+/* Bottom Row */
+.home-bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* Home Leads */
+.home-lead-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.home-lead-item:last-child { border: none; }
+.home-lead-name { font-size: 13px; color: var(--text); }
+.home-lead-source { font-size: 11px; color: var(--text-muted); }
+.home-lead-time { font-size: 11px; color: var(--text-muted); }
+
+/* Home Brand Codes */
+.home-code-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.home-code-row:last-child { border: none; }
+.home-code-chip {
+  background: var(--accent-pale); border-radius: 6px;
+  padding: 4px 10px; font-size: 11px; color: var(--text-muted); font-weight: 500;
+}
+.home-code-stat { font-size: 12px; color: var(--text-muted); }
+.home-code-stat strong { color: var(--text); }
+
+/* Trending tags in Create Post */
+.trending-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.trending-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--accent-pale); border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px 10px; font-size: 11px; color: var(--text-muted);
+}
+
+/* Briefing trend insight */
+.briefing-trend-block {
+  background: var(--surface-elevated); border-left: 2px solid var(--accent-border);
+  border-radius: 0 8px 8px 0; padding: 10px 14px; margin-top: 12px;
+  font-size: 12px; color: var(--text-muted); line-height: 1.5;
+}
+.briefing-trend-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--text-muted); margin-bottom: 4px; font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .home-grid { grid-template-columns: 1fr; }
+  .home-create-post { grid-row: auto; }
+  .home-bottom-row { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 
@@ -1874,284 +1973,26 @@ const FONT_MAP = {
 
 <div class="hub-main">
 <div class="hub-view active" id="viewHome">
+  <div id="smartBanner" class="smart-banner" style="display:none;"></div>
 
-  <!-- Smart banner (overlay) -->
-  <div class="smart-banner" id="smartBanner" style="display:none">
-    <span class="smart-banner-icon" id="smartBannerIcon"></span>
-    <span class="smart-banner-text" id="smartBannerText"></span>
+  <div class="home-greeting">
+    <h1 id="greetingH1">Good morning</h1>
+    <div class="home-subtitle" id="homeSubtitle">Loading your hub...</div>
   </div>
 
-  <div class="bento-grid">
-
-    <!-- HEADER (full width, above grid) -->
-    <div class="hub-header">
-      <div class="hub-header-top">
-        <div>
-          <div class="hub-header-title" id="greetingH1"></div>
-          <div class="hub-header-subtitle">AI-Powered &middot; Live Analytics &middot; Built for Your Brand</div>
-          <!-- hidden elements for JS compat -->
-          <div id="greetingLabel" style="display:none"></div>
-          <div id="greetingDate" style="display:none"></div>
-        </div>
-        <div class="hub-nav-pills">
-          <a class="hub-nav-pill hub-nav-glow" id="navSite" href="#" target="_blank">&#127760; View My Site</a>
-          <a class="hub-nav-pill hub-nav-glow" href="/dashboard" target="_blank">&#128202; Full Analytics Dashboard</a>
-          <button class="hub-nav-pill hub-nav-glow" onclick="openModal('message')">&#9993;&#65039; Message Sam</button>
-          <button class="hub-nav-pill hub-nav-glow" onclick="openModal('update')">&#128260; Request Update</button>
-        </div>
-      </div>
-      <div class="ai-intro" id="aiIntro"><span class="typing-cursor">|</span></div>
-    </div>
-
-    <!-- Connect Banner (inline, not a popup) -->
-    <div class="connect-banner" id="connectBanner" style="display:none;grid-column:1/-1">
-      <span class="connect-banner-icon">&#9888;&#65039;</span>
-      <span class="connect-banner-text">Action needed — connect your platforms to activate full analytics</span>
-      <button class="connect-banner-btn" onclick="closeConnectBanner();document.querySelector('#socialPlatforms').scrollIntoView({behavior:'smooth'})">Connect &rarr;</button>
-      <button class="connect-banner-close" onclick="dismissConnectBanner()">&times;</button>
-    </div>
-
-    <!-- ROW 1: Today's Plan (span-6) | Stats (span-6 split into two span-3) -->
-    <div class="bento-card span-6" data-order="1">
-      <div class="bento-card-header">
-        <span class="bento-card-icon">&#127919;</span>
-        <span class="bento-card-title">Today's Plan</span>
-        <span class="briefing-badge" id="briefingBadge" style="display:none;margin-left:auto"></span>
-        <button class="briefing-refresh" id="briefingRefresh" onclick="refreshBriefing()" title="Refresh" style="margin-left:4px">&#8635;</button>
-      </div>
-      <div class="card briefing-card" id="briefingCard" style="background:transparent;border:none;padding:0">
-        <div class="briefing-header-row" style="display:none">
-          <div class="briefing-title" id="briefingTitle">Loading&hellip;</div>
-        </div>
-        <div id="briefingContent">
-          <div class="skeleton skeleton-text w80"></div>
-          <div class="skeleton skeleton-text w60"></div>
-          <div class="skeleton skeleton-text w80"></div>
-          <div class="skeleton skeleton-text w40"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Stats (span-6, contains the grid of stat tiles) -->
-    <div class="bento-card span-6" data-order="2">
-      <div class="bento-card-header">
-        <span class="bento-card-icon">&#128200;</span>
-        <span class="bento-card-title">Growth</span>
-      </div>
-      <div class="stats-grid" id="statsGrid" style="grid-template-columns:repeat(2,1fr);gap:8px">
-        <div class="card stat-tile skeleton" style="height:70px"></div>
-        <div class="card stat-tile skeleton" style="height:70px"></div>
-        <div class="card stat-tile skeleton" style="height:70px"></div>
-      </div>
-      <div class="goal-progress-bar" id="goalProgressBar" style="display:none;margin-top:12px">
-        <div class="goal-progress-info">
-          <span class="goal-progress-label" id="goalProgressLabel"></span>
-          <span class="goal-progress-pct" id="goalProgressPct"></span>
-        </div>
-        <div class="goal-bar-bg" style="height:4px;margin-top:6px">
-          <div class="goal-bar-fill" id="goalProgressFill" style="width:0%"></div>
-        </div>
-      </div>
-      <div id="goalCard" style="display:none"></div>
-    </div>
-
-    <!-- ROW 2: Weekly Planner (span-12) -->
-    <div class="bento-card span-12" data-order="3">
-      <div class="bento-card-header">
-        <span class="bento-card-icon">&#128197;</span>
-        <span class="bento-card-title">Weekly Planner</span>
-        <div class="cal-nav" style="margin-left:auto;display:flex;align-items:center;gap:8px">
-          <button class="cal-nav-btn" onclick="shiftCalendarWeek(-1)" title="Previous week">&larr;</button>
-          <span class="cal-nav-label" id="calWeekLabel"></span>
-          <button class="cal-nav-btn" onclick="shiftCalendarWeek(1)" title="Next week">&rarr;</button>
-          <button class="cal-nav-today" onclick="shiftCalendarWeek(0)" title="Go to this week">Today</button>
-        </div>
-      </div>
-      <div class="calendar-strip" id="calendarStrip"></div>
-    </div>
-
-    <!-- ROW 3: Audience Heatmap (span-4) | Platforms (span-5) | Niche Pulse (span-3) -->
-    <div class="bento-card span-4" data-order="6">
-      <div class="bento-card-header">
-        <span class="bento-card-icon">&#128293;</span>
-        <span class="bento-card-title">When Your Audience Shows Up</span>
-      </div>
-      <div class="heatmap-wrap" id="heatmapWrap">
-        <div class="heatmap-loading">Loading activity data...</div>
-      </div>
-      <div class="heatmap-tooltip" id="heatmapTooltip" style="display:none"></div>
-    </div>
-
-    <div class="bento-card span-5" data-order="4">
-      <div class="bento-card-header">
-        <span class="bento-card-icon">&#128241;</span>
-        <span class="bento-card-title">Platforms</span>
-      </div>
-      <div class="platform-cta" id="platformCta">
-        <div class="platform-cta-icon">&#128279;</div>
-        <div class="platform-cta-text">
-          <strong>Connect your platforms to unlock full analytics</strong>
-          <span>Link YouTube, TikTok, and Instagram to see followers, cross-platform views, content performance, and AI-powered strategy across all your channels.</span>
-        </div>
-      </div>
-      <div class="social-chips" id="socialPlatforms">
-        <!-- YouTube chip -->
-        <div class="social-chip" id="ytCard">
-          <span class="social-chip-icon">&#9654;&#65039;</span>
-          <div>
-            <div class="social-chip-name">YouTube</div>
-            <div class="social-chip-status" id="ytStatus">Not connected</div>
-          </div>
-          <a class="hub-nav-pill" id="ytConnectBtn" href="#" style="margin-left:auto;font-size:10px">Connect</a>
-          <button id="ytDisconnectBtn" style="display:none;position:absolute;top:8px;right:8px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:border-color 0.2s,color 0.2s;" onmouseover="this.style.borderColor='#f87171';this.style.color='#f87171'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'" onclick="confirmDisconnectYouTube()">Disconnect</button>
-          <div id="ytDisconnectConfirm" style="display:none;position:absolute;top:8px;right:8px;background:var(--surface-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 16px;z-index:5;text-align:center;">
-            <div style="font-size:12px;color:var(--text);margin-bottom:10px;">Disconnect YouTube?</div>
-            <div style="display:flex;gap:8px;">
-              <button style="flex:1;padding:6px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);" onclick="cancelDisconnectYouTube()">Cancel</button>
-              <button style="flex:1;padding:6px 12px;background:#f87171;border:none;color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;" onclick="disconnectYouTube()">Confirm</button>
-            </div>
-          </div>
-          <div id="ytData" style="display:none;"></div>
-        </div>
-        <!-- Instagram chip -->
-        <div class="social-chip" id="igCard">
-          <span class="social-chip-icon">&#128247;</span>
-          <div>
-            <div class="social-chip-name">Instagram</div>
-            <div class="social-chip-status" id="igStatus">Not connected</div>
-          </div>
-          <a class="hub-nav-pill" id="igConnectBtn" href="/api/ig-auth" style="margin-left:auto;font-size:10px">Connect</a>
-        </div>
-        <!-- TikTok chip -->
-        <div class="social-chip" id="tiktokPlatformCard">
-          <span class="social-chip-icon">&#127925;</span>
-          <div>
-            <div class="social-chip-name">TikTok</div>
-            <div class="social-chip-status" id="tiktokStatus">Not connected</div>
-          </div>
-          <a class="hub-nav-pill" id="tiktokConnectBtn" href="/api/tiktok-auth" style="margin-left:auto;font-size:10px">Connect</a>
-          <button id="tiktokDisconnectBtn" style="display:none;position:absolute;top:8px;right:8px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:border-color 0.2s,color 0.2s;z-index:3;" onmouseover="this.style.borderColor='#f87171';this.style.color='#f87171'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'" onclick="confirmDisconnectTikTok()">Disconnect</button>
-          <div id="tiktokDisconnectConfirm" style="display:none;position:absolute;top:8px;right:8px;background:var(--surface-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 16px;z-index:5;text-align:center;">
-            <div style="font-size:12px;color:var(--text);margin-bottom:10px;">Disconnect TikTok?</div>
-            <div style="display:flex;gap:8px;">
-              <button style="flex:1;padding:6px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);" onclick="cancelDisconnectTikTok()">Cancel</button>
-              <button style="flex:1;padding:6px 12px;background:#f87171;border:none;color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;" onclick="disconnectTikTok()">Confirm</button>
-            </div>
-          </div>
-          <div id="tiktokData" style="display:none">
-            <div style="display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border)">
-              <img id="tiktokAvatar" src="" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--accent)" />
-              <div>
-                <div id="tiktokName" style="font-size:14px;font-weight:600;color:var(--text)"></div>
-                <div id="tiktokFollowers" style="font-size:11px;color:var(--text-muted)"></div>
-              </div>
-              <div style="margin-left:auto;background:#22c55e;color:#fff;font-size:10px;font-weight:600;padding:3px 10px;border-radius:50px">Connected</div>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--border)">
-              <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
-                <div id="tiktokViews" style="font-family:var(--serif);font-size:22px;color:var(--text)">&#8212;</div>
-                <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Views</div>
-              </div>
-              <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
-                <div id="tiktokLikes" style="font-family:var(--serif);font-size:22px;color:var(--text)">&#8212;</div>
-                <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Likes</div>
-              </div>
-              <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
-                <div id="tiktokComments" style="font-family:var(--serif);font-size:22px;color:var(--text)">&#8212;</div>
-                <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Comments</div>
-              </div>
-              <div style="padding:16px;text-align:center">
-                <div id="tiktokShares" style="font-family:var(--serif);font-size:22px;color:var(--text)">&#8212;</div>
-                <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Shares</div>
-              </div>
-            </div>
-            <div id="tiktokTopVideo" style="padding:16px 20px;display:none">
-              <div style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px">Top Performing Video</div>
-              <div style="display:flex;align-items:center;gap:12px">
-                <img id="tiktokTopCover" src="" style="width:48px;height:64px;border-radius:6px;object-fit:cover;border:1px solid var(--border)" />
-                <div style="flex:1;min-width:0">
-                  <div id="tiktokTopTitle" style="font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
-                  <div id="tiktokTopStats" style="font-size:11px;color:var(--text-muted);margin-top:3px"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Hidden platformDetailsSection for JS compat -->
-      <div id="platformDetailsSection" style="display:none"></div>
-    </div>
-
-    <div class="bento-card span-3" data-order="7">
-      <div class="bento-card-header">
-        <span class="bento-card-icon">&#128200;</span>
-        <span class="bento-card-title" id="pulseLabel">Niche Pulse</span>
-      </div>
-      <div class="pulse-items" id="pulseItems">
-        <div class="empty-state"><p>Trends will appear after one week of data.</p></div>
-      </div>
-    </div>
-
-    <!-- ROW 4: Your Strategist (span-6) | Top Links (span-3) | Brand Codes (span-3) -->
-    <div class="bento-card span-6" data-order="5">
-      <div class="bento-card-header">
-        <span class="bento-card-icon">&#129302;</span>
-        <span class="bento-card-title">Your Strategist</span>
-        <span class="chat-live-dot" style="margin-left:auto">LIVE</span>
-      </div>
-      <div class="chat-section" id="chatSection">
-        <div class="chat-inner">
-          <div class="chat-body" id="chatBody">
-            <!-- proactive insight injected by JS -->
-          </div>
-          <div class="chat-prompts" id="chatPrompts">
-            <span class="chat-prompt" onclick="askPrompt(this)">What's growing fastest?</span>
-            <span class="chat-prompt" onclick="askPrompt(this)">Write a caption</span>
-            <span class="chat-prompt" onclick="askPrompt(this)">Which platform should I focus on?</span>
-            <span class="chat-prompt" onclick="askPrompt(this)">Brand pitch draft</span>
-          </div>
-          <div class="chat-input-row" id="chatInputRow">
-            <input class="chat-input" id="chatInput" placeholder="Ask anything…" onkeydown="if(event.key==='Enter')sendChat(event)">
-            <button class="chat-send" onclick="sendChat()">&#8594;</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="bento-card span-3" data-order="8">
-      <div class="bento-card-header">
-        <span class="bento-card-icon">&#128279;</span>
-        <span class="bento-card-title">Top Links</span>
-      </div>
-      <div id="topLinks"><div class="empty-state"><p>Link clicks will appear here.</p></div></div>
-    </div>
-
-    <div class="bento-card span-3" data-order="9">
-      <div class="bento-card-header">
-        <span class="bento-card-icon">&#127991;</span>
-        <span class="bento-card-title">Brand Codes</span>
-      </div>
-      <div id="brandCodes"><div class="empty-state"><p>Code usage will appear here.</p></div></div>
-    </div>
-
-    <!-- ROW 5: Create Post (span-8) | Refer & Earn (span-4) -->
-    <div class="bento-card span-8" data-order="10" id="createPostCard">
-      <div class="bento-card-header">
-        <span class="bento-card-icon">&#9997;&#65039;</span>
-        <span class="bento-card-title">Create Post</span>
-      </div>
-
+  <div class="home-grid">
+    <div class="home-card home-create-post" id="createPostCard">
+      <div class="home-card-label">&#9997;&#65039; Create Post</div>
       <div class="create-post-drop" id="createPostDrop">
-        <div class="create-post-drop-inner" id="createPostDropInner">
+        <div class="create-post-drop-inner">
           <div class="create-post-drop-icon">&#128247;</div>
           <div class="create-post-drop-text">Drop an image or tap to upload</div>
           <div class="create-post-drop-sub">JPG, PNG, WebP &mdash; up to 4MB</div>
         </div>
-        <img id="createPostPreview" class="create-post-preview" style="display:none" alt="Preview">
-        <button id="createPostClear" class="create-post-clear" style="display:none" onclick="clearPostImage()">&times;</button>
-        <input type="file" id="createPostFile" accept="image/*" style="display:none">
+        <img id="createPostPreview" style="display:none; max-width:100%; border-radius:10px;">
+        <button id="createPostClear" style="display:none;" class="create-post-clear">&#10005; Remove</button>
+        <input type="file" id="createPostFile" accept="image/*" style="display:none;">
       </div>
-
       <div class="create-post-controls">
         <div class="create-post-platforms">
           <button class="cp-platform-btn active" data-platform="instagram" onclick="selectCPPlatform(this)">&#128247; IG</button>
@@ -2159,103 +2000,71 @@ const FONT_MAP = {
           <button class="cp-platform-btn" data-platform="youtube" onclick="selectCPPlatform(this)">&#9654;&#65039; YouTube</button>
         </div>
         <input class="create-post-notes" id="createPostNotes" placeholder="Optional notes (mood, promo, context)...">
-        <button class="create-post-generate" id="createPostBtn" onclick="generatePost()" disabled>Generate Caption</button>
+        <div class="trending-tags" id="createPostTrends"></div>
+        <button id="createPostBtn" class="create-post-generate" disabled onclick="generatePost()">&#10024; Generate Caption</button>
       </div>
-
-      <div class="create-post-output" id="createPostOutput" style="display:none">
+      <div class="create-post-output" id="createPostOutput" style="display:none;">
         <div class="create-post-result-header">
-          <span class="create-post-result-label">Your Caption</span>
-          <button class="create-post-copy" id="createPostCopyBtn" onclick="copyGeneratedCaption()">Copy</button>
+          <span>Your Caption</span>
+          <button id="createPostCopyBtn" onclick="copyGeneratedCaption()">&#128203; Copy</button>
         </div>
         <div class="create-post-caption" id="createPostCaption"></div>
-        <div class="create-post-meta" id="createPostMeta" style="display:none">
+        <div class="create-post-meta" id="createPostMeta" style="display:none;">
           <div class="create-post-meta-item" id="createPostTime"></div>
           <div class="create-post-meta-item" id="createPostHashtags"></div>
           <div class="create-post-meta-item" id="createPostTips"></div>
         </div>
-        <div class="create-post-actions" id="createPostActions" style="display:none">
-          <button class="cp-action-btn cp-action-ig" id="cpPostIg" onclick="postToInstagram()">
-            <span>&#128247;</span> Post to Instagram
-          </button>
-          <button class="cp-action-btn cp-action-copy" onclick="copyAndOpen('tiktok')">
-            <span>&#127925;</span> Copy &amp; Open TikTok
-          </button>
-          <button class="cp-action-btn cp-action-copy" onclick="copyAndOpen('youtube')">
-            <span>&#9654;&#65039;</span> Copy &amp; Open YouTube
-          </button>
+        <div class="create-post-actions" id="createPostActions" style="display:none;">
+          <button class="cp-action-btn cp-action-ig" onclick="postToInstagram()">&#128247; Post to Instagram</button>
+          <button class="cp-action-btn" onclick="copyAndOpen('tiktok')">&#127925; Copy &amp; Open TikTok</button>
+          <button class="cp-action-btn" onclick="copyAndOpen('youtube')">&#9654;&#65039; Copy &amp; Open YouTube</button>
         </div>
-        <div class="cp-post-status" id="cpPostStatus" style="display:none"></div>
+        <div class="cp-post-status" id="cpPostStatus" style="display:none;"></div>
       </div>
     </div>
 
-    <div class="bento-card span-4" data-order="11">
-      <div class="bento-card-header">
-        <span class="bento-card-icon">&#127873;</span>
-        <span class="bento-card-title">Refer &amp; Earn</span>
+    <div class="home-card" id="homeBriefingCard">
+      <div class="home-card-label">
+        &#128203; Today's Briefing
+        <button id="briefingRefresh" onclick="refreshBriefing()" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--text-muted);font-size:12px;">&#8635;</button>
       </div>
-      <div class="referral-card" id="referralCard" style="background:transparent;border:none;padding:0">
-        <div class="referral-header">
-          <div class="referral-icon">&#127873;</div>
-          <div class="referral-header-text">
-            <h3>Share the Love</h3>
-            <p>Refer a creator and both earn rewards.</p>
-          </div>
-        </div>
-        <div class="referral-code-row">
-          <span class="referral-code-label">Your Code</span>
-          <span class="referral-code-value" id="referralCode">&#8212;</span>
-          <button class="referral-copy-btn" id="referralCopyBtn" onclick="copyReferralCode()">Copy</button>
-        </div>
-        <div class="referral-stats-row">
-          <div class="referral-stat">
-            <div class="referral-stat-value" id="referralCount">0</div>
-            <div class="referral-stat-label">Referrals</div>
-          </div>
-          <div class="referral-stat">
-            <div class="referral-stat-value" id="referralFreeMonths">0</div>
-            <div class="referral-stat-label">Free Months</div>
-          </div>
-        </div>
-        <div id="referralDetails"></div>
+      <div id="homeBriefingContent">
+        <div class="skeleton skeleton-text w80"></div>
+        <div class="skeleton skeleton-text w60"></div>
+        <div class="skeleton skeleton-text w40"></div>
       </div>
     </div>
 
-    <!-- ROW: Automations (span-6) | Conversion Funnel (span-6) -->
-    <div class="bento-card span-6" data-order="12">
-      <div class="bento-card-header">
-        <span class="bento-card-icon">&#129302;</span>
-        <span class="bento-card-title">Automations</span>
-        <button class="briefing-refresh" onclick="openAutomationModal()" title="New Automation" style="margin-left:auto;font-size:16px">+</button>
-      </div>
-      <div id="automationsList" class="automations-list">
-        <div class="automation-empty">Loading...</div>
+    <div class="home-card" id="homeStatsCard">
+      <div class="home-card-label">&#128200; Quick Stats</div>
+      <div class="home-stats-grid" id="homeStatsGrid">
+        <div class="home-stat-tile"><div class="stat-label">Followers</div><div class="stat-value skeleton" style="height:28px;width:60px;"></div></div>
+        <div class="home-stat-tile"><div class="stat-label">Engagement</div><div class="stat-value skeleton" style="height:28px;width:60px;"></div></div>
+        <div class="home-stat-tile"><div class="stat-label">Views (7d)</div><div class="stat-value skeleton" style="height:28px;width:60px;"></div></div>
+        <div class="home-stat-tile"><div class="stat-label">Link Clicks</div><div class="stat-value skeleton" style="height:28px;width:60px;"></div></div>
       </div>
     </div>
+  </div>
 
-    <div class="bento-card span-6" data-order="13">
-      <div class="bento-card-header">
-        <span class="bento-card-icon">&#128202;</span>
-        <span class="bento-card-title">Conversion Funnel</span>
+  <div class="home-goal-strip" id="homeGoalStrip" onclick="openGoalModal()" style="display:none;">
+    <div class="goal-label" id="homeGoalLabel">Goal: <strong>&mdash;</strong></div>
+    <div class="goal-bar"><div class="goal-fill" id="homeGoalFill" style="width:0%;"></div></div>
+    <div class="goal-pct" id="homeGoalPct">0%</div>
+  </div>
+
+  <div class="home-bottom-row">
+    <div class="home-card" id="homeLeadsCard">
+      <div class="home-card-label">&#128101; Recent Leads</div>
+      <div id="homeLeadsList">
+        <div class="skeleton skeleton-text w80"></div>
+        <div class="skeleton skeleton-text w60"></div>
       </div>
-      <div id="funnelList" class="funnel-list">
-        <div class="automation-empty">No automations yet</div>
-      </div>
-      <div class="funnel-total" id="funnelTotal"></div>
     </div>
-
-    <!-- ROW: Recent Leads (span-12) -->
-    <div class="bento-card span-12" data-order="14">
-      <div class="bento-card-header">
-        <span class="bento-card-icon">&#128293;</span>
-        <span class="bento-card-title">Recent Leads</span>
-      </div>
-      <div id="leadsList" class="leads-list">
-        <div class="automation-empty">No leads yet — create an automation to get started</div>
-      </div>
-      <button class="leads-export" id="leadsExportBtn" style="display:none" onclick="exportLeads()">Export Emails &#8595;</button>
+    <div class="home-card" id="homeBrandCodesCard">
+      <div class="home-card-label">&#127991;&#65039; Brand Codes</div>
+      <div id="homeBrandCodesList"></div>
     </div>
-
-  </div><!-- end bento-grid -->
+  </div>
 </div><!-- end viewHome -->
 
 <div class="hub-view" id="viewAnalytics">
@@ -2265,6 +2074,329 @@ const FONT_MAP = {
 <div class="hub-view" id="viewPlanner">
   <!-- Planner view content will go here -->
 </div>
+
+<!-- ═══════════════════════════════════════════════════
+     PARKED BENTO CARDS (temporarily outside views, kept in DOM for JS compat)
+     ═══════════════════════════════════════════════════ -->
+<div id="parkedCards" style="display:none;">
+
+  <!-- Old header elements for JS compat -->
+  <div class="hub-header-title" style="display:none"></div>
+  <div class="hub-header-subtitle" style="display:none">AI-Powered &middot; Live Analytics &middot; Built for Your Brand</div>
+  <div id="greetingLabel" style="display:none"></div>
+  <div id="greetingDate" style="display:none"></div>
+  <div class="hub-nav-pills" style="display:none">
+    <a class="hub-nav-pill hub-nav-glow" id="navSite" href="#" target="_blank">&#127760; View My Site</a>
+    <a class="hub-nav-pill hub-nav-glow" href="/dashboard" target="_blank">&#128202; Full Analytics Dashboard</a>
+    <button class="hub-nav-pill hub-nav-glow" onclick="openModal('message')">&#9993;&#65039; Message Sam</button>
+    <button class="hub-nav-pill hub-nav-glow" onclick="openModal('update')">&#128260; Request Update</button>
+  </div>
+  <div class="ai-intro" id="aiIntro" style="display:none"><span class="typing-cursor">|</span></div>
+
+  <!-- Connect Banner -->
+  <div class="connect-banner" id="connectBanner" style="display:none;">
+    <span class="connect-banner-icon">&#9888;&#65039;</span>
+    <span class="connect-banner-text">Action needed — connect your platforms to activate full analytics</span>
+    <button class="connect-banner-btn" onclick="closeConnectBanner();document.querySelector('#socialPlatforms').scrollIntoView({behavior:'smooth'})">Connect &rarr;</button>
+    <button class="connect-banner-close" onclick="dismissConnectBanner()">&times;</button>
+  </div>
+
+  <!-- Today's Plan / Briefing -->
+  <div class="bento-card span-6" data-order="1">
+    <div class="bento-card-header">
+      <span class="bento-card-icon">&#127919;</span>
+      <span class="bento-card-title">Today's Plan</span>
+      <span class="briefing-badge" id="briefingBadge" style="display:none;margin-left:auto"></span>
+    </div>
+    <div class="card briefing-card" id="briefingCard" style="background:transparent;border:none;padding:0">
+      <div class="briefing-header-row" style="display:none">
+        <div class="briefing-title" id="briefingTitle">Loading&hellip;</div>
+      </div>
+      <div id="briefingContent">
+        <div class="skeleton skeleton-text w80"></div>
+        <div class="skeleton skeleton-text w60"></div>
+        <div class="skeleton skeleton-text w80"></div>
+        <div class="skeleton skeleton-text w40"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats / Growth -->
+  <div class="bento-card span-6" data-order="2">
+    <div class="bento-card-header">
+      <span class="bento-card-icon">&#128200;</span>
+      <span class="bento-card-title">Growth</span>
+    </div>
+    <div class="stats-grid" id="statsGrid" style="grid-template-columns:repeat(2,1fr);gap:8px">
+      <div class="card stat-tile skeleton" style="height:70px"></div>
+      <div class="card stat-tile skeleton" style="height:70px"></div>
+      <div class="card stat-tile skeleton" style="height:70px"></div>
+    </div>
+    <div class="goal-progress-bar" id="goalProgressBar" style="display:none;margin-top:12px">
+      <div class="goal-progress-info">
+        <span class="goal-progress-label" id="goalProgressLabel"></span>
+        <span class="goal-progress-pct" id="goalProgressPct"></span>
+      </div>
+      <div class="goal-bar-bg" style="height:4px;margin-top:6px">
+        <div class="goal-bar-fill" id="goalProgressFill" style="width:0%"></div>
+      </div>
+    </div>
+    <div id="goalCard" style="display:none"></div>
+  </div>
+
+  <!-- Weekly Planner -->
+  <div class="bento-card span-12" data-order="3">
+    <div class="bento-card-header">
+      <span class="bento-card-icon">&#128197;</span>
+      <span class="bento-card-title">Weekly Planner</span>
+      <div class="cal-nav" style="margin-left:auto;display:flex;align-items:center;gap:8px">
+        <button class="cal-nav-btn" onclick="shiftCalendarWeek(-1)" title="Previous week">&larr;</button>
+        <span class="cal-nav-label" id="calWeekLabel"></span>
+        <button class="cal-nav-btn" onclick="shiftCalendarWeek(1)" title="Next week">&rarr;</button>
+        <button class="cal-nav-today" onclick="shiftCalendarWeek(0)" title="Go to this week">Today</button>
+      </div>
+    </div>
+    <div class="calendar-strip" id="calendarStrip"></div>
+  </div>
+
+  <!-- Audience Heatmap -->
+  <div class="bento-card span-4" data-order="6">
+    <div class="bento-card-header">
+      <span class="bento-card-icon">&#128293;</span>
+      <span class="bento-card-title">When Your Audience Shows Up</span>
+    </div>
+    <div class="heatmap-wrap" id="heatmapWrap">
+      <div class="heatmap-loading">Loading activity data...</div>
+    </div>
+    <div class="heatmap-tooltip" id="heatmapTooltip" style="display:none"></div>
+  </div>
+
+  <!-- Platforms -->
+  <div class="bento-card span-5" data-order="4">
+    <div class="bento-card-header">
+      <span class="bento-card-icon">&#128241;</span>
+      <span class="bento-card-title">Platforms</span>
+    </div>
+    <div class="platform-cta" id="platformCta">
+      <div class="platform-cta-icon">&#128279;</div>
+      <div class="platform-cta-text">
+        <strong>Connect your platforms to unlock full analytics</strong>
+        <span>Link YouTube, TikTok, and Instagram to see followers, cross-platform views, content performance, and AI-powered strategy across all your channels.</span>
+      </div>
+    </div>
+    <div class="social-chips" id="socialPlatforms">
+      <!-- YouTube chip -->
+      <div class="social-chip" id="ytCard">
+        <span class="social-chip-icon">&#9654;&#65039;</span>
+        <div>
+          <div class="social-chip-name">YouTube</div>
+          <div class="social-chip-status" id="ytStatus">Not connected</div>
+        </div>
+        <a class="hub-nav-pill" id="ytConnectBtn" href="#" style="margin-left:auto;font-size:10px">Connect</a>
+        <button id="ytDisconnectBtn" style="display:none;position:absolute;top:8px;right:8px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:border-color 0.2s,color 0.2s;" onmouseover="this.style.borderColor='#f87171';this.style.color='#f87171'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'" onclick="confirmDisconnectYouTube()">Disconnect</button>
+        <div id="ytDisconnectConfirm" style="display:none;position:absolute;top:8px;right:8px;background:var(--surface-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 16px;z-index:5;text-align:center;">
+          <div style="font-size:12px;color:var(--text);margin-bottom:10px;">Disconnect YouTube?</div>
+          <div style="display:flex;gap:8px;">
+            <button style="flex:1;padding:6px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);" onclick="cancelDisconnectYouTube()">Cancel</button>
+            <button style="flex:1;padding:6px 12px;background:#f87171;border:none;color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;" onclick="disconnectYouTube()">Confirm</button>
+          </div>
+        </div>
+        <div id="ytData" style="display:none;"></div>
+      </div>
+      <!-- Instagram chip -->
+      <div class="social-chip" id="igCard">
+        <span class="social-chip-icon">&#128247;</span>
+        <div>
+          <div class="social-chip-name">Instagram</div>
+          <div class="social-chip-status" id="igStatus">Not connected</div>
+        </div>
+        <a class="hub-nav-pill" id="igConnectBtn" href="/api/ig-auth" style="margin-left:auto;font-size:10px">Connect</a>
+      </div>
+      <!-- TikTok chip -->
+      <div class="social-chip" id="tiktokPlatformCard">
+        <span class="social-chip-icon">&#127925;</span>
+        <div>
+          <div class="social-chip-name">TikTok</div>
+          <div class="social-chip-status" id="tiktokStatus">Not connected</div>
+        </div>
+        <a class="hub-nav-pill" id="tiktokConnectBtn" href="/api/tiktok-auth" style="margin-left:auto;font-size:10px">Connect</a>
+        <button id="tiktokDisconnectBtn" style="display:none;position:absolute;top:8px;right:8px;background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:10px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:border-color 0.2s,color 0.2s;z-index:3;" onmouseover="this.style.borderColor='#f87171';this.style.color='#f87171'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'" onclick="confirmDisconnectTikTok()">Disconnect</button>
+        <div id="tiktokDisconnectConfirm" style="display:none;position:absolute;top:8px;right:8px;background:var(--surface-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 16px;z-index:5;text-align:center;">
+          <div style="font-size:12px;color:var(--text);margin-bottom:10px;">Disconnect TikTok?</div>
+          <div style="display:flex;gap:8px;">
+            <button style="flex:1;padding:6px 12px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);" onclick="cancelDisconnectTikTok()">Cancel</button>
+            <button style="flex:1;padding:6px 12px;background:#f87171;border:none;color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;" onclick="disconnectTikTok()">Confirm</button>
+          </div>
+        </div>
+        <div id="tiktokData" style="display:none">
+          <div style="display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border)">
+            <img id="tiktokAvatar" src="" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--accent)" />
+            <div>
+              <div id="tiktokName" style="font-size:14px;font-weight:600;color:var(--text)"></div>
+              <div id="tiktokFollowers" style="font-size:11px;color:var(--text-muted)"></div>
+            </div>
+            <div style="margin-left:auto;background:#22c55e;color:#fff;font-size:10px;font-weight:600;padding:3px 10px;border-radius:50px">Connected</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--border)">
+            <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
+              <div id="tiktokViews" style="font-family:var(--serif);font-size:22px;color:var(--text)">&#8212;</div>
+              <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Views</div>
+            </div>
+            <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
+              <div id="tiktokLikes" style="font-family:var(--serif);font-size:22px;color:var(--text)">&#8212;</div>
+              <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Likes</div>
+            </div>
+            <div style="padding:16px;text-align:center;border-right:1px solid var(--border)">
+              <div id="tiktokComments" style="font-family:var(--serif);font-size:22px;color:var(--text)">&#8212;</div>
+              <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Comments</div>
+            </div>
+            <div style="padding:16px;text-align:center">
+              <div id="tiktokShares" style="font-family:var(--serif);font-size:22px;color:var(--text)">&#8212;</div>
+              <div style="font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px">Shares</div>
+            </div>
+          </div>
+          <div id="tiktokTopVideo" style="padding:16px 20px;display:none">
+            <div style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:10px">Top Performing Video</div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <img id="tiktokTopCover" src="" style="width:48px;height:64px;border-radius:6px;object-fit:cover;border:1px solid var(--border)" />
+              <div style="flex:1;min-width:0">
+                <div id="tiktokTopTitle" style="font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+                <div id="tiktokTopStats" style="font-size:11px;color:var(--text-muted);margin-top:3px"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Hidden platformDetailsSection for JS compat -->
+    <div id="platformDetailsSection" style="display:none"></div>
+  </div>
+
+  <!-- Niche Pulse -->
+  <div class="bento-card span-3" data-order="7">
+    <div class="bento-card-header">
+      <span class="bento-card-icon">&#128200;</span>
+      <span class="bento-card-title" id="pulseLabel">Niche Pulse</span>
+    </div>
+    <div class="pulse-items" id="pulseItems">
+      <div class="empty-state"><p>Trends will appear after one week of data.</p></div>
+    </div>
+  </div>
+
+  <!-- Your Strategist (Chat) -->
+  <div class="bento-card span-6" data-order="5">
+    <div class="bento-card-header">
+      <span class="bento-card-icon">&#129302;</span>
+      <span class="bento-card-title">Your Strategist</span>
+      <span class="chat-live-dot" style="margin-left:auto">LIVE</span>
+    </div>
+    <div class="chat-section" id="chatSection">
+      <div class="chat-inner">
+        <div class="chat-body" id="chatBody">
+          <!-- proactive insight injected by JS -->
+        </div>
+        <div class="chat-prompts" id="chatPrompts">
+          <span class="chat-prompt" onclick="askPrompt(this)">What's growing fastest?</span>
+          <span class="chat-prompt" onclick="askPrompt(this)">Write a caption</span>
+          <span class="chat-prompt" onclick="askPrompt(this)">Which platform should I focus on?</span>
+          <span class="chat-prompt" onclick="askPrompt(this)">Brand pitch draft</span>
+        </div>
+        <div class="chat-input-row" id="chatInputRow">
+          <input class="chat-input" id="chatInput" placeholder="Ask anything&hellip;" onkeydown="if(event.key==='Enter')sendChat(event)">
+          <button class="chat-send" onclick="sendChat()">&#8594;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Links -->
+  <div class="bento-card span-3" data-order="8">
+    <div class="bento-card-header">
+      <span class="bento-card-icon">&#128279;</span>
+      <span class="bento-card-title">Top Links</span>
+    </div>
+    <div id="topLinks"><div class="empty-state"><p>Link clicks will appear here.</p></div></div>
+  </div>
+
+  <!-- Brand Codes (old) -->
+  <div class="bento-card span-3" data-order="9">
+    <div class="bento-card-header">
+      <span class="bento-card-icon">&#127991;</span>
+      <span class="bento-card-title">Brand Codes</span>
+    </div>
+    <div id="brandCodes"><div class="empty-state"><p>Code usage will appear here.</p></div></div>
+  </div>
+
+  <!-- Refer & Earn -->
+  <div class="bento-card span-4" data-order="11">
+    <div class="bento-card-header">
+      <span class="bento-card-icon">&#127873;</span>
+      <span class="bento-card-title">Refer &amp; Earn</span>
+    </div>
+    <div class="referral-card" id="referralCard" style="background:transparent;border:none;padding:0">
+      <div class="referral-header">
+        <div class="referral-icon">&#127873;</div>
+        <div class="referral-header-text">
+          <h3>Share the Love</h3>
+          <p>Refer a creator and both earn rewards.</p>
+        </div>
+      </div>
+      <div class="referral-code-row">
+        <span class="referral-code-label">Your Code</span>
+        <span class="referral-code-value" id="referralCode">&#8212;</span>
+        <button class="referral-copy-btn" id="referralCopyBtn" onclick="copyReferralCode()">Copy</button>
+      </div>
+      <div class="referral-stats-row">
+        <div class="referral-stat">
+          <div class="referral-stat-value" id="referralCount">0</div>
+          <div class="referral-stat-label">Referrals</div>
+        </div>
+        <div class="referral-stat">
+          <div class="referral-stat-value" id="referralFreeMonths">0</div>
+          <div class="referral-stat-label">Free Months</div>
+        </div>
+      </div>
+      <div id="referralDetails"></div>
+    </div>
+  </div>
+
+  <!-- Automations -->
+  <div class="bento-card span-6" data-order="12">
+    <div class="bento-card-header">
+      <span class="bento-card-icon">&#129302;</span>
+      <span class="bento-card-title">Automations</span>
+      <button class="briefing-refresh" onclick="openAutomationModal()" title="New Automation" style="margin-left:auto;font-size:16px">+</button>
+    </div>
+    <div id="automationsList" class="automations-list">
+      <div class="automation-empty">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Conversion Funnel -->
+  <div class="bento-card span-6" data-order="13">
+    <div class="bento-card-header">
+      <span class="bento-card-icon">&#128202;</span>
+      <span class="bento-card-title">Conversion Funnel</span>
+    </div>
+    <div id="funnelList" class="funnel-list">
+      <div class="automation-empty">No automations yet</div>
+    </div>
+    <div class="funnel-total" id="funnelTotal"></div>
+  </div>
+
+  <!-- Recent Leads (full-width) -->
+  <div class="bento-card span-12" data-order="14">
+    <div class="bento-card-header">
+      <span class="bento-card-icon">&#128293;</span>
+      <span class="bento-card-title">Recent Leads</span>
+    </div>
+    <div id="leadsList" class="leads-list">
+      <div class="automation-empty">No leads yet &mdash; create an automation to get started</div>
+    </div>
+    <button class="leads-export" id="leadsExportBtn" style="display:none" onclick="exportLeads()">Export Emails &#8595;</button>
+  </div>
+
+</div><!-- end parkedCards -->
 
 </div><!-- end hub-main -->
 </div><!-- end hub-shell -->
@@ -2412,8 +2544,12 @@ function showHub() {
   const firstName = CLIENT.name.split(' ')[0];
   const domain = CLIENT.url.replace(/^https?:\/\//, '');
   document.getElementById('greetingLabel').innerHTML = domain + ' / <span>backstage</span>';
-  document.getElementById('greetingH1').textContent = CLIENT.name + '\u2019s Command Center';
-  document.getElementById('navSite').href = CLIENT.url;
+  // Time-based greeting for Home view
+  var greetHour = new Date().getHours();
+  var greetText = greetHour < 12 ? 'Good morning' : greetHour < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greetingH1').textContent = greetText + ', ' + firstName;
+  var navSite = document.getElementById('navSite');
+  if (navSite) navSite.href = CLIENT.url;
 
   // Date
   const now = new Date();
@@ -2449,6 +2585,9 @@ function showHub() {
 
   // Init create post
   initCreatePost();
+
+  // Render Home brand codes from CLIENT config (will update with real data later)
+  renderHomeBrandCodes();
 
   // Show connect reminder if platforms aren't connected and not dismissed
   setTimeout(showConnectReminder, 1200);
@@ -2558,6 +2697,8 @@ function loadQuickStats() {
 
       // Render audience heatmap
       if (raw.hourly) renderHeatmap(raw.hourly);
+
+      renderHomeSubtitle();
     })
     .catch(function(e) {
       console.error('Quick stats failed:', e);
@@ -2631,6 +2772,83 @@ var scoreboardData = {
   socialReady: false,
 };
 
+/* ── Home View Render Functions ── */
+function renderHomeStats() {
+  var d = scoreboardData;
+  if (!d) return;
+  var grid = document.getElementById('homeStatsGrid');
+  if (!grid) return;
+  var totalFollowers = (d.followers && typeof d.followers === 'object') ? (d.followers.tiktok || 0) + (d.followers.youtube || 0) : (d.followers || 0);
+  var totalViews = (d.views && typeof d.views === 'object') ? (d.views.website || 0) + (d.views.tiktok || 0) + (d.views.youtube || 0) : (d.views || 0);
+  var tiles = [
+    { label: 'Followers', value: totalFollowers, change: d.followersTrend },
+    { label: 'Engagement', value: d.engagement ? d.engagement + '%' : '\u2014', change: d.engagementTrend },
+    { label: 'Views (7d)', value: totalViews, change: d.viewsTrend || d.weekOverWeek },
+    { label: 'Link Clicks', value: d.linkClicks, change: d.linkClicksTrend },
+  ];
+  grid.innerHTML = tiles.map(function(t) {
+    return '<div class="home-stat-tile">' +
+      '<div class="stat-label">' + t.label + '</div>' +
+      '<div class="stat-value">' + (typeof t.value === 'number' ? formatNum(t.value) : (t.value || '\u2014')) + '</div>' +
+      (t.change ? '<div class="stat-change">' + t.change + '</div>' : '') +
+    '</div>';
+  }).join('');
+}
+
+function renderHomeBriefing(data) {
+  var el = document.getElementById('homeBriefingContent');
+  if (!el || !data) return;
+  var summary = data.summary || data.title || '';
+  var trendText = data.nicheTrend || data.trend || '';
+  el.innerHTML =
+    '<div style="font-size:13.5px;line-height:1.65;color:rgba(255,255,255,0.7);margin-bottom:12px;">' + summary + '</div>' +
+    (trendText ? '<div class="briefing-trend-block"><div class="briefing-trend-label">\ud83d\udd25 Trending in ' + CLIENT.nicheLabel.split('\u00b7')[0].trim() + '</div>' + trendText + '</div>' : '');
+}
+
+function renderHomeTrends(pulseData) {
+  var el = document.getElementById('createPostTrends');
+  if (!el || !pulseData || !pulseData.length) return;
+  el.innerHTML = pulseData.slice(0, 3).map(function(p) {
+    return '<span class="trending-tag">\ud83d\udd25 ' + (p.headline || p.topic || p.text || '') + '</span>';
+  }).join('');
+}
+
+function renderHomeLeads(leads) {
+  var el = document.getElementById('homeLeadsList');
+  if (!el) return;
+  if (!leads || !leads.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--text-muted);">No leads yet</div>';
+    return;
+  }
+  el.innerHTML = leads.slice(0, 4).map(function(l) {
+    return '<div class="home-lead-item"><div><div class="home-lead-name">' + (l.user || l.name || 'Unknown') + '</div><div class="home-lead-source">via ' + (l.keyword || l.source || 'direct') + '</div></div><div class="home-lead-time">' + leadTimeAgo(l.timestamp || l.ts) + '</div></div>';
+  }).join('');
+}
+
+function renderHomeBrandCodes() {
+  var el = document.getElementById('homeBrandCodesList');
+  if (!el) return;
+  if (!CLIENT.brandCodes || !CLIENT.brandCodes.length) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--text-muted);">No brand codes configured</div>';
+    return;
+  }
+  var codeData = window._brandCodeData || {};
+  el.innerHTML = CLIENT.brandCodes.map(function(bc) {
+    var uses = codeData[bc.code] || 0;
+    return '<div class="home-code-row"><span class="home-code-chip">' + bc.code + '</span><span class="home-code-stat">' + bc.brand + ' \u00b7 <strong>' + uses + ' uses</strong></span></div>';
+  }).join('');
+}
+
+function renderHomeSubtitle() {
+  var el = document.getElementById('homeSubtitle');
+  if (!el) return;
+  var parts = [];
+  if (window._newLeadsCount) parts.push('<strong>' + window._newLeadsCount + ' new leads</strong>');
+  if (window._topPlatformTrend) parts.push(window._topPlatformTrend);
+  if (window._bestPostTime) parts.push('Best time to post: <strong>' + window._bestPostTime + '</strong>');
+  el.innerHTML = parts.length ? parts.join(' \u00b7 ') : 'Welcome back';
+}
+
 /* ── Render Growth Scoreboard ── */
 function renderScoreboard() {
   var grid = document.getElementById('statsGrid');
@@ -2676,6 +2894,7 @@ function renderScoreboard() {
       setTimeout(function() { animateCount(el, target, 1500); }, i * 150);
     }
   });
+  renderHomeStats();
 }
 
 /* ── Legacy renderStats — redirects to scoreboard ── */
@@ -2783,6 +3002,8 @@ function renderBriefing(data) {
   }
 
   document.getElementById('briefingContent').innerHTML = html;
+  renderHomeBriefing(data);
+  renderHomeSubtitle();
 }
 
 /* ── Render Calendar ── */
@@ -3020,6 +3241,11 @@ function renderBrandCodes(data) {
     var usesStyle = isZero ? ' style="background:rgba(251,191,36,0.12);color:#fbbf24"' : '';
     return '<div class="list-item"' + style + '><div><span class="code-name">' + c.brand + '</span><span class="code-text">' + c.code + '</span></div><span class="code-uses"' + usesStyle + '>' + c.uses.toLocaleString() + ' use' + (c.uses !== 1 ? 's' : '') + '</span></div>';
   }).join('');
+
+  // Store code data for Home view and render
+  window._brandCodeData = {};
+  codes.forEach(function(c) { window._brandCodeData[c.code] = c.uses; });
+  renderHomeBrandCodes();
 }
 
 /* ── Render Niche Pulse ── */
@@ -3049,6 +3275,7 @@ function renderPulse(data) {
     html += '<button class="show-more-btn" onclick="toggleMore(\'pulseMore\', this)">' + (pulses.length - 1) + ' more trend' + (pulses.length > 2 ? 's' : '') + '</button>';
   }
   el.innerHTML = html;
+  renderHomeTrends(pulses);
 }
 
 /* ── Render Proactive Insight ── */
@@ -3549,6 +3776,21 @@ function renderGoal(data) {
     fill.style.width = pct + '%';
     fill.style.background = pct >= 80 ? '#22c55e' : 'linear-gradient(90deg, var(--accent), var(--accent-glow))';
   }, 300);
+
+  // Populate Home goal strip
+  var homeStrip = document.getElementById('homeGoalStrip');
+  if (homeStrip) {
+    if (activeType) {
+      homeStrip.style.display = '';
+      document.getElementById('homeGoalLabel').innerHTML = 'Goal: <strong>' + activeCurrent.toLocaleString() + ' / ' + activeTarget.toLocaleString() + ' ' + label + '</strong>';
+      document.getElementById('homeGoalPct').textContent = pct + '%';
+      setTimeout(function() {
+        document.getElementById('homeGoalFill').style.width = pct + '%';
+      }, 300);
+    } else {
+      homeStrip.style.display = 'none';
+    }
+  }
 }
 
 function renderGoalEmpty() {
@@ -4647,6 +4889,7 @@ function renderLeads(leads) {
   var container = document.getElementById('leadsList');
   if (!leads.length) {
     container.innerHTML = '<div class="automation-empty">No leads yet — create an automation to get started</div>';
+    renderHomeLeads([]);
     return;
   }
   var stepIcons = { comment: '💬', dm: '📩', click: '👁', captured: '✉' };
@@ -4661,6 +4904,9 @@ function renderLeads(leads) {
       '<span class="lead-step">' + (stepIcons[l.step] || '') + ' ' + (stepLabels[l.step] || l.step) + '</span>' +
     '</div>';
   }).join('');
+  window._newLeadsCount = leads.length;
+  renderHomeLeads(leads);
+  renderHomeSubtitle();
 }
 
 function leadTimeAgo(ts) {

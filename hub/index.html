@@ -1738,9 +1738,10 @@ const FONT_MAP = {
   flex: 1; min-height: 200px; overflow: hidden;
 }
 #viewStrategist {
-  display: none; flex-direction: column; height: calc(100vh - 160px); overflow: hidden;
+  display: none; flex-direction: column; overflow: hidden;
 }
-#viewStrategist.active { display: flex; }
+#viewStrategist.active { display: flex; height: calc(100vh - 80px); }
+.hub-main.strategist-active { padding-bottom: 16px; }
 .strategist-chat-container .chat-body {
   flex: 1; overflow-y: auto; padding: 16px 20px;
 }
@@ -2527,20 +2528,21 @@ function switchView(viewName) {
     btn.classList.toggle('active', btn.dataset.view === viewName);
   });
 
+  // Toggle strategist padding mode
+  var hubMain = document.querySelector('.hub-main');
+  if (hubMain) hubMain.classList.toggle('strategist-active', viewName === 'strategist');
+
   // Move chat elements based on view
   if (viewName === 'strategist') {
     moveChatTo('strategist');
-    // Close panel if open
     var panel = document.getElementById('chatPanel');
     var overlay = document.getElementById('chatOverlay');
     if (panel) panel.classList.remove('open');
     if (overlay) overlay.classList.remove('open');
-    // Hide FAB on strategist view
     var fab = document.getElementById('chatFab');
     if (fab) fab.style.display = 'none';
   } else {
     moveChatTo('panel');
-    // Show FAB on other views
     var fab = document.getElementById('chatFab');
     if (fab) fab.style.display = 'flex';
   }

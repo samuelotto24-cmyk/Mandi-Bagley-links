@@ -1682,6 +1682,65 @@ const FONT_MAP = {
 }
 .chat-fab-btn:hover { transform: scale(1.08); box-shadow: 0 6px 32px rgba(0,0,0,0.5); }
 
+/* ── Strategist View ── */
+.strategist-view-header {
+  margin-bottom: 24px;
+}
+.strategist-view-header h1 {
+  font-family: var(--serif); font-size: 28px; font-weight: 300;
+  color: var(--text); margin-bottom: 4px;
+  display: flex; align-items: center; gap: 10px;
+}
+.strategist-live-badge {
+  font-size: 10px; font-weight: 600; color: #22c55e;
+  background: rgba(34,197,94,0.1); border-radius: 50px;
+  padding: 3px 10px; display: inline-flex; align-items: center; gap: 4px;
+}
+.strategist-live-badge::before {
+  content: ''; width: 6px; height: 6px; background: #22c55e;
+  border-radius: 50%; display: inline-block;
+}
+
+.strategist-insight {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 20px; margin-bottom: 16px;
+}
+.strategist-insight-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--text-muted); margin-bottom: 10px; font-weight: 600;
+}
+.strategist-insight-text {
+  font-size: 14px; line-height: 1.65; color: rgba(255,255,255,0.7);
+}
+
+.strategist-prompts {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+}
+.strategist-prompt-chip {
+  font-family: var(--sans); font-size: 12px; font-weight: 500;
+  color: var(--text); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 50px;
+  padding: 8px 16px; cursor: pointer; transition: all 0.2s;
+}
+.strategist-prompt-chip:hover {
+  border-color: var(--accent-border); background: var(--accent-pale);
+}
+
+.strategist-chat-container {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-md); display: flex; flex-direction: column;
+  min-height: 400px; max-height: 60vh; overflow: hidden;
+}
+.strategist-chat-container .chat-body {
+  flex: 1; overflow-y: auto; padding: 16px 20px;
+}
+.strategist-chat-container .chat-prompts { display: none; }
+.strategist-chat-container .chat-input-row {
+  padding: 12px 20px; border-top: 1px solid var(--border);
+  display: flex; gap: 8px;
+}
+
+/* ── Chat Drawer Overlay ── */
 .chat-drawer-overlay {
   position: fixed; inset: 0; z-index: 200;
   background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
@@ -1689,35 +1748,41 @@ const FONT_MAP = {
 }
 .chat-drawer-overlay.open { opacity: 1; pointer-events: auto; }
 
-.chat-drawer {
-  position: fixed; bottom: 0; right: 0; z-index: 201;
-  width: 400px; max-width: 100vw; height: 70vh; max-height: 600px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r-md) var(--r-md) 0 0;
+/* ── Slide-out Panel (replaces old drawer) ── */
+.chat-panel {
+  position: fixed; top: 0; right: 0; z-index: 201;
+  width: 400px; max-width: 100vw; height: 100vh;
+  background: var(--surface); border-left: 1px solid var(--border);
   display: flex; flex-direction: column;
-  transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.23,1,0.32,1);
-  box-shadow: 0 -8px 40px rgba(0,0,0,0.3);
+  transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.23,1,0.32,1);
+  box-shadow: -8px 0 40px rgba(0,0,0,0.3);
 }
-.chat-drawer.open { transform: translateY(0); }
+.chat-panel.open { transform: translateX(0); }
 
-.chat-drawer-header {
+.chat-panel-header {
   display: flex; align-items: center; gap: 10px;
   padding: 16px 20px; border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
-.chat-drawer-header .chat-title {
+.chat-panel-header .chat-title {
   font-family: var(--serif); font-size: 18px; color: var(--text); flex: 1;
 }
-.chat-drawer-header .chat-close {
+.chat-panel-header .panel-expand {
+  background: none; border: none; color: var(--text-muted);
+  font-size: 14px; cursor: pointer; padding: 4px; transition: color 0.2s;
+}
+.chat-panel-header .panel-expand:hover { color: var(--text); }
+.chat-panel-header .chat-close {
   background: none; border: none; color: var(--text-muted);
   font-size: 18px; cursor: pointer; padding: 4px;
 }
-.chat-drawer-header .chat-close:hover { color: var(--text); }
+.chat-panel-header .chat-close:hover { color: var(--text); }
 
-.chat-drawer .chat-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
-.chat-drawer .chat-prompts { padding: 8px 20px; display: flex; flex-wrap: wrap; gap: 6px; }
-.chat-drawer .chat-input-row {
+.chat-panel .chat-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+.chat-panel .chat-prompts { padding: 8px 20px; display: flex; flex-wrap: wrap; gap: 6px; flex-shrink: 0; }
+.chat-panel .chat-input-row {
   padding: 12px 20px; border-top: 1px solid var(--border);
-  display: flex; gap: 8px;
+  display: flex; gap: 8px; flex-shrink: 0;
 }
 
 /* ── Floating Contact Bar ── */
@@ -1747,7 +1812,8 @@ const FONT_MAP = {
 
 @media (max-width: 768px) {
   .chat-fab-btn { bottom: 100px; }
-  .chat-drawer { width: 100vw; height: 80vh; border-radius: var(--r-md) var(--r-md) 0 0; }
+  .chat-panel { width: 100vw; }
+  .strategist-chat-container { max-height: 50vh; }
   .contact-bar { bottom: 64px; left: 50%; }
   .contact-bar-btn { font-size: 11px; padding: 8px 14px; }
 }
@@ -1792,6 +1858,8 @@ const FONT_MAP = {
   <div class="sidebar-label">Analytics</div>
   <button class="sidebar-nav-item" data-view="planner" onclick="switchView('planner')" title="Planner">&#128197;</button>
   <div class="sidebar-label">Planner</div>
+  <button class="sidebar-nav-item" data-view="strategist" onclick="switchView('strategist')" title="Strategist">&#129302;</button>
+  <div class="sidebar-label">Strategist</div>
   <div class="sidebar-spacer"></div>
   <a class="sidebar-nav-item" id="navSite" href="#" target="_blank" title="View My Site">🌐</a>
   <div class="sidebar-label">Site</div>
@@ -2053,6 +2121,31 @@ const FONT_MAP = {
   </div>
 </div>
 
+<div class="hub-view" id="viewStrategist">
+  <div class="strategist-view-header">
+    <h1>Your Strategist <span class="strategist-live-badge">LIVE</span></h1>
+    <div class="home-subtitle">AI-powered content strategy and advice</div>
+  </div>
+
+  <div class="strategist-insight" id="strategistInsight">
+    <div class="strategist-insight-label">&#128161; Today's Insight</div>
+    <div class="strategist-insight-text" id="strategistInsightText">Loading your personalized strategy...</div>
+  </div>
+
+  <div class="strategist-prompts" id="strategistPrompts">
+    <button class="strategist-prompt-chip" onclick="askPrompt(this)">What should I post today?</button>
+    <button class="strategist-prompt-chip" onclick="askPrompt(this)">What's growing fastest?</button>
+    <button class="strategist-prompt-chip" onclick="askPrompt(this)">Write me a caption</button>
+    <button class="strategist-prompt-chip" onclick="askPrompt(this)">Which platform should I focus on?</button>
+    <button class="strategist-prompt-chip" onclick="askPrompt(this)">Draft a brand pitch</button>
+    <button class="strategist-prompt-chip" onclick="askPrompt(this)">Analyze my engagement</button>
+  </div>
+
+  <div class="strategist-chat-container" id="strategistChatContainer">
+    <!-- chat elements will be moved here when this view is active -->
+  </div>
+</div>
+
 </div><!-- end hub-main -->
 </div><!-- end hub-shell -->
 
@@ -2064,24 +2157,26 @@ const FONT_MAP = {
 </div>
 
 <!-- Floating Chat Agent -->
-<button class="chat-fab-btn" id="chatFab" onclick="toggleChatDrawer()">&#128172;</button>
-<div class="chat-drawer-overlay" id="chatOverlay" onclick="toggleChatDrawer()"></div>
-<div class="chat-drawer" id="chatDrawer">
-  <div class="chat-drawer-header">
+<button class="chat-fab-btn" id="chatFab" onclick="toggleChatPanel()">&#128172;</button>
+<div class="chat-drawer-overlay" id="chatOverlay" onclick="toggleChatPanel()"></div>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-panel-header">
     <span class="chat-title">Your Strategist</span>
-    <div style="font-size:10px;color:#22c55e;">&#9679; LIVE</div>
-    <button class="chat-close" onclick="toggleChatDrawer()">&#10005;</button>
+    <button class="panel-expand" onclick="switchView('strategist');toggleChatPanel();" title="Open full view">&#10530;</button>
+    <button class="chat-close" onclick="toggleChatPanel()">&#10005;</button>
   </div>
-  <div class="chat-body" id="chatBody"></div>
-  <div class="chat-prompts" id="chatPrompts">
-    <button class="chat-prompt" onclick="askPrompt(this)">What's growing fastest?</button>
-    <button class="chat-prompt" onclick="askPrompt(this)">Write a caption</button>
-    <button class="chat-prompt" onclick="askPrompt(this)">Which platform should I focus on?</button>
-    <button class="chat-prompt" onclick="askPrompt(this)">Brand pitch draft</button>
-  </div>
-  <div class="chat-input-row" id="chatInputRow">
-    <input class="chat-input" id="chatInput" placeholder="Ask your strategist..." onkeydown="if(event.key==='Enter')sendChat(event)">
-    <button class="chat-send" onclick="sendChat()">&#8594;</button>
+  <div id="chatElements">
+    <div class="chat-body" id="chatBody"></div>
+    <div class="chat-prompts" id="chatPrompts">
+      <button class="chat-prompt" onclick="askPrompt(this)">What's growing fastest?</button>
+      <button class="chat-prompt" onclick="askPrompt(this)">Write a caption</button>
+      <button class="chat-prompt" onclick="askPrompt(this)">Which platform should I focus on?</button>
+      <button class="chat-prompt" onclick="askPrompt(this)">Brand pitch draft</button>
+    </div>
+    <div class="chat-input-row" id="chatInputRow">
+      <input class="chat-input" id="chatInput" placeholder="Ask your strategist..." onkeydown="if(event.key==='Enter')sendChat(event)">
+      <button class="chat-send" onclick="sendChat()">&#8594;</button>
+    </div>
   </div>
 </div>
 
@@ -2282,6 +2377,25 @@ function switchView(viewName) {
   document.querySelectorAll('.sidebar-nav-item').forEach(function(btn) {
     btn.classList.toggle('active', btn.dataset.view === viewName);
   });
+
+  // Move chat elements based on view
+  if (viewName === 'strategist') {
+    moveChatTo('strategist');
+    // Close panel if open
+    var panel = document.getElementById('chatPanel');
+    var overlay = document.getElementById('chatOverlay');
+    if (panel) panel.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
+    // Hide FAB on strategist view
+    var fab = document.getElementById('chatFab');
+    if (fab) fab.style.display = 'none';
+  } else {
+    moveChatTo('panel');
+    // Show FAB on other views
+    var fab = document.getElementById('chatFab');
+    if (fab) fab.style.display = 'flex';
+  }
+
   window.scrollTo(0, 0);
 }
 
@@ -2980,6 +3094,7 @@ function renderProactiveInsight(data) {
       </div>
       <div class="chat-time">${formatTime(new Date())} \u00b7 Greeting</div>
     `;
+    renderStrategistInsight(data);
     return;
   }
 
@@ -3001,6 +3116,19 @@ function renderProactiveInsight(data) {
     </div>
     <div class="chat-time">${formatTime(new Date())} \u00b7 Proactive insight</div>
   `;
+
+  // Also populate the strategist view hero insight
+  renderStrategistInsight(data);
+}
+
+function renderStrategistInsight(data) {
+  var el = document.getElementById('strategistInsightText');
+  if (!el) return;
+  var text = '';
+  if (data && data.proactiveInsight && data.proactiveInsight.message) text = data.proactiveInsight.message;
+  else if (data && data.summary) text = data.summary;
+  else if (data && data.title) text = data.title;
+  if (text) el.innerHTML = text;
 }
 
 /* ── Render Health Bar ── */
@@ -3832,16 +3960,36 @@ function initScrollAnimations() {
 }
 
 /* ═══════════════════════════════════════════════════
-   FLOATING CHAT DRAWER
+   FLOATING CHAT PANEL + STRATEGIST VIEW
    ═══════════════════════════════════════════════════ */
-function toggleChatDrawer() {
-  var drawer = document.getElementById('chatDrawer');
+function toggleChatPanel() {
+  var panel = document.getElementById('chatPanel');
   var overlay = document.getElementById('chatOverlay');
-  var isOpen = drawer.classList.contains('open');
-  drawer.classList.toggle('open');
+  var isOpen = panel.classList.contains('open');
+
+  if (!isOpen) {
+    // Move chat elements into panel before opening
+    moveChatTo('panel');
+  }
+
+  panel.classList.toggle('open');
   overlay.classList.toggle('open');
+
   if (!isOpen) {
     document.getElementById('chatInput').focus();
+  }
+}
+
+function moveChatTo(target) {
+  var chatElements = document.getElementById('chatElements');
+  if (!chatElements) return;
+
+  if (target === 'strategist') {
+    var container = document.getElementById('strategistChatContainer');
+    if (container) container.appendChild(chatElements);
+  } else {
+    var panel = document.getElementById('chatPanel');
+    if (panel) panel.appendChild(chatElements);
   }
 }
 

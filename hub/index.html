@@ -1579,8 +1579,12 @@ const FONT_MAP = {
 .home-card:hover { border-color: var(--accent-border); }
 .home-card .home-card-label {
   font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px;
-  color: var(--text-muted); margin-bottom: 12px; font-weight: 600;
+  color: var(--text-muted); margin-bottom: 4px; font-weight: 600;
   display: flex; align-items: center; gap: 6px;
+}
+.home-card-hint {
+  font-size: 11px; color: var(--text-muted); opacity: 0.6;
+  margin-bottom: 12px; line-height: 1.4;
 }
 
 /* Create Post Hero */
@@ -1714,8 +1718,10 @@ const FONT_MAP = {
 }
 
 .strategist-prompts {
-  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; flex-shrink: 0;
 }
+.strategist-insight { flex-shrink: 0; }
+.strategist-view-header { flex-shrink: 0; }
 .strategist-prompt-chip {
   font-family: var(--sans); font-size: 12px; font-weight: 500;
   color: var(--text); background: var(--surface);
@@ -1729,8 +1735,12 @@ const FONT_MAP = {
 .strategist-chat-container {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--r-md); display: flex; flex-direction: column;
-  min-height: 400px; max-height: 60vh; overflow: hidden;
+  flex: 1; min-height: 200px; overflow: hidden;
 }
+#viewStrategist {
+  display: none; flex-direction: column; height: calc(100vh - 56px);
+}
+#viewStrategist.active { display: flex; }
 .strategist-chat-container .chat-body {
   flex: 1; overflow-y: auto; padding: 16px 20px;
 }
@@ -1813,7 +1823,8 @@ const FONT_MAP = {
 @media (max-width: 768px) {
   .chat-fab-btn { bottom: 100px; }
   .chat-panel { width: 100vw; }
-  .strategist-chat-container { max-height: 50vh; }
+  #viewStrategist { height: calc(100vh - 80px); }
+  .strategist-chat-container { min-height: 150px; }
   .contact-bar { bottom: 64px; left: 50%; }
   .contact-bar-btn { font-size: 11px; padding: 8px 14px; }
 }
@@ -2086,14 +2097,16 @@ const FONT_MAP = {
 
   <div class="home-bottom-row">
     <div class="home-card" id="homeLeadsCard">
-      <div class="home-card-label">&#128101; Recent Leads</div>
+      <div class="home-card-label">👥 Recent Leads</div>
+      <div class="home-card-hint">People who engaged with your links or automations</div>
       <div id="homeLeadsList">
         <div class="skeleton skeleton-text w80"></div>
         <div class="skeleton skeleton-text w60"></div>
       </div>
     </div>
     <div class="home-card" id="homeBrandCodesCard">
-      <div class="home-card-label">&#127991;&#65039; Brand Codes</div>
+      <div class="home-card-label">🏷️ Brand Codes</div>
+      <div class="home-card-hint">Your affiliate codes and how often they're used</div>
       <div id="homeBrandCodesList"></div>
     </div>
   </div>

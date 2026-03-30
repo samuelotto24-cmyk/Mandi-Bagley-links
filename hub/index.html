@@ -1641,6 +1641,104 @@ const FONT_MAP = {
   .action-headline { font-size: 12px !important; }
   .cal-day { min-width: 58px !important; }
 }
+
+/* ── Automations Card ── */
+.automations-list { display: flex; flex-direction: column; gap: 10px; }
+.automation-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.automation-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.automation-keyword {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  background: var(--accent-pale);
+  border: 1px solid var(--accent-border);
+  padding: 3px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+.automation-status { font-size: 11px; color: var(--text-muted); }
+.automation-status.active { color: #4ade80; }
+.automation-stats { font-size: 12px; color: var(--text-muted); }
+.automation-reply {
+  font-size: 12px; color: var(--text-muted); font-style: italic;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.automation-actions { display: flex; gap: 8px; margin-top: 4px; }
+.automation-actions button {
+  font-size: 11px; padding: 4px 10px; border-radius: 6px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-muted); cursor: pointer; font-family: 'DM Sans', sans-serif;
+}
+.automation-actions button:hover { background: var(--accent-pale); color: var(--text); }
+.automation-empty { text-align: center; color: var(--text-muted); font-size: 13px; padding: 24px 16px; }
+
+/* ── Automation Modal ── */
+.auto-modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  z-index: 9999; align-items: center; justify-content: center; padding: 24px;
+}
+.auto-modal-overlay.active { display: flex; }
+.auto-modal {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 28px; max-width: 480px; width: 100%; max-height: 85vh; overflow-y: auto;
+}
+.auto-modal h3 { font-family: var(--display-font); font-size: 22px; font-weight: 400; margin-bottom: 20px; }
+.auto-modal label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; margin-top: 14px; }
+.auto-modal input, .auto-modal textarea, .auto-modal select {
+  width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--bg); color: var(--text); font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none;
+}
+.auto-modal textarea { resize: vertical; min-height: 60px; }
+.auto-modal input:focus, .auto-modal textarea:focus, .auto-modal select:focus { border-color: var(--accent-border); }
+.auto-modal-actions { display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end; }
+.auto-modal-actions button {
+  padding: 10px 20px; border-radius: 8px; border: none; font-size: 14px;
+  font-family: 'DM Sans', sans-serif; cursor: pointer;
+}
+.auto-modal-save { background: var(--accent); color: var(--bg); font-weight: 600; }
+.auto-modal-cancel { background: transparent; border: 1px solid var(--border) !important; color: var(--text-muted); }
+
+/* ── Funnel Card ── */
+.funnel-list { display: flex; flex-direction: column; gap: 12px; }
+.funnel-row { display: flex; flex-direction: column; gap: 4px; }
+.funnel-row-header { display: flex; align-items: center; justify-content: space-between; }
+.funnel-keyword { font-weight: 600; font-size: 13px; }
+.funnel-pct { font-size: 13px; color: var(--text-muted); }
+.funnel-bar-bg { height: 6px; background: var(--accent-pale); border-radius: 3px; overflow: hidden; }
+.funnel-bar-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.4s ease; }
+.funnel-steps { font-size: 11px; color: var(--text-muted); }
+.funnel-total { font-size: 13px; color: var(--text-muted); margin-top: 8px; text-align: center; }
+
+/* ── Leads Card ── */
+.leads-list { display: flex; flex-direction: column; gap: 6px; }
+.lead-item {
+  display: flex; align-items: center; gap: 10px; padding: 8px 0;
+  border-bottom: 1px solid var(--border); font-size: 13px;
+}
+.lead-item:last-child { border-bottom: none; }
+.lead-time { color: var(--text-muted); font-size: 11px; min-width: 50px; }
+.lead-user { font-weight: 500; }
+.lead-keyword { font-size: 11px; background: var(--accent-pale); padding: 2px 6px; border-radius: 4px; }
+.lead-step { margin-left: auto; font-size: 11px; color: var(--text-muted); }
+.leads-export {
+  display: block; margin: 12px auto 0; padding: 8px 16px;
+  border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+  border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif;
+}
+.leads-export:hover { background: var(--accent-pale); color: var(--text); }
 </style>
 </head>
 
@@ -1827,12 +1925,13 @@ const FONT_MAP = {
           <div id="ytData" style="display:none;"></div>
         </div>
         <!-- Instagram chip -->
-        <div class="social-chip">
+        <div class="social-chip" id="igCard">
           <span class="social-chip-icon">&#128247;</span>
           <div>
             <div class="social-chip-name">Instagram</div>
-            <div class="social-chip-status">Coming soon</div>
+            <div class="social-chip-status" id="igStatus">Not connected</div>
           </div>
+          <a class="hub-nav-pill" id="igConnectBtn" href="/api/ig-auth" style="margin-left:auto;font-size:10px">Connect</a>
         </div>
         <!-- TikTok chip -->
         <div class="social-chip" id="tiktokPlatformCard">
@@ -2020,6 +2119,41 @@ const FONT_MAP = {
       </div>
     </div>
 
+    <!-- ROW: Automations (span-6) | Conversion Funnel (span-6) -->
+    <div class="bento-card span-6" data-order="12">
+      <div class="bento-card-header">
+        <span class="bento-card-icon">&#129302;</span>
+        <span class="bento-card-title">Automations</span>
+        <button class="briefing-refresh" onclick="openAutomationModal()" title="New Automation" style="margin-left:auto;font-size:16px">+</button>
+      </div>
+      <div id="automationsList" class="automations-list">
+        <div class="automation-empty">Loading...</div>
+      </div>
+    </div>
+
+    <div class="bento-card span-6" data-order="13">
+      <div class="bento-card-header">
+        <span class="bento-card-icon">&#128202;</span>
+        <span class="bento-card-title">Conversion Funnel</span>
+      </div>
+      <div id="funnelList" class="funnel-list">
+        <div class="automation-empty">No automations yet</div>
+      </div>
+      <div class="funnel-total" id="funnelTotal"></div>
+    </div>
+
+    <!-- ROW: Recent Leads (span-12) -->
+    <div class="bento-card span-12" data-order="14">
+      <div class="bento-card-header">
+        <span class="bento-card-icon">&#128293;</span>
+        <span class="bento-card-title">Recent Leads</span>
+      </div>
+      <div id="leadsList" class="leads-list">
+        <div class="automation-empty">No leads yet — create an automation to get started</div>
+      </div>
+      <button class="leads-export" id="leadsExportBtn" style="display:none" onclick="exportLeads()">Export Emails &#8595;</button>
+    </div>
+
   </div><!-- end bento-grid -->
 </div>
 
@@ -2189,6 +2323,8 @@ function showHub() {
   loadSocialAnalytics();
   loadTikTok();
   loadReferral();
+  loadAutomations();
+  loadLeads();
 
   // Init scroll animations
   setTimeout(initScrollAnimations, 100);
@@ -4048,6 +4184,275 @@ function copyGeneratedCaption() {
     setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
   });
 }
+</script>
+
+<!-- Automation Modal -->
+<div class="auto-modal-overlay" id="autoModalOverlay" onclick="if(event.target===this)closeAutomationModal()">
+  <div class="auto-modal">
+    <h3 id="autoModalTitle">New Automation</h3>
+    <label>Keyword (what they comment)</label>
+    <input type="text" id="autoKeyword" placeholder="MEAL" maxlength="30">
+    <label>Comment Reply (auto-replied to their comment)</label>
+    <textarea id="autoCommentReply" placeholder="DM me MEAL and I'll send it! 🔥"></textarea>
+    <label>DM Response (sent when they DM the keyword)</label>
+    <textarea id="autoDmResponse" placeholder="Here's your free meal plan! 👉"></textarea>
+    <label>Capture Page URL Slug</label>
+    <input type="text" id="autoCaptureSlug" placeholder="meal">
+    <label>Capture Page Headline</label>
+    <input type="text" id="autoCaptureHeadline" placeholder="Your Free 7-Day Meal Plan">
+    <label>Description (optional)</label>
+    <textarea id="autoCaptureDesc" placeholder="Simple, delicious meals to hit your macros"></textarea>
+    <label>Freebie Type</label>
+    <select id="autoFreebieType">
+      <option value="pdf_link">PDF / Download Link</option>
+      <option value="discount_code">Discount Code</option>
+      <option value="video_link">Video Link</option>
+      <option value="external_url">External URL</option>
+    </select>
+    <label>Freebie Value (URL or code)</label>
+    <input type="text" id="autoFreebieValue" placeholder="https://... or CODE123">
+    <label>Upsell URL (optional)</label>
+    <input type="text" id="autoUpsellUrl" placeholder="https://...">
+    <label>Upsell CTA Text (optional)</label>
+    <input type="text" id="autoUpsellText" placeholder="Ready for the full program?">
+    <div class="auto-modal-actions">
+      <button class="auto-modal-cancel" onclick="closeAutomationModal()">Cancel</button>
+      <button class="auto-modal-save" id="autoModalSave" onclick="saveAutomation()">Create</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   AUTOMATIONS ENGINE
+   ══════════════════════════════════════════════════ */
+var automationsData = [];
+var editingKeyword = null;
+
+function loadAutomations() {
+  fetch('/api/automations', { headers: { 'Authorization': 'Bearer ' + password } })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      automationsData = data.automations || [];
+      renderAutomations();
+    })
+    .catch(function() {});
+}
+
+function renderAutomations() {
+  var container = document.getElementById('automationsList');
+  if (!automationsData.length) {
+    container.innerHTML = '<div class="automation-empty">No automations yet — tap + to create one</div>';
+    return;
+  }
+  container.innerHTML = automationsData.map(function(a) {
+    return '<div class="automation-item">' +
+      '<div class="automation-item-header">' +
+        '<span class="automation-keyword">' + a.keyword + '</span>' +
+        '<span class="automation-status ' + (a.active ? 'active' : '') + '">' + (a.active ? '● Active' : '○ Paused') + '</span>' +
+      '</div>' +
+      '<div class="automation-reply">"' + a.commentReply + '"</div>' +
+      '<div class="automation-stats" id="autoStats_' + a.keyword + '"></div>' +
+      '<div class="automation-actions">' +
+        '<button onclick="editAutomation(\'' + a.keyword + '\')">Edit</button>' +
+        '<button onclick="toggleAutomation(\'' + a.keyword + '\',' + !a.active + ')">' + (a.active ? 'Pause' : 'Resume') + '</button>' +
+        '<button onclick="deleteAutomation(\'' + a.keyword + '\')">Delete</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function openAutomationModal(keyword) {
+  editingKeyword = keyword || null;
+  var overlay = document.getElementById('autoModalOverlay');
+  document.getElementById('autoModalTitle').textContent = keyword ? 'Edit Automation' : 'New Automation';
+  document.getElementById('autoModalSave').textContent = keyword ? 'Save' : 'Create';
+  if (keyword) {
+    var a = automationsData.find(function(x) { return x.keyword === keyword; });
+    if (a) {
+      document.getElementById('autoKeyword').value = a.keyword;
+      document.getElementById('autoKeyword').disabled = true;
+      document.getElementById('autoCommentReply').value = a.commentReply;
+      document.getElementById('autoDmResponse').value = a.dmResponse;
+      document.getElementById('autoCaptureSlug').value = a.captureSlug;
+      document.getElementById('autoCaptureHeadline').value = a.captureHeadline;
+      document.getElementById('autoCaptureDesc').value = a.captureDescription || '';
+      document.getElementById('autoFreebieType').value = a.freebieType;
+      document.getElementById('autoFreebieValue').value = a.freebieValue;
+      document.getElementById('autoUpsellUrl').value = a.upsellUrl || '';
+      document.getElementById('autoUpsellText').value = a.upsellText || '';
+    }
+  } else {
+    document.getElementById('autoKeyword').value = '';
+    document.getElementById('autoKeyword').disabled = false;
+    document.getElementById('autoCommentReply').value = '';
+    document.getElementById('autoDmResponse').value = '';
+    document.getElementById('autoCaptureSlug').value = '';
+    document.getElementById('autoCaptureHeadline').value = '';
+    document.getElementById('autoCaptureDesc').value = '';
+    document.getElementById('autoFreebieType').value = 'pdf_link';
+    document.getElementById('autoFreebieValue').value = '';
+    document.getElementById('autoUpsellUrl').value = '';
+    document.getElementById('autoUpsellText').value = '';
+  }
+  overlay.classList.add('active');
+}
+
+function closeAutomationModal() {
+  document.getElementById('autoModalOverlay').classList.remove('active');
+  editingKeyword = null;
+}
+
+function editAutomation(keyword) {
+  openAutomationModal(keyword);
+}
+
+function saveAutomation() {
+  var payload = {
+    keyword: document.getElementById('autoKeyword').value.trim(),
+    commentReply: document.getElementById('autoCommentReply').value.trim(),
+    dmResponse: document.getElementById('autoDmResponse').value.trim(),
+    captureSlug: document.getElementById('autoCaptureSlug').value.trim(),
+    captureHeadline: document.getElementById('autoCaptureHeadline').value.trim(),
+    captureDescription: document.getElementById('autoCaptureDesc').value.trim(),
+    freebieType: document.getElementById('autoFreebieType').value,
+    freebieValue: document.getElementById('autoFreebieValue').value.trim(),
+    upsellUrl: document.getElementById('autoUpsellUrl').value.trim(),
+    upsellText: document.getElementById('autoUpsellText').value.trim(),
+  };
+  if (!payload.keyword || !payload.commentReply || !payload.dmResponse || !payload.captureSlug || !payload.captureHeadline || !payload.freebieValue) {
+    alert('Please fill in all required fields');
+    return;
+  }
+  var method = editingKeyword ? 'PUT' : 'POST';
+  fetch('/api/automations', {
+    method: method,
+    headers: { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+    .then(function(res) {
+      if (res.ok) {
+        closeAutomationModal();
+        loadAutomations();
+        loadLeads();
+      } else {
+        return res.json().then(function(err) { alert(err.error || 'Failed to save'); });
+      }
+    });
+}
+
+function toggleAutomation(keyword, active) {
+  fetch('/api/automations', {
+    method: 'PUT',
+    headers: { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ keyword: keyword, active: active }),
+  }).then(function() { loadAutomations(); });
+}
+
+function deleteAutomation(keyword) {
+  if (!confirm('Delete the "' + keyword + '" automation?')) return;
+  fetch('/api/automations?keyword=' + encodeURIComponent(keyword), {
+    method: 'DELETE',
+    headers: { 'Authorization': 'Bearer ' + password },
+  }).then(function() { loadAutomations(); loadLeads(); });
+}
+
+/* ══════════════════════════════════════════════════
+   LEADS + FUNNEL
+   ══════════════════════════════════════════════════ */
+function loadLeads() {
+  fetch('/api/leads', { headers: { 'Authorization': 'Bearer ' + password } })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      renderFunnel(data.funnels || {});
+      renderLeads(data.recentLeads || []);
+      if (data.totalEmails > 0) {
+        document.getElementById('leadsExportBtn').style.display = '';
+      }
+      // Update automation card stats
+      var funnels = data.funnels || {};
+      for (var kw in funnels) {
+        var el = document.getElementById('autoStats_' + kw);
+        if (el) {
+          var f = funnels[kw];
+          var pct = f.comments > 0 ? Math.round((f.captured / f.comments) * 100) : 0;
+          el.textContent = f.comments + ' comments · ' + f.captured + ' emails · ' + pct + '% conversion';
+        }
+      }
+    })
+    .catch(function() {});
+}
+
+function renderFunnel(funnels) {
+  var container = document.getElementById('funnelList');
+  var entries = Object.entries(funnels);
+  if (!entries.length) {
+    container.innerHTML = '<div class="automation-empty">No data yet</div>';
+    document.getElementById('funnelTotal').textContent = '';
+    return;
+  }
+  var totalEmails = 0;
+  container.innerHTML = entries.map(function(entry) {
+    var keyword = entry[0], f = entry[1];
+    totalEmails += f.captured;
+    var pct = f.comments > 0 ? Math.round((f.captured / f.comments) * 100) : 0;
+    return '<div class="funnel-row">' +
+      '<div class="funnel-row-header">' +
+        '<span class="funnel-keyword">' + keyword + '</span>' +
+        '<span class="funnel-pct">' + pct + '%</span>' +
+      '</div>' +
+      '<div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:' + pct + '%"></div></div>' +
+      '<div class="funnel-steps">' + f.comments + ' comments → ' + f.dms + ' DMs → ' + f.clicks + ' clicks → ' + f.captured + ' emails</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('funnelTotal').textContent = totalEmails + ' emails captured';
+}
+
+function renderLeads(leads) {
+  var container = document.getElementById('leadsList');
+  if (!leads.length) {
+    container.innerHTML = '<div class="automation-empty">No leads yet — create an automation to get started</div>';
+    return;
+  }
+  var stepIcons = { comment: '💬', dm: '📩', click: '👁', captured: '✉' };
+  var stepLabels = { comment: 'commented', dm: 'DM sent', click: 'clicked', captured: 'captured' };
+  container.innerHTML = leads.slice(0, 20).map(function(l) {
+    var ago = leadTimeAgo(l.timestamp);
+    var user = l.user || l.email || 'anonymous';
+    return '<div class="lead-item">' +
+      '<span class="lead-time">' + ago + '</span>' +
+      '<span class="lead-user">' + user + '</span>' +
+      '<span class="lead-keyword">' + l.keyword + '</span>' +
+      '<span class="lead-step">' + (stepIcons[l.step] || '') + ' ' + (stepLabels[l.step] || l.step) + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+function leadTimeAgo(ts) {
+  var diff = Date.now() - new Date(ts).getTime();
+  var mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'now';
+  if (mins < 60) return mins + 'm ago';
+  var hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  var days = Math.floor(hrs / 24);
+  return days + 'd ago';
+}
+
+function exportLeads() {
+  window.open('/api/leads?export=csv&_auth=' + encodeURIComponent(password), '_blank');
+}
+
+/* ── Instagram connection check ── */
+(function checkIgConnection() {
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('instagram') === 'connected') {
+    var el = document.getElementById('igStatus');
+    if (el) el.textContent = 'Connected ✓';
+    var btn = document.getElementById('igConnectBtn');
+    if (btn) btn.textContent = 'Connected';
+  }
+})();
 </script>
 </body>
 </html>

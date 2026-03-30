@@ -566,15 +566,7 @@ const FONT_MAP = {
   .chat-confidence { font-size: 10px; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; gap: 4px; }
   .confidence-dot { width: 5px; height: 5px; border-radius: 50%; }
 
-  /* ── Sticky chat input (mobile) ── */
-  .chat-input-sticky {
-    display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
-    padding: 12px 16px; background: rgba(20,16,18,0.95); border-top: 1px solid var(--border);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  }
-  .chat-input-sticky.active { display: flex; gap: 10px; }
-  .chat-input-sticky .chat-input { flex: 1; }
-  .chat-input-sticky .chat-send { width: 44px; height: 44px; }
+  /* (sticky chat input removed — replaced by floating drawer) */
 
   /* ── Contact Modal ── */
   .modal-overlay {
@@ -1041,7 +1033,7 @@ const FONT_MAP = {
     .bento-card[data-order="2"] { order: 2; } /* Stats */
     .bento-card[data-order="3"] { order: 3; } /* Calendar */
     .bento-card[data-order="4"] { order: 4; } /* Platforms */
-    .bento-card[data-order="5"] { order: 5; } /* Strategist */
+    /* data-order 5 (Strategist) removed — now floating drawer */
     .bento-card[data-order="6"] { order: 6; } /* Heatmap */
     .bento-card[data-order="7"] { order: 7; } /* Niche Pulse */
     .bento-card[data-order="8"] { order: 8; } /* Links */
@@ -1160,13 +1152,7 @@ const FONT_MAP = {
     .chat-actions { gap: 4px; margin-top: 6px; }
     .chat-action-btn { font-size: 10px; padding: 4px 10px; }
 
-    /* Sticky chat input */
-    .chat-input-row.sticky {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 99;
-      border-radius: 0; padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
-      background: rgba(20,16,18,0.95); backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--accent-border);
-    }
+    /* (sticky chat input removed — replaced by floating drawer) */
 
     /* FAB */
     .fab-bar { bottom: 60px; padding: 4px 6px; gap: 6px; }
@@ -1922,6 +1908,61 @@ const FONT_MAP = {
 }
 .analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 768px) { .analytics-grid { grid-template-columns: 1fr; } }
+
+/* ── Floating Chat Agent ── */
+.chat-fab-btn {
+  position: fixed; bottom: 24px; right: 24px; z-index: 90;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--accent); border: none; color: var(--bg);
+  font-size: 20px; cursor: pointer;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.chat-fab-btn:hover { transform: scale(1.08); box-shadow: 0 6px 32px rgba(0,0,0,0.5); }
+
+.chat-drawer-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.chat-drawer-overlay.open { opacity: 1; pointer-events: auto; }
+
+.chat-drawer {
+  position: fixed; bottom: 0; right: 0; z-index: 201;
+  width: 400px; max-width: 100vw; height: 70vh; max-height: 600px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-md) var(--r-md) 0 0;
+  display: flex; flex-direction: column;
+  transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.23,1,0.32,1);
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.3);
+}
+.chat-drawer.open { transform: translateY(0); }
+
+.chat-drawer-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+.chat-drawer-header .chat-title {
+  font-family: var(--serif); font-size: 18px; color: var(--text); flex: 1;
+}
+.chat-drawer-header .chat-close {
+  background: none; border: none; color: var(--text-muted);
+  font-size: 18px; cursor: pointer; padding: 4px;
+}
+.chat-drawer-header .chat-close:hover { color: var(--text); }
+
+.chat-drawer .chat-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+.chat-drawer .chat-prompts { padding: 8px 20px; display: flex; flex-wrap: wrap; gap: 6px; }
+.chat-drawer .chat-input-row {
+  padding: 12px 20px; border-top: 1px solid var(--border);
+  display: flex; gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .chat-fab-btn { bottom: 72px; }
+  .chat-drawer { width: 100vw; height: 80vh; border-radius: var(--r-md) var(--r-md) 0 0; }
+}
 </style>
 </head>
 
@@ -2306,31 +2347,7 @@ const FONT_MAP = {
     </div>
   </div>
 
-  <!-- Your Strategist (Chat) -->
-  <div class="bento-card span-6" data-order="5">
-    <div class="bento-card-header">
-      <span class="bento-card-icon">&#129302;</span>
-      <span class="bento-card-title">Your Strategist</span>
-      <span class="chat-live-dot" style="margin-left:auto">LIVE</span>
-    </div>
-    <div class="chat-section" id="chatSection">
-      <div class="chat-inner">
-        <div class="chat-body" id="chatBody">
-          <!-- proactive insight injected by JS -->
-        </div>
-        <div class="chat-prompts" id="chatPrompts">
-          <span class="chat-prompt" onclick="askPrompt(this)">What's growing fastest?</span>
-          <span class="chat-prompt" onclick="askPrompt(this)">Write a caption</span>
-          <span class="chat-prompt" onclick="askPrompt(this)">Which platform should I focus on?</span>
-          <span class="chat-prompt" onclick="askPrompt(this)">Brand pitch draft</span>
-        </div>
-        <div class="chat-input-row" id="chatInputRow">
-          <input class="chat-input" id="chatInput" placeholder="Ask anything&hellip;" onkeydown="if(event.key==='Enter')sendChat(event)">
-          <button class="chat-send" onclick="sendChat()">&#8594;</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- (Strategist chat card removed — now floating drawer) -->
 
   <!-- Refer & Earn -->
   <div class="bento-card span-4" data-order="11">
@@ -2406,10 +2423,26 @@ const FONT_MAP = {
 </div><!-- end hub-main -->
 </div><!-- end hub-shell -->
 
-<!-- Sticky chat input (mobile) -->
-<div class="chat-input-sticky" id="stickyChat">
-  <input class="chat-input" id="stickyChatInput" placeholder="Ask your advisor\u2026" onkeydown="if(event.key==='Enter')sendChat(event)">
-  <button class="chat-send" onclick="sendChat()">&#8594;</button>
+<!-- Floating Chat Agent -->
+<button class="chat-fab-btn" id="chatFab" onclick="toggleChatDrawer()">&#128172;</button>
+<div class="chat-drawer-overlay" id="chatOverlay" onclick="toggleChatDrawer()"></div>
+<div class="chat-drawer" id="chatDrawer">
+  <div class="chat-drawer-header">
+    <span class="chat-title">Your Strategist</span>
+    <div style="font-size:10px;color:#22c55e;">&#9679; LIVE</div>
+    <button class="chat-close" onclick="toggleChatDrawer()">&#10005;</button>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-prompts" id="chatPrompts">
+    <button class="chat-prompt" onclick="askPrompt(this)">What's growing fastest?</button>
+    <button class="chat-prompt" onclick="askPrompt(this)">Write a caption</button>
+    <button class="chat-prompt" onclick="askPrompt(this)">Which platform should I focus on?</button>
+    <button class="chat-prompt" onclick="askPrompt(this)">Brand pitch draft</button>
+  </div>
+  <div class="chat-input-row" id="chatInputRow">
+    <input class="chat-input" id="chatInput" placeholder="Ask your strategist..." onkeydown="if(event.key==='Enter')sendChat(event)">
+    <button class="chat-send" onclick="sendChat()">&#8594;</button>
+  </div>
 </div>
 
 <!-- Goal Modal -->
@@ -2585,8 +2618,7 @@ function showHub() {
   // Init scroll animations
   setTimeout(initScrollAnimations, 100);
 
-  // Init sticky chat
-  initStickyChat();
+  // (sticky chat removed — floating drawer is always available)
 
   // Init create post
   initCreatePost();
@@ -3855,12 +3887,10 @@ function saveGoal(target, type) {
 function sendChat(e) {
   if (e) e.preventDefault();
   const mainInput = document.getElementById('chatInput');
-  const stickyInput = document.getElementById('stickyChatInput');
-  const question = (mainInput.value || stickyInput.value || '').trim();
+  const question = (mainInput.value || '').trim();
   if (!question) return;
 
   mainInput.value = '';
-  stickyInput.value = '';
 
   // Add user message
   appendMsg('user', question);
@@ -4129,28 +4159,17 @@ function initScrollAnimations() {
 }
 
 /* ═══════════════════════════════════════════════════
-   STICKY CHAT (MOBILE)
+   FLOATING CHAT DRAWER
    ═══════════════════════════════════════════════════ */
-function initStickyChat() {
-  if (window.innerWidth > 640) return;
-
-  const chatInputRow = document.getElementById('chatInputRow');
-  const stickyChat = document.getElementById('stickyChat');
-
-  const observer = new IntersectionObserver(
-    entries => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting && window.scrollY > chatInputRow.offsetTop) {
-          stickyChat.classList.add('active');
-        } else {
-          stickyChat.classList.remove('active');
-        }
-      });
-    },
-    { threshold: 0 }
-  );
-
-  observer.observe(chatInputRow);
+function toggleChatDrawer() {
+  var drawer = document.getElementById('chatDrawer');
+  var overlay = document.getElementById('chatOverlay');
+  var isOpen = drawer.classList.contains('open');
+  drawer.classList.toggle('open');
+  overlay.classList.toggle('open');
+  if (!isOpen) {
+    document.getElementById('chatInput').focus();
+  }
 }
 
 /* ═══════════════════════════════════════════════════

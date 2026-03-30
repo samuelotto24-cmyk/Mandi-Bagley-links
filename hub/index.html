@@ -2224,7 +2224,8 @@ const FONT_MAP = {
           <div class="social-chip-name">Instagram</div>
           <div class="social-chip-status" id="igStatus">Not connected</div>
         </div>
-        <a class="hub-nav-pill" id="igConnectBtn" href="/api/ig-auth" style="margin-left:auto;font-size:10px">Connect</a>
+        <a class="hub-nav-pill" id="igConnectBtn" href="/api/instagram-auth" style="margin-left:auto;font-size:10px">Connect</a>
+        <div id="igData" style="display:none;grid-column:1/-1"></div>
       </div>
       <!-- TikTok chip -->
       <div class="social-chip" id="tiktokPlatformCard">
@@ -4988,7 +4989,46 @@ function exportLeads() {
 }
 
 /* ── Instagram connection check ── */
-(function checkIgConnection() {
+function loadInstagramData() {
+  if (!password) return;
+  fetch('/api/instagram-stats', {
+    headers: { 'Authorization': 'Bearer ' + password }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var el = document.getElementById('igStatus');
+    var btn = document.getElementById('igConnectBtn');
+    if (data.connected) {
+      if (el) el.textContent = data.username ? '@' + data.username : 'Connected ✓';
+      if (btn) { btn.textContent = 'Connected'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.5'; }
+
+      // Show stats in the Instagram expanded section if it exists
+      var igData = document.getElementById('igData');
+      if (igData) {
+        igData.style.display = 'block';
+        igData.innerHTML = ''
+          + '<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-top:1px solid var(--border)">'
+          + (data.profilePic ? '<img src="' + data.profilePic + '" style="width:36px;height:36px;border-radius:50%;border:2px solid #e1306c" />' : '')
+          + '<div>'
+          + '<div style="font-size:14px;font-weight:600;color:var(--text)">' + (data.name || data.username) + '</div>'
+          + '<div style="font-size:11px;color:var(--text-muted)">' + (data.followers || 0).toLocaleString() + ' followers</div>'
+          + '</div>'
+          + '<div style="margin-left:auto;background:#22c55e;color:#fff;font-size:10px;font-weight:600;padding:3px 10px;border-radius:50px">Connected</div>'
+          + '</div>'
+          + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border)">'
+          + '<div style="padding:12px;text-align:center;border-right:1px solid var(--border)"><div style="font-family:var(--serif);font-size:20px;color:var(--text)">' + (data.followers || 0).toLocaleString() + '</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px">Followers</div></div>'
+          + '<div style="padding:12px;text-align:center;border-right:1px solid var(--border)"><div style="font-family:var(--serif);font-size:20px;color:var(--text)">' + (data.posts || 0).toLocaleString() + '</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px">Posts</div></div>'
+          + '<div style="padding:12px;text-align:center;border-right:1px solid var(--border)"><div style="font-family:var(--serif);font-size:20px;color:var(--text)">' + (data.engagementRate || '0') + '%</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px">Engagement</div></div>'
+          + '<div style="padding:12px;text-align:center"><div style="font-family:var(--serif);font-size:20px;color:var(--text)">' + (data.avgLikes || 0).toLocaleString() + '</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-top:4px">Avg Likes</div></div>'
+          + '</div>';
+      }
+    }
+  })
+  .catch(function() { /* not connected, leave as-is */ });
+}
+
+// Check URL params for fresh connection
+(function() {
   var params = new URLSearchParams(window.location.search);
   if (params.get('instagram') === 'connected') {
     var el = document.getElementById('igStatus');
@@ -4998,12 +5038,13 @@ function exportLeads() {
   }
 })();
 
-/* Load automations + leads after hub is shown (functions defined in this block) */
+/* Load automations + leads + instagram after hub is shown */
 var _origShowHub = showHub;
 showHub = function() {
   _origShowHub();
   loadAutomations();
   loadLeads();
+  loadInstagramData();
 };
 </script>
 </body>

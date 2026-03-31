@@ -2929,11 +2929,14 @@ function renderHomeStats() {
   if (!d) return;
   var grid = document.getElementById('homeStatsGrid');
   if (!grid) return;
-  var totalFollowers = (d.followers && typeof d.followers === 'object') ? (d.followers.tiktok || 0) + (d.followers.youtube || 0) : (d.followers || 0);
+  var igFollowers = window._igFollowers || 0;
+  var igEngagement = window._igEngagement || null;
+  var totalFollowers = ((d.followers && typeof d.followers === 'object') ? (d.followers.tiktok || 0) + (d.followers.youtube || 0) : (d.followers || 0)) + igFollowers;
   var totalViews = (d.views && typeof d.views === 'object') ? (d.views.website || 0) + (d.views.tiktok || 0) + (d.views.youtube || 0) : (d.views || 0);
+  var engagementDisplay = igEngagement ? igEngagement + '%' : (d.engagement ? d.engagement + '%' : '\u2014');
   var tiles = [
     { label: 'Followers', value: totalFollowers, change: d.followersTrend },
-    { label: 'Engagement', value: d.engagement ? d.engagement + '%' : '\u2014', change: d.engagementTrend },
+    { label: 'Engagement', value: engagementDisplay, change: d.engagementTrend },
     { label: 'Views (7d)', value: totalViews, change: d.viewsTrend || d.weekOverWeek },
     { label: 'Link Clicks', value: d.linkClicks, change: d.linkClicksTrend },
   ];
@@ -4721,7 +4724,14 @@ function generatePost() {
               timeEl.innerHTML = '&#128337; Best time: <strong>' + parsed.bestTime + '</strong>';
             }
             if (parsed.hashtags && parsed.hashtags.length) {
-              hashEl.innerHTML = '&#127991; ' + parsed.hashtags.map(function(h) { return '#' + h.replace(/^#/, ''); }).join(' ');
+              hashEl.innerHTML = '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);margin-bottom:8px;font-weight:600">Hashtags <button onclick="copyHashtags()" style="margin-left:8px;background:var(--accent-pale);border:1px solid var(--accent-border);border-radius:6px;padding:2px 8px;font-size:9px;color:var(--accent);cursor:pointer;font-family:var(--sans)">Copy All</button></div>'
+                + '<div style="display:flex;flex-wrap:wrap;gap:6px;" id="hashtagChips">'
+                + parsed.hashtags.map(function(h) {
+                    var tag = '#' + h.replace(/^#/, '');
+                    return '<span onclick="copyTag(this)" style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);border-radius:6px;padding:4px 10px;font-size:12px;color:#38bdf8;cursor:pointer;font-weight:500;transition:all 0.15s;user-select:all" title="Click to copy">' + tag + '</span>';
+                  }).join('')
+                + '</div>';
+              window._generatedHashtags = parsed.hashtags.map(function(h) { return '#' + h.replace(/^#/, ''); });
             }
             if (parsed.platformTips && parsed.platformTips.length) {
               tipsEl.innerHTML = '&#128161; ' + parsed.platformTips.join(' · ');
@@ -4769,16 +4779,36 @@ function generatePost() {
 function copyGeneratedCaption() {
   var text = document.getElementById('createPostCaption').textContent;
   if (!text) return;
-  var hashtags = document.getElementById('createPostHashtags');
   var fullText = text;
-  if (hashtags && hashtags.textContent) {
-    var tags = hashtags.textContent.replace(/^[^\#]*/, '').trim();
-    if (tags) fullText += '\n\n' + tags;
+  if (window._generatedHashtags && window._generatedHashtags.length) {
+    fullText += '\n\n' + window._generatedHashtags.join(' ');
   }
   navigator.clipboard.writeText(fullText).then(function() {
     var btn = document.getElementById('createPostCopyBtn');
     btn.textContent = 'Copied!';
     setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+  });
+}
+
+function copyHashtags() {
+  if (window._generatedHashtags && window._generatedHashtags.length) {
+    navigator.clipboard.writeText(window._generatedHashtags.join(' ')).then(function() {
+      var chips = document.getElementById('hashtagChips');
+      if (chips) { chips.style.opacity = '0.5'; setTimeout(function() { chips.style.opacity = '1'; }, 600); }
+    });
+  }
+}
+
+function copyTag(el) {
+  navigator.clipboard.writeText(el.textContent).then(function() {
+    el.style.background = 'rgba(34,197,94,0.2)';
+    el.style.borderColor = 'rgba(34,197,94,0.4)';
+    el.style.color = '#22c55e';
+    setTimeout(function() {
+      el.style.background = 'rgba(56,189,248,0.1)';
+      el.style.borderColor = 'rgba(56,189,248,0.25)';
+      el.style.color = '#38bdf8';
+    }, 800);
   });
 }
 
@@ -5218,10 +5248,10 @@ function loadInstagramData() {
         igData.innerHTML = html;
       }
 
-      // Update scoreboard if available
-      if (typeof renderHomeStats === 'function') {
-        window._igFollowers = data.followers;
-      }
+      // Update scoreboard with Instagram data
+      window._igFollowers = data.followers || 0;
+      window._igEngagement = data.engagementRate || null;
+      if (typeof renderHomeStats === 'function') renderHomeStats();
     }
   })
   .catch(function(e) { console.error('Instagram load failed:', e); });

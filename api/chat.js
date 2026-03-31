@@ -95,6 +95,7 @@ export default async function handler(req) {
       ['GET', 'stats:youtube:channel'],
       ['GET', 'stats:youtube:videos'],
       ['GET', 'stats:youtube:analytics'],
+      ['GET', 'stats:instagram:cache'],
     ]);
 
     const data = {
@@ -145,6 +146,28 @@ export default async function handler(req) {
           youtubeContext += '- "' + v.title + '" — ' + (v.views||0).toLocaleString() + ' views, ' + (v.likes||0).toLocaleString() + ' likes, ' + (v.comments||0).toLocaleString() + ' comments (' + (v.publishedAt||'').split('T')[0] + ')\n';
         });
       }
+    }
+
+    // Instagram data (if cached)
+    const igCacheRaw = results[results.length - 1]?.result;
+    let igContext = '';
+    if (igCacheRaw) {
+      try {
+        const ig = JSON.parse(igCacheRaw);
+        igContext = '\n\n## Instagram Analytics\n';
+        igContext += '- Username: @' + (ig.username || '') + '\n';
+        igContext += '- Followers: ' + (ig.followers || 0).toLocaleString() + '\n';
+        igContext += '- Posts: ' + (ig.posts || 0) + '\n';
+        igContext += '- Engagement rate: ' + (ig.engagementRate || '0') + '%\n';
+        igContext += '- Avg likes: ' + (ig.avgLikes || 0).toLocaleString() + ', Avg comments: ' + (ig.avgComments || 0) + '\n';
+        if (ig.recentPosts && ig.recentPosts.length > 0) {
+          igContext += '\n### Recent Posts\n';
+          ig.recentPosts.slice(0, 6).forEach(function(p) {
+            var cap = (p.caption || '').substring(0, 60).replace(/\n/g, ' ');
+            igContext += '- "' + cap + '..." — ' + (p.likes || 0) + ' likes, ' + (p.comments || 0) + ' comments\n';
+          });
+        }
+      } catch (e) {}
     }
 
     // Compute key metrics for context
@@ -215,7 +238,7 @@ ${peakHours.map(([hr, count]) => {
   const h12 = (h % 12) || 12;
   return `- ${h12}${ampm}: ${count} views`;
 }).join('\n')}
-${youtubeContext}`.trim();
+${youtubeContext}${igContext}`.trim();
 
     let briefingSection = '';
     if (briefingContext) {

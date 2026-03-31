@@ -302,6 +302,9 @@ export default async function handler(req) {
       ['GET', PREFIX + 'youtube:analytics'],
       ['GET', PREFIX + 'tiktok:access_token'],
       ['GET', PREFIX + 'automations'],
+      ['GET', PREFIX + 'instagram:access_token'],
+      ['GET', PREFIX + 'instagram:user_id'],
+      ['GET', PREFIX + 'instagram:cache'],
     ]);
 
     const data = {
@@ -439,8 +442,89 @@ export default async function handler(req) {
       }
     }
 
+    // Instagram data (if connected)
+    const igAccessToken = results[results.length - 3]?.result;
+    const igUserId = results[results.length - 2]?.result;  // Note: automations shifted
+    const igCacheRaw = results[results.length - 1]?.result; // Note: automations shifted
+    // Fix: automations is at results.length - 4 now
+    let instagramContext = '';
+    let igMetrics = null;
+    if (igAccessToken && igUserId) {
+      try {
+        // Check cache first
+        let igData = igCacheRaw ? JSON.parse(igCacheRaw) : null;
+        if (!igData) {
+          // Fetch live from Instagram Graph API
+          const [profileRes, mediaRes] = await Promise.all([
+            fetch(`https://graph.instagram.com/v21.0/me?fields=id,username,name,account_type,followers_count,follows_count,media_count&access_token=${igAccessToken}`),
+            fetch(`https://graph.instagram.com/v21.0/me/media?fields=id,caption,media_type,timestamp,like_count,comments_count&limit=12&access_token=${igAccessToken}`),
+          ]);
+          const profile = await profileRes.json();
+          const media = await mediaRes.json();
+          const posts = media?.data || [];
+          const totalLikes = posts.reduce((s, p) => s + (p.like_count || 0), 0);
+          const totalComments = posts.reduce((s, p) => s + (p.comments_count || 0), 0);
+          const avgLikes = posts.length > 0 ? Math.round(totalLikes / posts.length) : 0;
+          const avgComments = posts.length > 0 ? Math.round(totalComments / posts.length) : 0;
+          const engRate = profile.followers_count > 0 ? ((totalLikes + totalComments) / posts.length / profile.followers_count * 100).toFixed(1) : '0';
+          igData = {
+            username: profile.username,
+            name: profile.name,
+            followers: profile.followers_count || 0,
+            following: profile.follows_count || 0,
+            posts: profile.media_count || 0,
+            engagementRate: engRate,
+            avgLikes,
+            avgComments,
+            recentPosts: posts.map(p => ({
+              caption: p.caption || '',
+              type: p.media_type,
+              likes: p.like_count || 0,
+              comments: p.comments_count || 0,
+              date: (p.timestamp || '').split('T')[0],
+            })),
+          };
+        }
+
+        igMetrics = {
+          followers: igData.followers || 0,
+          posts: igData.posts || 0,
+          engagementRate: igData.engagementRate || '0',
+          avgLikes: igData.avgLikes || 0,
+          avgComments: igData.avgComments || 0,
+        };
+
+        instagramContext = '\n\n## Instagram Analytics (PRIMARY PLATFORM)\n';
+        instagramContext += '- Username: @' + (igData.username || '') + '\n';
+        instagramContext += '- Followers: ' + (igData.followers || 0).toLocaleString() + '\n';
+        instagramContext += '- Following: ' + (igData.following || 0).toLocaleString() + '\n';
+        instagramContext += '- Total posts: ' + (igData.posts || 0) + '\n';
+        instagramContext += '- Engagement rate: ' + (igData.engagementRate || '0') + '%\n';
+        instagramContext += '- Average likes per post: ' + (igData.avgLikes || 0).toLocaleString() + '\n';
+        instagramContext += '- Average comments per post: ' + (igData.avgComments || 0) + '\n';
+
+        if (igData.recentPosts && igData.recentPosts.length > 0) {
+          instagramContext += '\n### Recent Instagram Posts\n';
+          igData.recentPosts.slice(0, 8).forEach(p => {
+            const captionPreview = (p.caption || '').substring(0, 80).replace(/\n/g, ' ');
+            instagramContext += '- "' + captionPreview + '..." — ' + (p.likes || 0) + ' likes, ' + (p.comments || 0) + ' comments (' + (p.date || '') + ')\n';
+          });
+        }
+
+        // Store captions for voice training in create-post
+        if (igData.recentPosts) {
+          const captions = igData.recentPosts.filter(p => p.caption).map(p => p.caption);
+          if (captions.length > 0) {
+            await redis([['SET', PREFIX + 'ig:captions', JSON.stringify(captions), 'EX', 86400]]);
+          }
+        }
+      } catch (e) {
+        console.error('Briefing Instagram fetch error:', e);
+      }
+    }
+
     // Engagement automations (if any)
-    const automationsRaw = results[results.length - 1]?.result;
+    const automationsRaw = results[results.length - 4]?.result;
     const automations = automationsRaw ? JSON.parse(automationsRaw) : [];
     let automationsContext = '';
     if (automations.length > 0) {
@@ -523,9 +607,10 @@ export default async function handler(req) {
     const parts = [];
 
     // Lead with cross-platform follower/view totals if available
+    const igFollowers = igMetrics?.followers || 0;
     const ttFollowers = tiktokMetrics?.followers || 0;
     const ytSubscribers = ytChannelRaw ? JSON.parse(ytChannelRaw).subscriberCount || 0 : 0;
-    const totalFollowers = ttFollowers + ytSubscribers;
+    const totalFollowers = igFollowers + ttFollowers + ytSubscribers;
     if (totalFollowers > 0) {
       parts.push(`${totalFollowers.toLocaleString('en-US')} followers across your platforms`);
     }
@@ -610,7 +695,7 @@ ${bulletPoints || 'No flags this week.'}
 ${clicksList || 'No click data yet.'}
 
 ## Cross-Platform Metrics
-- Total followers: ${totalFollowers.toLocaleString()} (TikTok: ${ttFollowers.toLocaleString()}, YouTube: ${ytSubscribers.toLocaleString()})
+- Total followers: ${totalFollowers.toLocaleString()} (Instagram: ${igFollowers.toLocaleString()}, TikTok: ${ttFollowers.toLocaleString()}, YouTube: ${ytSubscribers.toLocaleString()})${igMetrics ? `\n- Instagram engagement rate: ${igMetrics.engagementRate}% (avg ${igMetrics.avgLikes} likes, ${igMetrics.avgComments} comments per post)` : ''}
 - Site views this week: ${thisWeekViews}, last week: ${lastWeekViews} (${metrics.weekOverWeek})
 - Total link clicks: ${totalClicks.toLocaleString()}
 - Top referrer: ${metrics.topReferrer || 'none'}
@@ -642,7 +727,7 @@ Rules:
 - proactiveInsight: flag the most important growth opportunity or anomaly. null if nothing notable.
 - NEVER suggest website layout changes
 - NEVER criticize performance metrics. Frame ALL data positively: celebrate wins, suggest growth strategies, highlight what's working
-- Reference actual numbers from the data above${youtubeContext}${tiktokContext}${automationsContext}`;
+- Reference actual numbers from the data above${instagramContext}${youtubeContext}${tiktokContext}${automationsContext}`;
 
         const llmRes = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',

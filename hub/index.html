@@ -2706,6 +2706,7 @@ function showHub() {
   loadSocialAnalytics();
   loadTikTok();
   loadReferral();
+  setTimeout(function() { if (typeof loadInstagramData === 'function') loadInstagramData(); }, 300);
   // Automations + leads loaded from second script block after functions are defined
 
   // Init scroll animations

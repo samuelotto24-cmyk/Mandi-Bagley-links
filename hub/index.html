@@ -2346,7 +2346,7 @@ const FONT_MAP = {
           <div class="create-post-meta-item" id="createPostTips"></div>
         </div>
         <div class="create-post-actions" id="createPostActions" style="display:none;">
-          <button class="cp-action-btn cp-action-ig" onclick="postToInstagram()">&#128247; Post to Instagram</button>
+          <button class="cp-action-btn cp-action-ig" id="cpPostIg" onclick="postToInstagram()">&#128247; Post to Instagram</button>
           <button class="cp-action-btn" onclick="copyAndOpen('tiktok')">&#127925; Copy &amp; Open TikTok</button>
           <button class="cp-action-btn" onclick="copyAndOpen('youtube')">&#9654;&#65039; Copy &amp; Open YouTube</button>
         </div>
@@ -3776,7 +3776,16 @@ async function loadSocialAnalytics() {
     var res = await fetch('/api/youtube/data', { headers: { 'Authorization': 'Bearer ' + password } });
     if (!res.ok) return;
     var data = await res.json();
-    document.getElementById('ytConnectBtn').href = '/api/youtube/connect?password=' + encodeURIComponent(password);
+    // YouTube connect via fetch (no password in URL)
+    document.getElementById('ytConnectBtn').onclick = function(e) {
+      e.preventDefault();
+      fetch('/api/youtube/connect', { headers: { 'Authorization': 'Bearer ' + password }, redirect: 'manual' })
+        .then(function(r) {
+          var loc = r.headers.get('location');
+          if (loc) { window.location.href = loc; }
+          else { fetch('/api/youtube/connect', { headers: { 'Authorization': 'Bearer ' + password } }).then(function(r2) { if (r2.redirected) window.location.href = r2.url; }); }
+        });
+    };
     if (!data.connected) return;
     var card = document.getElementById('ytCard');
     card.classList.add('connected');
@@ -5396,7 +5405,15 @@ function leadTimeAgo(ts) {
 }
 
 function exportLeads() {
-  window.open('/api/leads?export=csv&_auth=' + encodeURIComponent(password), '_blank');
+  fetch('/api/leads?export=csv', { headers: { 'Authorization': 'Bearer ' + password } })
+    .then(function(r) { if (!r.ok) throw new Error('Export failed'); return r.blob(); })
+    .then(function(blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'leads.csv'; a.click();
+      URL.revokeObjectURL(url);
+    })
+    .catch(function() { alert('Could not export leads.'); });
 }
 
 /* ── Instagram connection check ── */

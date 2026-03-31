@@ -5063,61 +5063,7 @@ function getFullCaption() {
 }
 
 function postToInstagram() {
-  var btn = document.getElementById('cpPostIg');
-  var status = document.getElementById('cpPostStatus');
-
-  if (!createPostImage) {
-    status.className = 'cp-post-status error';
-    status.textContent = 'No image to post';
-    status.style.display = 'block';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.innerHTML = '<span>&#128247;</span> Uploading...';
-  status.className = 'cp-post-status loading';
-  status.textContent = 'Uploading image...';
-  status.style.display = 'block';
-
-  // Step 1: Upload image to get a public URL
-  fetch('/api/upload-image', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + password },
-    body: JSON.stringify({ image: createPostImage }),
-  })
-  .then(function(res) { return res.json(); })
-  .then(function(data) {
-    if (!data.ok) throw new Error(data.error || 'Upload failed');
-
-    status.textContent = 'Publishing to Instagram...';
-
-    // Step 2: Publish to Instagram
-    var caption = getFullCaption();
-    return fetch('/api/ig-publish', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + password },
-      body: JSON.stringify({ imageUrl: data.url, caption: caption }),
-    });
-  })
-  .then(function(res) { return res.json(); })
-  .then(function(data) {
-    if (data.error) throw new Error(data.details || data.error);
-
-    status.className = 'cp-post-status success';
-    status.textContent = 'Posted to Instagram!';
-    btn.innerHTML = '<span>&#10003;</span> Posted!';
-    setTimeout(function() {
-      btn.disabled = false;
-      btn.innerHTML = '<span>&#128247;</span> Post to Instagram';
-    }, 5000);
-  })
-  .catch(function(err) {
-    console.error('Instagram post error:', err);
-    status.className = 'cp-post-status error';
-    status.textContent = err.message || 'Failed to post to Instagram';
-    btn.disabled = false;
-    btn.innerHTML = '<span>&#128247;</span> Post to Instagram';
-  });
+  copyAndOpen('instagram');
 }
 
 function copyAndOpen(platform) {
@@ -5129,6 +5075,7 @@ function copyAndOpen(platform) {
     status.style.display = 'block';
 
     var urls = {
+      instagram: 'https://www.instagram.com/',
       tiktok: 'https://www.tiktok.com/upload',
       youtube: 'https://studio.youtube.com/channel/upload',
     };

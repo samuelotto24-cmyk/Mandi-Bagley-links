@@ -1749,6 +1749,41 @@ const FONT_MAP = {
 
 /* ── Home View Layout ── */
 .home-greeting { margin-bottom: 24px; }
+
+/* ── Community Stats Banner ── */
+.community-banner {
+  display: flex; align-items: center; justify-content: center; gap: 24px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 16px 28px; margin-bottom: 20px;
+}
+.community-stat { text-align: center; }
+.community-stat-value {
+  font-family: var(--serif); font-size: 32px; font-weight: 400; color: var(--text);
+  line-height: 1.1;
+}
+.community-stat-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-muted); margin-top: 4px; font-weight: 500;
+}
+.community-divider {
+  width: 1px; height: 36px; background: var(--border); flex-shrink: 0;
+}
+.community-platforms {
+  display: flex; gap: 10px; align-items: center;
+}
+.community-platform-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; color: var(--text-muted); padding: 4px 10px;
+  background: var(--surface-elevated); border-radius: 50px;
+  border: 1px solid var(--border);
+}
+.community-platform-chip .cp-count { color: var(--text); font-weight: 600; }
+
+@media (max-width: 768px) {
+  .community-banner { padding: 12px 16px; gap: 16px; flex-wrap: wrap; }
+  .community-stat-value { font-size: 24px; }
+  .community-platforms { display: none; }
+}
 .home-greeting h1 { font-family: var(--serif); font-size: 28px; font-weight: 300; color: var(--text); margin-bottom: 4px; }
 .home-greeting .home-subtitle { font-size: 13px; color: var(--text-muted); }
 .home-greeting .home-subtitle strong { color: var(--text); font-weight: 500; }
@@ -2259,6 +2294,21 @@ const FONT_MAP = {
   <div class="home-greeting">
     <h1 id="greetingH1">Good morning</h1>
     <div class="home-subtitle" id="homeSubtitle">Loading your hub...</div>
+  </div>
+
+  <!-- Community Stats Banner -->
+  <div class="community-banner" id="communityBanner" style="display:none;">
+    <div class="community-stat">
+      <div class="community-stat-value" id="communityFollowers">—</div>
+      <div class="community-stat-label">Total Followers</div>
+    </div>
+    <div class="community-divider"></div>
+    <div class="community-stat">
+      <div class="community-stat-value" id="communityLikes">—</div>
+      <div class="community-stat-label">Total Likes</div>
+    </div>
+    <div class="community-divider"></div>
+    <div class="community-platforms" id="communityPlatforms"></div>
   </div>
 
   <div class="home-grid">
@@ -3051,6 +3101,44 @@ function renderHomeSubtitle() {
   el.innerHTML = parts.length ? parts.join(' \u00b7 ') : 'Welcome back';
 }
 
+function renderCommunityBanner() {
+  var banner = document.getElementById('communityBanner');
+  if (!banner) return;
+
+  var igF = window._igFollowers || 0;
+  var igLikes = window._igAvgLikes || 0;
+  var igPosts = window._igPosts || 0;
+  var ttF = 0, ttLikes = 0;
+  var ytF = 0;
+
+  // TikTok from scoreboardData
+  var d = scoreboardData;
+  if (d && d.followers && typeof d.followers === 'object') {
+    ttF = d.followers.tiktok || 0;
+    ytF = d.followers.youtube || 0;
+  }
+  if (window._ttTotalLikes) ttLikes = window._ttTotalLikes;
+
+  var totalFollowers = igF + ttF + ytF;
+  var totalLikes = (igLikes * igPosts) + ttLikes; // IG avg * posts + TT total likes
+
+  if (totalFollowers === 0) { banner.style.display = 'none'; return; }
+
+  banner.style.display = 'flex';
+  document.getElementById('communityFollowers').textContent = formatNum(totalFollowers);
+  document.getElementById('communityLikes').textContent = totalLikes > 0 ? formatNum(totalLikes) : '—';
+
+  // Platform breakdown chips
+  var platforms = document.getElementById('communityPlatforms');
+  if (platforms) {
+    var chips = [];
+    if (igF > 0) chips.push('<span class="community-platform-chip">📷 <span class="cp-count">' + formatNum(igF) + '</span></span>');
+    if (ttF > 0) chips.push('<span class="community-platform-chip">🎵 <span class="cp-count">' + formatNum(ttF) + '</span></span>');
+    if (ytF > 0) chips.push('<span class="community-platform-chip">▶️ <span class="cp-count">' + formatNum(ytF) + '</span></span>');
+    platforms.innerHTML = chips.join('');
+  }
+}
+
 /* ── Render Growth Scoreboard ── */
 function renderScoreboard() {
   var grid = document.getElementById('statsGrid');
@@ -3098,6 +3186,7 @@ function renderScoreboard() {
     }
   });
   renderHomeStats();
+  renderCommunityBanner();
 }
 
 /* ── Legacy renderStats — redirects to scoreboard ── */
@@ -5384,7 +5473,10 @@ function loadInstagramData() {
       // Update scoreboard with Instagram data
       window._igFollowers = data.followers || 0;
       window._igEngagement = data.engagementRate || null;
+      window._igAvgLikes = data.avgLikes || 0;
+      window._igPosts = data.posts || 0;
       if (typeof renderHomeStats === 'function') renderHomeStats();
+      if (typeof renderCommunityBanner === 'function') renderCommunityBanner();
     }
   })
   .catch(function(e) { console.error('Instagram load failed:', e); });

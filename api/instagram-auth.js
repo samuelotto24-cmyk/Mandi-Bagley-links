@@ -13,7 +13,7 @@ export default async function handler(req) {
     client_id: APP_ID,
     redirect_uri: `${origin}/api/instagram-callback`,
     response_type: 'code',
-    scope: 'instagram_business_basic,instagram_business_manage_messages',
+    scope: 'instagram_business_basic,instagram_business_manage_messages,instagram_manage_comments',
     state,
   });
 

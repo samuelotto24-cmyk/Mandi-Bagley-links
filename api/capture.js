@@ -5,7 +5,9 @@ const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 const PREFIX      = process.env.REDIS_PREFIX || 'stats:';
 const CLIENT_NAME = process.env.CLIENT_NAME || 'Mandi Bagley';
 const FROM_EMAIL  = process.env.CONTACT_FROM_EMAIL || 'hub@mandibagley.com';
-const RESEND_KEY  = process.env.RESEND_API_KEY;
+const RESEND_KEY      = process.env.RESEND_API_KEY;
+const BEEHIIV_API_KEY = process.env.BEEHIIV_API_KEY;
+const BEEHIIV_PUB_ID  = process.env.BEEHIIV_PUB_ID || 'pub_13341f5c-e6d3-411a-b7cc-e8d2916cebd5';
 
 async function redisGet(key) {
   const res = await fetch(`${REDIS_URL}/get/${encodeURIComponent(key)}`, {
@@ -240,6 +242,7 @@ function renderCapturePage(automation, leadCount) {
         <button type="submit" id="submitBtn">Send it to me</button>
         <div id="errorMsg" class="error-msg"></div>
       </form>
+      <p style="font-size:11px;color:#555;margin-top:8px;">You'll also get weekly tips &amp; updates. Unsubscribe anytime.</p>
       ${socialProof ? `<p class="social-proof">${socialProof}</p>` : ''}
     </div>
 
@@ -423,6 +426,24 @@ export default async function handler(req) {
             html: emailHtml,
           }),
         });
+      }
+
+      // Auto-subscribe to Beehiiv newsletter
+      if (BEEHIIV_API_KEY && BEEHIIV_PUB_ID) {
+        fetch(`https://api.beehiiv.com/v2/publications/${BEEHIIV_PUB_ID}/subscriptions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${BEEHIIV_API_KEY}`,
+          },
+          body: JSON.stringify({
+            email,
+            reactivate_existing: true,
+            send_welcome_email: false,
+            utm_source: 'capture_page',
+            utm_medium: slug,
+          }),
+        }).catch(() => {});
       }
 
       return json({ ok: true });

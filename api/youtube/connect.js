@@ -2,12 +2,21 @@ export const config = { runtime: 'edge' };
 
 const YOUTUBE_CLIENT_ID = process.env.YOUTUBE_CLIENT_ID;
 const PASSWORD = process.env.DASHBOARD_PASSWORD || 'Password2024';
+const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
+const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+async function redisSet(key, value, exSec) {
+  await fetch(`${REDIS_URL}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${REDIS_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(['SET', key, value, 'EX', exSec]),
+  });
+}
 
 export default async function handler(req) {
   const url = new URL(req.url);
-  // Accept either Authorization header (fetch) or query param (browser redirect)
   const authHeader = req.headers.get('authorization');
-  const pw = (authHeader && authHeader.startsWith('Bearer ')) ? authHeader.slice(7) : url.searchParams.get('password');
+  const pw = (authHeader && authHeader.startsWith('Bearer ')) ? authHeader.slice(7) : null;
 
   if (pw !== PASSWORD) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -21,9 +30,15 @@ export default async function handler(req) {
     });
   }
 
+  // Generate a random nonce instead of embedding password in state
+  const nonce = crypto.randomUUID();
   const origin = url.origin;
   const redirectUri = origin + '/api/youtube/callback';
-  const state = encodeURIComponent(JSON.stringify({ password: pw, origin: origin }));
+
+  // Store nonce in Redis with 10 min TTL
+  await redisSet('oauth:yt:' + nonce, JSON.stringify({ origin }), 600);
+
+  const state = encodeURIComponent(JSON.stringify({ nonce, origin }));
 
   const scopes = [
     'https://www.googleapis.com/auth/youtube.readonly',

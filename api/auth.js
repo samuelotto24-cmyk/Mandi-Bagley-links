@@ -4,9 +4,9 @@ const PASSWORD    = process.env.DASHBOARD_PASSWORD || 'Password2024';
 const REDIS_URL   = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-const MAX_ATTEMPTS = 5;      // max failures per window
-const WINDOW_SEC   = 300;    // 5-minute window
-const LOCKOUT_SEC  = 900;    // 15-minute lockout after max failures
+const MAX_ATTEMPTS = 3;      // max failures per window
+const WINDOW_SEC   = 600;    // 10-minute window
+const LOCKOUT_SEC  = 3600;   // 1-hour lockout after max failures
 
 async function redisCmd(commands) {
   const res = await fetch(`${REDIS_URL}/pipeline`, {
@@ -43,8 +43,11 @@ export default async function handler(req) {
         });
       }
     } catch (e) {
-      // Redis error — don't block login, just skip rate limiting
       console.error('Rate limit check failed:', e);
+      // Redis error — block login to be safe
+      return new Response(JSON.stringify({ error: 'Service temporarily unavailable. Try again shortly.' }), {
+        status: 503, headers: { 'Content-Type': 'application/json' },
+      });
     }
   }
 

@@ -56,12 +56,11 @@ function friendlyName(raw) {
 }
 
 export default async function handler(req) {
-  // Verify cron secret or password
-  const url = new URL(req.url);
-  const cronSecret = req.headers.get('authorization');
-  const pw = url.searchParams.get('password');
-  const validCron = cronSecret === `Bearer ${process.env.CRON_SECRET}`;
-  const validPw = pw === PASSWORD;
+  // Verify cron secret or password via header
+  const authHeader = req.headers.get('authorization');
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  const validCron = token === process.env.CRON_SECRET;
+  const validPw = token === PASSWORD;
 
   if (!validCron && !validPw) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {

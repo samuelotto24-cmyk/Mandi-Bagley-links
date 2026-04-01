@@ -809,7 +809,7 @@
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     try {
-      const res = await fetch('/api/stats?password=' + encodeURIComponent(pw));
+      const res = await fetch('/api/stats', { headers: { 'Authorization': 'Bearer ' + pw } });
       if (res.status === 401) {
         document.getElementById('loginScreen').style.display = 'flex';
         document.getElementById('dashboard').style.display = 'none';
@@ -1688,7 +1688,7 @@
     var pw = sessionStorage.getItem('dash_pw');
     if (!pw) return;
     try {
-      var res = await fetch('/api/referral?password=' + encodeURIComponent(pw));
+      var res = await fetch('/api/referral', { headers: { 'Authorization': 'Bearer ' + pw } });
       if (!res.ok) return;
       var data = await res.json();
       referralData = data;
@@ -1713,9 +1713,9 @@
     var btns = document.querySelectorAll('.referral-mgmt-btn');
     btns.forEach(function(b) { b.disabled = true; });
     try {
-      var res = await fetch('/api/referral?password=' + encodeURIComponent(pw), {
+      var res = await fetch('/api/referral', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + pw },
         body: JSON.stringify({ count: newCount, freeMonths: newFreeMonths }),
       });
       if (res.ok) {

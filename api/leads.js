@@ -36,9 +36,6 @@ function parseHashNumbers(item) {
 }
 
 function authorize(req) {
-  const url = new URL(req.url);
-  const queryAuth = url.searchParams.get('_auth');
-  if (queryAuth === PASSWORD) return true;
   const header = req.headers.get('Authorization') || '';
   if (header === `Bearer ${PASSWORD}`) return true;
   return false;
@@ -69,7 +66,7 @@ export default async function handler(req) {
     }
     if (isCSV) {
       for (const auto of automations) {
-        commands.push(['HGETALL', `${PREFIX}emails:${auto.slug}`]);
+        commands.push(['HGETALL', `${PREFIX}emails:${auto.captureSlug}`]);
       }
     }
 

@@ -38,6 +38,17 @@ export default async function handler(req) {
     return new Response('Invalid state', { status: 400 });
   }
 
+  // Validate nonce from Redis (set during /api/youtube/connect)
+  if (state.nonce) {
+    const nonceKey = 'oauth:yt:' + state.nonce;
+    const nonceRes = await redis([['GET', nonceKey], ['DEL', nonceKey]]);
+    if (!nonceRes[0]?.result) {
+      return new Response('<html><body><h2>Invalid or expired link.</h2><p><a href="/hub">Try again</a></p></body></html>', {
+        headers: { 'Content-Type': 'text/html' },
+      });
+    }
+  }
+
   const origin = state.origin || url.origin;
   const redirectUri = origin + '/api/youtube/callback';
 

@@ -2243,6 +2243,98 @@ const FONT_MAP = {
   background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
   margin: 24px 0;
 }
+
+/* ── Notification Dots ── */
+.sidebar-nav-item .notif-dot {
+  position: absolute; top: 2px; right: 2px;
+  min-width: 16px; height: 16px; padding: 0 4px;
+  background: #f87171; color: #fff;
+  font-size: 9px; font-weight: 700; font-family: var(--sans);
+  border-radius: 50px; display: none;
+  align-items: center; justify-content: center;
+  border: 2px solid var(--bg);
+  line-height: 1;
+}
+.sidebar-nav-item .notif-dot.visible { display: flex; }
+
+@media (max-width: 768px) {
+  .sidebar-nav-item .notif-dot { top: -2px; right: -2px; }
+}
+
+/* ── Enhanced Loading States ── */
+.loading-pulse {
+  animation: loadPulse 1.5s ease-in-out infinite;
+}
+@keyframes loadPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+.skeleton-card {
+  background: var(--surface-elevated);
+  border-radius: 10px;
+  height: 120px;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* ── Onboarding Modal ── */
+.onboarding-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.onboarding-overlay.active { opacity: 1; pointer-events: auto; }
+
+.onboarding-modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 36px; width: 420px; max-width: 90vw;
+  text-align: center;
+}
+.onboarding-modal h2 {
+  font-family: var(--serif); font-size: 26px; font-weight: 300;
+  color: var(--text); margin-bottom: 8px;
+}
+.onboarding-modal .onboarding-subtitle {
+  font-size: 14px; color: var(--text-muted); margin-bottom: 28px; line-height: 1.5;
+}
+.onboarding-steps {
+  display: flex; flex-direction: column; gap: 12px; text-align: left; margin-bottom: 28px;
+}
+.onboarding-step {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-radius: 10px;
+  background: var(--surface-elevated); border: 1px solid var(--border);
+  transition: border-color 0.2s; cursor: pointer;
+}
+.onboarding-step:hover { border-color: var(--accent-border); }
+.onboarding-step.completed { border-color: rgba(34,197,94,0.3); }
+.onboarding-step .step-icon { font-size: 20px; width: 32px; text-align: center; }
+.onboarding-step .step-text { flex: 1; }
+.onboarding-step .step-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.onboarding-step .step-desc { font-size: 11px; color: var(--text-muted); }
+.onboarding-step .step-check {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--border); display: flex;
+  align-items: center; justify-content: center;
+  font-size: 11px; color: transparent;
+}
+.onboarding-step.completed .step-check {
+  background: #22c55e; border-color: #22c55e; color: #fff;
+}
+
+.onboarding-skip {
+  font-family: var(--sans); font-size: 12px; color: var(--text-muted);
+  background: none; border: none; cursor: pointer; padding: 8px 16px;
+  transition: color 0.2s;
+}
+.onboarding-skip:hover { color: var(--text); }
+.onboarding-start {
+  font-family: var(--sans); font-size: 14px; font-weight: 600;
+  background: var(--accent); color: #fff; border: none;
+  border-radius: 10px; padding: 12px 32px; cursor: pointer;
+  transition: opacity 0.2s; margin-right: 12px;
+}
+.onboarding-start:hover { opacity: 0.9; }
 </style>
 </head>
 
@@ -2278,13 +2370,13 @@ const FONT_MAP = {
 
 <nav class="hub-sidebar">
   <div class="sidebar-logo" id="sidebarLogo">M</div>
-  <button class="sidebar-nav-item active" data-view="home" onclick="switchView('home')" title="Home">&#9997;&#65039;</button>
+  <button class="sidebar-nav-item active" data-view="home" onclick="switchView('home')" title="Home">&#9997;&#65039;<span class="notif-dot" id="notifHome"></span></button>
   <div class="sidebar-label">Home</div>
-  <button class="sidebar-nav-item" data-view="analytics" onclick="switchView('analytics')" title="Analytics">&#128202;</button>
+  <button class="sidebar-nav-item" data-view="analytics" onclick="switchView('analytics')" title="Analytics">&#128202;<span class="notif-dot" id="notifAnalytics"></span></button>
   <div class="sidebar-label">Analytics</div>
   <button class="sidebar-nav-item" data-view="planner" onclick="switchView('planner')" title="Planner">&#128197;</button>
   <div class="sidebar-label">Planner</div>
-  <button class="sidebar-nav-item" data-view="strategist" onclick="switchView('strategist')" title="Strategist">&#129302;</button>
+  <button class="sidebar-nav-item" data-view="strategist" onclick="switchView('strategist')" title="Strategist">&#129302;<span class="notif-dot" id="notifStrategist"></span></button>
   <div class="sidebar-label">Strategist</div>
   <div class="sidebar-spacer"></div>
   <a class="sidebar-nav-item" id="navSite" href="#" target="_blank" title="View My Site">🌐</a>
@@ -2299,7 +2391,7 @@ const FONT_MAP = {
 
   <div class="home-greeting">
     <h1 id="greetingH1">Good morning</h1>
-    <div class="home-subtitle" id="homeSubtitle">Loading your hub...</div>
+    <div class="home-subtitle loading-pulse" id="homeSubtitle">Loading your hub...</div>
   </div>
 
   <!-- Community Stats Banner -->
@@ -2442,6 +2534,7 @@ const FONT_MAP = {
       <div class="platform-card-empty-icon">&#128247;</div>
       <div class="platform-card-empty-title">Connect Instagram</div>
       <div class="platform-card-empty-text">See your follower growth, engagement rate, top posts, and content performance — all in one place.</div>
+      <div class="loading-pulse" style="font-size:12px;color:var(--text-muted);margin-top:8px;">Checking connection...</div>
     </div>
   </div>
 
@@ -2503,6 +2596,7 @@ const FONT_MAP = {
       <div class="platform-card-empty-icon">&#127925;</div>
       <div class="platform-card-empty-title">Connect TikTok</div>
       <div class="platform-card-empty-text">Track your video views, likes, comments, and shares. See which content performs best and when to post.</div>
+      <div class="loading-pulse" style="font-size:12px;color:var(--text-muted);margin-top:8px;">Checking connection...</div>
     </div>
   </div>
 
@@ -2528,6 +2622,7 @@ const FONT_MAP = {
       <div class="platform-card-empty-icon">&#9654;&#65039;</div>
       <div class="platform-card-empty-title">Connect YouTube</div>
       <div class="platform-card-empty-text">Monitor subscriber growth, watch hours, video performance, and audience demographics.</div>
+      <div class="loading-pulse" style="font-size:12px;color:var(--text-muted);margin-top:8px;">Checking connection...</div>
     </div>
   </div>
 
@@ -2545,7 +2640,7 @@ const FONT_MAP = {
     <div class="analytics-section">
       <div class="analytics-section-title">Brand Code Performance</div>
       <div class="home-card" style="padding:20px;">
-        <div id="brandCodes"><div class="empty-state"><p>Code usage will appear here.</p></div></div>
+        <div id="brandCodes"><div class="empty-state"><div class="loading-pulse" style="color:var(--text-muted);font-size:13px;">Loading brand code data...</div></div></div>
       </div>
     </div>
   </div>
@@ -2554,7 +2649,7 @@ const FONT_MAP = {
   <div class="analytics-section">
     <div class="analytics-section-title">Top Links</div>
     <div class="home-card" style="padding:20px;">
-      <div id="topLinks"><div class="empty-state"><p>Link clicks will appear here.</p></div></div>
+      <div id="topLinks"><div class="empty-state"><div class="loading-pulse" style="color:var(--text-muted);font-size:13px;">Loading link data...</div></div></div>
     </div>
   </div>
 
@@ -2694,6 +2789,52 @@ const FONT_MAP = {
 
 <!-- Connect popup removed — replaced with inline banner -->
 
+<!-- Onboarding Modal -->
+<div class="onboarding-overlay" id="onboardingOverlay">
+  <div class="onboarding-modal">
+    <h2>Welcome to your Hub</h2>
+    <div class="onboarding-subtitle">Let's get you set up. Connect your platforms so your hub can start tracking your growth.</div>
+
+    <div class="onboarding-steps">
+      <div class="onboarding-step" id="onboardStep1" onclick="switchView('analytics');dismissOnboarding();">
+        <div class="step-icon">&#128247;</div>
+        <div class="step-text">
+          <div class="step-title">Connect Instagram</div>
+          <div class="step-desc">See followers, engagement, and post performance</div>
+        </div>
+        <div class="step-check">&#10003;</div>
+      </div>
+      <div class="onboarding-step" id="onboardStep2" onclick="switchView('analytics');dismissOnboarding();">
+        <div class="step-icon">&#127925;</div>
+        <div class="step-text">
+          <div class="step-title">Connect TikTok</div>
+          <div class="step-desc">Track video views, likes, and follower growth</div>
+        </div>
+        <div class="step-check">&#10003;</div>
+      </div>
+      <div class="onboarding-step" id="onboardStep3" onclick="switchView('analytics');dismissOnboarding();">
+        <div class="step-icon">&#9654;&#65039;</div>
+        <div class="step-text">
+          <div class="step-title">Connect YouTube</div>
+          <div class="step-desc">Monitor subscribers, watch hours, and video stats</div>
+        </div>
+        <div class="step-check">&#10003;</div>
+      </div>
+      <div class="onboarding-step" id="onboardStep4" onclick="switchView('home');dismissOnboarding();">
+        <div class="step-icon">&#127919;</div>
+        <div class="step-text">
+          <div class="step-title">Set a growth goal</div>
+          <div class="step-desc">Track your progress toward a follower or view milestone</div>
+        </div>
+        <div class="step-check">&#10003;</div>
+      </div>
+    </div>
+
+    <button class="onboarding-start" onclick="dismissOnboarding()">Get Started</button>
+    <button class="onboarding-skip" onclick="dismissOnboarding()">I'll explore on my own</button>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════════════════════════
      JAVASCRIPT
      ═══════════════════════════════════════════════════ -->
@@ -2826,6 +2967,9 @@ function showHub() {
 
   // Show connect reminder if platforms aren't connected and not dismissed
   setTimeout(showConnectReminder, 1200);
+
+  // Check onboarding after platform data has time to load
+  setTimeout(checkOnboarding, 3000);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -2858,7 +3002,76 @@ function switchView(viewName) {
     if (fab) fab.style.display = 'flex';
   }
 
+  // Clear notification dot for this view
+  var dot = document.querySelector('.sidebar-nav-item[data-view="' + viewName + '"] .notif-dot');
+  if (dot) dot.classList.remove('visible');
+
   window.scrollTo(0, 0);
+}
+
+/* ═══════════════════════════════════════════════════
+   NOTIFICATION DOTS
+   ═══════════════════════════════════════════════════ */
+function updateNotifications() {
+  // Home: show dot when new leads arrive
+  var homeEl = document.getElementById('notifHome');
+  if (homeEl && window._newLeadsCount && window._newLeadsCount > 0) {
+    homeEl.textContent = window._newLeadsCount;
+    homeEl.classList.add('visible');
+  }
+
+  // Analytics: show dot when platforms have new data
+  var analyticsEl = document.getElementById('notifAnalytics');
+  if (analyticsEl) {
+    var hasConnected = window._igFollowers > 0 || (scoreboardData && scoreboardData.followers && (scoreboardData.followers.tiktok > 0 || scoreboardData.followers.youtube > 0));
+    if (hasConnected) {
+      analyticsEl.textContent = '\u2022';
+      analyticsEl.classList.add('visible');
+    }
+  }
+
+  // Strategist: show dot when new insight is available
+  var stratEl = document.getElementById('notifStrategist');
+  if (stratEl && window._hasNewInsight) {
+    stratEl.textContent = '!';
+    stratEl.classList.add('visible');
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   ONBOARDING
+   ═══════════════════════════════════════════════════ */
+function checkOnboarding() {
+  if (localStorage.getItem('hub_onboarded')) return;
+
+  // Check platform connection status
+  var hasIg = window._igFollowers > 0;
+  var hasTt = scoreboardData && scoreboardData.followers && scoreboardData.followers.tiktok > 0;
+  var hasYt = scoreboardData && scoreboardData.followers && scoreboardData.followers.youtube > 0;
+  var hasGoal = document.getElementById('homeGoalStrip') && document.getElementById('homeGoalStrip').style.display !== 'none';
+
+  // Mark completed steps
+  if (hasIg && document.getElementById('onboardStep1')) document.getElementById('onboardStep1').classList.add('completed');
+  if (hasTt && document.getElementById('onboardStep2')) document.getElementById('onboardStep2').classList.add('completed');
+  if (hasYt && document.getElementById('onboardStep3')) document.getElementById('onboardStep3').classList.add('completed');
+  if (hasGoal && document.getElementById('onboardStep4')) document.getElementById('onboardStep4').classList.add('completed');
+
+  // If all connected, auto-dismiss
+  var allDone = hasIg && hasTt && hasYt && hasGoal;
+  if (allDone) {
+    localStorage.setItem('hub_onboarded', '1');
+    return;
+  }
+
+  // Show onboarding after a short delay
+  setTimeout(function() {
+    document.getElementById('onboardingOverlay').classList.add('active');
+  }, 1500);
+}
+
+function dismissOnboarding() {
+  document.getElementById('onboardingOverlay').classList.remove('active');
+  localStorage.setItem('hub_onboarded', '1');
 }
 
 /* ═══════════════════════════════════════════════════
@@ -3061,6 +3274,7 @@ function renderHomeBriefing(data) {
   el.innerHTML =
     '<div style="font-size:13.5px;line-height:1.65;color:rgba(255,255,255,0.7);margin-bottom:12px;">' + summary + '</div>' +
     (trendText ? '<div class="briefing-trend-block"><div class="briefing-trend-label">\ud83d\udd25 Trending in ' + CLIENT.nicheLabel.split('\u00b7')[0].trim() + '</div>' + trendText + '</div>' : '');
+  updateNotifications();
 }
 
 function renderHomeTrends(pulseData) {
@@ -3081,6 +3295,7 @@ function renderHomeLeads(leads) {
   el.innerHTML = leads.slice(0, 4).map(function(l) {
     return '<div class="home-lead-item"><div><div class="home-lead-name">' + (l.user || l.name || 'Unknown') + '</div><div class="home-lead-source">via ' + (l.keyword || l.source || 'direct') + '</div></div><div class="home-lead-time">' + leadTimeAgo(l.timestamp || l.ts) + '</div></div>';
   }).join('');
+  updateNotifications();
 }
 
 function renderHomeBrandCodes() {
@@ -3104,6 +3319,7 @@ function renderHomeSubtitle() {
   if (window._newLeadsCount) parts.push('<strong>' + window._newLeadsCount + ' new leads</strong>');
   if (window._topPlatformTrend) parts.push(window._topPlatformTrend);
   if (window._bestPostTime) parts.push('Best time to post: <strong>' + window._bestPostTime + '</strong>');
+  el.classList.remove('loading-pulse');
   el.innerHTML = parts.length ? parts.join(' \u00b7 ') : 'Welcome back';
 }
 
@@ -3193,6 +3409,7 @@ function renderScoreboard() {
   });
   renderHomeStats();
   renderCommunityBanner();
+  updateNotifications();
 }
 
 /* ── Legacy renderStats — redirects to scoreboard ── */

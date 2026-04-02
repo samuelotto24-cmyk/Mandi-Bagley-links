@@ -3864,8 +3864,23 @@ function switchToCreatePost() {
   switchView('home');
   setTimeout(function() {
     var el = document.getElementById('createPostCard');
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 100);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Pulse highlight to show it's active
+    el.style.transition = 'box-shadow 0.3s, border-color 0.3s';
+    el.style.boxShadow = '0 0 30px rgba(124,106,247,0.3)';
+    el.style.borderColor = 'rgba(124,106,247,0.5)';
+    setTimeout(function() {
+      el.style.boxShadow = '';
+      el.style.borderColor = '';
+    }, 1500);
+    // If no image uploaded yet, open file picker
+    var preview = document.getElementById('createPostPreview');
+    if (preview && preview.style.display === 'none') {
+      var fileInput = document.getElementById('createPostFile');
+      if (fileInput) fileInput.click();
+    }
+  }, 150);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -5894,8 +5909,45 @@ function initCreatePost() {
   });
 }
 
+function compressToDataUrl(source, maxDim, startQuality) {
+  var canvas = document.createElement('canvas');
+  var w = source.width, h = source.height;
+  if (w > maxDim || h > maxDim) {
+    if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+    else { w = Math.round(w * maxDim / h); h = maxDim; }
+  }
+  canvas.width = w; canvas.height = h;
+  var ctx = canvas.getContext('2d');
+  ctx.drawImage(source, 0, 0, w, h);
+  var quality = startQuality;
+  var dataUrl = canvas.toDataURL('image/jpeg', quality);
+  while (dataUrl.length > 800000 && quality > 0.15) {
+    quality -= 0.1;
+    dataUrl = canvas.toDataURL('image/jpeg', quality);
+  }
+  if (dataUrl.length > 800000) {
+    w = Math.round(w * 0.5); h = Math.round(h * 0.5);
+    canvas.width = w; canvas.height = h;
+    ctx.drawImage(source, 0, 0, w, h);
+    dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+  }
+  return dataUrl;
+}
+
+function showPostImage(dataUrl) {
+  createPostImage = dataUrl;
+  var preview = document.getElementById('createPostPreview');
+  var dropInner = document.getElementById('createPostDropInner');
+  var clearBtn = document.getElementById('createPostClear');
+  var genBtn = document.getElementById('createPostBtn');
+  if (preview) { preview.src = dataUrl; preview.style.display = 'block'; }
+  if (dropInner) dropInner.style.display = 'none';
+  if (clearBtn) clearBtn.style.display = 'flex';
+  if (genBtn) genBtn.disabled = false;
+}
+
 function handlePostImage(file) {
-  if (!file.type.startsWith('image/')) {
+  if (!file.type.startsWith('image/') && !file.name.match(/\.(heic|heif)$/i)) {
     alert('Please upload an image file.');
     return;
   }
@@ -5903,68 +5955,38 @@ function handlePostImage(file) {
     alert('Image must be under 20MB.');
     return;
   }
-  // Compress image client-side to stay under Vercel's body limit
+
+  // Try createImageBitmap first — handles HEIC on Safari/macOS
+  if (typeof createImageBitmap === 'function') {
+    createImageBitmap(file).then(function(bitmap) {
+      var dataUrl = compressToDataUrl(bitmap, 768, 0.6);
+      bitmap.close();
+      showPostImage(dataUrl);
+    }).catch(function() {
+      // createImageBitmap failed — try Image element fallback
+      handlePostImageFallback(file);
+    });
+  } else {
+    handlePostImageFallback(file);
+  }
+}
+
+function handlePostImageFallback(file) {
   var url = URL.createObjectURL(file);
   var img = new Image();
   img.onload = function() {
     try {
-      var maxDim = 768;
-      var w = img.width, h = img.height;
-      if (w > maxDim || h > maxDim) {
-        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
-        else { w = Math.round(w * maxDim / h); h = maxDim; }
-      }
-      var canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      var ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, w, h);
-      var quality = 0.6;
-      var dataUrl = canvas.toDataURL('image/jpeg', quality);
-      // Target under 800KB base64 to stay well within Vercel's 4.5MB body limit
-      while (dataUrl.length > 800000 && quality > 0.15) {
-        quality -= 0.1;
-        dataUrl = canvas.toDataURL('image/jpeg', quality);
-      }
-      if (dataUrl.length > 800000) {
-        w = Math.round(w * 0.5); h = Math.round(h * 0.5);
-        canvas.width = w; canvas.height = h;
-        ctx.drawImage(img, 0, 0, w, h);
-        dataUrl = canvas.toDataURL('image/jpeg', 0.5);
-      }
+      var dataUrl = compressToDataUrl(img, 768, 0.6);
       URL.revokeObjectURL(url);
-      createPostImage = dataUrl;
-      var preview = document.getElementById('createPostPreview');
-      var dropInner = document.getElementById('createPostDropInner');
-      var clearBtn = document.getElementById('createPostClear');
-      var genBtn = document.getElementById('createPostBtn');
-      if (preview) { preview.src = createPostImage; preview.style.display = 'block'; }
-      if (dropInner) dropInner.style.display = 'none';
-      if (clearBtn) clearBtn.style.display = 'flex';
-      if (genBtn) genBtn.disabled = false;
+      showPostImage(dataUrl);
     } catch (e) {
-      console.error('Image processing error:', e);
       URL.revokeObjectURL(url);
-      // HEIC and other unsupported formats can't be canvas-compressed
-      // Read as base64 but let generatePost's safety net re-compress
-      var reader = new FileReader();
-      reader.onload = function(ev) {
-        createPostImage = ev.target.result;
-        var preview = document.getElementById('createPostPreview');
-        if (preview) { preview.src = createPostImage; preview.style.display = 'block'; }
-        var dropInner = document.getElementById('createPostDropInner');
-        if (dropInner) dropInner.style.display = 'none';
-        var clearBtn = document.getElementById('createPostClear');
-        if (clearBtn) clearBtn.style.display = 'flex';
-        var genBtn = document.getElementById('createPostBtn');
-        if (genBtn) genBtn.disabled = false;
-      };
-      reader.readAsDataURL(file);
+      alert('Could not process this image. Try saving it as JPG first.');
     }
   };
-  img.onerror = function(e) {
+  img.onerror = function() {
     URL.revokeObjectURL(url);
-    console.error('Image load error:', e, 'File type:', file.type, 'Size:', file.size);
-    alert('This image format is not supported. Please save it as JPG or PNG first.');
+    alert('This image format is not supported. Try saving it as JPG or PNG first.');
   };
   img.src = url;
 }

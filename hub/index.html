@@ -3484,6 +3484,19 @@ a.hub-nav-icon { text-decoration: none; }
         <div id="welcomeDMSection"></div>
       </div>
     </div>
+
+    <div class="home-bottom-row" style="margin-top:12px;">
+      <div class="home-card" style="grid-column: 1 / -1;">
+        <div class="home-card-label" style="display:flex;justify-content:space-between;align-items:center;">
+          &#128197; Scheduled Posts
+          <div style="display:flex;gap:6px;">
+            <button onclick="showScheduledTab('upcoming')" id="schedTabUpcoming" style="font-size:11px;padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:var(--accent-pale);color:var(--text);cursor:pointer;font-family:var(--sans);">Upcoming</button>
+            <button onclick="showScheduledTab('posted')" id="schedTabPosted" style="font-size:11px;padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;font-family:var(--sans);">Posted</button>
+          </div>
+        </div>
+        <div id="scheduledPostsList"></div>
+      </div>
+    </div>
   </div>
 </div><!-- end viewHome -->
 
@@ -7316,12 +7329,120 @@ function loadInstagramData() {
   }
 })();
 
+/* ── SCHEDULED POSTS ── */
+var scheduledPostsData = [];
+var scheduledPostsTab = 'upcoming';
+
+function loadScheduledPosts() {
+  fetch('/api/schedule-post', { headers: { 'Authorization': 'Bearer ' + password } })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      scheduledPostsData = data.posts || [];
+      renderScheduledPosts();
+      renderPlannerPosts();
+    })
+    .catch(function() {});
+}
+
+function showScheduledTab(tab) {
+  scheduledPostsTab = tab;
+  document.getElementById('schedTabUpcoming').style.background = tab === 'upcoming' ? 'var(--accent-pale)' : 'transparent';
+  document.getElementById('schedTabUpcoming').style.color = tab === 'upcoming' ? 'var(--text)' : 'var(--text-muted)';
+  document.getElementById('schedTabPosted').style.background = tab === 'posted' ? 'var(--accent-pale)' : 'transparent';
+  document.getElementById('schedTabPosted').style.color = tab === 'posted' ? 'var(--text)' : 'var(--text-muted)';
+  renderScheduledPosts();
+}
+
+function renderScheduledPosts() {
+  var el = document.getElementById('scheduledPostsList');
+  if (!el) return;
+  var filtered = scheduledPostsData.filter(function(p) {
+    if (scheduledPostsTab === 'upcoming') return p.status === 'scheduled' || p.status === 'failed';
+    return p.status === 'posted';
+  });
+  if (scheduledPostsTab === 'upcoming') {
+    filtered.sort(function(a, b) { return new Date(a.scheduledAt) - new Date(b.scheduledAt); });
+  } else {
+    filtered.sort(function(a, b) { return new Date(b.publishedAt || b.scheduledAt) - new Date(a.publishedAt || a.scheduledAt); });
+  }
+  if (!filtered.length) {
+    el.innerHTML = '<div class="automation-empty">' + (scheduledPostsTab === 'upcoming' ? 'No upcoming posts' : 'No posted content yet') + '</div>';
+    return;
+  }
+  el.innerHTML = filtered.map(function(p) {
+    var dot = p.status === 'scheduled' ? '\uD83D\uDD35' : p.status === 'posted' ? '\uD83D\uDFE2' : p.status === 'failed' ? '\uD83D\uDD34' : '\u26AA';
+    var time = p.status === 'posted'
+      ? new Date(p.publishedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+      : new Date(p.scheduledAt).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    var thumb = p.images && p.images[0] ? '<img src="' + p.images[0] + '" style="width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid var(--border);flex-shrink:0;">' : '';
+    var badge = p.images && p.images.length > 1 ? ' <span style="font-size:10px;color:var(--text-muted);">' + p.images.length + ' photos</span>' : '';
+    var actions = '';
+    if (p.status === 'scheduled') {
+      actions = '<button onclick="cancelScheduledPost(\'' + p.id + '\')" style="font-size:10px;padding:3px 8px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--text-muted);cursor:pointer;">Cancel</button>';
+    }
+    if (p.status === 'failed') {
+      actions = '<button onclick="retryScheduledPost(\'' + p.id + '\')" style="font-size:10px;padding:3px 8px;border-radius:5px;border:1px solid #f87171;background:rgba(248,113,113,0.1);color:#f87171;cursor:pointer;">Retry</button>';
+    }
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">' +
+      thumb +
+      '<div style="flex:1;min-width:0;">' +
+        '<div style="font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + p.caption.substring(0, 60) + '</div>' +
+        '<div style="font-size:11px;color:var(--text-muted);display:flex;gap:8px;align-items:center;">' + dot + ' ' + time + badge + '</div>' +
+        (p.error ? '<div style="font-size:10px;color:#f87171;margin-top:2px;">' + p.error + '</div>' : '') +
+      '</div>' + actions + '</div>';
+  }).join('');
+}
+
+function cancelScheduledPost(id) {
+  fetch('/api/schedule-post', {
+    method: 'PUT',
+    headers: { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: id, status: 'cancelled' }),
+  }).then(function() { loadScheduledPosts(); });
+}
+
+function retryScheduledPost(id) {
+  fetch('/api/schedule-post', {
+    method: 'PUT',
+    headers: { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: id, retry: true }),
+  }).then(function() { loadScheduledPosts(); });
+}
+
+function renderPlannerPosts() {
+  var calDays = document.querySelectorAll('.cal-day');
+  if (!calDays.length) return;
+  calDays.forEach(function(day) {
+    var existing = day.querySelectorAll('.cal-scheduled-post');
+    existing.forEach(function(el) { el.remove(); });
+  });
+  scheduledPostsData.filter(function(p) {
+    return p.status === 'scheduled' || p.status === 'posted';
+  }).forEach(function(post) {
+    var postDate = new Date(post.scheduledAt);
+    var dateStr = postDate.toISOString().split('T')[0];
+    calDays.forEach(function(day) {
+      if (day.dataset.date === dateStr) {
+        var color = post.status === 'posted' ? '#22c55e' : post.status === 'failed' ? '#f87171' : '#3b82f6';
+        var time = postDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        var badge = document.createElement('div');
+        badge.className = 'cal-scheduled-post';
+        badge.style.cssText = 'font-size:10px;padding:3px 6px;background:' + color + '20;border:1px solid ' + color + '40;border-radius:5px;margin-top:4px;color:' + color + ';cursor:pointer;';
+        badge.textContent = '\uD83D\uDCF7 ' + time;
+        badge.title = post.caption.substring(0, 60);
+        day.appendChild(badge);
+      }
+    });
+  });
+}
+
 /* Load automations + leads + instagram after hub is shown */
 var _origShowHub = showHub;
 showHub = function() {
   _origShowHub();
   loadAutomations();
   loadLeads();
+  loadScheduledPosts();
   setTimeout(function() { loadInstagramData(); }, 500);
 };
 

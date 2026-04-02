@@ -14,6 +14,7 @@
 <link rel="manifest" href="/hub/manifest.json">
 <link rel="apple-touch-icon" href="/hub/icon-192.png">
 <link rel="icon" type="image/svg+xml" href="/hub/icon-192.svg">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
 <!-- ═══════════════════════════════════════════════════
      CLIENT CONFIG + THEME ENGINE  (runs before paint)
@@ -156,6 +157,32 @@ const FONT_MAP = {
     --serif: var(--display-font);
     --r-md: 16px;
     --r-pill: 999px;
+
+    /* ── Hub Redesign Design System ── */
+    --hub-bg: #090907;
+    --hub-surface: #0E0D0B;
+    --hub-surface-2: #141210;
+    --hub-border: rgba(255,248,220,0.09);
+    --hub-border-mid: rgba(255,248,220,0.16);
+    --hub-text-primary: #EBE7DF;
+    --hub-text-muted: rgba(235,231,223,0.45);
+    --hub-text-faint: rgba(235,231,223,0.25);
+
+    --emerald: #10B981;
+    --emerald-bg: rgba(16,185,129,0.08);
+    --emerald-border: rgba(16,185,129,0.2);
+    --purple: #7C6AF7;
+    --purple-bg: rgba(124,106,247,0.08);
+    --purple-border: rgba(124,106,247,0.2);
+    --blue: #4F8EF7;
+    --blue-bg: rgba(79,142,247,0.08);
+    --blue-border: rgba(79,142,247,0.2);
+    --gold: #F59E0B;
+    --gold-bg: rgba(245,158,11,0.08);
+    --gold-border: rgba(245,158,11,0.2);
+    --rose: #F472B6;
+    --rose-bg: rgba(244,114,182,0.08);
+    --rose-border: rgba(244,114,182,0.2);
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: var(--sans); color: var(--text); line-height: 1.65; font-size: 15px; min-height: 100vh; background: var(--bg); overflow-x: hidden; }
@@ -2335,6 +2362,676 @@ const FONT_MAP = {
   transition: opacity 0.2s; margin-right: 12px;
 }
 .onboarding-start:hover { opacity: 0.9; }
+
+/* ══════════════════════════════════════════════════════
+   HUB REDESIGN — NEW DESIGN SYSTEM
+   ══════════════════════════════════════════════════════ */
+
+/* ── Top Navigation Bar ── */
+.hub-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: 60px; background: var(--hub-surface);
+  border-bottom: 1px solid var(--hub-border);
+  position: sticky; top: 0; z-index: 100; gap: 24px;
+}
+.hub-nav-brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.hub-nav-name { font-size: 14px; font-weight: 600; color: var(--hub-text-primary); letter-spacing: -0.01em; }
+.hub-nav-tabs { display: flex; align-items: center; gap: 4px; }
+.hub-tab {
+  display: flex; align-items: center; gap: 7px; padding: 7px 14px;
+  border-radius: 8px; border: 1px solid transparent; background: transparent;
+  color: var(--hub-text-muted); font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.18s;
+}
+.hub-tab:hover { background: rgba(255,248,220,0.04); color: var(--hub-text-primary); }
+.hub-tab.active { border: 1px solid transparent; }
+.hub-tab[data-tab="home"].active { color: #10B981; background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.2); }
+.hub-tab[data-tab="analytics"].active { color: #4F8EF7; background: rgba(79,142,247,0.08); border-color: rgba(79,142,247,0.2); }
+.hub-tab[data-tab="planner"].active { color: #F59E0B; background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2); }
+.hub-tab[data-tab="strategist"].active { color: #7C6AF7; background: rgba(124,106,247,0.08); border-color: rgba(124,106,247,0.2); }
+.hub-tab svg { opacity: 0.7; }
+.hub-tab.active svg { opacity: 1; }
+.hub-nav-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.hub-create-btn {
+  display: flex; align-items: center; gap: 6px; padding: 7px 16px;
+  background: #10B981; color: #090907; border: none; border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.hub-create-btn:hover { opacity: 0.88; }
+.hub-nav-icon {
+  width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--hub-border);
+  background: transparent; cursor: pointer; font-size: 15px;
+  display: flex; align-items: center; justify-content: center; transition: background 0.15s;
+}
+.hub-nav-icon:hover { background: var(--hub-surface-2); }
+
+/* ── Stats Strip ── */
+.stats-strip {
+  display: flex; align-items: center; padding: 12px 24px;
+  background: var(--hub-surface); border-bottom: 1px solid var(--hub-border); gap: 0;
+}
+.stat-pill { display: flex; flex-direction: column; align-items: center; padding: 0 28px; }
+.stat-pill-value {
+  font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600;
+  color: var(--hub-text-primary); line-height: 1;
+}
+.stat-pill-label {
+  font-size: 10px; color: var(--hub-text-faint); letter-spacing: 0.08em;
+  text-transform: uppercase; margin-top: 3px;
+}
+.stat-pill-divider { width: 1px; height: 32px; background: var(--hub-border); }
+
+/* ── Home Hero Grid ── */
+.home-hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px 24px; }
+.briefing-card-new {
+  background: var(--gold-bg); border: 1px solid var(--gold-border);
+  border-radius: 14px; padding: 22px; display: flex; flex-direction: column;
+  gap: 14px; min-height: 260px; position: relative; overflow: hidden;
+}
+.briefing-card-new::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: var(--gold); border-radius: 14px 14px 0 0;
+}
+.briefing-card-new .briefing-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.briefing-card-new .briefing-content-new {
+  font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 400;
+  color: var(--hub-text-primary); line-height: 1.6; font-style: italic; flex: 1;
+}
+.briefing-card-new .briefing-footer {
+  border-top: 1px solid var(--gold-border); padding-top: 10px;
+}
+.briefing-card-new .refresh-btn {
+  background: none; border: 1px solid var(--gold-border); border-radius: 8px;
+  width: 28px; height: 28px; cursor: pointer; color: var(--gold); font-size: 14px;
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+}
+.briefing-card-new .refresh-btn:hover { background: var(--gold-bg); }
+
+.create-post-card-new {
+  background: var(--purple-bg); border: 1px solid var(--purple-border);
+  border-radius: 14px; padding: 22px; display: flex; flex-direction: column;
+  gap: 14px; min-height: 260px; position: relative; overflow: hidden;
+}
+.create-post-card-new::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: var(--purple); border-radius: 14px 14px 0 0;
+}
+.create-post-card-new .create-post-header {
+  display: flex; align-items: center; gap: 10px;
+}
+
+/* ── Home Support Grid ── */
+.home-support-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; padding: 0 24px 24px; }
+.support-card {
+  background: var(--hub-surface); border: 1px solid var(--hub-border);
+  border-radius: 12px; padding: 18px; position: relative; overflow: hidden;
+}
+.support-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: var(--card-color, #10B981); border-radius: 12px 12px 0 0;
+}
+.support-card-header { margin-bottom: 14px; }
+
+/* ── Tab Headers ── */
+.tab-header {
+  padding: 20px 24px 16px; border-bottom: 1px solid var(--hub-border);
+  display: flex; align-items: baseline; gap: 12px;
+}
+.tab-header-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+}
+.tab-header-sub { font-size: 13px; color: var(--hub-text-faint); }
+
+/* ── Analytics Platform Color Coding ── */
+.platform-card.instagram.hub-redesign {
+  border-color: var(--rose-border); background: var(--rose-bg);
+  position: relative; overflow: hidden;
+}
+.platform-card.instagram.hub-redesign::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #F472B6; z-index: 1;
+}
+.platform-card.instagram.hub-redesign .platform-card-name { color: #F472B6; }
+.platform-card.instagram.hub-redesign .platform-card-stat-value { color: #F472B6; }
+
+.platform-card.tiktok.hub-redesign {
+  border-color: var(--hub-border-mid); background: var(--hub-surface-2);
+  position: relative; overflow: hidden;
+}
+.platform-card.tiktok.hub-redesign::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--hub-text-primary); z-index: 1;
+}
+.platform-card.tiktok.hub-redesign .platform-card-name { color: var(--hub-text-primary); }
+.platform-card.tiktok.hub-redesign .platform-card-stat-value { color: var(--hub-text-primary); }
+
+.platform-card.youtube.hub-redesign {
+  border: 1px solid rgba(239,68,68,0.2); background: rgba(239,68,68,0.05);
+  position: relative; overflow: hidden;
+}
+.platform-card.youtube.hub-redesign::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #EF4444; z-index: 1;
+}
+.platform-card.youtube.hub-redesign .platform-card-name { color: #EF4444; }
+.platform-card.youtube.hub-redesign .platform-card-stat-value { color: #EF4444; }
+
+/* ── Strategist Redesign ── */
+#viewStrategist.hub-redesign {
+  background: #0A090B; border-left: 3px solid var(--purple);
+}
+.live-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--purple);
+  animation: hubPulse 2s ease-in-out infinite; display: inline-block; margin-left: 6px;
+}
+@keyframes hubPulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+#viewStrategist.hub-redesign .strategist-prompt-chip {
+  padding: 6px 14px; border-radius: 20px; border: 1px solid var(--purple-border);
+  background: var(--purple-bg); color: var(--purple); font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s;
+}
+#viewStrategist.hub-redesign .strategist-prompt-chip:hover {
+  background: rgba(124,106,247,0.15); border-color: rgba(124,106,247,0.4);
+}
+
+/* ── Planner Redesign ── */
+#viewPlanner.hub-redesign .cal-day {
+  border-radius: 10px; border: 1px solid var(--hub-border);
+  background: var(--hub-surface); padding: 14px; min-height: 100px;
+  position: relative; transition: border-color 0.15s;
+}
+#viewPlanner.hub-redesign .cal-day:hover { border-color: var(--gold-border); }
+#viewPlanner.hub-redesign .cal-day.today {
+  border-color: var(--gold-border); background: var(--gold-bg);
+}
+#viewPlanner.hub-redesign .cal-day.today::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: var(--gold); border-radius: 10px 10px 0 0;
+}
+#viewPlanner.hub-redesign .cal-day-name {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--hub-text-faint); margin-bottom: 8px;
+}
+#viewPlanner.hub-redesign .cal-day.today .cal-day-name { color: var(--gold); }
+
+/* ── Planner Notebook Layout ── */
+#viewPlanner.hub-redesign .calendar-strip {
+  display: flex !important;
+  flex-direction: column;
+  gap: 0;
+  overflow: visible;
+  padding: 0;
+}
+#viewPlanner.hub-redesign .cal-day {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid var(--hub-border);
+  background: transparent;
+  min-height: auto;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+#viewPlanner.hub-redesign .cal-day:first-child {
+  border-top: 1px solid var(--hub-border);
+}
+#viewPlanner.hub-redesign .cal-day:hover {
+  background: rgba(245,158,11,0.03);
+  border-color: var(--hub-border);
+}
+
+/* Day label column */
+#viewPlanner.hub-redesign .cal-day .cal-day-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 52px;
+  flex-shrink: 0;
+}
+#viewPlanner.hub-redesign .cal-day-name {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hub-text-faint);
+  margin-bottom: 2px;
+}
+#viewPlanner.hub-redesign .cal-day-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--hub-text-primary);
+  line-height: 1;
+  margin-bottom: 0;
+}
+
+/* Right side — content area */
+#viewPlanner.hub-redesign .cal-day .cal-day-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+}
+#viewPlanner.hub-redesign .cal-day .cal-type {
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+#viewPlanner.hub-redesign .cal-day .cal-ai-teaser {
+  font-size: 12px;
+  color: var(--hub-text-muted);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#viewPlanner.hub-redesign .cal-day .cal-saved-preview {
+  font-size: 12px;
+  color: var(--hub-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.7;
+}
+#viewPlanner.hub-redesign .cal-day .cal-empty-prompt {
+  font-size: 12px;
+  color: var(--hub-text-faint);
+}
+
+/* TODAY — larger, highlighted */
+#viewPlanner.hub-redesign .cal-day.today {
+  background: var(--gold-bg);
+  border-bottom: 1px solid var(--gold-border);
+  padding: 22px 20px;
+  position: relative;
+  box-shadow: none;
+}
+#viewPlanner.hub-redesign .cal-day.today::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 3px;
+  height: auto;
+  background: var(--gold);
+  border-radius: 0;
+}
+#viewPlanner.hub-redesign .cal-day.today .cal-day-num {
+  font-size: 32px;
+  color: var(--gold);
+}
+#viewPlanner.hub-redesign .cal-day.today .cal-day-name {
+  color: var(--gold);
+}
+#viewPlanner.hub-redesign .cal-day.today .cal-ai-teaser {
+  color: rgba(245,158,11,0.6);
+}
+
+/* Saved indicator — subtle dot */
+#viewPlanner.hub-redesign .cal-day .cal-day-saved-indicator {
+  position: static;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+
+/* ── Expanded day ── */
+#viewPlanner.hub-redesign .cal-day.expanded {
+  grid-column: auto;
+  flex-direction: column;
+  background: var(--hub-surface);
+  border: 1px solid var(--gold-border);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 8px 0;
+}
+#viewPlanner.hub-redesign .cal-day.expanded .cal-day-summary {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8px;
+  min-width: auto;
+}
+#viewPlanner.hub-redesign .cal-day.expanded .cal-day-num {
+  font-size: 22px;
+}
+#viewPlanner.hub-redesign .cal-day.expanded .cal-day-content { display: none; }
+#viewPlanner.hub-redesign .cal-day.expanded .cal-expand-body {
+  display: block;
+  width: 100%;
+}
+#viewPlanner.hub-redesign .cal-day.expanded .cal-type-pills {
+  margin-bottom: 12px;
+}
+#viewPlanner.hub-redesign .cal-day.expanded .cal-type-pill {
+  border-color: var(--gold-border);
+}
+#viewPlanner.hub-redesign .cal-day.expanded .cal-type-pill:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: var(--gold-bg);
+}
+#viewPlanner.hub-redesign .cal-day.expanded .cal-type-pill.selected {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #090907;
+}
+#viewPlanner.hub-redesign .cal-day.expanded .cal-suggestion {
+  border-color: var(--gold-border);
+  color: var(--hub-text-muted);
+}
+#viewPlanner.hub-redesign .cal-day.expanded .cal-suggestion:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: var(--gold-bg);
+}
+#viewPlanner.hub-redesign .cal-day.expanded .cal-notes {
+  border-color: var(--hub-border);
+  background: var(--hub-bg);
+  color: var(--hub-text-primary);
+}
+#viewPlanner.hub-redesign .cal-day.expanded .cal-notes:focus {
+  border-color: var(--gold-border);
+}
+#viewPlanner.hub-redesign .cal-day.expanded .cal-close-btn {
+  top: 12px; right: 12px;
+}
+
+/* Hide old time display in notebook view */
+#viewPlanner.hub-redesign .cal-day .cal-time { display: none; }
+#viewPlanner.hub-redesign .cal-day .cal-idea { display: none; }
+
+/* ── Mobile planner ── */
+@media (max-width: 768px) {
+  #viewPlanner.hub-redesign .calendar-strip {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: visible !important;
+    scroll-snap-type: none !important;
+  }
+  #viewPlanner.hub-redesign .cal-day {
+    min-width: auto !important;
+    flex-shrink: 1 !important;
+  }
+}
+
+/* ── Engagement Engine Section ── */
+.engine-section {
+  padding: 0 24px 24px;
+}
+.engine-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-top: 4px;
+}
+.engine-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.engine-title h2 {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--emerald);
+  margin: 0;
+}
+.engine-title-icon {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: var(--emerald-bg);
+  border: 1px solid var(--emerald-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.engine-new-btn {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--emerald);
+  color: #090907;
+  border: none; border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: opacity 0.15s;
+}
+.engine-new-btn:hover { opacity: 0.88; }
+
+.engine-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Automation card — emerald */
+.engine-card-auto {
+  background: var(--hub-surface);
+  border: 1px solid var(--emerald-border);
+  border-radius: 12px;
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.engine-card-auto::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--emerald);
+  border-radius: 12px 12px 0 0;
+}
+.engine-card-auto .home-card-label { color: var(--emerald); }
+
+/* Funnel card — blue with visual bars */
+.engine-card-funnel {
+  background: var(--hub-surface);
+  border: 1px solid var(--blue-border);
+  border-radius: 12px;
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.engine-card-funnel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--blue);
+  border-radius: 12px 12px 0 0;
+}
+.engine-card-funnel .home-card-label { color: var(--blue); }
+.engine-card-funnel .funnel-bar-fill { background: var(--blue); }
+.engine-card-funnel .funnel-keyword { color: var(--blue); }
+.engine-card-funnel .funnel-pct { color: var(--blue); font-weight: 600; }
+.engine-card-funnel .funnel-steps { color: var(--hub-text-muted); font-size: 11px; }
+
+/* Leads card — rose */
+.engine-card-leads {
+  background: var(--hub-surface);
+  border: 1px solid var(--rose-border);
+  border-radius: 12px;
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.engine-card-leads::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--rose);
+  border-radius: 12px 12px 0 0;
+}
+.engine-card-leads .home-card-label { color: var(--rose); }
+.engine-card-leads .lead-keyword { background: var(--rose-bg); border: 1px solid var(--rose-border); color: var(--rose); }
+.engine-card-leads .lead-step { color: var(--rose); }
+
+/* DM card — purple */
+.engine-card-dm {
+  background: var(--hub-surface);
+  border: 1px solid var(--purple-border);
+  border-radius: 12px;
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.engine-card-dm::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--purple);
+  border-radius: 12px 12px 0 0;
+}
+.engine-card-dm .home-card-label { color: var(--purple); }
+
+/* Funnel visual — step indicators */
+.funnel-visual {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 10px 0;
+}
+.funnel-step-box {
+  flex: 1;
+  text-align: center;
+  padding: 8px 4px;
+  border-radius: 8px;
+  background: var(--hub-surface-2);
+  border: 1px solid var(--hub-border);
+}
+.funnel-step-icon { font-size: 16px; margin-bottom: 2px; }
+.funnel-step-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--blue);
+  line-height: 1;
+}
+.funnel-step-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--hub-text-faint);
+  margin-top: 2px;
+}
+.funnel-arrow {
+  color: var(--hub-text-faint);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+/* Leads mini chart */
+.leads-summary-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.leads-summary-stat {
+  flex: 1;
+  text-align: center;
+  padding: 10px 8px;
+  background: var(--hub-surface-2);
+  border: 1px solid var(--hub-border);
+  border-radius: 8px;
+}
+.leads-summary-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--rose);
+  line-height: 1;
+}
+.leads-summary-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--hub-text-faint);
+  margin-top: 3px;
+}
+
+/* Automation status pills */
+.engine-card-auto .automation-keyword {
+  background: var(--emerald-bg);
+  border-color: var(--emerald-border);
+  color: var(--emerald);
+}
+.engine-card-auto .automation-status.active { color: var(--emerald); }
+
+@media (max-width: 768px) {
+  .engine-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Global Card Polish ── */
+.hub-card {
+  background: var(--hub-surface); border: 1px solid var(--hub-border);
+  border-radius: 12px; padding: 18px; transition: border-color 0.15s;
+}
+.hub-card:hover { border-color: var(--hub-border-mid); }
+
+.section-label-new {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+}
+
+.hub-btn {
+  padding: 8px 16px; border-radius: 8px; border: 1px solid var(--hub-border-mid);
+  background: transparent; color: var(--hub-text-primary);
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s;
+}
+.hub-btn:hover { background: var(--hub-surface-2); }
+.hub-btn-primary {
+  background: var(--emerald); border-color: var(--emerald);
+  color: #090907; font-weight: 600;
+}
+.hub-btn-primary:hover { opacity: 0.88; }
+
+.loading-state {
+  color: var(--hub-text-faint); font-size: 13px; font-style: italic;
+  text-align: center; padding: 20px;
+}
+
+/* ── Hub Redesign Mobile Responsive ── */
+@media (max-width: 768px) {
+  .hub-nav { padding: 0 16px; }
+  .hub-nav-name { display: none; }
+  .hub-tab span:not(.notif-dot) { display: none; }
+  .hub-tab { padding: 7px 10px; }
+  .home-hero-grid { grid-template-columns: 1fr; }
+  .home-support-grid { grid-template-columns: 1fr; }
+  .stats-strip { overflow-x: auto; }
+  .stat-pill { padding: 0 16px; }
+  .hub-nav-actions .hub-create-btn span { display: none; }
+}
+
+/* ── Override hub-shell for top-nav layout ── */
+.hub-shell.hub-redesign {
+  display: block !important;
+  grid-template-columns: none !important;
+}
+.hub-shell.hub-redesign .hub-sidebar { display: none !important; }
+.hub-shell.hub-redesign .hub-main { max-width: 1100px; margin: 0 auto; padding: 0 0 100px; }
+
+/* Hide old greetings in redesigned views */
+.hub-shell.hub-redesign #viewHome .home-greeting { display: none; }
+.hub-shell.hub-redesign #viewHome .community-banner { display: none !important; }
+.hub-shell.hub-redesign #viewAnalytics .home-greeting { display: none; }
+.hub-shell.hub-redesign #viewPlanner > .home-greeting { display: none; }
+
 </style>
 </head>
 
@@ -2366,189 +3063,271 @@ const FONT_MAP = {
 <!-- ═══════════════════════════════════════════════════
      HUB CONTENT
      ═══════════════════════════════════════════════════ -->
-<div class="hub-shell" id="hub" style="display:none;">
+<div class="hub-shell hub-redesign" id="hub" style="display:none;">
 
-<nav class="hub-sidebar">
+<!-- Old sidebar kept hidden for JS compat -->
+<nav class="hub-sidebar" style="display:none!important">
   <div class="sidebar-logo" id="sidebarLogo">M</div>
   <button class="sidebar-nav-item active" data-view="home" onclick="switchView('home')" title="Home">&#9997;&#65039;<span class="notif-dot" id="notifHome"></span></button>
-  <div class="sidebar-label">Home</div>
   <button class="sidebar-nav-item" data-view="analytics" onclick="switchView('analytics')" title="Analytics">&#128202;<span class="notif-dot" id="notifAnalytics"></span></button>
-  <div class="sidebar-label">Analytics</div>
   <button class="sidebar-nav-item" data-view="planner" onclick="switchView('planner')" title="Planner">&#128197;</button>
-  <div class="sidebar-label">Planner</div>
   <button class="sidebar-nav-item" data-view="strategist" onclick="switchView('strategist')" title="Strategist">&#129302;<span class="notif-dot" id="notifStrategist"></span></button>
-  <div class="sidebar-label">Strategist</div>
   <div class="sidebar-spacer"></div>
   <a class="sidebar-nav-item" id="navSite" href="#" target="_blank" title="View My Site">🌐</a>
-  <div class="sidebar-label">Site</div>
   <a class="sidebar-nav-item" href="/dashboard" target="_blank" title="Full Analytics Dashboard">📊</a>
-  <div class="sidebar-label">Dashboard</div>
+</nav>
+
+<!-- ═══ NEW TOP NAVIGATION BAR ═══ -->
+<nav class="hub-nav">
+  <div class="hub-nav-brand">
+    <svg width="24" height="24" viewBox="0 0 160 160" fill="none">
+      <rect x="18" y="18" width="52" height="52" rx="10" fill="none" stroke="#10B981" stroke-width="7"/>
+      <text x="44" y="54" text-anchor="middle" font-family="DM Sans" font-size="28" font-weight="600" fill="#10B981">S</text>
+      <rect x="90" y="18" width="52" height="52" rx="10" fill="none" stroke="#10B981" stroke-width="5" opacity="0.2"/>
+      <rect x="18" y="90" width="52" height="52" rx="10" fill="none" stroke="#10B981" stroke-width="5" opacity="0.2"/>
+      <rect x="90" y="90" width="52" height="52" rx="10" fill="#10B981"/>
+      <text x="116" y="126" text-anchor="middle" font-family="DM Sans" font-size="28" font-weight="600" fill="#090907">O</text>
+    </svg>
+    <span class="hub-nav-name" id="hubNavName">Mandi's Hub</span>
+  </div>
+  <div class="hub-nav-tabs">
+    <button class="hub-tab active" data-tab="home" onclick="switchView('home')" style="--tab-color: #10B981">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="hub-tab" data-tab="analytics" onclick="switchView('analytics')" style="--tab-color: #4F8EF7">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>Analytics</span>
+    </button>
+    <button class="hub-tab" data-tab="planner" onclick="switchView('planner')" style="--tab-color: #F59E0B">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Planner</span>
+    </button>
+    <button class="hub-tab" data-tab="strategist" onclick="switchView('strategist')" style="--tab-color: #7C6AF7">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Strategist</span>
+    </button>
+  </div>
+  <div class="hub-nav-actions">
+    <button class="hub-create-btn" onclick="switchToCreatePost()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>Create Post</span>
+    </button>
+    <button class="hub-nav-icon" title="Message Sam" onclick="openModal('message')">✉️</button>
+    <button class="hub-nav-icon" title="Request Update" onclick="openModal('update')">🔄</button>
+  </div>
 </nav>
 
 <div class="hub-main">
 <div class="hub-view active" id="viewHome">
   <div id="smartBanner" class="smart-banner" style="display:none;"></div>
 
-  <div class="home-greeting">
+  <!-- Hidden elements for JS compat -->
+  <div style="display:none">
     <h1 id="greetingH1">Good morning</h1>
-    <div class="home-subtitle loading-pulse" id="homeSubtitle">Loading your hub...</div>
+    <div id="homeSubtitle">Loading your hub...</div>
+    <div id="communityBanner">
+      <div id="communityFollowers">—</div>
+      <div id="communityLikes">—</div>
+      <div id="communityPlatforms"></div>
+    </div>
   </div>
 
-  <!-- Community Stats Banner -->
-  <div class="community-banner" id="communityBanner" style="display:none;">
-    <div class="community-stat">
-      <div class="community-stat-value" id="communityFollowers">—</div>
-      <div class="community-stat-label">Total Followers</div>
+  <!-- ZONE A — STATS STRIP -->
+  <div class="stats-strip">
+    <div class="stat-pill">
+      <span class="stat-pill-value" id="total-followers">—</span>
+      <span class="stat-pill-label">Followers</span>
     </div>
-    <div class="community-divider"></div>
-    <div class="community-stat">
-      <div class="community-stat-value" id="communityLikes">—</div>
-      <div class="community-stat-label">Total Likes</div>
+    <div class="stat-pill-divider"></div>
+    <div class="stat-pill">
+      <span class="stat-pill-value" id="total-likes">—</span>
+      <span class="stat-pill-label">Total Likes</span>
     </div>
-    <div class="community-divider"></div>
-    <div class="community-platforms" id="communityPlatforms"></div>
+    <div class="stat-pill-divider"></div>
+    <div class="stat-pill">
+      <span class="stat-pill-value" id="link-clicks">—</span>
+      <span class="stat-pill-label">Link Clicks</span>
+    </div>
+    <div class="stat-pill-divider"></div>
+    <div class="stat-pill">
+      <span class="stat-pill-value" id="code-uses">—</span>
+      <span class="stat-pill-label">Code Uses</span>
+    </div>
   </div>
 
-  <div class="home-grid">
-    <div class="home-card home-create-post" id="createPostCard">
-      <div class="home-card-label">&#9997;&#65039; Create Post</div>
-      <div class="create-post-drop" id="createPostDrop">
-        <div class="create-post-drop-inner" id="createPostDropInner">
-          <div class="create-post-drop-icon">&#128247;</div>
-          <div class="create-post-drop-text">Drop an image or tap to upload</div>
-          <div class="create-post-drop-sub">JPG, PNG, WebP &mdash; up to 4MB</div>
-        </div>
-        <img id="createPostPreview" style="display:none; max-width:100%; border-radius:10px;">
-        <button id="createPostClear" style="display:none;" class="create-post-clear">&#10005; Remove</button>
-        <input type="file" id="createPostFile" accept="image/*" style="display:none;">
-      </div>
-      <div class="create-post-controls">
-        <div class="create-post-platforms">
-          <button class="cp-platform-btn active" data-platform="instagram" onclick="selectCPPlatform(this)">&#128247; IG</button>
-          <button class="cp-platform-btn" data-platform="tiktok" onclick="selectCPPlatform(this)">&#127925; TikTok</button>
-          <button class="cp-platform-btn" data-platform="youtube" onclick="selectCPPlatform(this)">&#9654;&#65039; YouTube</button>
-        </div>
-        <input class="create-post-notes" id="createPostNotes" placeholder="Optional notes (mood, promo, context)...">
-        <select id="createPostAutomation" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface-elevated);color:var(--text);font-family:var(--sans);font-size:13px;margin-top:6px;cursor:pointer;">
-          <option value="">No automation (just caption)</option>
-        </select>
-        <div class="trending-tags" id="createPostTrends"></div>
-        <button id="createPostBtn" class="create-post-generate" disabled onclick="generatePost()">&#10024; Generate Caption</button>
-      </div>
-      <div class="create-post-output" id="createPostOutput" style="display:none;">
-        <div class="create-post-result-header">
-          <span>Your Caption</span>
-          <button id="createPostCopyBtn" onclick="copyGeneratedCaption()">&#128203; Copy</button>
-        </div>
-        <div class="create-post-caption" id="createPostCaption"></div>
-        <div class="create-post-meta" id="createPostMeta" style="display:none;">
-          <div class="create-post-meta-item" id="createPostTime"></div>
-          <div class="create-post-meta-item" id="createPostHashtags"></div>
-          <div class="create-post-meta-item" id="createPostTips"></div>
-        </div>
-        <div class="create-post-actions" id="createPostActions" style="display:none;">
-          <button class="cp-action-btn cp-action-ig" id="cpPostIg" onclick="postToInstagram()">&#128247; Post to Instagram</button>
-          <button class="cp-action-btn" onclick="copyAndOpen('tiktok')">&#127925; Copy &amp; Open TikTok</button>
-          <button class="cp-action-btn" onclick="copyAndOpen('youtube')">&#9654;&#65039; Copy &amp; Open YouTube</button>
-        </div>
-        <div class="cp-post-status" id="cpPostStatus" style="display:none;"></div>
-        <div class="ig-preview" id="igPreview" style="display:none;">
-          <div class="ig-preview-header">
-            <div class="ig-preview-avatar"></div>
-            <span class="ig-preview-username">mandibagley</span>
-          </div>
-          <img class="ig-preview-image" id="igPreviewImage">
-          <div class="ig-preview-actions">
-            <span>&#9825;</span> <span>&#128172;</span> <span>&#9993;</span>
-          </div>
-          <div class="ig-preview-caption" id="igPreviewCaption"></div>
-          <div class="ig-preview-tags" id="igPreviewTags"></div>
-        </div>
-      </div>
-    </div>
+  <!-- ZONE B — HERO CARDS -->
+  <div class="home-hero-grid">
 
-    <div class="home-card" id="homeBriefingCard">
-      <div class="home-card-label">
-        &#128203; Today's Briefing
-        <button id="briefingRefresh" onclick="refreshBriefing()" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--text-muted);font-size:12px;">&#8635;</button>
+    <!-- TODAY'S BRIEFING -->
+    <div class="briefing-card-new" id="homeBriefingCard">
+      <div class="briefing-card-header">
+        <span class="section-label-new" style="color: var(--gold)">TODAY'S BRIEFING</span>
+        <button class="refresh-btn" id="briefingRefresh" onclick="refreshBriefing()">&#8635;</button>
       </div>
-      <div id="homeBriefingContent">
+      <div class="briefing-content-new" id="homeBriefingContent">
         <div class="skeleton skeleton-text w80"></div>
         <div class="skeleton skeleton-text w60"></div>
         <div class="skeleton skeleton-text w40"></div>
       </div>
-    </div>
-
-    <div class="home-card" id="homeStatsCard">
-      <div class="home-card-label">&#128200; Quick Stats</div>
-      <div class="home-stats-grid" id="homeStatsGrid">
-        <div class="home-stat-tile"><div class="stat-label">Followers</div><div class="stat-value skeleton" style="height:28px;width:60px;"></div></div>
-        <div class="home-stat-tile"><div class="stat-label">Engagement</div><div class="stat-value skeleton" style="height:28px;width:60px;"></div></div>
-        <div class="home-stat-tile"><div class="stat-label">Views (7d)</div><div class="stat-value skeleton" style="height:28px;width:60px;"></div></div>
-        <div class="home-stat-tile"><div class="stat-label">Link Clicks</div><div class="stat-value skeleton" style="height:28px;width:60px;"></div></div>
+      <div class="briefing-footer">
+        <span style="font-size:10px; color: var(--hub-text-faint);">AI-generated from your real data</span>
       </div>
     </div>
+
+    <!-- CREATE POST -->
+    <div class="create-post-card-new" id="createPostCard">
+      <div class="create-post-header">
+        <span class="section-label-new" style="color: var(--purple)">CREATE POST</span>
+        <span style="font-size:11px; color: var(--hub-text-faint);">Generate captions with AI</span>
+      </div>
+      <div class="create-post-inner">
+        <div class="create-post-drop" id="createPostDrop">
+          <div class="create-post-drop-inner" id="createPostDropInner">
+            <div class="create-post-drop-icon">&#128247;</div>
+            <div class="create-post-drop-text">Drop an image or tap to upload</div>
+            <div class="create-post-drop-sub">JPG, PNG, WebP &mdash; up to 4MB</div>
+          </div>
+          <img id="createPostPreview" style="display:none; max-width:100%; border-radius:10px;">
+          <button id="createPostClear" style="display:none;" class="create-post-clear">&#10005; Remove</button>
+          <input type="file" id="createPostFile" accept="image/*" style="display:none;">
+        </div>
+        <div class="create-post-controls">
+          <div class="create-post-platforms">
+            <button class="cp-platform-btn active" data-platform="instagram" onclick="selectCPPlatform(this)">&#128247; IG</button>
+            <button class="cp-platform-btn" data-platform="tiktok" onclick="selectCPPlatform(this)">&#127925; TikTok</button>
+            <button class="cp-platform-btn" data-platform="youtube" onclick="selectCPPlatform(this)">&#9654;&#65039; YouTube</button>
+          </div>
+          <input class="create-post-notes" id="createPostNotes" placeholder="Optional notes (mood, promo, context)...">
+          <select id="createPostAutomation" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface-elevated);color:var(--text);font-family:var(--sans);font-size:13px;margin-top:6px;cursor:pointer;">
+            <option value="">No automation (just caption)</option>
+          </select>
+          <div class="trending-tags" id="createPostTrends"></div>
+          <button id="createPostBtn" class="create-post-generate" disabled onclick="generatePost()">&#10024; Generate Caption</button>
+        </div>
+        <div class="create-post-output" id="createPostOutput" style="display:none;">
+          <div class="create-post-result-header">
+            <span>Your Caption</span>
+            <button id="createPostCopyBtn" onclick="copyGeneratedCaption()">&#128203; Copy</button>
+          </div>
+          <div class="create-post-caption" id="createPostCaption"></div>
+          <div class="create-post-meta" id="createPostMeta" style="display:none;">
+            <div class="create-post-meta-item" id="createPostTime"></div>
+            <div class="create-post-meta-item" id="createPostHashtags"></div>
+            <div class="create-post-meta-item" id="createPostTips"></div>
+          </div>
+          <div class="create-post-actions" id="createPostActions" style="display:none;">
+            <button class="cp-action-btn cp-action-ig" id="cpPostIg" onclick="postToInstagram()">&#128247; Post to Instagram</button>
+            <button class="cp-action-btn" onclick="copyAndOpen('tiktok')">&#127925; Copy &amp; Open TikTok</button>
+            <button class="cp-action-btn" onclick="copyAndOpen('youtube')">&#9654;&#65039; Copy &amp; Open YouTube</button>
+          </div>
+          <div class="cp-post-status" id="cpPostStatus" style="display:none;"></div>
+          <div class="ig-preview" id="igPreview" style="display:none;">
+            <div class="ig-preview-header">
+              <div class="ig-preview-avatar"></div>
+              <span class="ig-preview-username">mandibagley</span>
+            </div>
+            <img class="ig-preview-image" id="igPreviewImage">
+            <div class="ig-preview-actions">
+              <span>&#9825;</span> <span>&#128172;</span> <span>&#9993;</span>
+            </div>
+            <div class="ig-preview-caption" id="igPreviewCaption"></div>
+            <div class="ig-preview-tags" id="igPreviewTags"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
+  <!-- Goal strip (preserved) -->
   <div class="home-goal-strip" id="homeGoalStrip" onclick="openGoalModal()" style="display:none;">
     <div class="goal-label" id="homeGoalLabel">Goal: <strong>&mdash;</strong></div>
     <div class="goal-bar"><div class="goal-fill" id="homeGoalFill" style="width:0%;"></div></div>
     <div class="goal-pct" id="homeGoalPct">0%</div>
   </div>
 
-  <div class="section-divider"></div>
-
-  <div class="home-bottom-row">
-    <div class="home-card" id="homeLeadsCard">
-      <div class="home-card-label">👥 Recent Leads</div>
-      <div class="home-card-hint">People who engaged with your links or automations</div>
+  <!-- ZONE C — SUPPORT GRID -->
+  <div class="home-support-grid">
+    <div class="support-card" style="--card-color: #10B981">
+      <div class="support-card-header">
+        <span class="section-label-new" style="color: #10B981">BRAND CODES</span>
+      </div>
+      <div id="homeBrandCodesList"></div>
+    </div>
+    <div class="support-card" style="--card-color: #4F8EF7">
+      <div class="support-card-header">
+        <span class="section-label-new" style="color: #4F8EF7">RECENT LEADS</span>
+      </div>
       <div id="homeLeadsList">
         <div class="skeleton skeleton-text w80"></div>
         <div class="skeleton skeleton-text w60"></div>
       </div>
     </div>
-    <div class="home-card" id="homeBrandCodesCard">
-      <div class="home-card-label">🏷️ Brand Codes</div>
-      <div class="home-card-hint">Your affiliate codes and how often they're used</div>
-      <div id="homeBrandCodesList"></div>
+    <div class="support-card" style="--card-color: #F472B6">
+      <div class="support-card-header">
+        <span class="section-label-new" style="color: #F472B6">QUICK STATS</span>
+      </div>
+      <div id="homeStatsCard">
+        <div class="home-stats-grid" id="homeStatsGrid">
+          <div class="home-stat-tile"><div class="stat-label">Followers</div><div class="stat-value skeleton" style="height:28px;width:60px;"></div></div>
+          <div class="home-stat-tile"><div class="stat-label">Engagement</div><div class="stat-value skeleton" style="height:28px;width:60px;"></div></div>
+          <div class="home-stat-tile"><div class="stat-label">Views (7d)</div><div class="stat-value skeleton" style="height:28px;width:60px;"></div></div>
+          <div class="home-stat-tile"><div class="stat-label">Link Clicks</div><div class="stat-value skeleton" style="height:28px;width:60px;"></div></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="section-divider"></div>
-
-  <!-- Engagement Engine Section -->
-  <div style="margin-top:4px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-      <h2 style="font-family:var(--display-font);font-size:20px;font-weight:400;color:var(--text);">Engagement Engine</h2>
-      <button onclick="openAutomationModal()" style="background:var(--accent);color:var(--bg);border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);">+ New</button>
+  <!-- ENGAGEMENT ENGINE SECTION -->
+  <div class="engine-section">
+    <div class="engine-header">
+      <div class="engine-title">
+        <div class="engine-title-icon">⚡</div>
+        <h2>ENGAGEMENT ENGINE</h2>
+      </div>
+      <button class="engine-new-btn" onclick="openAutomationModal()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Automation
+      </button>
     </div>
-    <div class="home-bottom-row">
-      <div class="home-card">
-        <div class="home-card-label">⚡ Automations</div>
+
+    <div class="engine-grid">
+      <!-- Automations — emerald -->
+      <div class="engine-card-auto">
+        <div class="home-card-label">⚡ AUTOMATIONS</div>
         <div id="automationsList" class="automations-list">
           <div class="skeleton skeleton-text w80"></div>
           <div class="skeleton skeleton-text w60"></div>
         </div>
       </div>
-      <div class="home-card">
-        <div class="home-card-label">📊 Conversion Funnel</div>
+
+      <!-- Conversion Funnel — blue with visual -->
+      <div class="engine-card-funnel">
+        <div class="home-card-label">📊 CONVERSION FUNNEL</div>
+        <div id="funnelVisual" class="funnel-visual"></div>
         <div id="funnelList" class="funnel-list">
           <div class="skeleton skeleton-text w80"></div>
           <div class="skeleton skeleton-text w60"></div>
         </div>
       </div>
     </div>
-    <div class="home-bottom-row" style="margin-top:12px;">
-      <div class="home-card">
-        <div class="home-card-label">📋 Captured Leads</div>
+
+    <div class="engine-grid" style="margin-top:16px;">
+      <!-- Captured Leads — rose with summary -->
+      <div class="engine-card-leads">
+        <div class="home-card-label">📋 CAPTURED LEADS</div>
+        <div id="leadsSummary" class="leads-summary-row"></div>
         <div id="leadsList" class="leads-list">
           <div class="skeleton skeleton-text w80"></div>
           <div class="skeleton skeleton-text w60"></div>
         </div>
-        <button onclick="exportLeadsCSV()" style="margin-top:10px;background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:var(--sans);width:100%;">Export Emails (CSV)</button>
+        <button onclick="exportLeadsCSV()" style="margin-top:12px;background:var(--rose-bg);border:1px solid var(--rose-border);border-radius:8px;padding:7px 14px;font-size:11px;color:var(--rose);cursor:pointer;font-family:var(--sans);width:100%;font-weight:600;transition:all 0.15s;">Export Emails (CSV)</button>
       </div>
-      <div class="home-card">
-        <div class="home-card-label">💬 DM Settings</div>
+
+      <!-- DM Settings — purple -->
+      <div class="engine-card-dm">
+        <div class="home-card-label">💬 DM SETTINGS</div>
         <div id="welcomeDMSection"></div>
       </div>
     </div>
@@ -2556,13 +3335,20 @@ const FONT_MAP = {
 </div><!-- end viewHome -->
 
 <div class="hub-view" id="viewAnalytics">
-  <div class="home-greeting">
+  <div class="home-greeting" style="display:none">
     <h1>Analytics</h1>
     <div class="home-subtitle">Your social platforms and audience insights</div>
   </div>
 
+  <div class="tab-header" style="border-color: var(--blue-border)">
+    <span class="tab-header-label" style="color: var(--blue)">ANALYTICS</span>
+    <span class="tab-header-sub">Your platforms, connected</span>
+  </div>
+
+  <div style="padding: 20px 24px;">
+
   <!-- Instagram Card -->
-  <div class="platform-card instagram" id="igCard">
+  <div class="platform-card instagram hub-redesign" id="igCard">
     <div class="platform-card-header">
       <span style="font-size:24px">&#128247;</span>
       <div class="platform-card-info">
@@ -2582,7 +3368,7 @@ const FONT_MAP = {
   </div>
 
   <!-- TikTok Card -->
-  <div class="platform-card tiktok" id="tiktokPlatformCard">
+  <div class="platform-card tiktok hub-redesign" id="tiktokPlatformCard">
     <div class="platform-card-header">
       <span style="font-size:24px">&#127925;</span>
       <div class="platform-card-info">
@@ -2644,7 +3430,7 @@ const FONT_MAP = {
   </div>
 
   <!-- YouTube Card -->
-  <div class="platform-card youtube" id="ytCard">
+  <div class="platform-card youtube hub-redesign" id="ytCard">
     <div class="platform-card-header">
       <span style="font-size:24px">&#9654;&#65039;</span>
       <div class="platform-card-info">
@@ -2699,14 +3485,22 @@ const FONT_MAP = {
   <div id="platformDetailsSection" style="display:none"></div>
   <div id="connectBanner" style="display:none;"></div>
   <div id="platformCta" style="display:none;"></div>
+
+  </div><!-- end analytics padding wrapper -->
 </div>
 
-<div class="hub-view" id="viewPlanner">
-  <div class="home-greeting">
+<div class="hub-view hub-redesign" id="viewPlanner">
+  <div class="home-greeting" style="display:none">
     <h1>Weekly Planner</h1>
     <div class="home-subtitle">Plan your content for the week</div>
   </div>
 
+  <div class="tab-header" style="border-color: var(--gold-border)">
+    <span class="tab-header-label" style="color: var(--gold)">CONTENT PLANNER</span>
+    <span class="tab-header-sub">Plan your week</span>
+  </div>
+
+  <div style="padding: 20px 24px;">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
     <button class="cal-nav-btn" onclick="shiftCalendarWeek(-1)">&larr;</button>
     <span class="cal-nav-label" id="calWeekLabel"></span>
@@ -2717,20 +3511,28 @@ const FONT_MAP = {
   <div class="calendar-strip" id="calendarStrip">
     <!-- renderCalendar() populates this -->
   </div>
+  </div><!-- end planner padding wrapper -->
 </div>
 
-<div class="hub-view" id="viewStrategist">
-  <div class="strategist-view-header">
+<div class="hub-view hub-redesign" id="viewStrategist" style="background: #0A090B; border-left: 3px solid var(--purple);">
+
+  <div class="tab-header" style="border-color: var(--purple-border); background: var(--purple-bg)">
+    <span class="tab-header-label" style="color: var(--purple)">AI STRATEGIST</span>
+    <span class="tab-header-sub" style="color: var(--hub-text-faint)">Powered by your real data &middot; LIVE</span>
+    <span class="live-dot"></span>
+  </div>
+
+  <div class="strategist-view-header" style="display:none">
     <h1>Your Strategist <span class="strategist-live-badge">LIVE</span></h1>
     <div class="home-subtitle">AI-powered content strategy and advice</div>
   </div>
 
-  <div class="strategist-insight" id="strategistInsight">
-    <div class="strategist-insight-label">&#128161; Today's Insight</div>
+  <div class="strategist-insight" id="strategistInsight" style="margin: 16px 24px; border-color: var(--purple-border);">
+    <div class="strategist-insight-label" style="color: var(--purple);">&#128161; Today's Insight</div>
     <div class="strategist-insight-text" id="strategistInsightText">Loading your personalized strategy...</div>
   </div>
 
-  <div class="strategist-prompts" id="strategistPrompts">
+  <div class="strategist-prompts" id="strategistPrompts" style="padding: 0 24px 16px; border-bottom: 1px solid var(--hub-border);">
     <button class="strategist-prompt-chip" onclick="askPrompt(this)">What should I post today?</button>
     <button class="strategist-prompt-chip" onclick="askPrompt(this)">What's growing fastest?</button>
     <button class="strategist-prompt-chip" onclick="askPrompt(this)">Write me a caption</button>
@@ -2739,7 +3541,7 @@ const FONT_MAP = {
     <button class="strategist-prompt-chip" onclick="askPrompt(this)">Analyze my engagement</button>
   </div>
 
-  <div class="strategist-chat-container" id="strategistChatContainer">
+  <div class="strategist-chat-container" id="strategistChatContainer" style="margin: 0 24px 24px; border-color: var(--purple-border);">
     <!-- chat elements will be moved here when this view is active -->
   </div>
 </div>
@@ -2951,11 +3753,13 @@ function login() {
    ═══════════════════════════════════════════════════ */
 function showHub() {
   const hub = document.getElementById('hub');
-  hub.style.display = 'grid';
+  hub.style.display = 'block';
 
   // Set sidebar logo initial
   var sidebarLogo = document.getElementById('sidebarLogo');
   if (sidebarLogo) sidebarLogo.textContent = CLIENT.name.charAt(0);
+  var hubNavName = document.getElementById('hubNavName');
+  if (hubNavName) hubNavName.textContent = CLIENT.name.split(' ')[0] + "'s Hub";
 
   // Populate greeting
   const firstName = CLIENT.name.split(' ')[0];
@@ -3025,6 +3829,10 @@ function switchView(viewName) {
   document.querySelectorAll('.sidebar-nav-item').forEach(function(btn) {
     btn.classList.toggle('active', btn.dataset.view === viewName);
   });
+  // Update new top nav tabs
+  document.querySelectorAll('.hub-tab').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.tab === viewName);
+  });
 
   // Toggle strategist padding mode
   var hubMain = document.querySelector('.hub-main');
@@ -3050,6 +3858,14 @@ function switchView(viewName) {
   if (dot) dot.classList.remove('visible');
 
   window.scrollTo(0, 0);
+}
+
+function switchToCreatePost() {
+  switchView('home');
+  setTimeout(function() {
+    var el = document.getElementById('createPostCard');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -3307,6 +4123,14 @@ function renderHomeStats() {
       (t.change ? '<div class="stat-change">' + t.change + '</div>' : '') +
     '</div>';
   }).join('');
+
+  // Also populate the stats strip
+  var tfEl = document.getElementById('total-followers');
+  if (tfEl) tfEl.textContent = formatNum(totalFollowers);
+  var lcEl = document.getElementById('link-clicks');
+  if (lcEl && d.linkClicks) lcEl.textContent = formatNum(d.linkClicks);
+  var cuEl = document.getElementById('code-uses');
+  if (cuEl && d.codeUses) cuEl.textContent = formatNum(d.codeUses);
 }
 
 function renderHomeBriefing(data) {
@@ -3315,8 +4139,8 @@ function renderHomeBriefing(data) {
   var summary = data.summary || data.title || '';
   var trendText = data.nicheTrend || data.trend || '';
   el.innerHTML =
-    '<div style="font-size:13.5px;line-height:1.65;color:rgba(255,255,255,0.7);margin-bottom:12px;">' + summary + '</div>' +
-    (trendText ? '<div class="briefing-trend-block"><div class="briefing-trend-label">\ud83d\udd25 Trending in ' + CLIENT.nicheLabel.split('\u00b7')[0].trim() + '</div>' + trendText + '</div>' : '');
+    '<div>' + summary + '</div>' +
+    (trendText ? '<div style="font-family:var(--sans);font-size:12px;font-style:normal;color:var(--hub-text-muted);margin-top:12px;padding-top:10px;border-top:1px solid var(--gold-border);"><span style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--gold);font-weight:600;">🔥 Trending in ' + CLIENT.nicheLabel.split('\u00b7')[0].trim() + '</span><br>' + trendText + '</div>' : '');
   updateNotifications();
 }
 
@@ -3348,10 +4172,11 @@ function renderHomeBrandCodes() {
     el.innerHTML = '<div style="font-size:13px;color:var(--text-muted);">No brand codes configured</div>';
     return;
   }
-  var codeData = window._brandCodeData || {};
+  var codeData = window._brandCodeData;
+  var hasData = codeData && Object.keys(codeData).length > 0;
   el.innerHTML = CLIENT.brandCodes.map(function(bc) {
-    var uses = codeData[bc.code] || 0;
-    return '<div class="home-code-row"><span class="home-code-chip">' + bc.code + '</span><span class="home-code-stat">' + bc.brand + ' \u00b7 <strong>' + uses + ' uses</strong></span></div>';
+    var usesText = hasData ? '<strong>' + (codeData[bc.code] || 0) + ' uses</strong>' : '<span style="opacity:0.5">loading...</span>';
+    return '<div class="home-code-row"><span class="home-code-chip">' + bc.code + '</span><span class="home-code-stat">' + bc.brand + ' \u00b7 ' + usesText + '</span></div>';
   }).join('');
 }
 
@@ -3402,6 +4227,12 @@ function renderCommunityBanner() {
     if (ytF > 0) chips.push('<span class="community-platform-chip">▶️ <span class="cp-count">' + formatNum(ytF) + '</span></span>');
     platforms.innerHTML = chips.join('');
   }
+
+  // Also populate stats strip
+  var tfEl = document.getElementById('total-followers');
+  if (tfEl) tfEl.textContent = formatNum(totalFollowers);
+  var tlEl = document.getElementById('total-likes');
+  if (tlEl) tlEl.textContent = totalLikes > 0 ? formatNum(totalLikes) : '—';
 }
 
 /* ── Render Growth Scoreboard ── */
@@ -3650,12 +4481,25 @@ function renderCalendar(data) {
     var typeLabel = savedType || (aiType || '\u2014');
 
     html += '<div class="cal-day' + (isToday ? ' today' : '') + '" data-date="' + dateStr + '" onclick="toggleCalDay(this,event)">';
-    if (hasSaved) html += '<div class="cal-day-saved-indicator"></div>';
     html += '<div class="cal-day-summary">';
-    html += '<div><div class="cal-day-name">' + dayName + '</div>';
-    html += '<div class="cal-day-num">' + dateNum + '</div></div>';
+    html += '<div class="cal-day-name">' + dayName + '</div>';
+    html += '<div class="cal-day-num">' + dateNum + '</div>';
     html += '</div>';
-    html += '<span class="cal-type ' + typeClass + '">' + typeLabel + '</span>';
+
+    // Content area — shows type badge, AI teaser or saved notes preview
+    html += '<div class="cal-day-content">';
+    if (savedType && savedType !== 'rest') html += '<span class="cal-type ' + typeClass + '">' + typeLabel + '</span>';
+    if (hasSaved && savedNotes) {
+      html += '<span class="cal-saved-preview">' + savedNotes.split('\n')[0] + '</span>';
+    } else if (aiIdea) {
+      // Short 2-3 word teaser from AI suggestion
+      var teaser = aiIdea.split(' ').slice(0, 3).join(' ');
+      html += '<span class="cal-ai-teaser">' + teaser + '</span>';
+    } else if (!hasSaved) {
+      html += '<span class="cal-empty-prompt">Tap to plan</span>';
+    }
+    if (hasSaved) html += '<div class="cal-day-saved-indicator"></div>';
+    html += '</div>';
     if (aiTime) html += '<div class="cal-time">' + aiTime + '</div>';
 
     // Expandable body
@@ -5064,7 +5908,7 @@ function handlePostImage(file) {
   var img = new Image();
   img.onload = function() {
     try {
-      var maxDim = 1200;
+      var maxDim = 1024;
       var w = img.width, h = img.height;
       if (w > maxDim || h > maxDim) {
         if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
@@ -5074,11 +5918,17 @@ function handlePostImage(file) {
       canvas.width = w; canvas.height = h;
       var ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
-      var quality = 0.8;
+      var quality = 0.7;
       var dataUrl = canvas.toDataURL('image/jpeg', quality);
-      while (dataUrl.length > 3 * 1024 * 1024 && quality > 0.3) {
-        quality -= 0.15;
+      while (dataUrl.length > 2 * 1024 * 1024 && quality > 0.2) {
+        quality -= 0.1;
         dataUrl = canvas.toDataURL('image/jpeg', quality);
+      }
+      if (dataUrl.length > 2 * 1024 * 1024) {
+        w = Math.round(w * 0.6); h = Math.round(h * 0.6);
+        canvas.width = w; canvas.height = h;
+        ctx.drawImage(img, 0, 0, w, h);
+        dataUrl = canvas.toDataURL('image/jpeg', 0.6);
       }
       URL.revokeObjectURL(url);
       createPostImage = dataUrl;

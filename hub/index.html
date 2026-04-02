@@ -5419,10 +5419,57 @@ function openAutomationModal(keyword) {
     document.getElementById('autoFreebieType').value = 'pdf_link';
     document.getElementById('autoFreebieValue').value = '';
     document.getElementById('autoUpsellUrl').value = '';
-    document.getElementById('autoUpsellText').value = '';
+    document.getElementById('autoUpsellText').value = 'Want to take it to the next level?';
   }
   overlay.classList.add('active');
 }
+
+// Auto-fill defaults when keyword or headline changes (new automations only)
+(function() {
+  var keywordEl = document.getElementById('autoKeyword');
+  var headlineEl = document.getElementById('autoCaptureHeadline');
+
+  function autoFillFromKeyword() {
+    if (editingKeyword) return; // don't auto-fill when editing
+    var kw = keywordEl.value.trim().toUpperCase();
+    if (!kw) return;
+    var commentReply = document.getElementById('autoCommentReply');
+    var dmResponse = document.getElementById('autoDmResponse');
+    var slugEl = document.getElementById('autoCaptureSlug');
+
+    // Only auto-fill if field is empty or was previously auto-filled
+    if (!commentReply.value || commentReply.dataset.auto === 'true') {
+      commentReply.value = 'DM me ' + kw + ' and I\u2019ll send it! \uD83D\uDD25';
+      commentReply.dataset.auto = 'true';
+    }
+    if (!slugEl.value || slugEl.dataset.auto === 'true') {
+      slugEl.value = kw.toLowerCase().replace(/[^a-z0-9-]/g, '');
+      slugEl.dataset.auto = 'true';
+    }
+  }
+
+  function autoFillFromHeadline() {
+    if (editingKeyword) return;
+    var headline = headlineEl.value.trim();
+    if (!headline) return;
+    var dmResponse = document.getElementById('autoDmResponse');
+
+    if (!dmResponse.value || dmResponse.dataset.auto === 'true') {
+      dmResponse.value = 'Here\u2019s your ' + headline.toLowerCase().replace(/^your\s+/i, '') + '! Grab it here \uD83D\uDC49';
+      dmResponse.dataset.auto = 'true';
+    }
+  }
+
+  // Clear auto flag when user manually edits a field
+  ['autoCommentReply', 'autoDmResponse', 'autoCaptureSlug'].forEach(function(id) {
+    document.getElementById(id).addEventListener('input', function() {
+      this.dataset.auto = 'false';
+    });
+  });
+
+  keywordEl.addEventListener('input', autoFillFromKeyword);
+  headlineEl.addEventListener('input', autoFillFromHeadline);
+})();
 
 function closeAutomationModal() {
   document.getElementById('autoModalOverlay').classList.remove('active');

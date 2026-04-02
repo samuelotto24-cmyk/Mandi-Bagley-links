@@ -2429,6 +2429,9 @@ const FONT_MAP = {
           <button class="cp-platform-btn" data-platform="youtube" onclick="selectCPPlatform(this)">&#9654;&#65039; YouTube</button>
         </div>
         <input class="create-post-notes" id="createPostNotes" placeholder="Optional notes (mood, promo, context)...">
+        <select id="createPostAutomation" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface-elevated);color:var(--text);font-family:var(--sans);font-size:13px;margin-top:6px;cursor:pointer;">
+          <option value="">No automation (just caption)</option>
+        </select>
         <div class="trending-tags" id="createPostTrends"></div>
         <button id="createPostBtn" class="create-post-generate" disabled onclick="generatePost()">&#10024; Generate Caption</button>
       </div>
@@ -5132,6 +5135,7 @@ function generatePost() {
       image: createPostImage,
       platform: createPostPlatform,
       notes: document.getElementById('createPostNotes').value || '',
+      automationKeyword: document.getElementById('createPostAutomation').value || '',
     }),
   })
   .then(function(response) {
@@ -5360,8 +5364,23 @@ function loadAutomations() {
     .then(function(data) {
       automationsData = data.automations || [];
       renderAutomations();
+      populateAutomationDropdown();
     })
     .catch(function() {});
+}
+
+function populateAutomationDropdown() {
+  var sel = document.getElementById('createPostAutomation');
+  if (!sel) return;
+  var current = sel.value;
+  sel.innerHTML = '<option value="">No automation (just caption)</option>';
+  automationsData.filter(function(a) { return a.active; }).forEach(function(a) {
+    var opt = document.createElement('option');
+    opt.value = a.keyword;
+    opt.textContent = '\uD83D\uDD17 ' + a.keyword + ' \u2014 ' + a.captureHeadline;
+    sel.appendChild(opt);
+  });
+  sel.value = current;
 }
 
 function renderAutomations() {

@@ -41,7 +41,7 @@ export default async function handler(req) {
 
   try {
     const body = await req.json();
-    const { image, platform = 'instagram', notes = '' } = body;
+    const { image, platform = 'instagram', notes = '', automationKeyword = '' } = body;
 
     if (!image) {
       return new Response(JSON.stringify({ error: 'No image provided' }), {
@@ -70,14 +70,30 @@ export default async function handler(req) {
       });
     }
 
-    // Fetch voice training data + peak hours from Redis
+    // Fetch voice training data + peak hours + automations from Redis
     const PREFIX = process.env.REDIS_PREFIX || 'stats:';
     const results = await redis([
       ['GET', PREFIX + 'tiktok:cache'],
       ['GET', PREFIX + 'youtube:videos'],
       ['HGETALL', PREFIX + 'hourly'],
       ['GET', PREFIX + 'ig:captions'],
+      ['GET', PREFIX + 'automations'],
     ]);
+
+    // Look up the attached automation
+    let automationCTA = '';
+    if (automationKeyword) {
+      const automationsRaw = results[4]?.result;
+      if (automationsRaw) {
+        try {
+          const automations = JSON.parse(automationsRaw);
+          const matched = automations.find(a => a.keyword === automationKeyword && a.active);
+          if (matched) {
+            automationCTA = `\n\nIMPORTANT — AUTOMATION CTA: This post has the "${matched.keyword}" automation attached. You MUST end the caption with a clear call-to-action telling followers to comment "${matched.keyword}" to get "${matched.captureHeadline}". Work it naturally into the caption — don't just tack it on. Example: "Comment ${matched.keyword} and I'll send you my ${matched.captureHeadline.toLowerCase().replace(/^your\s+/i, '')}! 🔥"`;
+          }
+        } catch {}
+      }
+    }
 
     // Assemble voice examples — full captions, not just titles
     const voiceParts = [];
@@ -172,7 +188,7 @@ ${platformRules[platform] || platformRules.instagram}
 
 BEST POSTING TIME (from their audience data): ${bestTimeStr}
 
-${notes ? `CREATOR'S NOTES: ${notes}` : ''}
+${notes ? `CREATOR'S NOTES: ${notes}` : ''}${automationCTA}
 
 Respond with ONLY valid JSON (no markdown, no code fences):
 {

@@ -4234,7 +4234,7 @@ function loadQuickStats() {
       renderBrandCodes({ clicks: raw.clicks || {}, clickList: clickList });
 
       // Render audience heatmap
-      if (raw.hourly) renderHeatmap(raw.hourly);
+      if (raw.hourly) { window._hourlyData = raw.hourly; renderHeatmap(raw.hourly); }
 
       renderHomeSubtitle();
     })

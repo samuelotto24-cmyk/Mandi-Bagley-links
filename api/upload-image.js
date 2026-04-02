@@ -68,12 +68,17 @@ export default async function handler(req) {
     const id = crypto.randomUUID();
     const key = PREFIX + 'tmp:img:' + id;
 
-    // Store in Redis with 1 hour TTL
+    // Parse optional TTL parameter (default 1 hour, max 7 days)
+    const requestedTTL = parseInt(body.ttl, 10);
+    const maxTTL = 604800; // 7 days
+    const ttl = (requestedTTL > 0 && requestedTTL <= maxTTL) ? requestedTTL : 3600;
+
+    // Store in Redis with configurable TTL
     await fetch(`${REDIS_URL}/pipeline`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${REDIS_TOKEN}`, 'Content-Type': 'application/json' },
       body: JSON.stringify([
-        ['SET', key, JSON.stringify({ data: base64Data, mediaType }), 'EX', 3600],
+        ['SET', key, JSON.stringify({ data: base64Data, mediaType }), 'EX', ttl],
       ]),
     });
 

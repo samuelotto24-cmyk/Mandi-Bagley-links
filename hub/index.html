@@ -2405,6 +2405,19 @@ const FONT_MAP = {
   display: flex; align-items: center; justify-content: center; transition: background 0.15s;
 }
 .hub-nav-icon:hover { background: var(--hub-surface-2); }
+a.hub-nav-icon { text-decoration: none; }
+.hub-nav-link {
+  display: flex; align-items: center; gap: 5px;
+  padding: 7px 12px; border-radius: 8px;
+  border: 1px solid var(--hub-border); background: transparent;
+  color: var(--hub-text-muted); font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 500; text-decoration: none;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.hub-nav-link:hover {
+  background: var(--hub-surface-2); color: var(--hub-text-primary);
+  border-color: var(--hub-border-mid);
+}
 
 /* ── Stats Strip ── */
 .stats-strip {
@@ -2972,6 +2985,50 @@ const FONT_MAP = {
 }
 .engine-card-auto .automation-status.active { color: var(--emerald); }
 
+/* Suggested automation cards */
+.suggested-autos { display: flex; flex-direction: column; gap: 8px; }
+.suggested-auto {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border-radius: 10px;
+  background: var(--hub-surface-2); border: 1px dashed var(--hub-border-mid);
+  cursor: pointer; transition: all 0.15s;
+}
+.suggested-auto:hover {
+  border-color: var(--emerald-border); border-style: solid;
+  background: var(--emerald-bg);
+}
+.suggested-auto-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.suggested-auto-text { flex: 1; min-width: 0; }
+.suggested-auto-keyword {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+  color: var(--hub-text-primary);
+}
+.suggested-auto-desc {
+  font-size: 11px; color: var(--hub-text-muted); margin-top: 1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.suggested-auto-btn {
+  font-size: 10px; font-weight: 600; color: var(--emerald);
+  background: var(--emerald-bg); border: 1px solid var(--emerald-border);
+  border-radius: 6px; padding: 4px 10px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; white-space: nowrap;
+  transition: all 0.15s;
+}
+.suggested-auto-btn:hover { background: var(--emerald); color: #090907; }
+.suggested-auto-header {
+  font-size: 11px; color: var(--hub-text-faint); margin-bottom: 8px;
+}
+
+/* Funnel empty visual */
+.funnel-empty-visual {
+  display: flex; align-items: center; gap: 4px;
+  padding: 10px 0; opacity: 0.4;
+}
+
 @media (max-width: 768px) {
   .engine-grid { grid-template-columns: 1fr; }
 }
@@ -3048,6 +3105,8 @@ const FONT_MAP = {
   .stats-strip { overflow-x: auto; }
   .stat-pill { padding: 0 16px; }
   .hub-nav-actions .hub-create-btn span { display: none; }
+  .hub-nav-link span { display: none; }
+  .hub-nav-link { padding: 7px 10px; }
 }
 
 /* ── Override hub-shell for top-nav layout ── */
@@ -3063,6 +3122,35 @@ const FONT_MAP = {
 .hub-shell.hub-redesign #viewHome .community-banner { display: none !important; }
 .hub-shell.hub-redesign #viewAnalytics .home-greeting { display: none; }
 .hub-shell.hub-redesign #viewPlanner > .home-greeting { display: none; }
+
+/* ── Carousel Upload ── */
+.carousel-thumbs {
+  display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center;
+}
+.carousel-thumb {
+  width: 60px; height: 60px; border-radius: 8px; overflow: hidden;
+  border: 2px solid var(--border); position: relative; cursor: grab;
+  flex-shrink: 0;
+}
+.carousel-thumb.dragging { opacity: 0.4; }
+.carousel-thumb.drag-over { border-color: var(--accent); }
+.carousel-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.carousel-thumb .thumb-remove {
+  position: absolute; top: 2px; right: 2px; width: 18px; height: 18px;
+  background: rgba(0,0,0,0.7); color: #fff; border: none; border-radius: 50%;
+  font-size: 10px; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; opacity: 0; transition: opacity 0.15s;
+}
+.carousel-thumb:hover .thumb-remove { opacity: 1; }
+.carousel-add {
+  width: 60px; height: 60px; border-radius: 8px;
+  border: 2px dashed var(--border); display: flex;
+  align-items: center; justify-content: center;
+  font-size: 20px; color: var(--text-muted); cursor: pointer;
+  transition: border-color 0.2s;
+}
+.carousel-add:hover { border-color: var(--accent-border); color: var(--text); }
+.carousel-counter { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
 
 </style>
 </head>
@@ -3145,6 +3233,8 @@ const FONT_MAP = {
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       <span>Create Post</span>
     </button>
+    <a class="hub-nav-link" id="navSiteTop" href="#" target="_blank" title="View My Site">🌐 <span>My Site</span></a>
+    <a class="hub-nav-link" href="/dashboard" target="_blank" title="Full Analytics Dashboard">📊 <span>Dashboard</span></a>
     <button class="hub-nav-icon" title="Message Sam" onclick="openModal('message')">✉️</button>
     <button class="hub-nav-icon" title="Request Update" onclick="openModal('update')">🔄</button>
   </div>
@@ -3169,22 +3259,22 @@ const FONT_MAP = {
   <div class="stats-strip">
     <div class="stat-pill">
       <span class="stat-pill-value" id="total-followers">—</span>
-      <span class="stat-pill-label">Followers</span>
+      <span class="stat-pill-label">Followers <button class="help-btn" onclick="showHelp(this,event)" data-help-key="followers">?</button></span>
     </div>
     <div class="stat-pill-divider"></div>
     <div class="stat-pill">
       <span class="stat-pill-value" id="total-likes">—</span>
-      <span class="stat-pill-label">Total Likes</span>
+      <span class="stat-pill-label">Total Likes <button class="help-btn" onclick="showHelp(this,event)" data-help-key="totalLikes">?</button></span>
     </div>
     <div class="stat-pill-divider"></div>
     <div class="stat-pill">
       <span class="stat-pill-value" id="link-clicks">—</span>
-      <span class="stat-pill-label">Link Clicks</span>
+      <span class="stat-pill-label">Link Clicks <button class="help-btn" onclick="showHelp(this,event)" data-help-key="linkClicks">?</button></span>
     </div>
     <div class="stat-pill-divider"></div>
     <div class="stat-pill">
       <span class="stat-pill-value" id="code-uses">—</span>
-      <span class="stat-pill-label">Code Uses</span>
+      <span class="stat-pill-label">Code Uses <button class="help-btn" onclick="showHelp(this,event)" data-help-key="codeUses">?</button></span>
     </div>
   </div>
 
@@ -3194,7 +3284,7 @@ const FONT_MAP = {
     <!-- TODAY'S BRIEFING -->
     <div class="briefing-card-new" id="homeBriefingCard">
       <div class="briefing-card-header">
-        <span class="section-label-new" style="color: var(--gold)">TODAY'S BRIEFING</span>
+        <span class="section-label-new" style="color: var(--gold)">TODAY'S BRIEFING <button class="help-btn" onclick="showHelp(this,event)" data-help-key="briefing">?</button></span>
         <button class="refresh-btn" id="briefingRefresh" onclick="refreshBriefing()">&#8635;</button>
       </div>
       <div class="briefing-content-new" id="homeBriefingContent">
@@ -3210,7 +3300,7 @@ const FONT_MAP = {
     <!-- CREATE POST -->
     <div class="create-post-card-new" id="createPostCard">
       <div class="create-post-header">
-        <span class="section-label-new" style="color: var(--purple)">CREATE POST</span>
+        <span class="section-label-new" style="color: var(--purple)">CREATE POST <button class="help-btn" onclick="showHelp(this,event)" data-help-key="createPost">?</button></span>
         <span style="font-size:11px; color: var(--hub-text-faint);">Generate captions with AI</span>
       </div>
       <div class="create-post-inner">
@@ -3222,6 +3312,9 @@ const FONT_MAP = {
           </div>
           <img id="createPostPreview" style="display:none; max-width:100%; border-radius:10px;">
           <button id="createPostClear" style="display:none;" class="create-post-clear">&#10005; Remove</button>
+          <div class="carousel-thumbs" id="carouselThumbs" style="display:none;"></div>
+          <div class="carousel-counter" id="carouselCounter" style="display:none;"></div>
+          <input type="file" id="carouselAddFile" accept="image/*" style="display:none;">
           <input type="file" id="createPostFile" accept="image/*" style="display:none;">
         </div>
         <div class="create-post-controls">
@@ -3283,13 +3376,13 @@ const FONT_MAP = {
   <div class="home-support-grid">
     <div class="support-card" style="--card-color: #10B981">
       <div class="support-card-header">
-        <span class="section-label-new" style="color: #10B981">BRAND CODES</span>
+        <span class="section-label-new" style="color: #10B981">BRAND CODES <button class="help-btn" onclick="showHelp(this,event)" data-help-key="brandCodes">?</button></span>
       </div>
       <div id="homeBrandCodesList"></div>
     </div>
     <div class="support-card" style="--card-color: #4F8EF7">
       <div class="support-card-header">
-        <span class="section-label-new" style="color: #4F8EF7">RECENT LEADS</span>
+        <span class="section-label-new" style="color: #4F8EF7">RECENT LEADS <button class="help-btn" onclick="showHelp(this,event)" data-help-key="recentLeads">?</button></span>
       </div>
       <div id="homeLeadsList">
         <div class="skeleton skeleton-text w80"></div>
@@ -3298,7 +3391,7 @@ const FONT_MAP = {
     </div>
     <div class="support-card" style="--card-color: #F472B6">
       <div class="support-card-header">
-        <span class="section-label-new" style="color: #F472B6">QUICK STATS</span>
+        <span class="section-label-new" style="color: #F472B6">QUICK STATS <button class="help-btn" onclick="showHelp(this,event)" data-help-key="quickStats">?</button></span>
       </div>
       <div id="homeStatsCard">
         <div class="home-stats-grid" id="homeStatsGrid">
@@ -3316,7 +3409,7 @@ const FONT_MAP = {
     <div class="engine-header">
       <div class="engine-title">
         <div class="engine-title-icon">⚡</div>
-        <h2>ENGAGEMENT ENGINE</h2>
+        <h2>ENGAGEMENT ENGINE <button class="help-btn" onclick="showHelp(this,event)" data-help-key="engine">?</button></h2>
       </div>
       <button class="engine-new-btn" onclick="openAutomationModal()">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -3327,7 +3420,7 @@ const FONT_MAP = {
     <div class="engine-grid">
       <!-- Automations — emerald -->
       <div class="engine-card-auto">
-        <div class="home-card-label">⚡ AUTOMATIONS</div>
+        <div class="home-card-label">⚡ AUTOMATIONS <button class="help-btn" onclick="showHelp(this,event)" data-help-key="automations">?</button></div>
         <div id="automationsList" class="automations-list">
           <div class="skeleton skeleton-text w80"></div>
           <div class="skeleton skeleton-text w60"></div>
@@ -3336,7 +3429,7 @@ const FONT_MAP = {
 
       <!-- Conversion Funnel — blue with visual -->
       <div class="engine-card-funnel">
-        <div class="home-card-label">📊 CONVERSION FUNNEL</div>
+        <div class="home-card-label">📊 CONVERSION FUNNEL <button class="help-btn" onclick="showHelp(this,event)" data-help-key="funnel">?</button></div>
         <div id="funnelVisual" class="funnel-visual"></div>
         <div id="funnelList" class="funnel-list">
           <div class="skeleton skeleton-text w80"></div>
@@ -3348,7 +3441,7 @@ const FONT_MAP = {
     <div class="engine-grid" style="margin-top:16px;">
       <!-- Captured Leads — rose with summary -->
       <div class="engine-card-leads">
-        <div class="home-card-label">📋 CAPTURED LEADS</div>
+        <div class="home-card-label">📋 CAPTURED LEADS <button class="help-btn" onclick="showHelp(this,event)" data-help-key="capturedLeads">?</button></div>
         <div id="leadsSummary" class="leads-summary-row"></div>
         <div id="leadsList" class="leads-list">
           <div class="skeleton skeleton-text w80"></div>
@@ -3359,7 +3452,7 @@ const FONT_MAP = {
 
       <!-- DM Settings — purple -->
       <div class="engine-card-dm">
-        <div class="home-card-label">💬 DM SETTINGS</div>
+        <div class="home-card-label">💬 DM SETTINGS <button class="help-btn" onclick="showHelp(this,event)" data-help-key="dmSettings">?</button></div>
         <div id="welcomeDMSection"></div>
       </div>
     </div>
@@ -3373,7 +3466,7 @@ const FONT_MAP = {
   </div>
 
   <div class="tab-header" style="border-color: var(--blue-border)">
-    <span class="tab-header-label" style="color: var(--blue)">ANALYTICS</span>
+    <span class="tab-header-label" style="color: var(--blue)">ANALYTICS <button class="help-btn" onclick="showHelp(this,event)" data-help-key="analytics">?</button></span>
     <span class="tab-header-sub">Your platforms, connected</span>
   </div>
 
@@ -3528,7 +3621,7 @@ const FONT_MAP = {
   </div>
 
   <div class="tab-header" style="border-color: var(--gold-border)">
-    <span class="tab-header-label" style="color: var(--gold)">CONTENT PLANNER</span>
+    <span class="tab-header-label" style="color: var(--gold)">CONTENT PLANNER <button class="help-btn" onclick="showHelp(this,event)" data-help-key="planner">?</button></span>
     <span class="tab-header-sub">Plan your week</span>
   </div>
 
@@ -3549,7 +3642,7 @@ const FONT_MAP = {
 <div class="hub-view hub-redesign" id="viewStrategist" style="background: #0A090B; border-left: 3px solid var(--purple);">
 
   <div class="tab-header" style="border-color: var(--purple-border); background: var(--purple-bg)">
-    <span class="tab-header-label" style="color: var(--purple)">AI STRATEGIST</span>
+    <span class="tab-header-label" style="color: var(--purple)">AI STRATEGIST <button class="help-btn" onclick="showHelp(this,event)" data-help-key="strategist">?</button></span>
     <span class="tab-header-sub" style="color: var(--hub-text-faint)">Powered by your real data &middot; LIVE</span>
     <span class="live-dot"></span>
   </div>
@@ -3804,6 +3897,8 @@ function showHub() {
   document.getElementById('greetingH1').textContent = greetText + ', ' + firstName;
   var navSite = document.getElementById('navSite');
   if (navSite) navSite.href = CLIENT.url;
+  var navSiteTop = document.getElementById('navSiteTop');
+  if (navSiteTop) navSiteTop.href = CLIENT.url;
 
   // Date
   const now = new Date();
@@ -3849,6 +3944,34 @@ function showHub() {
 
   // Check onboarding after platform data has time to load
   setTimeout(checkOnboarding, 3000);
+
+  // Fallback: if skeletons are still showing after 8s, replace with helpful empty states
+  setTimeout(function() {
+    var hb = document.getElementById('homeBriefingContent');
+    if (hb && hb.querySelector('.skeleton')) {
+      hb.innerHTML = '<div style="color:var(--hub-text-muted);font-style:italic;">Briefing is taking a moment — tap ↻ to refresh.</div>';
+    }
+    var hs = document.getElementById('homeStatsGrid');
+    if (hs && hs.querySelector('.skeleton')) {
+      hs.innerHTML = '<div style="grid-column:1/-1;color:var(--hub-text-muted);font-size:12px;text-align:center;padding:8px;">Waiting for stats data...</div>';
+    }
+    var hl = document.getElementById('homeLeadsList');
+    if (hl && hl.querySelector('.skeleton')) {
+      hl.innerHTML = '<div style="color:var(--hub-text-muted);font-size:12px;">No leads yet</div>';
+    }
+    var al = document.getElementById('automationsList');
+    if (al && al.querySelector('.skeleton')) {
+      al.innerHTML = '<div class="automation-empty">No automations yet — tap + to create one</div>';
+    }
+    var fl = document.getElementById('funnelList');
+    if (fl && fl.querySelector('.skeleton')) {
+      fl.innerHTML = '<div class="automation-empty">No funnel data yet</div>';
+    }
+    var ll = document.getElementById('leadsList');
+    if (ll && ll.querySelector('.skeleton')) {
+      ll.innerHTML = '<div class="automation-empty">No leads captured yet</div>';
+    }
+  }, 8000);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -4076,6 +4199,7 @@ function loadQuickStats() {
     })
     .catch(function(e) {
       console.error('Quick stats failed:', e);
+      renderEmptyStates();
     });
 }
 
@@ -4175,9 +4299,9 @@ function renderHomeStats() {
   var tfEl = document.getElementById('total-followers');
   if (tfEl) tfEl.textContent = formatNum(totalFollowers);
   var lcEl = document.getElementById('link-clicks');
-  if (lcEl && d.linkClicks) lcEl.textContent = formatNum(d.linkClicks);
+  if (lcEl) lcEl.textContent = d.linkClicks ? formatNum(d.linkClicks) : '—';
   var cuEl = document.getElementById('code-uses');
-  if (cuEl && d.codeUses) cuEl.textContent = formatNum(d.codeUses);
+  if (cuEl) cuEl.textContent = d.codeRedemptions ? formatNum(d.codeRedemptions) : '—';
 }
 
 function renderHomeBriefing(data) {
@@ -4871,6 +4995,7 @@ function renderSmartBanner(data) {
 }
 
 function renderEmptyStates() {
+  // Old layout elements
   var sg = document.getElementById('statsGrid');
   if (sg) sg.innerHTML = '<div class="card stat-tile" style="grid-column:1/-1"><div class="empty-state"><p>No data yet. Connect your platforms to get started.</p></div></div>';
   var bt = document.getElementById('briefingTitle');
@@ -4884,6 +5009,15 @@ function renderEmptyStates() {
   if (tl) tl.innerHTML = '<div class="empty-state"><p>Link clicks will appear here.</p></div>';
   var brc = document.getElementById('brandCodes');
   if (brc) brc.innerHTML = '<div class="empty-state"><p>Code usage will appear here.</p></div>';
+
+  // New redesigned home elements
+  var hb = document.getElementById('homeBriefingContent');
+  if (hb) hb.innerHTML = '<div style="color:var(--hub-text-muted);font-style:italic;">Briefing couldn\'t load right now — tap ↻ to try again.</div>';
+  var hs = document.getElementById('homeStatsGrid');
+  if (hs) hs.innerHTML = '<div style="grid-column:1/-1;color:var(--hub-text-muted);font-size:12px;text-align:center;padding:8px;">Connect your platforms to see stats</div>';
+  var hl = document.getElementById('homeLeadsList');
+  if (hl && hl.querySelector('.skeleton')) hl.innerHTML = '<div style="color:var(--hub-text-muted);font-size:12px;">No leads yet</div>';
+  renderHomeBrandCodes();
 }
 
 /* ═══════════════════════════════════════════════════
@@ -5912,7 +6046,7 @@ function hideHeatmapTip() {
 /* ═══════════════════════════════════════════════════
    CREATE POST
    ═══════════════════════════════════════════════════ */
-var createPostImage = null;
+var createPostImages = [];
 var createPostPlatform = 'instagram';
 
 function initCreatePost() {
@@ -5928,6 +6062,14 @@ function initCreatePost() {
   fileInput.addEventListener('change', function() {
     if (fileInput.files && fileInput.files[0]) handlePostImage(fileInput.files[0]);
   });
+
+  var carouselAddInput = document.getElementById('carouselAddFile');
+  if (carouselAddInput) {
+    carouselAddInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) handlePostImage(this.files[0]);
+      this.value = '';
+    });
+  }
 
   drop.addEventListener('dragover', function(e) {
     e.preventDefault(); drop.classList.add('dragover');
@@ -5967,15 +6109,86 @@ function compressToDataUrl(source, maxDim, startQuality) {
 }
 
 function showPostImage(dataUrl) {
-  createPostImage = dataUrl;
+  createPostImages.push(dataUrl);
+  renderCarousel();
+  var genBtn = document.getElementById('createPostBtn');
+  if (genBtn) genBtn.disabled = false;
+}
+
+function renderCarousel() {
   var preview = document.getElementById('createPostPreview');
   var dropInner = document.getElementById('createPostDropInner');
   var clearBtn = document.getElementById('createPostClear');
-  var genBtn = document.getElementById('createPostBtn');
-  if (preview) { preview.src = dataUrl; preview.style.display = 'block'; }
+  var thumbsEl = document.getElementById('carouselThumbs');
+  var counterEl = document.getElementById('carouselCounter');
+
+  if (!createPostImages.length) {
+    if (preview) preview.style.display = 'none';
+    if (dropInner) dropInner.style.display = '';
+    if (clearBtn) clearBtn.style.display = 'none';
+    if (thumbsEl) thumbsEl.style.display = 'none';
+    if (counterEl) counterEl.style.display = 'none';
+    return;
+  }
+
+  if (preview) { preview.src = createPostImages[0]; preview.style.display = 'block'; }
   if (dropInner) dropInner.style.display = 'none';
   if (clearBtn) clearBtn.style.display = 'flex';
-  if (genBtn) genBtn.disabled = false;
+
+  if (thumbsEl) {
+    thumbsEl.style.display = 'flex';
+    thumbsEl.innerHTML = createPostImages.map(function(img, i) {
+      return '<div class="carousel-thumb" draggable="true" data-idx="' + i + '">' +
+        '<img src="' + img + '" alt="Photo ' + (i + 1) + '">' +
+        '<button class="thumb-remove" onclick="removeCarouselImage(' + i + ')">&times;</button>' +
+      '</div>';
+    }).join('') + (createPostImages.length < 10
+      ? '<div class="carousel-add" onclick="addCarouselImage()">+</div>'
+      : '');
+
+    // Drag-and-drop reorder
+    thumbsEl.querySelectorAll('.carousel-thumb').forEach(function(el) {
+      el.addEventListener('dragstart', function(e) {
+        e.dataTransfer.setData('text/plain', el.dataset.idx);
+        el.classList.add('dragging');
+      });
+      el.addEventListener('dragend', function() { el.classList.remove('dragging'); });
+      el.addEventListener('dragover', function(e) { e.preventDefault(); el.classList.add('drag-over'); });
+      el.addEventListener('dragleave', function() { el.classList.remove('drag-over'); });
+      el.addEventListener('drop', function(e) {
+        e.preventDefault();
+        el.classList.remove('drag-over');
+        var fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+        var toIdx = parseInt(el.dataset.idx, 10);
+        if (fromIdx !== toIdx) {
+          var moved = createPostImages.splice(fromIdx, 1)[0];
+          createPostImages.splice(toIdx, 0, moved);
+          renderCarousel();
+        }
+      });
+    });
+  }
+
+  if (counterEl && createPostImages.length > 1) {
+    counterEl.style.display = '';
+    counterEl.textContent = createPostImages.length + '/10 photos';
+  } else if (counterEl) {
+    counterEl.style.display = 'none';
+  }
+}
+
+function removeCarouselImage(idx) {
+  createPostImages.splice(idx, 1);
+  renderCarousel();
+  if (!createPostImages.length) {
+    document.getElementById('createPostBtn').disabled = true;
+    document.getElementById('createPostOutput').style.display = 'none';
+  }
+}
+
+function addCarouselImage() {
+  if (createPostImages.length >= 10) return;
+  document.getElementById('carouselAddFile').click();
 }
 
 function handlePostImage(file) {
@@ -6054,10 +6267,8 @@ function handlePostImageFallback(file) {
 }
 
 function clearPostImage() {
-  createPostImage = null;
-  document.getElementById('createPostPreview').style.display = 'none';
-  document.getElementById('createPostDropInner').style.display = '';
-  document.getElementById('createPostClear').style.display = 'none';
+  createPostImages = [];
+  renderCarousel();
   document.getElementById('createPostBtn').disabled = true;
   document.getElementById('createPostFile').value = '';
   document.getElementById('createPostOutput').style.display = 'none';
@@ -6070,9 +6281,9 @@ function selectCPPlatform(btn) {
 }
 
 function generatePost() {
-  if (!createPostImage) return;
-  // Safety net: if the image is still too large, re-compress before sending
-  if (createPostImage.length > 800000) {
+  if (!createPostImages.length) return;
+  // Safety net: if the first image is still too large, re-compress before sending
+  if (createPostImages[0].length > 800000) {
     var safeImg = new Image();
     safeImg.onload = function() {
       var c = document.createElement('canvas');
@@ -6084,13 +6295,13 @@ function generatePost() {
       }
       c.width = sw; c.height = sh;
       c.getContext('2d').drawImage(safeImg, 0, 0, sw, sh);
-      createPostImage = c.toDataURL('image/jpeg', 0.5);
+      createPostImages[0] = c.toDataURL('image/jpeg', 0.5);
       generatePost();
     };
     safeImg.onerror = function() {
       alert('Could not process this image. Try saving it as JPG first.');
     };
-    safeImg.src = createPostImage;
+    safeImg.src = createPostImages[0];
     return;
   }
   var btn = document.getElementById('createPostBtn');
@@ -6117,7 +6328,8 @@ function generatePost() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + password },
     body: JSON.stringify({
-      image: createPostImage,
+      image: createPostImages[0],
+      images: createPostImages,
       platform: createPostPlatform,
       notes: document.getElementById('createPostNotes').value || '',
       automationKeyword: document.getElementById('createPostAutomation').value || '',
@@ -6170,8 +6382,8 @@ function generatePost() {
               var igImg = document.getElementById('igPreviewImage');
               var igCap = document.getElementById('igPreviewCaption');
               var igTags = document.getElementById('igPreviewTags');
-              if (igPrev && createPostImage) {
-                igImg.src = createPostImage;
+              if (igPrev && createPostImages.length) {
+                igImg.src = createPostImages[0];
                 igCap.innerHTML = '<strong>mandibagley</strong> ' + escapeHtml(parsed.caption || '');
                 igTags.textContent = (parsed.hashtags || []).map(function(h) { return '#' + h.replace(/^#/, ''); }).join(' ');
                 igPrev.style.display = 'block';
@@ -6341,6 +6553,60 @@ function copyAndOpen(platform) {
    AUTOMATIONS ENGINE
    ══════════════════════════════════════════════════ */
 var automationsData = [];
+
+/* ── Suggested Automations (niche-based) ── */
+var SUGGESTED_AUTOMATIONS = {
+  fitness: [
+    { keyword: 'MEAL', emoji: '🥗', headline: 'Free 7-Day Meal Plan', desc: 'Simple, delicious meals to hit your macros', freebieType: 'pdf_link', color: '#10B981' },
+    { keyword: 'WORKOUT', emoji: '💪', headline: 'Free Workout Guide', desc: 'My go-to routine you can do anywhere', freebieType: 'pdf_link', color: '#4F8EF7' },
+    { keyword: 'RECIPE', emoji: '🍳', headline: 'Top 10 Easy Recipes', desc: 'High-protein meals in under 20 minutes', freebieType: 'pdf_link', color: '#F59E0B' },
+    { keyword: 'LINKS', emoji: '🔗', headline: 'My Favorite Products', desc: 'Everything I use and recommend', freebieType: 'external_url', color: '#F472B6' },
+  ],
+  beauty: [
+    { keyword: 'ROUTINE', emoji: '✨', headline: 'My Skincare Routine', desc: 'Step-by-step morning & night routine', freebieType: 'pdf_link', color: '#F472B6' },
+    { keyword: 'DEALS', emoji: '🏷️', headline: 'Exclusive Discount Codes', desc: 'Save on all my favorite products', freebieType: 'discount_code', color: '#10B981' },
+    { keyword: 'FAVES', emoji: '💄', headline: 'My Holy Grail Products', desc: 'The products I genuinely can\'t live without', freebieType: 'external_url', color: '#7C6AF7' },
+  ],
+  food: [
+    { keyword: 'RECIPE', emoji: '🍳', headline: 'Free Recipe Pack', desc: '5 fan-favorite recipes with full instructions', freebieType: 'pdf_link', color: '#F59E0B' },
+    { keyword: 'MEALPREP', emoji: '📦', headline: 'Meal Prep Guide', desc: 'Save time with a full week of prepped meals', freebieType: 'pdf_link', color: '#10B981' },
+    { keyword: 'LIST', emoji: '🛒', headline: 'Grocery Shopping List', desc: 'My go-to weekly shopping list', freebieType: 'pdf_link', color: '#4F8EF7' },
+  ],
+  lifestyle: [
+    { keyword: 'GUIDE', emoji: '📖', headline: 'Free Starter Guide', desc: 'Everything you need to get started', freebieType: 'pdf_link', color: '#7C6AF7' },
+    { keyword: 'FAVES', emoji: '⭐', headline: 'My Favorites List', desc: 'Everything I use and love', freebieType: 'external_url', color: '#F59E0B' },
+    { keyword: 'DEALS', emoji: '🏷️', headline: 'Exclusive Deals', desc: 'Discount codes just for my followers', freebieType: 'discount_code', color: '#10B981' },
+  ],
+};
+
+function getSuggestedAutomations() {
+  var niche = (CLIENT.niche || 'lifestyle').toLowerCase();
+  return SUGGESTED_AUTOMATIONS[niche] || SUGGESTED_AUTOMATIONS.lifestyle;
+}
+
+function openSuggestedAutomation(idx) {
+  var suggestions = getSuggestedAutomations();
+  var s = suggestions[idx];
+  if (!s) return;
+  openAutomationModal();
+  // Pre-fill the modal with suggestion data
+  setTimeout(function() {
+    var kw = document.getElementById('autoKeyword');
+    var headline = document.getElementById('autoCaptureHeadline');
+    var desc = document.getElementById('autoCaptureDesc');
+    var ftype = document.getElementById('autoFreebieType');
+    var slug = document.getElementById('autoCaptureSlug');
+    var comment = document.getElementById('autoCommentReply');
+    var dm = document.getElementById('autoDmResponse');
+    if (kw) { kw.value = s.keyword; kw.dispatchEvent(new Event('input')); }
+    if (headline) { headline.value = s.headline; headline.dispatchEvent(new Event('input')); }
+    if (desc) desc.value = s.desc;
+    if (ftype) ftype.value = s.freebieType;
+    if (slug) slug.value = s.keyword.toLowerCase();
+    if (comment) { comment.value = 'DM me ' + s.keyword + ' and I\u2019ll send it! \uD83D\uDD25'; comment.dataset.auto = 'true'; }
+    if (dm) { dm.value = 'Here\u2019s your ' + s.headline.toLowerCase() + '! \uD83C\uDF89 Tap the link below:'; dm.dataset.auto = 'true'; }
+  }, 50);
+}
 var editingKeyword = null;
 
 function loadAutomations() {
@@ -6372,7 +6638,22 @@ function renderAutomations() {
   var container = document.getElementById('automationsList');
   if (!container) return;
   if (!automationsData.length) {
-    container.innerHTML = '<div class="automation-empty">No automations yet — tap + to create one</div>';
+    // Show niche-based suggestions
+    var suggestions = getSuggestedAutomations();
+    container.innerHTML =
+      '<div class="suggested-auto-header">Suggested for your niche — tap to set up:</div>' +
+      '<div class="suggested-autos">' +
+      suggestions.map(function(s, i) {
+        return '<div class="suggested-auto" onclick="openSuggestedAutomation(' + i + ')">' +
+          '<div class="suggested-auto-icon" style="background:' + s.color + '15;border:1px solid ' + s.color + '33;">' + s.emoji + '</div>' +
+          '<div class="suggested-auto-text">' +
+            '<div class="suggested-auto-keyword">' + s.keyword + '</div>' +
+            '<div class="suggested-auto-desc">' + s.headline + ' — ' + s.desc + '</div>' +
+          '</div>' +
+          '<button class="suggested-auto-btn" onclick="event.stopPropagation();openSuggestedAutomation(' + i + ')">Set Up</button>' +
+        '</div>';
+      }).join('') +
+      '</div>';
   } else {
     container.innerHTML = automationsData.map(function(a) {
       return '<div class="automation-item">' +
@@ -6423,7 +6704,7 @@ function renderWelcomeDM() {
     '<textarea id="welcomeDMMessage" placeholder="Hey! Thanks for reaching out \u{1F90D}" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--surface-elevated);color:var(--text);font-family:var(--sans);font-size:13px;resize:vertical;min-height:50px;" onblur="saveWelcomeDM()">' + (c.message || '') + '</textarea>' +
     '<label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--text-muted);cursor:pointer;">' +
       '<input type="checkbox" id="welcomeDMFreebies" ' + (c.showFreebies !== false ? 'checked' : '') + ' onchange="saveWelcomeDM()" style="accent-color:var(--accent);">' +
-      'Include list of available freebies' +
+      'Include list of available freebies <button class="help-btn" onclick="showHelp(this,event)" data-help-key="freebies">?</button>' +
     '</label>';
 }
 
@@ -6620,7 +6901,19 @@ function renderFunnel(funnels) {
   if (!container) return;
   var entries = Object.entries(funnels);
   if (!entries.length) {
-    container.innerHTML = '<div class="automation-empty">No data yet</div>';
+    // Show empty funnel visual as preview of what they'll see
+    var fv = document.getElementById('funnelVisual');
+    if (fv) {
+      fv.innerHTML =
+        '<div class="funnel-step-box" style="opacity:0.35"><div class="funnel-step-icon">💬</div><div class="funnel-step-num">—</div><div class="funnel-step-label">Comments</div></div>' +
+        '<span class="funnel-arrow" style="opacity:0.35">→</span>' +
+        '<div class="funnel-step-box" style="opacity:0.35"><div class="funnel-step-icon">📩</div><div class="funnel-step-num">—</div><div class="funnel-step-label">DMs</div></div>' +
+        '<span class="funnel-arrow" style="opacity:0.35">→</span>' +
+        '<div class="funnel-step-box" style="opacity:0.35"><div class="funnel-step-icon">👁</div><div class="funnel-step-num">—</div><div class="funnel-step-label">Clicks</div></div>' +
+        '<span class="funnel-arrow" style="opacity:0.35">→</span>' +
+        '<div class="funnel-step-box" style="opacity:0.35"><div class="funnel-step-icon">✉️</div><div class="funnel-step-num">—</div><div class="funnel-step-label">Emails</div></div>';
+    }
+    container.innerHTML = '<div class="automation-empty" style="font-size:11px;line-height:1.5;">Set up an automation above and this funnel will track how followers convert from comments to captured emails.</div>';
     var ft = document.getElementById('funnelTotal');
     if (ft) ft.textContent = '';
     return;
@@ -6660,8 +6953,14 @@ function renderLeads(leads) {
   if (!container) { renderHomeLeads(leads || []); return; }
   var summaryEl = document.getElementById('leadsSummary');
   if (!leads.length) {
-    container.innerHTML = '<div class="automation-empty">No leads yet — create an automation to get started</div>';
-    if (summaryEl) summaryEl.innerHTML = '';
+    // Show preview summary stats at zero
+    if (summaryEl) {
+      summaryEl.innerHTML =
+        '<div class="leads-summary-stat" style="opacity:0.35"><div class="leads-summary-num">—</div><div class="leads-summary-label">Total</div></div>' +
+        '<div class="leads-summary-stat" style="opacity:0.35"><div class="leads-summary-num">—</div><div class="leads-summary-label">Captured</div></div>' +
+        '<div class="leads-summary-stat" style="opacity:0.35"><div class="leads-summary-num">—</div><div class="leads-summary-label">Today</div></div>';
+    }
+    container.innerHTML = '<div class="automation-empty" style="font-size:11px;line-height:1.5;">When followers engage with your automations, their activity will appear here. You can export captured emails as a CSV.</div>';
     renderHomeLeads([]);
     return;
   }
@@ -6835,15 +7134,53 @@ showHub = function() {
 
 /* ═══════════════════════════════════════════════════
    HELP TOOLTIP SYSTEM
-   ═══════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════
+
+   ┌─────────────────────────────────────────────────┐
+   │  TOOLTIP TEXT — EDIT HERE WHEN FEATURES CHANGE  │
+   │  Each key matches a data-help-key in the HTML.  │
+   │  Format: { title: 'LABEL', text: '...' }        │
+   └─────────────────────────────────────────────────┘ */
+
+var HELP_TEXT = {
+  // ── Stats Strip ──
+  followers:       { title: 'FOLLOWERS', text: 'Your combined follower count across all connected platforms — Instagram, TikTok, and YouTube.' },
+  totalLikes:      { title: 'TOTAL LIKES', text: 'The total number of likes across all your posts and videos on connected platforms.' },
+  linkClicks:      { title: 'LINK CLICKS', text: 'How many times people clicked links on your site — bio link, brand codes, and capture pages.' },
+  codeUses:        { title: 'CODE USES', text: 'How many times your affiliate discount codes have been used by your audience.' },
+
+  // ── Home Cards ──
+  briefing:        { title: "TODAY'S BRIEFING", text: 'Your personalized daily summary — highlights from your analytics, trending content ideas, and action items generated from your real data.' },
+  createPost:      { title: 'CREATE POST', text: 'Upload a photo and AI will generate a platform-optimized caption with hashtags, best posting time, and engagement tips.' },
+  brandCodes:      { title: 'BRAND CODES', text: 'Your affiliate and discount codes from brand partnerships. Track how often each code is used by your audience.' },
+  recentLeads:     { title: 'RECENT LEADS', text: 'People who engaged with your automations — commented a keyword, received a DM, clicked a link, or gave you their email.' },
+  quickStats:      { title: 'QUICK STATS', text: 'A snapshot of your key metrics — follower growth, engagement rate, weekly views, and link click performance.' },
+
+  // ── Engagement Engine ──
+  engine:          { title: 'ENGAGEMENT ENGINE', text: 'Your automated comment-to-customer system. Set up keywords that trigger auto-replies, DMs, and capture pages to turn followers into leads.' },
+  automations:     { title: 'AUTOMATIONS', text: 'Each automation watches for a keyword in your Instagram comments. When someone comments it, they get an auto-reply, a DM with a link, and a capture page to collect their email.' },
+  funnel:          { title: 'CONVERSION FUNNEL', text: 'Shows how people move through your automation pipeline — from commenting a keyword, to receiving a DM, to clicking your link, to giving you their email. Higher percentages mean your funnel is working well.' },
+  capturedLeads:   { title: 'CAPTURED LEADS', text: 'Everyone who entered their email through one of your capture pages. You can export these as a CSV to use in email marketing.' },
+  dmSettings:      { title: 'DM SETTINGS', text: 'Configure what happens when someone DMs you for the first time without using a keyword. The welcome message introduces them to your freebies.' },
+  freebies:        { title: 'AVAILABLE FREEBIES', text: 'When enabled, your welcome DM will include a menu of all your active freebies — like meal plans, workout guides, or discount codes. This turns cold DMs into keyword-triggered leads.' },
+
+  // ── Tab Headers ──
+  analytics:       { title: 'ANALYTICS', text: 'Connect your social platforms to see followers, engagement, top posts, and audience activity all in one place.' },
+  planner:         { title: 'CONTENT PLANNER', text: 'Plan your week of content. Tap any day to choose a content type and jot down ideas. AI suggests topics based on your niche.' },
+  strategist:      { title: 'AI STRATEGIST', text: 'Your personal AI advisor that knows your real analytics. Ask it anything about your content strategy, growth, or what to post next.' },
+};
+
 var _activeTooltip = null;
 
 function showHelp(btn, e) {
   e.stopPropagation();
-  // Close existing
   closeHelp();
-  var text = btn.getAttribute('data-help');
-  var title = btn.getAttribute('data-help-title') || '';
+
+  // Support both data-help-key (config lookup) and inline data-help (fallback)
+  var key = btn.getAttribute('data-help-key');
+  var entry = key && HELP_TEXT[key] ? HELP_TEXT[key] : null;
+  var text = entry ? entry.text : btn.getAttribute('data-help');
+  var title = entry ? entry.title : (btn.getAttribute('data-help-title') || '');
   if (!text) return;
 
   var tip = document.createElement('div');

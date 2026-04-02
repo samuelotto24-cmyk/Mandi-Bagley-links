@@ -3152,6 +3152,21 @@ a.hub-nav-icon { text-decoration: none; }
 .carousel-add:hover { border-color: var(--accent-border); color: var(--text); }
 .carousel-counter { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
 
+/* ── Scheduling Panel ── */
+.schedule-panel { margin-top: 16px; padding: 16px; background: var(--surface-elevated); border: 1px solid var(--border); border-radius: 12px; display: none; }
+.schedule-panel.active { display: block; }
+.schedule-slots { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.schedule-slot { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: border-color 0.2s; }
+.schedule-slot:hover { border-color: var(--accent-border); }
+.schedule-slot.selected { border-color: var(--accent); background: var(--accent-pale); }
+.schedule-slot-time { font-size: 14px; font-weight: 500; }
+.schedule-slot-score { font-size: 12px; color: var(--text-muted); }
+.schedule-custom input[type="datetime-local"] { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: var(--sans); font-size: 13px; }
+.schedule-actions { display: flex; gap: 8px; margin-top: 12px; }
+.schedule-actions button { flex: 1; padding: 10px; border-radius: 8px; font-family: var(--sans); font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
+.schedule-confirm { background: var(--accent); color: var(--bg); }
+.schedule-cancel-btn { background: transparent; border: 1px solid var(--border) !important; color: var(--text-muted); }
+
 </style>
 </head>
 
@@ -3342,9 +3357,22 @@ a.hub-nav-icon { text-decoration: none; }
             <div class="create-post-meta-item" id="createPostTips"></div>
           </div>
           <div class="create-post-actions" id="createPostActions" style="display:none;">
-            <button class="cp-action-btn cp-action-ig" id="cpPostIg" onclick="postToInstagram()">&#128203; Copy Caption &amp; Open Instagram</button>
-            <button class="cp-action-btn" onclick="copyAndOpen('tiktok')">&#127925; Copy &amp; Open TikTok</button>
-            <button class="cp-action-btn" onclick="copyAndOpen('youtube')">&#9654;&#65039; Copy &amp; Open YouTube</button>
+            <button class="cp-action-btn cp-action-ig" onclick="postNow()">&#128247; Post Now to Instagram</button>
+            <button class="cp-action-btn" onclick="openSchedulePanel()">&#128197; Schedule</button>
+            <button class="cp-action-btn" onclick="postToInstagram()">&#128203; Copy Caption &amp; Open Instagram</button>
+          </div>
+          <div class="schedule-panel" id="schedulePanel">
+            <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Best times to post</div>
+            <div class="schedule-slots" id="scheduleSlots"></div>
+            <div class="schedule-custom">
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">Or pick a custom time:</div>
+              <input type="datetime-local" id="scheduleCustomTime">
+            </div>
+            <div class="schedule-actions">
+              <button class="schedule-cancel-btn" onclick="closeSchedulePanel()">Cancel</button>
+              <button class="schedule-confirm" id="scheduleConfirmBtn" onclick="confirmSchedule()" disabled>Schedule Post</button>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:8px;font-style:italic;">Instagram only for now. TikTok and YouTube scheduling coming soon.</div>
           </div>
           <div class="cp-post-status" id="cpPostStatus" style="display:none;"></div>
           <div class="ig-preview" id="igPreview" style="display:none;">
@@ -6392,10 +6420,14 @@ function generatePost() {
               var igPrev = document.getElementById('igPreview');
               if (igPrev) igPrev.style.display = 'none';
             }
+            generatedCaption = parsed.caption || fullText;
+            generatedHashtags = parsed.hashtags || [];
             showPostActions(parsed);
           } catch (e) {
             // If JSON parse fails, just show the raw text
             caption.textContent = fullText;
+            generatedCaption = fullText;
+            generatedHashtags = [];
             showPostActions(null);
           }
           btn.textContent = 'Generate Caption';
@@ -6466,6 +6498,167 @@ function copyTag(el) {
     }, 800);
   });
 }
+
+/* ── SCHEDULING ENGINE ── */
+var selectedScheduleTime = null;
+var generatedCaption = '';
+var generatedHashtags = [];
+
+function getTopTimeSlots() {
+  var hourlyData = window._hourlyData || {};
+  var byHour = {};
+  for (var key in hourlyData) {
+    var hr = key.includes(':') ? parseInt(key.split(':').pop(), 10) : parseInt(key, 10);
+    if (!isNaN(hr)) byHour[hr] = (byHour[hr] || 0) + hourlyData[key];
+  }
+  var hours = [];
+  for (var h = 0; h < 24; h++) {
+    hours.push({ hour: h, score: (byHour[h] || 0) + (byHour[(h + 1) % 24] || 0) });
+  }
+  hours.sort(function(a, b) { return b.score - a.score; });
+  var selected = [], used = {};
+  for (var i = 0; i < hours.length && selected.length < 3; i++) {
+    if (!used[hours[i].hour] && !used[hours[i].hour - 1] && !used[hours[i].hour + 1]) {
+      selected.push(hours[i]);
+      used[hours[i].hour] = true;
+    }
+  }
+  if (!selected.length) {
+    selected = [{ hour: 19, score: 100 }, { hour: 12, score: 80 }, { hour: 7, score: 60 }];
+  }
+  var now = new Date();
+  var labels = ['Peak engagement', 'High engagement', 'Good engagement'];
+  return selected.map(function(s, idx) {
+    var target = new Date(now);
+    target.setHours(s.hour, 0, 0, 0);
+    if (target <= now) target.setDate(target.getDate() + 1);
+    while (target - now < 1800000) target.setDate(target.getDate() + 1);
+    return {
+      label: target.toLocaleDateString('en-US', { weekday: 'short' }) + ' ' + target.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+      sublabel: labels[idx] || '',
+      iso: target.toISOString(),
+    };
+  });
+}
+
+function openSchedulePanel() {
+  var panel = document.getElementById('schedulePanel');
+  var slotsEl = document.getElementById('scheduleSlots');
+  selectedScheduleTime = null;
+  document.getElementById('scheduleConfirmBtn').disabled = true;
+  document.getElementById('scheduleCustomTime').value = '';
+  var slots = getTopTimeSlots();
+  slotsEl.innerHTML = slots.map(function(slot) {
+    return '<div class="schedule-slot" data-iso="' + slot.iso + '" onclick="selectTimeSlot(this)">' +
+      '<span class="schedule-slot-time">' + slot.label + '</span>' +
+      '<span class="schedule-slot-score">' + slot.sublabel + '</span></div>';
+  }).join('');
+  panel.classList.add('active');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeSchedulePanel() {
+  document.getElementById('schedulePanel').classList.remove('active');
+  selectedScheduleTime = null;
+}
+
+function selectTimeSlot(el) {
+  document.querySelectorAll('.schedule-slot').forEach(function(s) { s.classList.remove('selected'); });
+  el.classList.add('selected');
+  selectedScheduleTime = el.dataset.iso;
+  document.getElementById('scheduleConfirmBtn').disabled = false;
+  document.getElementById('scheduleCustomTime').value = '';
+}
+
+function uploadAllImages(images) {
+  var ttl = selectedScheduleTime ? 604800 : 3600;
+  return Promise.all(images.map(function(img) {
+    return fetch('/api/upload-image', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: img, ttl: ttl }),
+    }).then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.url) throw new Error('Image upload failed');
+      return data.url;
+    });
+  }));
+}
+
+function confirmSchedule() {
+  if (!selectedScheduleTime || !createPostImages.length) return;
+  var btn = document.getElementById('scheduleConfirmBtn');
+  btn.disabled = true; btn.textContent = 'Scheduling...';
+  uploadAllImages(createPostImages).then(function(imageUrls) {
+    return fetch('/api/schedule-post', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        images: imageUrls, caption: generatedCaption, hashtags: generatedHashtags,
+        platform: createPostPlatform, scheduledAt: selectedScheduleTime,
+        automationKeyword: document.getElementById('createPostAutomation').value || '',
+      }),
+    });
+  }).then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.ok) {
+      closeSchedulePanel(); clearPostImage();
+      showToast('Scheduled for ' + new Date(selectedScheduleTime).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' }));
+      if (typeof loadScheduledPosts === 'function') loadScheduledPosts();
+    } else { alert(data.error || 'Failed to schedule'); }
+    btn.textContent = 'Schedule Post'; btn.disabled = false;
+  }).catch(function(err) {
+    alert('Failed to schedule: ' + err.message);
+    btn.textContent = 'Schedule Post'; btn.disabled = false;
+  });
+}
+
+function postNow() {
+  if (!createPostImages.length) return;
+  var actionBtns = document.querySelectorAll('#createPostActions .cp-action-btn');
+  actionBtns.forEach(function(b) { b.disabled = true; });
+  uploadAllImages(createPostImages).then(function(imageUrls) {
+    return fetch('/api/schedule-post', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        images: imageUrls, caption: generatedCaption, hashtags: generatedHashtags,
+        platform: createPostPlatform,
+        automationKeyword: document.getElementById('createPostAutomation').value || '',
+        postNow: true,
+      }),
+    });
+  }).then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.ok) { clearPostImage(); showToast('Post queued for publishing!'); }
+    else { alert(data.error || 'Failed to publish'); }
+    actionBtns.forEach(function(b) { b.disabled = false; });
+  }).catch(function(err) {
+    alert('Failed: ' + err.message);
+    actionBtns.forEach(function(b) { b.disabled = false; });
+  });
+}
+
+function showToast(msg) {
+  var toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--bg);padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:999;font-family:var(--sans);box-shadow:0 4px 20px rgba(0,0,0,0.3);';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var customTime = document.getElementById('scheduleCustomTime');
+  if (customTime) {
+    customTime.addEventListener('change', function() {
+      if (this.value) {
+        document.querySelectorAll('.schedule-slot').forEach(function(s) { s.classList.remove('selected'); });
+        selectedScheduleTime = new Date(this.value).toISOString();
+        document.getElementById('scheduleConfirmBtn').disabled = false;
+      }
+    });
+  }
+});
 
 var generatedCaptionData = null;
 

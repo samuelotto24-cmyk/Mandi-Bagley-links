@@ -15,6 +15,7 @@
 <link rel="apple-touch-icon" href="/hub/icon-192.png">
 <link rel="icon" type="image/svg+xml" href="/hub/icon-192.svg">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
 
 <!-- ═══════════════════════════════════════════════════
      CLIENT CONFIG + THEME ENGINE  (runs before paint)
@@ -3190,7 +3191,7 @@ const FONT_MAP = {
           </div>
           <img id="createPostPreview" style="display:none; max-width:100%; border-radius:10px;">
           <button id="createPostClear" style="display:none;" class="create-post-clear">&#10005; Remove</button>
-          <input type="file" id="createPostFile" accept="image/*" style="display:none;">
+          <input type="file" id="createPostFile" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" style="display:none;">
         </div>
         <div class="create-post-controls">
           <div class="create-post-platforms">
@@ -5947,7 +5948,8 @@ function showPostImage(dataUrl) {
 }
 
 function handlePostImage(file) {
-  if (!file.type.startsWith('image/') && !file.name.match(/\.(heic|heif)$/i)) {
+  var isHeic = file.name.match(/\.(heic|heif)$/i) || file.type === 'image/heic' || file.type === 'image/heif';
+  if (!file.type.startsWith('image/') && !isHeic) {
     alert('Please upload an image file.');
     return;
   }
@@ -5956,14 +5958,27 @@ function handlePostImage(file) {
     return;
   }
 
-  // Try createImageBitmap first — handles HEIC on Safari/macOS
+  // Convert HEIC to JPEG first if needed
+  if (isHeic && typeof heic2any !== 'undefined') {
+    heic2any({ blob: file, toType: 'image/jpeg', quality: 0.7 }).then(function(jpegBlob) {
+      processImageFile(jpegBlob);
+    }).catch(function() {
+      alert('Could not convert HEIC image. Try saving it as JPG in Preview first.');
+    });
+    return;
+  }
+
+  processImageFile(file);
+}
+
+function processImageFile(file) {
+  // Try createImageBitmap first — handles more formats
   if (typeof createImageBitmap === 'function') {
     createImageBitmap(file).then(function(bitmap) {
       var dataUrl = compressToDataUrl(bitmap, 768, 0.6);
       bitmap.close();
       showPostImage(dataUrl);
     }).catch(function() {
-      // createImageBitmap failed — try Image element fallback
       handlePostImageFallback(file);
     });
   } else {

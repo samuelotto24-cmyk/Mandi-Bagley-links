@@ -5957,13 +5957,6 @@ function handlePostImage(file) {
     return;
   }
 
-  // HEIC files can't be processed in most browsers
-  if (isHeic) {
-    // Try clicking the file input instead — macOS auto-converts HEIC to JPEG in file picker
-    alert('HEIC photos need to be converted first. Tap the upload area to use the file picker (it auto-converts), or save as JPG in Preview.');
-    return;
-  }
-
   processImageFile(file);
 }
 

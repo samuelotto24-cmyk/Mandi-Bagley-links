@@ -43,6 +43,28 @@ export default async function handler(req) {
   }
 
   const url = new URL(req.url);
+  const path = url.searchParams.get('path');
+
+  // Welcome DM config
+  const WELCOME_KEY = `${PREFIX}welcome_dm`;
+  if (path === 'welcome') {
+    if (req.method === 'GET') {
+      const raw = await redisGet(WELCOME_KEY);
+      const config = raw ? JSON.parse(raw) : { enabled: false, message: '', showFreebies: true };
+      return json(config);
+    }
+    if (req.method === 'PUT') {
+      const body = await req.json();
+      const config = {
+        enabled: Boolean(body.enabled),
+        message: String(body.message || '').trim(),
+        showFreebies: body.showFreebies !== false,
+      };
+      await redisSet(WELCOME_KEY, JSON.stringify(config));
+      return json({ ok: true, ...config });
+    }
+    return json({ error: 'Method not allowed' }, 405);
+  }
 
   // GET — return all automations
   if (req.method === 'GET') {

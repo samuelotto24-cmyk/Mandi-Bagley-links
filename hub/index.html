@@ -2513,6 +2513,46 @@ const FONT_MAP = {
       <div id="homeBrandCodesList"></div>
     </div>
   </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Engagement Engine Section -->
+  <div style="margin-top:4px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <h2 style="font-family:var(--display-font);font-size:20px;font-weight:400;color:var(--text);">Engagement Engine</h2>
+      <button onclick="openAutomationModal()" style="background:var(--accent);color:var(--bg);border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);">+ New</button>
+    </div>
+    <div class="home-bottom-row">
+      <div class="home-card">
+        <div class="home-card-label">⚡ Automations</div>
+        <div id="automationsList" class="automations-list">
+          <div class="skeleton skeleton-text w80"></div>
+          <div class="skeleton skeleton-text w60"></div>
+        </div>
+      </div>
+      <div class="home-card">
+        <div class="home-card-label">📊 Conversion Funnel</div>
+        <div id="funnelList" class="funnel-list">
+          <div class="skeleton skeleton-text w80"></div>
+          <div class="skeleton skeleton-text w60"></div>
+        </div>
+      </div>
+    </div>
+    <div class="home-bottom-row" style="margin-top:12px;">
+      <div class="home-card">
+        <div class="home-card-label">📋 Captured Leads</div>
+        <div id="leadsList" class="leads-list">
+          <div class="skeleton skeleton-text w80"></div>
+          <div class="skeleton skeleton-text w60"></div>
+        </div>
+        <button onclick="exportLeadsCSV()" style="margin-top:10px;background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:var(--sans);width:100%;">Export Emails (CSV)</button>
+      </div>
+      <div class="home-card">
+        <div class="home-card-label">💬 DM Settings</div>
+        <div id="welcomeDMSection"></div>
+      </div>
+    </div>
+  </div>
 </div><!-- end viewHome -->
 
 <div class="hub-view" id="viewAnalytics">
@@ -5388,23 +5428,77 @@ function renderAutomations() {
   if (!container) return;
   if (!automationsData.length) {
     container.innerHTML = '<div class="automation-empty">No automations yet — tap + to create one</div>';
-    return;
+  } else {
+    container.innerHTML = automationsData.map(function(a) {
+      return '<div class="automation-item">' +
+        '<div class="automation-item-header">' +
+          '<span class="automation-keyword">' + a.keyword + '</span>' +
+          '<span class="automation-status ' + (a.active ? 'active' : '') + '">' + (a.active ? '● Active' : '○ Paused') + '</span>' +
+        '</div>' +
+        '<div class="automation-reply">"' + a.commentReply + '"</div>' +
+        '<div class="automation-stats" id="autoStats_' + a.keyword + '"></div>' +
+        '<div class="automation-actions">' +
+          '<button onclick="editAutomation(\'' + a.keyword + '\')">Edit</button>' +
+          '<button onclick="toggleAutomation(\'' + a.keyword + '\',' + !a.active + ')">' + (a.active ? 'Pause' : 'Resume') + '</button>' +
+          '<button onclick="deleteAutomation(\'' + a.keyword + '\')">Delete</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
   }
-  container.innerHTML = automationsData.map(function(a) {
-    return '<div class="automation-item">' +
-      '<div class="automation-item-header">' +
-        '<span class="automation-keyword">' + a.keyword + '</span>' +
-        '<span class="automation-status ' + (a.active ? 'active' : '') + '">' + (a.active ? '● Active' : '○ Paused') + '</span>' +
-      '</div>' +
-      '<div class="automation-reply">"' + a.commentReply + '"</div>' +
-      '<div class="automation-stats" id="autoStats_' + a.keyword + '"></div>' +
-      '<div class="automation-actions">' +
-        '<button onclick="editAutomation(\'' + a.keyword + '\')">Edit</button>' +
-        '<button onclick="toggleAutomation(\'' + a.keyword + '\',' + !a.active + ')">' + (a.active ? 'Pause' : 'Resume') + '</button>' +
-        '<button onclick="deleteAutomation(\'' + a.keyword + '\')">Delete</button>' +
-      '</div>' +
-    '</div>';
-  }).join('');
+  loadWelcomeDM();
+}
+
+/* ── Welcome DM ── */
+var welcomeDMConfig = { enabled: false, message: '', showFreebies: true };
+
+function loadWelcomeDM() {
+  fetch('/api/automations?path=welcome', { headers: { 'Authorization': 'Bearer ' + password } })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      welcomeDMConfig = data;
+      renderWelcomeDM();
+    })
+    .catch(function() {});
+}
+
+function renderWelcomeDM() {
+  var el = document.getElementById('welcomeDMSection');
+  if (!el) return;
+  var c = welcomeDMConfig;
+  el.innerHTML =
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">' +
+      '<span style="font-size:13px;font-weight:600;color:var(--text);">\u{1F44B} Welcome DM</span>' +
+      '<label style="position:relative;width:40px;height:22px;cursor:pointer;">' +
+        '<input type="checkbox" id="welcomeDMToggle" ' + (c.enabled ? 'checked' : '') + ' onchange="toggleWelcomeDM(this.checked)" style="opacity:0;width:0;height:0;">' +
+        '<span style="position:absolute;inset:0;background:' + (c.enabled ? '#22c55e' : 'var(--border)') + ';border-radius:22px;transition:background 0.2s;"></span>' +
+        '<span style="position:absolute;top:2px;left:' + (c.enabled ? '20px' : '2px') + ';width:18px;height:18px;background:#fff;border-radius:50%;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></span>' +
+      '</label>' +
+    '</div>' +
+    '<p style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">Auto-reply when someone DMs for the first time without a keyword</p>' +
+    '<textarea id="welcomeDMMessage" placeholder="Hey! Thanks for reaching out \u{1F90D}" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--surface-elevated);color:var(--text);font-family:var(--sans);font-size:13px;resize:vertical;min-height:50px;" onblur="saveWelcomeDM()">' + (c.message || '') + '</textarea>' +
+    '<label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--text-muted);cursor:pointer;">' +
+      '<input type="checkbox" id="welcomeDMFreebies" ' + (c.showFreebies !== false ? 'checked' : '') + ' onchange="saveWelcomeDM()" style="accent-color:var(--accent);">' +
+      'Include list of available freebies' +
+    '</label>';
+}
+
+function toggleWelcomeDM(enabled) {
+  welcomeDMConfig.enabled = enabled;
+  saveWelcomeDM();
+  renderWelcomeDM();
+}
+
+function saveWelcomeDM() {
+  var msgEl = document.getElementById('welcomeDMMessage');
+  var freebiesEl = document.getElementById('welcomeDMFreebies');
+  if (msgEl) welcomeDMConfig.message = msgEl.value;
+  if (freebiesEl) welcomeDMConfig.showFreebies = freebiesEl.checked;
+
+  fetch('/api/automations?path=welcome', {
+    method: 'PUT',
+    headers: { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' },
+    body: JSON.stringify(welcomeDMConfig),
+  }).catch(function() {});
 }
 
 function openAutomationModal(keyword) {
@@ -5627,6 +5721,20 @@ function renderLeads(leads) {
   window._newLeadsCount = leads.length;
   renderHomeLeads(leads);
   renderHomeSubtitle();
+}
+
+function exportLeadsCSV() {
+  fetch('/api/leads?export=csv', { headers: { 'Authorization': 'Bearer ' + password } })
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'leads.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    })
+    .catch(function() { alert('Failed to export'); });
 }
 
 function leadTimeAgo(ts) {

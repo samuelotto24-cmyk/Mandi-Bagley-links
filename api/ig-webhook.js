@@ -161,22 +161,68 @@ export default async function handler(req) {
         const senderId = msg.sender ? msg.sender.id : null;
         const senderLabel = senderId || 'unknown';
 
+        if (!senderId || !pageToken || !igUserId) continue;
+
         const matched = matchKeyword(dmText, automations);
-        if (!matched || !senderId || !pageToken || !igUserId) continue;
 
-        logLead('dms', matched.keyword, senderLabel);
+        if (matched) {
+          logLead('dms', matched.keyword, senderLabel);
 
-        // Send DM response with capture link
-        const replyText = `${matched.dmResponse}\n\n${origin}/g/${matched.captureSlug}`;
-        fetch(`https://graph.facebook.com/v21.0/${igUserId}/messages`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            recipient: { id: senderId },
-            message: { text: replyText },
-            access_token: pageToken,
-          }),
-        }).catch(() => {});
+          // Send DM response with capture link
+          const replyText = `${matched.dmResponse}\n\n${origin}/g/${matched.captureSlug}`;
+          fetch(`https://graph.facebook.com/v21.0/${igUserId}/messages`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              recipient: { id: senderId },
+              message: { text: replyText },
+              access_token: pageToken,
+            }),
+          }).catch(() => {});
+        } else {
+          // No keyword match — check if this is a first-time DM for welcome message
+          const welcomeConfig = await redisGet(`${PREFIX}welcome_dm`);
+          if (welcomeConfig) {
+            try {
+              const welcome = JSON.parse(welcomeConfig);
+              if (welcome.enabled) {
+                // Check if we've already welcomed this user
+                const welcomedKey = `${PREFIX}welcomed:${senderId}`;
+                const alreadyWelcomed = await redisGet(welcomedKey);
+                if (!alreadyWelcomed) {
+                  // Mark as welcomed (expires in 90 days)
+                  redisPipeline([
+                    ['SET', welcomedKey, '1', 'EX', '7776000'],
+                  ]).catch(() => {});
+
+                  // Build welcome message with freebie menu
+                  let welcomeText = welcome.message || "Hey! Thanks for reaching out \u{1F90D}";
+                  if (welcome.showFreebies && automations.length) {
+                    const activeAutos = automations.filter(a => a.active);
+                    if (activeAutos.length) {
+                      welcomeText += '\n\nI have some free stuff for you! Just type any of these:';
+                      for (const a of activeAutos) {
+                        welcomeText += `\n\u{1F449} ${a.keyword} \u{2014} ${a.captureHeadline}`;
+                      }
+                    }
+                  }
+
+                  fetch(`https://graph.facebook.com/v21.0/${igUserId}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      recipient: { id: senderId },
+                      message: { text: welcomeText },
+                      access_token: pageToken,
+                    }),
+                  }).catch(() => {});
+
+                  logLead('welcome_dm', 'WELCOME', senderLabel);
+                }
+              }
+            } catch {}
+          }
+        }
       }
     }
 

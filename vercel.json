@@ -1,6 +1,10 @@
 {
   "crons": [
     {
+      "path": "/api/publish-scheduled",
+      "schedule": "*/15 * * * *"
+    },
+    {
       "path": "/api/youtube/sync",
       "schedule": "0 6 * * *"
     },

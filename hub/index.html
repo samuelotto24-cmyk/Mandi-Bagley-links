@@ -2976,6 +2976,38 @@ const FONT_MAP = {
   .engine-grid { grid-template-columns: 1fr; }
 }
 
+/* ── Help Tooltip System ── */
+.help-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 1px solid var(--hub-border-mid); background: transparent;
+  color: var(--hub-text-faint); font-size: 10px; font-weight: 600;
+  font-family: 'DM Sans', sans-serif; cursor: pointer;
+  transition: all 0.15s; flex-shrink: 0; line-height: 1;
+  padding: 0; vertical-align: middle; margin-left: 5px;
+}
+.help-btn:hover {
+  border-color: var(--hub-text-muted); color: var(--hub-text-muted);
+  background: rgba(255,248,220,0.04);
+}
+.help-tooltip {
+  position: fixed; z-index: 500; max-width: 280px;
+  padding: 12px 16px; background: var(--hub-surface);
+  border: 1px solid var(--hub-border-mid); border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  font-family: 'DM Sans', sans-serif; font-size: 12px;
+  font-weight: 400; line-height: 1.55; color: var(--hub-text-primary);
+  animation: tooltipIn 0.15s ease-out;
+}
+@keyframes tooltipIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.help-tooltip-title {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--hub-text-muted); margin-bottom: 4px;
+}
+
 /* ── Global Card Polish ── */
 .hub-card {
   background: var(--hub-surface); border: 1px solid var(--hub-border);
@@ -5957,6 +5989,32 @@ function handlePostImage(file) {
     return;
   }
 
+  // HEIC needs conversion — lazy-load heic2any only when needed
+  if (isHeic) {
+    if (typeof heic2any !== 'undefined') {
+      heic2any({ blob: file, toType: 'image/jpeg', quality: 0.7 }).then(function(jpegBlob) {
+        processImageFile(jpegBlob);
+      }).catch(function() {
+        alert('Could not convert this photo. Try opening it in Preview and exporting as JPEG.');
+      });
+    } else {
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
+      s.onload = function() {
+        heic2any({ blob: file, toType: 'image/jpeg', quality: 0.7 }).then(function(jpegBlob) {
+          processImageFile(jpegBlob);
+        }).catch(function() {
+          alert('Could not convert this photo. Try opening it in Preview and exporting as JPEG.');
+        });
+      };
+      s.onerror = function() {
+        alert('Could not load image converter. Try saving the photo as JPG first.');
+      };
+      document.head.appendChild(s);
+    }
+    return;
+  }
+
   processImageFile(file);
 }
 
@@ -6774,6 +6832,52 @@ showHub = function() {
   loadLeads();
   setTimeout(function() { loadInstagramData(); }, 500);
 };
+
+/* ═══════════════════════════════════════════════════
+   HELP TOOLTIP SYSTEM
+   ═══════════════════════════════════════════════════ */
+var _activeTooltip = null;
+
+function showHelp(btn, e) {
+  e.stopPropagation();
+  // Close existing
+  closeHelp();
+  var text = btn.getAttribute('data-help');
+  var title = btn.getAttribute('data-help-title') || '';
+  if (!text) return;
+
+  var tip = document.createElement('div');
+  tip.className = 'help-tooltip';
+  tip.innerHTML = (title ? '<div class="help-tooltip-title">' + title + '</div>' : '') + text;
+  document.body.appendChild(tip);
+
+  // Position near button
+  var rect = btn.getBoundingClientRect();
+  var tipW = 280;
+  var left = rect.left + rect.width / 2 - tipW / 2;
+  if (left < 12) left = 12;
+  if (left + tipW > window.innerWidth - 12) left = window.innerWidth - tipW - 12;
+  var top = rect.bottom + 8;
+  if (top + 160 > window.innerHeight) top = rect.top - 8 - tip.offsetHeight;
+
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
+  tip.style.width = tipW + 'px';
+  _activeTooltip = tip;
+}
+
+function closeHelp() {
+  if (_activeTooltip) {
+    _activeTooltip.remove();
+    _activeTooltip = null;
+  }
+}
+
+document.addEventListener('click', function(e) {
+  if (_activeTooltip && !e.target.closest('.help-btn') && !e.target.closest('.help-tooltip')) {
+    closeHelp();
+  }
+});
 </script>
 </body>
 </html>

@@ -5943,8 +5943,9 @@ function handlePostImage(file) {
       if (genBtn) genBtn.disabled = false;
     } catch (e) {
       console.error('Image processing error:', e);
-      // Fallback: use raw file as base64
       URL.revokeObjectURL(url);
+      // HEIC and other unsupported formats can't be canvas-compressed
+      // Read as base64 but let generatePost's safety net re-compress
       var reader = new FileReader();
       reader.onload = function(ev) {
         createPostImage = ev.target.result;
@@ -5963,20 +5964,7 @@ function handlePostImage(file) {
   img.onerror = function(e) {
     URL.revokeObjectURL(url);
     console.error('Image load error:', e, 'File type:', file.type, 'Size:', file.size);
-    // Fallback: try reading as base64 directly
-    var reader = new FileReader();
-    reader.onload = function(ev) {
-      createPostImage = ev.target.result;
-      document.getElementById('createPostPreview').src = createPostImage;
-      document.getElementById('createPostPreview').style.display = 'block';
-      document.getElementById('createPostDropInner').style.display = 'none';
-      document.getElementById('createPostClear').style.display = 'flex';
-      document.getElementById('createPostBtn').disabled = false;
-    };
-    reader.onerror = function() {
-      alert('Could not read image. Try a different file format (JPG or PNG).');
-    };
-    reader.readAsDataURL(file);
+    alert('This image format is not supported. Please save it as JPG or PNG first.');
   };
   img.src = url;
 }
@@ -5999,6 +5987,28 @@ function selectCPPlatform(btn) {
 
 function generatePost() {
   if (!createPostImage) return;
+  // Safety net: if the image is still too large, re-compress before sending
+  if (createPostImage.length > 800000) {
+    var safeImg = new Image();
+    safeImg.onload = function() {
+      var c = document.createElement('canvas');
+      var maxD = 512;
+      var sw = safeImg.width, sh = safeImg.height;
+      if (sw > maxD || sh > maxD) {
+        if (sw > sh) { sh = Math.round(sh * maxD / sw); sw = maxD; }
+        else { sw = Math.round(sw * maxD / sh); sh = maxD; }
+      }
+      c.width = sw; c.height = sh;
+      c.getContext('2d').drawImage(safeImg, 0, 0, sw, sh);
+      createPostImage = c.toDataURL('image/jpeg', 0.5);
+      generatePost();
+    };
+    safeImg.onerror = function() {
+      alert('Could not process this image. Try saving it as JPG first.');
+    };
+    safeImg.src = createPostImage;
+    return;
+  }
   var btn = document.getElementById('createPostBtn');
   var output = document.getElementById('createPostOutput');
   var caption = document.getElementById('createPostCaption');

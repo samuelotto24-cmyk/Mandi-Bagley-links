@@ -5908,7 +5908,7 @@ function handlePostImage(file) {
   var img = new Image();
   img.onload = function() {
     try {
-      var maxDim = 1024;
+      var maxDim = 768;
       var w = img.width, h = img.height;
       if (w > maxDim || h > maxDim) {
         if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
@@ -5918,17 +5918,18 @@ function handlePostImage(file) {
       canvas.width = w; canvas.height = h;
       var ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
-      var quality = 0.7;
+      var quality = 0.6;
       var dataUrl = canvas.toDataURL('image/jpeg', quality);
-      while (dataUrl.length > 2 * 1024 * 1024 && quality > 0.2) {
+      // Target under 800KB base64 to stay well within Vercel's 4.5MB body limit
+      while (dataUrl.length > 800000 && quality > 0.15) {
         quality -= 0.1;
         dataUrl = canvas.toDataURL('image/jpeg', quality);
       }
-      if (dataUrl.length > 2 * 1024 * 1024) {
-        w = Math.round(w * 0.6); h = Math.round(h * 0.6);
+      if (dataUrl.length > 800000) {
+        w = Math.round(w * 0.5); h = Math.round(h * 0.5);
         canvas.width = w; canvas.height = h;
         ctx.drawImage(img, 0, 0, w, h);
-        dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+        dataUrl = canvas.toDataURL('image/jpeg', 0.5);
       }
       URL.revokeObjectURL(url);
       createPostImage = dataUrl;
@@ -6530,10 +6531,10 @@ function renderFunnel(funnels) {
     if (ft) ft.textContent = '';
     return;
   }
-  var totalEmails = 0;
+  var totalComments = 0, totalDMs = 0, totalClicks = 0, totalEmails = 0;
   container.innerHTML = entries.map(function(entry) {
     var keyword = entry[0], f = entry[1];
-    totalEmails += f.captured;
+    totalComments += f.comments; totalDMs += f.dms; totalClicks += f.clicks; totalEmails += f.captured;
     var pct = f.comments > 0 ? Math.round((f.captured / f.comments) * 100) : 0;
     return '<div class="funnel-row">' +
       '<div class="funnel-row-header">' +
@@ -6544,6 +6545,18 @@ function renderFunnel(funnels) {
       '<div class="funnel-steps">' + f.comments + ' comments → ' + f.dms + ' DMs → ' + f.clicks + ' clicks → ' + f.captured + ' emails</div>' +
     '</div>';
   }).join('');
+  // Visual funnel summary
+  var fv = document.getElementById('funnelVisual');
+  if (fv) {
+    fv.innerHTML =
+      '<div class="funnel-step-box"><div class="funnel-step-icon">💬</div><div class="funnel-step-num">' + totalComments + '</div><div class="funnel-step-label">Comments</div></div>' +
+      '<span class="funnel-arrow">→</span>' +
+      '<div class="funnel-step-box"><div class="funnel-step-icon">📩</div><div class="funnel-step-num">' + totalDMs + '</div><div class="funnel-step-label">DMs</div></div>' +
+      '<span class="funnel-arrow">→</span>' +
+      '<div class="funnel-step-box"><div class="funnel-step-icon">👁</div><div class="funnel-step-num">' + totalClicks + '</div><div class="funnel-step-label">Clicks</div></div>' +
+      '<span class="funnel-arrow">→</span>' +
+      '<div class="funnel-step-box"><div class="funnel-step-icon">✉️</div><div class="funnel-step-num">' + totalEmails + '</div><div class="funnel-step-label">Emails</div></div>';
+  }
   var ft2 = document.getElementById('funnelTotal');
   if (ft2) ft2.textContent = totalEmails + ' emails captured';
 }
@@ -6551,10 +6564,23 @@ function renderFunnel(funnels) {
 function renderLeads(leads) {
   var container = document.getElementById('leadsList');
   if (!container) { renderHomeLeads(leads || []); return; }
+  var summaryEl = document.getElementById('leadsSummary');
   if (!leads.length) {
     container.innerHTML = '<div class="automation-empty">No leads yet — create an automation to get started</div>';
+    if (summaryEl) summaryEl.innerHTML = '';
     renderHomeLeads([]);
     return;
+  }
+  // Summary stats
+  if (summaryEl) {
+    var totalLeads = leads.length;
+    var captured = leads.filter(function(l) { return l.step === 'captured'; }).length;
+    var today = new Date().toISOString().slice(0, 10);
+    var todayLeads = leads.filter(function(l) { return l.timestamp && l.timestamp.slice(0, 10) === today; }).length;
+    summaryEl.innerHTML =
+      '<div class="leads-summary-stat"><div class="leads-summary-num">' + totalLeads + '</div><div class="leads-summary-label">Total</div></div>' +
+      '<div class="leads-summary-stat"><div class="leads-summary-num">' + captured + '</div><div class="leads-summary-label">Captured</div></div>' +
+      '<div class="leads-summary-stat"><div class="leads-summary-num">' + todayLeads + '</div><div class="leads-summary-label">Today</div></div>';
   }
   var stepIcons = { comment: '💬', dm: '📩', click: '👁', captured: '✉' };
   var stepLabels = { comment: 'commented', dm: 'DM sent', click: 'clicked', captured: 'captured' };

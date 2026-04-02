@@ -15,7 +15,6 @@
 <link rel="apple-touch-icon" href="/hub/icon-192.png">
 <link rel="icon" type="image/svg+xml" href="/hub/icon-192.svg">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js" defer></script>
 
 <!-- ═══════════════════════════════════════════════════
      CLIENT CONFIG + THEME ENGINE  (runs before paint)
@@ -3191,7 +3190,7 @@ const FONT_MAP = {
           </div>
           <img id="createPostPreview" style="display:none; max-width:100%; border-radius:10px;">
           <button id="createPostClear" style="display:none;" class="create-post-clear">&#10005; Remove</button>
-          <input type="file" id="createPostFile" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" style="display:none;">
+          <input type="file" id="createPostFile" accept="image/*" style="display:none;">
         </div>
         <div class="create-post-controls">
           <div class="create-post-platforms">
@@ -5958,13 +5957,10 @@ function handlePostImage(file) {
     return;
   }
 
-  // Convert HEIC to JPEG first if needed
-  if (isHeic && typeof heic2any !== 'undefined') {
-    heic2any({ blob: file, toType: 'image/jpeg', quality: 0.7 }).then(function(jpegBlob) {
-      processImageFile(jpegBlob);
-    }).catch(function() {
-      alert('Could not convert HEIC image. Try saving it as JPG in Preview first.');
-    });
+  // HEIC files can't be processed in most browsers
+  if (isHeic) {
+    // Try clicking the file input instead — macOS auto-converts HEIC to JPEG in file picker
+    alert('HEIC photos need to be converted first. Tap the upload area to use the file picker (it auto-converts), or save as JPG in Preview.');
     return;
   }
 

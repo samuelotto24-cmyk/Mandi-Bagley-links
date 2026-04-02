@@ -224,8 +224,16 @@ const FONT_MAP = {
 
   #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
+  #particle-canvas-creator {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
   /* ── Scroll animations ── */
-  .fade-up { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .fade-up { opacity: 0; transform: translateY(16px); transition: opacity 0.5s ease, transform 0.5s ease; }
   .fade-up.visible { opacity: 1; transform: translateY(0); }
 
   /* ── Skeleton shimmer ── */
@@ -1831,8 +1839,8 @@ const FONT_MAP = {
 }
 .home-card:hover { border-color: var(--accent-border); }
 .home-card .home-card-label {
-  font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px;
-  color: var(--text-muted); margin-bottom: 4px; font-weight: 600;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--hub-text-muted); margin-bottom: 14px; font-weight: 600;
   display: flex; align-items: center; gap: 6px;
 }
 .home-card-hint {
@@ -2416,13 +2424,14 @@ a.hub-nav-icon { text-decoration: none; }
 }
 .hub-nav-link:hover {
   background: var(--hub-surface-2); color: var(--hub-text-primary);
-  border-color: var(--hub-border-mid);
+  border-color: var(--hub-border);
 }
 
 /* ── Stats Strip ── */
 .stats-strip {
   display: flex; align-items: center; padding: 12px 24px;
   background: var(--hub-surface); border-bottom: 1px solid var(--hub-border); gap: 0;
+  margin-bottom: 8px;
 }
 .stat-pill { display: flex; flex-direction: column; align-items: center; padding: 0 28px; }
 .stat-pill-value {
@@ -2436,10 +2445,10 @@ a.hub-nav-icon { text-decoration: none; }
 .stat-pill-divider { width: 1px; height: 32px; background: var(--hub-border); }
 
 /* ── Home Hero Grid ── */
-.home-hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px 24px; }
+.home-hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 24px 28px; }
 .briefing-card-new {
   background: var(--gold-bg); border: 1px solid var(--gold-border);
-  border-radius: 14px; padding: 22px; display: flex; flex-direction: column;
+  border-radius: 14px; padding: 24px; display: flex; flex-direction: column;
   gap: 14px; min-height: 260px; position: relative; overflow: hidden;
 }
 .briefing-card-new::before {
@@ -2465,7 +2474,7 @@ a.hub-nav-icon { text-decoration: none; }
 
 .create-post-card-new {
   background: var(--purple-bg); border: 1px solid var(--purple-border);
-  border-radius: 14px; padding: 22px; display: flex; flex-direction: column;
+  border-radius: 14px; padding: 24px; display: flex; flex-direction: column;
   gap: 14px; min-height: 260px; position: relative; overflow: hidden;
 }
 .create-post-card-new::before {
@@ -2477,10 +2486,10 @@ a.hub-nav-icon { text-decoration: none; }
 }
 
 /* ── Home Support Grid ── */
-.home-support-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; padding: 0 24px 24px; }
+.home-support-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; padding: 0 28px 32px; }
 .support-card {
   background: var(--hub-surface); border: 1px solid var(--hub-border);
-  border-radius: 12px; padding: 18px; position: relative; overflow: hidden;
+  border-radius: 12px; padding: 20px; position: relative; overflow: hidden;
 }
 .support-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0;
@@ -2510,7 +2519,7 @@ a.hub-nav-icon { text-decoration: none; }
 .platform-card.instagram.hub-redesign .platform-card-stat-value { color: #F472B6; }
 
 .platform-card.tiktok.hub-redesign {
-  border-color: var(--hub-border-mid); background: var(--hub-surface-2);
+  border-color: var(--hub-border); background: var(--hub-surface-2);
   position: relative; overflow: hidden;
 }
 .platform-card.tiktok.hub-redesign::before {
@@ -2780,6 +2789,7 @@ a.hub-nav-icon { text-decoration: none; }
 /* ── Engagement Engine Section ── */
 .engine-section {
   padding: 0 24px 24px;
+  margin-top: 8px;
 }
 .engine-header {
   display: flex;
@@ -2826,7 +2836,7 @@ a.hub-nav-icon { text-decoration: none; }
 .engine-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 20px;
 }
 
 /* Automation card — emerald */
@@ -2834,7 +2844,7 @@ a.hub-nav-icon { text-decoration: none; }
   background: var(--hub-surface);
   border: 1px solid var(--emerald-border);
   border-radius: 12px;
-  padding: 18px;
+  padding: 20px;
   position: relative;
   overflow: hidden;
 }
@@ -2853,7 +2863,7 @@ a.hub-nav-icon { text-decoration: none; }
   background: var(--hub-surface);
   border: 1px solid var(--blue-border);
   border-radius: 12px;
-  padding: 18px;
+  padding: 20px;
   position: relative;
   overflow: hidden;
 }
@@ -2876,7 +2886,7 @@ a.hub-nav-icon { text-decoration: none; }
   background: var(--hub-surface);
   border: 1px solid var(--rose-border);
   border-radius: 12px;
-  padding: 18px;
+  padding: 20px;
   position: relative;
   overflow: hidden;
 }
@@ -2897,7 +2907,7 @@ a.hub-nav-icon { text-decoration: none; }
   background: var(--hub-surface);
   border: 1px solid var(--purple-border);
   border-radius: 12px;
-  padding: 18px;
+  padding: 20px;
   position: relative;
   overflow: hidden;
 }
@@ -2990,7 +3000,7 @@ a.hub-nav-icon { text-decoration: none; }
 .suggested-auto {
   display: flex; align-items: center; gap: 12px;
   padding: 12px 14px; border-radius: 10px;
-  background: var(--hub-surface-2); border: 1px dashed var(--hub-border-mid);
+  background: var(--hub-surface-2); border: 1px dashed var(--hub-border);
   cursor: pointer; transition: all 0.15s;
 }
 .suggested-auto:hover {
@@ -3037,7 +3047,7 @@ a.hub-nav-icon { text-decoration: none; }
 .help-btn {
   display: inline-flex; align-items: center; justify-content: center;
   width: 16px; height: 16px; border-radius: 50%;
-  border: 1px solid var(--hub-border-mid); background: transparent;
+  border: 1px solid var(--hub-border); background: transparent;
   color: var(--hub-text-faint); font-size: 10px; font-weight: 600;
   font-family: 'DM Sans', sans-serif; cursor: pointer;
   transition: all 0.15s; flex-shrink: 0; line-height: 1;
@@ -3050,7 +3060,7 @@ a.hub-nav-icon { text-decoration: none; }
 .help-tooltip {
   position: fixed; z-index: 500; max-width: 280px;
   padding: 12px 16px; background: var(--hub-surface);
-  border: 1px solid var(--hub-border-mid); border-radius: 10px;
+  border: 1px solid var(--hub-border); border-radius: 10px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5);
   font-family: 'DM Sans', sans-serif; font-size: 12px;
   font-weight: 400; line-height: 1.55; color: var(--hub-text-primary);
@@ -3070,14 +3080,14 @@ a.hub-nav-icon { text-decoration: none; }
   background: var(--hub-surface); border: 1px solid var(--hub-border);
   border-radius: 12px; padding: 18px; transition: border-color 0.15s;
 }
-.hub-card:hover { border-color: var(--hub-border-mid); }
+.hub-card:hover { border-color: var(--hub-border); }
 
 .section-label-new {
-  font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
 }
 
 .hub-btn {
-  padding: 8px 16px; border-radius: 8px; border: 1px solid var(--hub-border-mid);
+  padding: 8px 16px; border-radius: 8px; border: 1px solid var(--hub-border);
   background: transparent; color: var(--hub-text-primary);
   font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
   cursor: pointer; transition: all 0.15s;
@@ -3171,6 +3181,8 @@ a.hub-nav-icon { text-decoration: none; }
 </head>
 
 <body>
+
+<canvas id="particle-canvas-creator" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
 
 <!-- ═══════════════════════════════════════════════════
      GRADIENT BACKGROUND + PARTICLES
@@ -7529,6 +7541,61 @@ document.addEventListener('click', function(e) {
     closeHelp();
   }
 });
+</script>
+<script>
+(function() {
+  const canvas = document.getElementById('particle-canvas-creator');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  function Particle() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.vx = (Math.random() - 0.5) * 0.3;
+    this.vy = (Math.random() - 0.5) * 0.3;
+    this.radius = Math.random() * 1.5 + 0.5;
+    this.opacity = Math.random() * 0.12 + 0.04;
+  }
+  Particle.prototype.update = function() {
+    this.x += this.vx; this.y += this.vy;
+    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+  };
+  function init() {
+    resize();
+    const count = Math.floor((canvas.width * canvas.height) / 10000);
+    particles = Array.from({ length: Math.min(count, 100) }, () => new Particle());
+  }
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 140) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(255,255,255,${(1 - dist / 140) * 0.06})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${p.opacity})`;
+      ctx.fill();
+      p.update();
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', init);
+  init(); draw();
+})();
 </script>
 </body>
 </html>

@@ -41,18 +41,18 @@ export default async function handler(req) {
 
   try {
     const body = await req.json();
-    const { image, platform = 'instagram', notes = '', automationKeyword = '' } = body;
+    const { image, images = [], platform = 'instagram', notes = '', automationKeyword = '' } = body;
 
-    if (!image) {
+    if (!image && images.length === 0) {
       return new Response(JSON.stringify({ error: 'No image provided' }), {
         status: 400, headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    // Parse base64 image
+    // Parse base64 image (kept for fallback reference in imageContent block below)
     let mediaType = 'image/jpeg';
-    let base64Data = image;
-    if (image.startsWith('data:')) {
+    let base64Data = image || '';
+    if (image && image.startsWith('data:')) {
       const match = image.match(/^data:(image\/\w+);base64,(.+)$/);
       if (!match) {
         return new Response(JSON.stringify({ error: 'Invalid image format' }), {
@@ -61,13 +61,6 @@ export default async function handler(req) {
       }
       mediaType = match[1];
       base64Data = match[2];
-    }
-
-    // Size check (~4MB base64 ≈ 3MB image)
-    if (base64Data.length > 5500000) {
-      return new Response(JSON.stringify({ error: 'Image too large. Max 4MB.' }), {
-        status: 400, headers: { 'Content-Type': 'application/json' },
-      });
     }
 
     // Fetch voice training data + peak hours + automations from Redis
@@ -206,6 +199,36 @@ Rules:
 - Never use corporate language like "leverage", "optimize", or "drive engagement"
 - If no voice examples are available, write naturally for a ${CLIENT_NICHE} creator`;
 
+    // Build image content blocks — all carousel images for context
+    const imageContent = [];
+    const allImages = images.length > 0 ? images : (image ? [image] : []);
+
+    for (const img of allImages.slice(0, 10)) {
+      let mt = 'image/jpeg';
+      let b64 = img;
+      if (img.startsWith('data:')) {
+        const m = img.match(/^data:(image\/\w+);base64,(.+)$/);
+        if (m) { mt = m[1]; b64 = m[2]; }
+      }
+      if (b64.length > 1500000) continue;
+      imageContent.push({
+        type: 'image',
+        source: { type: 'base64', media_type: mt, data: b64 },
+      });
+    }
+
+    if (!imageContent.length && image) {
+      imageContent.push({
+        type: 'image',
+        source: { type: 'base64', media_type: mediaType, data: base64Data },
+      });
+    }
+
+    const isCarousel = allImages.length > 1;
+    const carouselNote = isCarousel
+      ? `\n\nThis is a CAROUSEL POST with ${allImages.length} images. Write ONE caption that works for the entire carousel. Reference the variety/progression of images naturally.`
+      : '';
+
     // Call Claude Sonnet with vision
     const llmRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -222,13 +245,10 @@ Rules:
         messages: [{
           role: 'user',
           content: [
-            {
-              type: 'image',
-              source: { type: 'base64', media_type: mediaType, data: base64Data },
-            },
+            ...imageContent,
             {
               type: 'text',
-              text: `Write a ${platform} post for this image.`,
+              text: `Write a ${platform} post for ${isCarousel ? 'this carousel of ' + allImages.length + ' images' : 'this image'}.${carouselNote}`,
             },
           ],
         }],

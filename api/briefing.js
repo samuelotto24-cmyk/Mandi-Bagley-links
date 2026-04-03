@@ -531,16 +531,19 @@ export default async function handler(req) {
       // Fetch funnel stats for each automation
       const funnelCommands = automations.map(a => ['HGETALL', PREFIX + 'funnel:' + a.keyword]);
       const funnelResults = funnelCommands.length > 0 ? await redis(funnelCommands) : [];
-      automationsContext = '\n\n## Engagement Automations\n';
+      automationsContext = '\n\n## Engagement Engine Funnels\n';
+      let totalLeadsCaptured = 0;
       automations.forEach(function(a, i) {
         const fr = funnelResults[i]?.result || [];
         const stats = {};
         for (let j = 0; j < fr.length; j += 2) stats[fr[j]] = parseInt(fr[j + 1], 10) || 0;
         const pct = stats.comments > 0 ? Math.round((stats.captured || 0) / stats.comments * 100) : 0;
-        automationsContext += '- ' + a.keyword + ' (' + (a.active ? 'active' : 'paused') + '): '
+        totalLeadsCaptured += stats.captured || 0;
+        automationsContext += '- ' + a.keyword + ' automation (' + (a.active ? 'active' : 'paused') + '): '
           + (stats.comments || 0) + ' comments → ' + (stats.dms || 0) + ' DMs → '
-          + (stats.clicks || 0) + ' clicks → ' + (stats.captured || 0) + ' emails (' + pct + '% conversion)\n';
+          + (stats.clicks || 0) + ' clicks → ' + (stats.captured || 0) + ' emails captured (' + pct + '% conversion)\n';
       });
+      automationsContext += 'Total leads captured this period: ' + totalLeadsCaptured + ' emails\n';
     }
 
     /* ── Compute aggregations ── */

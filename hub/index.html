@@ -7446,6 +7446,27 @@ function renderPlannerPosts() {
       }
     });
   });
+  // Add active automation keyword pills to every calendar day
+  if (automationsData && automationsData.length) {
+    var activeAutos = automationsData.filter(function(a) { return a.active; });
+    if (activeAutos.length) {
+      calDays.forEach(function(day) {
+        var existing = day.querySelector('.cal-auto-pills');
+        if (existing) existing.remove();
+        var pills = document.createElement('div');
+        pills.className = 'cal-auto-pills';
+        pills.style.cssText = 'display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;';
+        activeAutos.forEach(function(a) {
+          var pill = document.createElement('span');
+          pill.style.cssText = 'font-size:8px;padding:2px 6px;border-radius:4px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:#10B981;font-weight:600;letter-spacing:0.5px;';
+          pill.textContent = a.keyword;
+          pill.title = a.captureHeadline + ' — active automation';
+          pills.appendChild(pill);
+        });
+        day.appendChild(pills);
+      });
+    }
+  }
 }
 
 /* Load automations + leads + instagram after hub is shown */

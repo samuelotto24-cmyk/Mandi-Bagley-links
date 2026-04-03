@@ -98,21 +98,44 @@ export default async function handler(req) {
     // Engagement automations
     const automationsRaw = results[7]?.result;
     const recapAutomations = automationsRaw ? JSON.parse(automationsRaw) : [];
-    let automationRows = '';
+    let leadEngineHtml = '';
     if (recapAutomations.length > 0) {
       const funnelCmds = recapAutomations.map(a => ['HGETALL', PREFIX + 'funnel:' + a.keyword]);
       const funnelRes = await redis(funnelCmds);
-      automationRows = '<tr><td colspan="2" style="padding:24px 0 8px;font-size:18px;font-weight:600;border-top:1px solid #eee">Engagement Automations</td></tr>';
+      let totalCaptured = 0;
+      let tableRows = '';
       recapAutomations.forEach(function(a, i) {
         const fr = funnelRes[i]?.result || [];
         const stats = {};
         for (let j = 0; j < fr.length; j += 2) stats[fr[j]] = parseInt(fr[j + 1], 10) || 0;
-        const pct = stats.comments > 0 ? Math.round((stats.captured || 0) / stats.comments * 100) : 0;
-        automationRows += '<tr><td style="padding:6px 0;font-size:14px"><strong>' + a.keyword + '</strong>: '
-          + (stats.captured || 0) + ' emails captured (' + pct + '% conversion) — '
-          + (stats.comments || 0) + ' comments, ' + (stats.dms || 0) + ' DMs, '
-          + (stats.clicks || 0) + ' clicks</td></tr>';
+        const captured = stats.captured || 0;
+        const comments = stats.comments || 0;
+        const rate = comments > 0 ? Math.round(captured / comments * 100) + '%' : '—';
+        totalCaptured += captured;
+        tableRows += `<tr style="border-top:1px solid #F5EBE6">
+          <td style="padding:8px 8px 8px 0;font-size:13px;font-weight:600;color:#2B1A1A">${a.keyword}</td>
+          <td style="padding:8px;font-size:13px;color:#555;text-align:center">${comments}</td>
+          <td style="padding:8px;font-size:13px;color:#555;text-align:center">${stats.dms || 0}</td>
+          <td style="padding:8px;font-size:13px;color:#555;text-align:center">${stats.clicks || 0}</td>
+          <td style="padding:8px;font-size:13px;color:#555;text-align:center">${captured}</td>
+          <td style="padding:8px 0 8px 8px;font-size:13px;font-weight:600;color:#B8546A;text-align:center">${rate}</td>
+        </tr>`;
       });
+      leadEngineHtml = `<div style="margin-top:24px">
+  <h3 style="font-size:16px;margin:0 0 12px;color:#2B1A1A">Lead Engine</h3>
+  <table style="width:100%;font-size:13px;border-collapse:collapse">
+    <tr style="color:#999;font-size:11px;text-transform:uppercase">
+      <td style="padding:0 8px 8px 0">Keyword</td>
+      <td style="padding:0 8px 8px;text-align:center">Comments</td>
+      <td style="padding:0 8px 8px;text-align:center">DMs</td>
+      <td style="padding:0 8px 8px;text-align:center">Clicks</td>
+      <td style="padding:0 8px 8px;text-align:center">Emails</td>
+      <td style="padding:0 0 8px 8px;text-align:center">Rate</td>
+    </tr>
+    ${tableRows}
+  </table>
+  <p style="font-size:14px;font-weight:600;margin:12px 0 0;color:#2B1A1A">Total emails captured: ${totalCaptured}</p>
+</div>`;
     }
 
     const today = new Date();
@@ -270,10 +293,13 @@ Write 2 short, specific action items for this week. Be direct and conversational
     <a href="${HUB_URL}" style="display:inline-block;padding:14px 32px;background:#B8546A;color:#ffffff;font-size:14px;font-weight:600;text-decoration:none;border-radius:50px;letter-spacing:0.04em">Open Your Hub →</a>
   </td></tr>
 
-  <!-- Reply section -->
-  ${automationRows ? `<tr><td style="padding:0 0 24px">
-    <table width="100%" cellpadding="0" cellspacing="0" style="border-radius:12px;overflow:hidden">
-      ${automationRows}
+  <!-- Lead Engine section -->
+  ${leadEngineHtml ? `<tr><td style="padding:0 0 24px">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#FFFFFF;border:1px solid #EAD0C8;border-radius:12px;overflow:hidden">
+      <tr><td style="padding:24px">
+        <p style="margin:0 0 4px;font-size:10px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#B8546A">This Week</p>
+        ${leadEngineHtml}
+      </td></tr>
     </table>
   </td></tr>` : ''}
 

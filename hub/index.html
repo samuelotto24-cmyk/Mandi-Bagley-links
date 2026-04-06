@@ -30,12 +30,12 @@ const CLIENT = {
     surface: '#FFFFFF',
     surfaceElevated: '#F3F0EC',
     border: 'rgba(0,0,0,0.08)',
-    text: '#1A1A1A',
-    textMuted: 'rgba(0,0,0,0.45)',
-    accent: '#1A1A1A',
-    accentGlow: '#333333',
-    accentPale: 'rgba(0,0,0,0.05)',
-    accentBorder: 'rgba(0,0,0,0.12)',
+    text: '#000000',
+    textMuted: 'rgba(0,0,0,0.65)',
+    accent: '#000000',
+    accentGlow: '#222222',
+    accentPale: 'rgba(0,0,0,0.06)',
+    accentBorder: 'rgba(0,0,0,0.15)',
   },
   gradient: 'monochrome',
   particleColors: [
@@ -164,9 +164,9 @@ const FONT_MAP = {
     --hub-surface-2: #F3F0EC;
     --hub-border: rgba(0,0,0,0.08);
     --hub-border-mid: rgba(0,0,0,0.14);
-    --hub-text-primary: #1A1A1A;
-    --hub-text-muted: rgba(0,0,0,0.45);
-    --hub-text-faint: rgba(0,0,0,0.20);
+    --hub-text-primary: #000000;
+    --hub-text-muted: rgba(0,0,0,0.65);
+    --hub-text-faint: rgba(0,0,0,0.40);
 
     --emerald: #10B981;
     --emerald-bg: rgba(16,185,129,0.08);
@@ -222,14 +222,14 @@ const FONT_MAP = {
   }
   @keyframes pulse { 0%,100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
 
-  #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  #particles { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
 
   #particle-canvas-creator {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
     pointer-events: none;
-    z-index: 0;
+    z-index: -1;
   }
 
   /* ── Scroll animations ── */
@@ -3182,7 +3182,7 @@ a.hub-nav-icon { text-decoration: none; }
 
 <body>
 
-<canvas id="particle-canvas-creator" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
+<canvas id="particle-canvas-creator" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:-1;"></canvas>
 
 <!-- ═══════════════════════════════════════════════════
      GRADIENT BACKGROUND + PARTICLES
@@ -6056,10 +6056,18 @@ function renderHeatmap(hourlyData) {
     for (var h = 0; h < 24; h++) {
       var count = grid[d + ':' + h] || 0;
       var intensity = maxVal > 0 ? count / maxVal : 0;
-      var alpha = Math.max(0.04, intensity * 0.9);
-      var bg = count === 0
-        ? 'rgba(0,0,0,0.03)'
-        : 'rgba(0,0,0,' + alpha.toFixed(2) + ')';
+      var bg;
+      if (count === 0) {
+        bg = 'rgba(0,0,0,0.04)';
+      } else if (intensity < 0.25) {
+        bg = 'rgba(239,68,68,' + (0.2 + intensity * 1.2).toFixed(2) + ')';
+      } else if (intensity < 0.5) {
+        bg = 'rgba(245,158,11,' + (0.3 + intensity * 1.0).toFixed(2) + ')';
+      } else if (intensity < 0.75) {
+        bg = 'rgba(34,197,94,' + (0.4 + intensity * 0.6).toFixed(2) + ')';
+      } else {
+        bg = 'rgba(16,185,129,' + (0.6 + intensity * 0.4).toFixed(2) + ')';
+      }
       html += '<div class="heatmap-cell" style="background:' + bg + '" data-day="' + days[d] + '" data-hour="' + h + '" data-count="' + count + '" onmouseenter="showHeatmapTip(event,this)" onmouseleave="hideHeatmapTip()"></div>';
     }
   }
@@ -6069,9 +6077,9 @@ function renderHeatmap(hourlyData) {
   html += '<div class="heatmap-legend">';
   html += '<span class="heatmap-legend-label">Less</span>';
   html += '<div class="heatmap-legend-bar">';
-  var levels = [0.04, 0.15, 0.3, 0.5, 0.75];
-  for (var i = 0; i < levels.length; i++) {
-    html += '<div class="heatmap-legend-swatch" style="background:rgba(0,0,0,' + levels[i] + ')"></div>';
+  var legendColors = ['rgba(0,0,0,0.04)','rgba(239,68,68,0.4)','rgba(245,158,11,0.6)','rgba(34,197,94,0.7)','rgba(16,185,129,0.9)'];
+  for (var i = 0; i < legendColors.length; i++) {
+    html += '<div class="heatmap-legend-swatch" style="background:' + legendColors[i] + '"></div>';
   }
   html += '</div>';
   html += '<span class="heatmap-legend-label">More</span>';

@@ -273,7 +273,7 @@ const FONT_MAP = {
   .login-btn {
     width: 100%; padding: 14px; border: none; border-radius: 12px;
     background: linear-gradient(135deg, var(--accent), var(--accent-glow));
-    color: var(--bg); font-family: var(--sans); font-size: 14px; font-weight: 600;
+    color: #fff; font-family: var(--sans); font-size: 14px; font-weight: 600;
     cursor: pointer; box-shadow: 0 0 24px var(--accent-pale);
     transition: box-shadow 0.2s, transform 0.15s;
   }
@@ -390,13 +390,13 @@ const FONT_MAP = {
     font-weight: 600; cursor: pointer; border: none;
   }
   .goal-modal-btns .cancel { background: var(--surface-elevated); color: var(--text-muted); border: 1px solid var(--border); }
-  .goal-modal-btns .save { background: linear-gradient(135deg, var(--accent), var(--accent-glow)); color: var(--bg); }
+  .goal-modal-btns .save { background: linear-gradient(135deg, var(--accent), var(--accent-glow)); color: #fff; }
 
   /* ── Briefing ── */
   .briefing-card { padding: 28px 32px; }
   .briefing-header-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
   .briefing-title { font-family: var(--serif); font-size: 24px; font-weight: 400; color: var(--text); }
-  .briefing-badge { min-width: 22px; height: 22px; padding: 0 7px; border-radius: 50px; background: var(--accent); color: var(--bg); font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 0 12px var(--accent-border); }
+  .briefing-badge { min-width: 22px; height: 22px; padding: 0 7px; border-radius: 50px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 0 12px var(--accent-border); }
   .briefing-refresh {
     margin-left: auto; width: 32px; height: 32px; border-radius: 8px;
     border: 1px solid var(--border); background: transparent; color: var(--text-muted);
@@ -422,7 +422,7 @@ const FONT_MAP = {
   .action-data { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4; }
   .action-caption { position: relative; background: rgba(0,0,0,0.02); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; padding-right: 60px; font-size: 13px; color: rgba(0,0,0,0.70); line-height: 1.5; font-style: italic; }
   .action-caption-copy { position: absolute; top: 8px; right: 8px; background: var(--accent-pale); border: 1px solid var(--accent-border); border-radius: 6px; color: var(--accent); font-size: 10px; font-family: var(--sans); padding: 4px 10px; cursor: pointer; transition: background 0.2s; font-style: normal; }
-  .action-caption-copy:hover { background: var(--accent); color: var(--bg); }
+  .action-caption-copy:hover { background: var(--accent); color: #fff; }
   /* Desktop: always show captions, hide toggle button */
   .action-caption-toggle { display: none; }
   .action-caption-collapsed { display: block !important; }
@@ -510,7 +510,7 @@ const FONT_MAP = {
   .chat-input { flex: 1; padding: 13px 18px; border: 1.5px solid var(--border); border-radius: 12px; background: var(--surface-elevated); font-family: var(--sans); font-size: 14px; color: var(--text); outline: none; }
   .chat-input::placeholder { color: var(--text-muted); }
   .chat-input:focus { border-color: var(--accent); }
-  .chat-send { width: 46px; height: 46px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--accent-glow)); color: var(--bg); border: none; font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 0 0 24px var(--accent-pale); display: flex; align-items: center; justify-content: center; transition: box-shadow 0.2s; }
+  .chat-send { width: 46px; height: 46px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--accent-glow)); color: #fff; border: none; font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 0 0 24px var(--accent-pale); display: flex; align-items: center; justify-content: center; transition: box-shadow 0.2s; }
   .chat-send:hover { box-shadow: 0 0 36px var(--accent-border); }
   .chat-bubble p { margin: 0 0 8px; }
   .chat-bubble p:last-child { margin-bottom: 0; }
@@ -547,7 +547,7 @@ const FONT_MAP = {
   .modal-submit {
     width: 100%; padding: 13px; border: none; border-radius: 10px;
     background: linear-gradient(135deg, var(--accent), var(--accent-glow));
-    color: var(--bg); font-family: var(--sans); font-size: 14px; font-weight: 600;
+    color: #fff; font-family: var(--sans); font-size: 14px; font-weight: 600;
     cursor: pointer; margin-bottom: 12px;
   }
   .modal-sms { text-align: center; font-size: 12px; color: var(--text-muted); }
@@ -788,7 +788,7 @@ const FONT_MAP = {
     color: var(--text-muted); cursor: pointer; transition: all 0.15s; white-space: nowrap;
   }
   .cal-type-pill:hover { border-color: var(--accent-border); color: var(--text); }
-  .cal-type-pill.selected { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 700; }
+  .cal-type-pill.selected { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
 
   .cal-suggestions { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
   .cal-suggestion {
@@ -948,7 +948,7 @@ const FONT_MAP = {
     color: var(--text-muted); cursor: pointer; transition: all 0.2s; white-space: nowrap;
   }
   .cp-platform-btn:hover { border-color: var(--accent-border); color: var(--text); }
-  .cp-platform-btn.active { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 700; }
+  .cp-platform-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
   .create-post-notes {
     flex: 1; min-width: 120px; padding: 8px 14px; border: 1px solid var(--border);
     border-radius: 10px; background: var(--surface-elevated); color: var(--text);
@@ -959,7 +959,7 @@ const FONT_MAP = {
   .create-post-generate {
     padding: 9px 22px; border: none; border-radius: 50px; font-family: var(--sans);
     font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
-    background: var(--accent); color: #000; transition: opacity 0.2s, box-shadow 0.2s;
+    background: var(--purple); color: #fff; transition: opacity 0.2s, box-shadow 0.2s;
   }
   .create-post-generate:disabled { opacity: 0.3; cursor: not-allowed; }
   .create-post-generate:not(:disabled):hover { box-shadow: 0 0 20px var(--accent-pale); }
@@ -975,7 +975,7 @@ const FONT_MAP = {
     border-radius: 50px; border: 1px solid var(--accent-border); background: var(--accent-pale);
     color: var(--accent); cursor: pointer; transition: background 0.2s;
   }
-  .create-post-copy:hover { background: var(--accent); color: #000; }
+  .create-post-copy:hover { background: var(--accent); color: #fff; }
   .create-post-caption {
     font-size: 13px; line-height: 1.5; color: var(--text); white-space: pre-wrap; word-break: break-word;
   }
@@ -1278,7 +1278,7 @@ const FONT_MAP = {
 }
 .referral-copy-btn:hover {
   background: var(--accent);
-  color: var(--bg);
+  color: #fff;
   box-shadow: 0 0 20px var(--accent-pale);
 }
 .referral-reward {
@@ -1348,7 +1348,7 @@ const FONT_MAP = {
   display: inline-block;
   padding: 10px 24px;
   background: var(--accent);
-  color: var(--bg);
+  color: #fff;
   border: none;
   border-radius: 8px;
   font-family: var(--sans);
@@ -1662,7 +1662,7 @@ const FONT_MAP = {
   padding: 10px 20px; border-radius: 8px; border: none; font-size: 14px;
   font-family: 'DM Sans', sans-serif; cursor: pointer;
 }
-.auto-modal-save { background: var(--accent); color: var(--bg); font-weight: 600; }
+.auto-modal-save { background: var(--accent); color: #fff; font-weight: 600; }
 .auto-modal-cancel { background: transparent; border: 1px solid var(--border) !important; color: var(--text-muted); }
 
 /* ── Funnel Card ── */
@@ -1707,7 +1707,7 @@ const FONT_MAP = {
 .cp-action-btn:hover { background: var(--accent-pale); border-color: var(--accent-border); }
 .cp-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .cp-action-ig { background: var(--accent-pale); border-color: var(--accent-border); font-weight: 600; }
-.cp-action-ig:hover { background: var(--accent); color: var(--bg); }
+.cp-action-ig:hover { background: var(--accent); color: #fff; }
 .cp-post-status {
   margin-top: 10px; padding: 10px 14px; border-radius: 8px; font-size: 13px; text-align: center;
 }
@@ -1964,7 +1964,7 @@ const FONT_MAP = {
 .chat-fab-btn {
   position: fixed; bottom: 24px; right: 24px; z-index: 90;
   width: 52px; height: 52px; border-radius: 50%;
-  background: var(--accent); border: none; color: var(--bg);
+  background: var(--accent); border: none; color: #fff;
   font-size: 20px; cursor: pointer;
   box-shadow: 0 4px 24px rgba(0,0,0,0.12);
   transition: transform 0.2s, box-shadow 0.2s;
@@ -2102,7 +2102,7 @@ const FONT_MAP = {
 }
 .contact-bar-btn:hover { border-color: var(--accent-border); background: var(--accent-pale); }
 .contact-bar-btn.primary {
-  background: var(--accent); border-color: var(--accent); color: var(--bg);
+  background: var(--accent); border-color: var(--accent); color: #fff;
   box-shadow: 0 0 16px var(--accent-pale);
 }
 .contact-bar-btn.primary:hover { box-shadow: 0 0 28px var(--accent-border); }
@@ -2365,7 +2365,7 @@ const FONT_MAP = {
 .onboarding-skip:hover { color: var(--text); }
 .onboarding-start {
   font-family: var(--sans); font-size: 14px; font-weight: 600;
-  background: var(--accent); color: var(--bg); border: none;
+  background: var(--accent); color: #fff; border: none;
   border-radius: 10px; padding: 12px 32px; cursor: pointer;
   transition: opacity 0.2s; margin-right: 12px;
 }
@@ -2402,7 +2402,7 @@ const FONT_MAP = {
 .hub-nav-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .hub-create-btn {
   display: flex; align-items: center; gap: 6px; padding: 7px 16px;
-  background: #10B981; color: #090907; border: none; border-radius: 8px;
+  background: #10B981; color: #fff; border: none; border-radius: 8px;
   font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
   cursor: pointer; transition: opacity 0.15s;
 }
@@ -2745,7 +2745,7 @@ a.hub-nav-icon { text-decoration: none; }
 #viewPlanner.hub-redesign .cal-day.expanded .cal-type-pill.selected {
   background: var(--gold);
   border-color: var(--gold);
-  color: #090907;
+  color: #fff;
 }
 #viewPlanner.hub-redesign .cal-day.expanded .cal-suggestion {
   border-color: var(--gold-border);
@@ -2806,12 +2806,20 @@ a.hub-nav-icon { text-decoration: none; }
 .engine-title h2 {
   font-family: var(--sans);
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--emerald);
+  color: #fff;
+  background: var(--emerald);
+  padding: 5px 12px;
+  border-radius: 6px;
   margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
+.engine-title h2 .help-btn { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.3); }
+.engine-title h2 .help-btn:hover { color: #fff; border-color: rgba(255,255,255,0.6); }
 .engine-title-icon {
   width: 28px; height: 28px;
   border-radius: 8px;
@@ -2823,7 +2831,7 @@ a.hub-nav-icon { text-decoration: none; }
 .engine-new-btn {
   display: flex; align-items: center; gap: 5px;
   background: var(--emerald);
-  color: #090907;
+  color: #fff;
   border: none; border-radius: 8px;
   padding: 7px 14px;
   font-size: 12px; font-weight: 600;
@@ -3028,7 +3036,7 @@ a.hub-nav-icon { text-decoration: none; }
   font-family: 'DM Sans', sans-serif; white-space: nowrap;
   transition: all 0.15s;
 }
-.suggested-auto-btn:hover { background: var(--emerald); color: #090907; }
+.suggested-auto-btn:hover { background: var(--emerald); color: #fff; }
 .suggested-auto-header {
   font-size: 11px; color: var(--hub-text-faint); margin-bottom: 8px;
 }
@@ -3083,8 +3091,13 @@ a.hub-nav-icon { text-decoration: none; }
 .hub-card:hover { border-color: var(--hub-border); }
 
 .section-label-new {
-  font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 6px;
+  color: #fff !important;
 }
+.section-label-new .help-btn { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.3); }
+.section-label-new .help-btn:hover { color: #fff; border-color: rgba(255,255,255,0.6); }
 
 .hub-btn {
   padding: 8px 16px; border-radius: 8px; border: 1px solid var(--hub-border);
@@ -3095,7 +3108,7 @@ a.hub-nav-icon { text-decoration: none; }
 .hub-btn:hover { background: var(--hub-surface-2); }
 .hub-btn-primary {
   background: var(--emerald); border-color: var(--emerald);
-  color: #090907; font-weight: 600;
+  color: #fff; font-weight: 600;
 }
 .hub-btn-primary:hover { opacity: 0.88; }
 
@@ -3106,10 +3119,11 @@ a.hub-nav-icon { text-decoration: none; }
 
 /* ── Hub Redesign Mobile Responsive ── */
 @media (max-width: 768px) {
-  .hub-nav { padding: 0 16px; }
+  .hub-nav { padding: 0 10px; gap: 8px; }
   .hub-nav-name { display: none; }
   .hub-tab span:not(.notif-dot) { display: none; }
-  .hub-tab { padding: 7px 10px; }
+  .hub-tab { padding: 10px 14px; min-width: 44px; min-height: 44px; justify-content: center; }
+  .hub-nav-tabs { gap: 2px; flex: 1; justify-content: center; }
   .home-hero-grid { grid-template-columns: 1fr; }
   .home-support-grid { grid-template-columns: 1fr; }
   .stats-strip { overflow-x: auto; }
@@ -3117,6 +3131,7 @@ a.hub-nav-icon { text-decoration: none; }
   .hub-nav-actions .hub-create-btn span { display: none; }
   .hub-nav-link span { display: none; }
   .hub-nav-link { padding: 7px 10px; }
+  .hub-nav-actions { gap: 4px; }
 }
 
 /* ── Override hub-shell for top-nav layout ── */
@@ -3174,7 +3189,7 @@ a.hub-nav-icon { text-decoration: none; }
 .schedule-custom input[type="datetime-local"] { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-family: var(--sans); font-size: 13px; }
 .schedule-actions { display: flex; gap: 8px; margin-top: 12px; }
 .schedule-actions button { flex: 1; padding: 10px; border-radius: 8px; font-family: var(--sans); font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
-.schedule-confirm { background: var(--accent); color: var(--bg); }
+.schedule-confirm { background: var(--accent); color: #fff; }
 .schedule-cancel-btn { background: transparent; border: 1px solid var(--border) !important; color: var(--text-muted); }
 
 </style>
@@ -3311,7 +3326,7 @@ a.hub-nav-icon { text-decoration: none; }
     <!-- TODAY'S BRIEFING -->
     <div class="briefing-card-new" id="homeBriefingCard">
       <div class="briefing-card-header">
-        <span class="section-label-new" style="color: var(--gold)">TODAY'S BRIEFING <button class="help-btn" onclick="showHelp(this,event)" data-help-key="briefing">?</button></span>
+        <span class="section-label-new" style="background: var(--gold)">TODAY'S BRIEFING <button class="help-btn" onclick="showHelp(this,event)" data-help-key="briefing">?</button></span>
         <button class="refresh-btn" id="briefingRefresh" onclick="refreshBriefing()">&#8635;</button>
       </div>
       <div class="briefing-content-new" id="homeBriefingContent">
@@ -3327,7 +3342,7 @@ a.hub-nav-icon { text-decoration: none; }
     <!-- CREATE POST -->
     <div class="create-post-card-new" id="createPostCard">
       <div class="create-post-header">
-        <span class="section-label-new" style="color: var(--purple)">CREATE POST <button class="help-btn" onclick="showHelp(this,event)" data-help-key="createPost">?</button></span>
+        <span class="section-label-new" style="background: var(--purple)">CREATE POST <button class="help-btn" onclick="showHelp(this,event)" data-help-key="createPost">?</button></span>
         <span style="font-size:11px; color: var(--hub-text-faint);">Generate captions with AI</span>
       </div>
       <div class="create-post-inner">
@@ -3338,7 +3353,7 @@ a.hub-nav-icon { text-decoration: none; }
             <div class="create-post-drop-sub">JPG, PNG, WebP &mdash; up to 4MB</div>
           </div>
           <img id="createPostPreview" style="display:none; max-width:100%; border-radius:10px;">
-          <button id="createPostClear" style="display:none;" class="create-post-clear">&#10005; Remove</button>
+          <button id="createPostClear" style="display:none;" class="create-post-clear" onclick="event.stopPropagation(); clearPostImage();">&#10005; Remove</button>
           <div class="carousel-thumbs" id="carouselThumbs" style="display:none;"></div>
           <div class="carousel-counter" id="carouselCounter" style="display:none;"></div>
           <input type="file" id="carouselAddFile" accept="image/*" style="display:none;">
@@ -3416,13 +3431,13 @@ a.hub-nav-icon { text-decoration: none; }
   <div class="home-support-grid">
     <div class="support-card" style="--card-color: #10B981">
       <div class="support-card-header">
-        <span class="section-label-new" style="color: #10B981">BRAND CODES <button class="help-btn" onclick="showHelp(this,event)" data-help-key="brandCodes">?</button></span>
+        <span class="section-label-new" style="background: #10B981">BRAND CODES <button class="help-btn" onclick="showHelp(this,event)" data-help-key="brandCodes">?</button></span>
       </div>
       <div id="homeBrandCodesList"></div>
     </div>
     <div class="support-card" style="--card-color: #4F8EF7">
       <div class="support-card-header">
-        <span class="section-label-new" style="color: #4F8EF7">RECENT LEADS <button class="help-btn" onclick="showHelp(this,event)" data-help-key="recentLeads">?</button></span>
+        <span class="section-label-new" style="background: #4F8EF7">RECENT LEADS <button class="help-btn" onclick="showHelp(this,event)" data-help-key="recentLeads">?</button></span>
       </div>
       <div id="homeLeadsList">
         <div class="skeleton skeleton-text w80"></div>
@@ -3431,7 +3446,7 @@ a.hub-nav-icon { text-decoration: none; }
     </div>
     <div class="support-card" style="--card-color: #F472B6">
       <div class="support-card-header">
-        <span class="section-label-new" style="color: #F472B6">QUICK STATS <button class="help-btn" onclick="showHelp(this,event)" data-help-key="quickStats">?</button></span>
+        <span class="section-label-new" style="background: #F472B6">QUICK STATS <button class="help-btn" onclick="showHelp(this,event)" data-help-key="quickStats">?</button></span>
       </div>
       <div id="homeStatsCard">
         <div class="home-stats-grid" id="homeStatsGrid">
@@ -6428,7 +6443,7 @@ function generatePost() {
                 + '<div style="display:flex;flex-wrap:wrap;gap:6px;" id="hashtagChips">'
                 + parsed.hashtags.map(function(h) {
                     var tag = '#' + h.replace(/^#/, '');
-                    return '<span onclick="copyTag(this)" style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);border-radius:6px;padding:4px 10px;font-size:12px;color:#38bdf8;cursor:pointer;font-weight:500;transition:all 0.15s;user-select:all" title="Click to copy">' + tag + '</span>';
+                    return '<span onclick="copyTag(this)" style="background:#7C6AF7;border:1px solid #7C6AF7;border-radius:6px;padding:4px 10px;font-size:12px;color:#fff;cursor:pointer;font-weight:600;transition:all 0.15s;user-select:all" title="Click to copy">' + tag + '</span>';
                   }).join('')
                 + '</div>';
               window._generatedHashtags = parsed.hashtags.map(function(h) { return '#' + h.replace(/^#/, ''); });

@@ -2111,8 +2111,35 @@ const FONT_MAP = {
 @media (max-width: 768px) {
   /* Chat FAB — above contact bar */
   .chat-fab-btn { bottom: calc(140px + env(safe-area-inset-bottom, 0px)); right: 16px; width: 44px; height: 44px; font-size: 18px; }
-  /* Chat panel — full width */
-  .chat-panel { width: 100vw; }
+  /* Chat panel — full screen on mobile */
+  .chat-panel {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-left: none;
+    border-radius: 0;
+  }
+  .chat-panel-header {
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  }
+  .chat-panel .chat-prompts {
+    display: flex !important;
+    padding: 12px 16px;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .chat-panel .chat-prompt {
+    flex-shrink: 0;
+    font-size: 12px;
+    padding: 8px 14px;
+  }
+  .chat-panel .chat-input-row {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  }
   /* Strategist view — fit mobile viewport */
   #viewStrategist.active {
     height: calc(100vh - 240px);
@@ -6327,13 +6354,23 @@ function toggleChatPanel() {
   if (!isOpen) {
     // Move chat elements into panel before opening
     moveChatTo('panel');
+    // Show welcome message if chat is empty
+    var body = document.getElementById('chatBody');
+    if (body && !body.children.length) {
+      body.innerHTML = '<div class="chat-msg"><div class="chat-bubble proactive-bubble">' +
+        '<div class="proactive-label">Your Strategist</div>' +
+        '<p>Hey! I\'m your AI strategist. I can help with content ideas, captions, growth strategy, brand pitches — all powered by your real data.</p>' +
+        '<p>Try one of the prompts below, or ask me anything!</p>' +
+        '</div></div>';
+    }
   }
 
   panel.classList.toggle('open');
   overlay.classList.toggle('open');
 
   if (!isOpen) {
-    document.getElementById('chatInput').focus();
+    var input = document.getElementById('chatInput');
+    if (input) input.focus();
   }
 }
 
@@ -6347,6 +6384,9 @@ function moveChatTo(target) {
   } else {
     var panel = document.getElementById('chatPanel');
     if (panel) panel.appendChild(chatElements);
+    // Ensure prompts are visible when in panel mode
+    var prompts = chatElements.querySelector('.chat-prompts');
+    if (prompts) prompts.style.display = '';
   }
 }
 

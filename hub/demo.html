@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hub Demo — Client Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --r-md: 16px;
+    --r-pill: 999px;
+    --bg: #0A0A0A;
+    --surface: #111111;
+    --surface-elevated: #181818;
+    --border: rgba(255,255,255,0.08);
+    --text: #F0F0F0;
+    --text-muted: rgba(255,255,255,0.40);
+    --accent: #FFFFFF;
+    --accent-glow: #FFFFFF;
+    --accent-pale: rgba(255,255,255,0.08);
+    --accent-border: rgba(255,255,255,0.18);
+
+    --hub-bg: #090907;
+    --hub-surface: #0E0D0B;
+    --hub-surface-2: #141210;
+    --hub-border: rgba(255,248,220,0.09);
+    --hub-border-mid: rgba(255,248,220,0.16);
+    --hub-text-primary: #EBE7DF;
+    --hub-text-muted: rgba(235,231,223,0.45);
+    --hub-text-faint: rgba(235,231,223,0.25);
+
+    --emerald: #10B981;
+    --emerald-bg: rgba(16,185,129,0.08);
+    --emerald-border: rgba(16,185,129,0.2);
+    --purple: #7C6AF7;
+    --purple-bg: rgba(124,106,247,0.08);
+    --purple-border: rgba(124,106,247,0.2);
+    --blue: #4F8EF7;
+    --blue-bg: rgba(79,142,247,0.08);
+    --blue-border: rgba(79,142,247,0.2);
+    --gold: #F59E0B;
+    --gold-bg: rgba(245,158,11,0.08);
+    --gold-border: rgba(245,158,11,0.2);
+    --rose: #F472B6;
+    --rose-bg: rgba(244,114,182,0.08);
+    --rose-border: rgba(244,114,182,0.2);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans); color: var(--text); line-height: 1.65; font-size: 15px;
+    min-height: 100vh; background: var(--hub-bg); overflow-x: hidden;
+  }
+
+  /* ── Nav ── */
+  .hub-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; height: 60px; background: var(--hub-surface);
+    border-bottom: 1px solid var(--hub-border);
+    position: sticky; top: 0; z-index: 100; gap: 24px;
+  }
+  .hub-nav-brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .hub-nav-name { font-size: 14px; font-weight: 600; color: var(--hub-text-primary); letter-spacing: -0.01em; }
+  .hub-nav-tabs { display: flex; align-items: center; gap: 4px; }
+  .hub-tab {
+    display: flex; align-items: center; gap: 7px; padding: 7px 14px;
+    border-radius: 8px; border: 1px solid transparent; background: transparent;
+    color: var(--hub-text-muted); font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.18s;
+  }
+  .hub-tab:hover { background: rgba(255,248,220,0.04); color: var(--hub-text-primary); }
+  .hub-tab.active { border: 1px solid transparent; }
+  .hub-tab[data-tab="home"].active { color: #10B981; background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.2); }
+  .hub-tab[data-tab="analytics"].active { color: #4F8EF7; background: rgba(79,142,247,0.08); border-color: rgba(79,142,247,0.2); }
+  .hub-tab[data-tab="planner"].active { color: #F59E0B; background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2); }
+  .hub-tab[data-tab="strategist"].active { color: #7C6AF7; background: rgba(124,106,247,0.08); border-color: rgba(124,106,247,0.2); }
+  .hub-tab svg { opacity: 0.7; }
+  .hub-tab.active svg { opacity: 1; }
+  .hub-nav-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .hub-create-btn {
+    display: flex; align-items: center; gap: 6px; padding: 7px 16px;
+    background: #10B981; color: #090907; border: none; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .hub-create-btn:hover { opacity: 0.88; }
+  .hub-nav-icon {
+    width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--hub-border);
+    background: transparent; cursor: pointer; font-size: 15px;
+    display: flex; align-items: center; justify-content: center; transition: background 0.15s;
+  }
+  .hub-nav-icon:hover { background: var(--hub-surface-2); }
+  .hub-nav-link {
+    display: flex; align-items: center; gap: 5px;
+    padding: 7px 12px; border-radius: 8px;
+    border: 1px solid var(--hub-border); background: transparent;
+    color: var(--hub-text-muted); font-family: 'DM Sans', sans-serif;
+    font-size: 12px; font-weight: 500; text-decoration: none;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .hub-nav-link:hover { background: var(--hub-surface-2); color: var(--hub-text-primary); }
+
+  /* ── Stats Strip ── */
+  .stats-strip {
+    display: flex; align-items: center; padding: 12px 24px;
+    background: var(--hub-surface); border-bottom: 1px solid var(--hub-border); gap: 0;
+    margin-bottom: 8px;
+  }
+  .stat-pill { display: flex; flex-direction: column; align-items: center; padding: 0 28px; flex: 1; }
+  .stat-pill-value {
+    font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600;
+    color: var(--hub-text-primary); line-height: 1;
+  }
+  .stat-pill-label {
+    font-size: 10px; color: var(--hub-text-faint); letter-spacing: 0.08em;
+    text-transform: uppercase; margin-top: 3px;
+  }
+  .stat-pill-divider { width: 1px; height: 32px; background: var(--hub-border); }
+
+  /* ── Section Labels ── */
+  .section-label-new {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .home-card-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--hub-text-muted); margin-bottom: 14px; font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* ── Home Hero Grid ── */
+  .home-hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 24px 28px; }
+
+  .briefing-card-new {
+    background: var(--gold-bg); border: 1px solid var(--gold-border);
+    border-radius: 14px; padding: 24px; display: flex; flex-direction: column;
+    gap: 14px; min-height: 260px; position: relative; overflow: hidden;
+  }
+  .briefing-card-new::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; background: var(--gold); border-radius: 14px 14px 0 0;
+  }
+  .briefing-card-new .briefing-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .briefing-card-new .briefing-content-new {
+    font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 400;
+    color: var(--hub-text-primary); line-height: 1.6; font-style: italic; flex: 1;
+  }
+  .briefing-card-new .briefing-footer {
+    border-top: 1px solid var(--gold-border); padding-top: 10px;
+  }
+  .refresh-btn {
+    background: none; border: 1px solid var(--gold-border); border-radius: 8px;
+    width: 28px; height: 28px; cursor: pointer; color: var(--gold); font-size: 14px;
+    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+  }
+
+  /* ── Create Post Card ── */
+  .create-post-card-new {
+    background: var(--purple-bg); border: 1px solid var(--purple-border);
+    border-radius: 14px; padding: 24px; display: flex; flex-direction: column;
+    gap: 14px; min-height: 260px; position: relative; overflow: hidden;
+  }
+  .create-post-card-new::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; background: var(--purple); border-radius: 14px 14px 0 0;
+  }
+  .create-post-card-new .create-post-header {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .create-post-inner { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+  .create-post-drop {
+    border: 1.5px dashed var(--purple-border); border-radius: 10px;
+    padding: 6px; cursor: pointer; transition: border-color 0.2s; background: rgba(124,106,247,0.04);
+    flex: 1; display: flex; align-items: center; justify-content: center; min-height: 80px;
+    position: relative; overflow: hidden;
+  }
+  .create-post-preview {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 8px;
+    position: absolute; inset: 0;
+  }
+  .create-post-controls { display: flex; flex-direction: column; gap: 8px; }
+  .create-post-platforms { display: flex; gap: 4px; flex-shrink: 0; }
+  .cp-platform-btn {
+    padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--text-muted); font-family: var(--sans);
+    font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.15s;
+  }
+  .cp-platform-btn.active {
+    background: var(--purple-bg); border-color: var(--purple-border); color: var(--purple);
+  }
+  .create-post-notes {
+    width: 100%; padding: 10px 12px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface-elevated);
+    color: var(--text); font-family: var(--sans); font-size: 13px;
+  }
+  .create-post-generate {
+    padding: 10px 16px; border-radius: 8px; border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent-glow));
+    color: var(--bg); font-family: var(--sans); font-size: 13px;
+    font-weight: 600; cursor: pointer; transition: box-shadow 0.2s;
+  }
+
+  /* ── Generated caption output ── */
+  .create-post-output {
+    margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .create-post-result-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+  }
+  .create-post-result-header span {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--hub-text-muted);
+  }
+  .create-post-copy {
+    font-family: var(--sans); font-size: 11px; padding: 4px 12px;
+    border-radius: 6px; border: 1px solid var(--accent-border);
+    background: var(--accent-pale); color: var(--accent);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .create-post-caption {
+    font-size: 14px; line-height: 1.65; color: var(--hub-text-primary);
+    white-space: pre-wrap;
+  }
+  .create-post-meta {
+    display: flex; flex-direction: column; gap: 6px; margin-top: 10px;
+  }
+  .create-post-meta-item {
+    font-size: 12px; color: var(--hub-text-muted); line-height: 1.5;
+  }
+  .create-post-meta-item strong { color: var(--text); }
+
+  /* ── IG Preview ── */
+  .ig-preview {
+    margin-top: 16px; border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden; background: #000;
+  }
+  .ig-preview-header {
+    display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  }
+  .ig-preview-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  }
+  .ig-preview-username {
+    font-size: 13px; font-weight: 600; color: #fff;
+  }
+  .ig-preview-image {
+    width: 100%; display: block;
+  }
+  .ig-preview-actions {
+    display: flex; gap: 16px; padding: 12px 14px; font-size: 22px;
+  }
+  .ig-preview-caption {
+    padding: 0 14px 8px; font-size: 13px; line-height: 1.5; color: #eee;
+  }
+  .ig-preview-tags {
+    padding: 0 14px 14px; font-size: 12px; color: #8e8e8e;
+  }
+
+  /* ── Support Grid ── */
+  .home-support-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; padding: 0 28px 32px; }
+  .support-card {
+    background: var(--hub-surface); border: 1px solid var(--hub-border);
+    border-radius: 12px; padding: 20px; position: relative; overflow: hidden;
+  }
+  .support-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; background: var(--card-color, #10B981); border-radius: 12px 12px 0 0;
+  }
+  .support-card-header { margin-bottom: 14px; }
+
+  /* ── Home Stats ── */
+  .home-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .home-stat-tile { background: var(--surface-elevated); border-radius: 10px; padding: 14px; }
+  .home-stat-tile .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .home-stat-tile .stat-value { font-family: var(--serif); font-size: 24px; color: var(--text); font-weight: 400; }
+  .home-stat-tile .stat-change { font-size: 11px; color: #22c55e; margin-top: 2px; }
+
+  /* ── Brand Codes ── */
+  .home-code-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+  }
+  .home-code-row:last-child { border: none; }
+  .home-code-chip {
+    font-size: 12px; font-weight: 600; color: var(--emerald);
+    background: var(--emerald-bg); border: 1px solid var(--emerald-border);
+    border-radius: 6px; padding: 3px 10px;
+  }
+  .home-code-stat { font-size: 12px; color: var(--hub-text-muted); }
+
+  /* ── Leads ── */
+  .home-lead-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .home-lead-item:last-child { border: none; }
+  .home-lead-name { font-size: 13px; color: var(--text); }
+  .home-lead-source { font-size: 11px; color: var(--text-muted); }
+  .home-lead-time { font-size: 11px; color: var(--text-muted); }
+
+  /* ── Engine Section ── */
+  .engine-section { padding: 0 24px 24px; margin-top: 8px; }
+  .engine-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px; padding-top: 4px;
+  }
+  .engine-title { display: flex; align-items: center; gap: 10px; }
+  .engine-title h2 {
+    font-family: var(--sans); font-size: 10px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--emerald); margin: 0;
+  }
+  .engine-title-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--emerald-bg); border: 1px solid var(--emerald-border);
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+  .engine-new-btn {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--emerald); color: #090907; border: none; border-radius: 8px;
+    padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+    font-family: var(--sans); transition: opacity 0.15s;
+  }
+  .engine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  .engine-card-auto {
+    background: var(--hub-surface); border: 1px solid var(--emerald-border);
+    border-radius: 12px; padding: 20px; position: relative; overflow: hidden;
+  }
+  .engine-card-auto::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; background: var(--emerald); border-radius: 12px 12px 0 0;
+  }
+  .engine-card-auto .home-card-label { color: var(--emerald); }
+
+  .engine-card-funnel {
+    background: var(--hub-surface); border: 1px solid var(--blue-border);
+    border-radius: 12px; padding: 20px; position: relative; overflow: hidden;
+  }
+  .engine-card-funnel::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; background: var(--blue); border-radius: 12px 12px 0 0;
+  }
+  .engine-card-funnel .home-card-label { color: var(--blue); }
+
+  .engine-card-leads {
+    background: var(--hub-surface); border: 1px solid var(--rose-border);
+    border-radius: 12px; padding: 20px; position: relative; overflow: hidden;
+  }
+  .engine-card-leads::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; background: var(--rose); border-radius: 12px 12px 0 0;
+  }
+  .engine-card-leads .home-card-label { color: var(--rose); }
+
+  .engine-card-dm {
+    background: var(--hub-surface); border: 1px solid var(--purple-border);
+    border-radius: 12px; padding: 20px; position: relative; overflow: hidden;
+  }
+  .engine-card-dm::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; background: var(--purple); border-radius: 12px 12px 0 0;
+  }
+  .engine-card-dm .home-card-label { color: var(--purple); }
+
+  /* ── Automation items ── */
+  .automations-list { display: flex; flex-direction: column; gap: 10px; }
+  .auto-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; background: var(--surface-elevated);
+    border: 1px solid var(--emerald-border); border-radius: 10px;
+  }
+  .auto-item-keyword {
+    font-size: 12px; font-weight: 700; color: var(--emerald);
+    background: var(--emerald-bg); border: 1px solid var(--emerald-border);
+    border-radius: 6px; padding: 3px 10px; white-space: nowrap;
+  }
+  .auto-item-info { flex: 1; }
+  .auto-item-title { font-size: 13px; color: var(--text); font-weight: 500; }
+  .auto-item-meta { font-size: 11px; color: var(--hub-text-muted); margin-top: 2px; }
+  .auto-item-stat {
+    font-size: 12px; font-weight: 600; color: var(--emerald);
+    text-align: right; white-space: nowrap;
+  }
+  .auto-item-stat-label { font-size: 9px; color: var(--hub-text-faint); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* ── Funnel ── */
+  .funnel-list { display: flex; flex-direction: column; gap: 12px; }
+  .funnel-row { display: flex; flex-direction: column; gap: 4px; }
+  .funnel-row-header { display: flex; align-items: center; justify-content: space-between; }
+  .funnel-keyword { font-weight: 600; font-size: 13px; color: var(--blue); }
+  .funnel-pct { font-size: 13px; color: var(--blue); font-weight: 600; }
+  .funnel-bar-bg { height: 6px; background: var(--accent-pale); border-radius: 3px; overflow: hidden; }
+  .funnel-bar-fill { height: 100%; background: var(--blue); border-radius: 3px; }
+  .funnel-steps { font-size: 11px; color: var(--hub-text-muted); }
+
+  /* ── Leads items ── */
+  .lead-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+  }
+  .lead-item:last-child { border: none; }
+  .lead-keyword {
+    font-size: 10px; font-weight: 600;
+    background: var(--rose-bg); border: 1px solid var(--rose-border); color: var(--rose);
+    border-radius: 4px; padding: 2px 8px;
+  }
+  .lead-email { font-size: 13px; color: var(--text); flex: 1; }
+  .lead-time { font-size: 11px; color: var(--hub-text-muted); }
+
+  /* ── DM Settings ── */
+  .dm-preview {
+    padding: 14px; background: var(--surface-elevated);
+    border: 1px solid var(--purple-border); border-radius: 10px;
+  }
+  .dm-label { font-size: 10px; color: var(--hub-text-faint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .dm-text { font-size: 13px; color: var(--hub-text-primary); line-height: 1.5; font-style: italic; }
+
+  /* ── Scheduled Posts ── */
+  .scheduled-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .scheduled-row:last-child { border: none; }
+  .scheduled-thumb {
+    width: 44px; height: 44px; border-radius: 8px; object-fit: cover;
+    border: 1px solid var(--border);
+  }
+  .scheduled-info { flex: 1; }
+  .scheduled-caption { font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px; }
+  .scheduled-time { font-size: 11px; color: var(--hub-text-muted); margin-top: 2px; }
+  .scheduled-platform {
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 3px 10px; border-radius: 4px;
+  }
+  .scheduled-platform.ig { background: var(--rose-bg); color: var(--rose); border: 1px solid var(--rose-border); }
+
+  /* ── Home Card ── */
+  .home-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r-md); padding: 20px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ TOP NAVIGATION BAR ═══ -->
+<nav class="hub-nav">
+  <div class="hub-nav-brand">
+    <svg width="24" height="24" viewBox="0 0 160 160" fill="none">
+      <rect x="18" y="18" width="52" height="52" rx="10" fill="none" stroke="#10B981" stroke-width="7"/>
+      <text x="44" y="54" text-anchor="middle" font-family="DM Sans" font-size="28" font-weight="600" fill="#10B981">S</text>
+      <rect x="90" y="18" width="52" height="52" rx="10" fill="none" stroke="#10B981" stroke-width="5" opacity="0.2"/>
+      <rect x="18" y="90" width="52" height="52" rx="10" fill="none" stroke="#10B981" stroke-width="5" opacity="0.2"/>
+      <rect x="90" y="90" width="52" height="52" rx="10" fill="#10B981"/>
+      <text x="116" y="126" text-anchor="middle" font-family="DM Sans" font-size="28" font-weight="600" fill="#090907">O</text>
+    </svg>
+    <span class="hub-nav-name">Client's Hub</span>
+  </div>
+  <div class="hub-nav-tabs">
+    <button class="hub-tab active" data-tab="home">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="hub-tab" data-tab="analytics">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>Analytics</span>
+    </button>
+    <button class="hub-tab" data-tab="planner">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Planner</span>
+    </button>
+    <button class="hub-tab" data-tab="strategist">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Strategist</span>
+    </button>
+  </div>
+  <div class="hub-nav-actions">
+    <button class="hub-create-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>Create Post</span>
+    </button>
+    <a class="hub-nav-link" href="#">&#127760; <span>My Site</span></a>
+    <a class="hub-nav-link" href="#">&#128202; <span>Dashboard</span></a>
+    <button class="hub-nav-icon" title="Message Sam">&#9993;&#65039;</button>
+    <button class="hub-nav-icon" title="Request Update">&#128260;</button>
+  </div>
+</nav>
+
+<!-- ═══ STATS STRIP ═══ -->
+<div class="stats-strip">
+  <div class="stat-pill">
+    <span class="stat-pill-value">247.8K</span>
+    <span class="stat-pill-label">Followers</span>
+  </div>
+  <div class="stat-pill-divider"></div>
+  <div class="stat-pill">
+    <span class="stat-pill-value">1.2M</span>
+    <span class="stat-pill-label">Total Likes</span>
+  </div>
+  <div class="stat-pill-divider"></div>
+  <div class="stat-pill">
+    <span class="stat-pill-value">8,439</span>
+    <span class="stat-pill-label">Link Clicks</span>
+  </div>
+  <div class="stat-pill-divider"></div>
+  <div class="stat-pill">
+    <span class="stat-pill-value">2,156</span>
+    <span class="stat-pill-label">Code Uses</span>
+  </div>
+</div>
+
+<!-- ═══ HERO CARDS ═══ -->
+<div class="home-hero-grid">
+
+  <!-- TODAY'S BRIEFING -->
+  <div class="briefing-card-new">
+    <div class="briefing-card-header">
+      <span class="section-label-new" style="color: var(--gold)">TODAY'S BRIEFING</span>
+      <button class="refresh-btn">&#8635;</button>
+    </div>
+    <div class="briefing-content-new">
+      Your Reels are outperforming carousels by 3.2x this week. Audience engagement peaks between 6&ndash;9 PM. Consider posting a behind-the-scenes Reel tonight &mdash; your last one drove 847 profile visits.<br><br>
+      DFYNE code usage is up 18% since Monday. A story mention of the code could push it past 500 uses this month.
+    </div>
+    <div class="briefing-footer">
+      <span style="font-size:10px; color: var(--hub-text-faint);">AI-generated from your real data</span>
+    </div>
+  </div>
+
+  <!-- CREATE POST — with demo image + generated caption -->
+  <div class="create-post-card-new">
+    <div class="create-post-header">
+      <span class="section-label-new" style="color: var(--purple)">CREATE POST</span>
+      <span style="font-size:11px; color: var(--hub-text-faint);">Generate captions with AI</span>
+    </div>
+    <div class="create-post-inner">
+      <div class="create-post-drop" style="min-height: 120px; border-style: solid; border-color: var(--purple-border);">
+        <img id="demoImage" style="width:100%; height:100%; object-fit:cover; border-radius:8px; position:absolute; inset:0;" src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=400&fit=crop&crop=center" alt="Fitness photo demo">
+      </div>
+      <div class="create-post-controls">
+        <div class="create-post-platforms">
+          <button class="cp-platform-btn active">&#128247; IG</button>
+          <button class="cp-platform-btn">&#127925; TikTok</button>
+          <button class="cp-platform-btn">&#9654;&#65039; YouTube</button>
+        </div>
+      </div>
+      <div class="create-post-output">
+        <div class="create-post-result-header">
+          <span>Your Caption</span>
+          <button class="create-post-copy">&#128203; Copy</button>
+        </div>
+        <div class="create-post-caption">The burn that builds you up &#128293;
+
+Some days the weight feels impossible. But you didn't come here for easy &mdash; you came here for change.
+
+3 sets in and my arms were shaking. I almost quit. But the girl next to me was going HARD and honestly that energy is contagious.
+
+Find your people. Show up anyway.
+
+&#128172; Comment "BURN" and I'll send you my full upper body split</div>
+        <div class="create-post-meta" style="margin-top: 10px;">
+          <div class="create-post-meta-item">&#9201; <strong>Best time:</strong> 6 PM &ndash; 9 PM today</div>
+          <div class="create-post-meta-item">&#127991; <strong>Tags:</strong> #fitnessmotivation #gymlife #upperbody #strongwomen #fitfam</div>
+          <div class="create-post-meta-item">&#128161; <strong>Tip:</strong> Add 2&ndash;3 slides for carousel format &mdash; your carousels get 2.4x more saves</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ SUPPORT GRID ═══ -->
+<div class="home-support-grid">
+
+  <!-- BRAND CODES -->
+  <div class="support-card" style="--card-color: #10B981">
+    <div class="support-card-header">
+      <span class="section-label-new" style="color: #10B981">BRAND CODES</span>
+    </div>
+    <div class="home-code-row">
+      <span class="home-code-chip">MANDI15</span>
+      <span class="home-code-stat">DFYNE &middot; 487 uses</span>
+    </div>
+    <div class="home-code-row">
+      <span class="home-code-chip">MANDIB</span>
+      <span class="home-code-stat">Gymshark &middot; 312 uses</span>
+    </div>
+    <div class="home-code-row">
+      <span class="home-code-chip">MANDIBAGLEY</span>
+      <span class="home-code-stat">Teveo &middot; 198 uses</span>
+    </div>
+  </div>
+
+  <!-- RECENT LEADS -->
+  <div class="support-card" style="--card-color: #4F8EF7">
+    <div class="support-card-header">
+      <span class="section-label-new" style="color: #4F8EF7">RECENT LEADS</span>
+    </div>
+    <div class="home-lead-item">
+      <div>
+        <div class="home-lead-name">jessica.k@gmail.com</div>
+        <div class="home-lead-source">via "BURN" keyword</div>
+      </div>
+      <div class="home-lead-time">2h ago</div>
+    </div>
+    <div class="home-lead-item">
+      <div>
+        <div class="home-lead-name">sarah.fitness@outlook.com</div>
+        <div class="home-lead-source">via "GUIDE" keyword</div>
+      </div>
+      <div class="home-lead-time">5h ago</div>
+    </div>
+    <div class="home-lead-item">
+      <div>
+        <div class="home-lead-name">amylifts22@gmail.com</div>
+        <div class="home-lead-source">via "PLAN" keyword</div>
+      </div>
+      <div class="home-lead-time">1d ago</div>
+    </div>
+  </div>
+
+  <!-- QUICK STATS -->
+  <div class="support-card" style="--card-color: #F472B6">
+    <div class="support-card-header">
+      <span class="section-label-new" style="color: #F472B6">QUICK STATS</span>
+    </div>
+    <div class="home-stats-grid">
+      <div class="home-stat-tile">
+        <div class="stat-label">Followers</div>
+        <div class="stat-value">247.8K</div>
+        <div class="stat-change">+1,247 this week</div>
+      </div>
+      <div class="home-stat-tile">
+        <div class="stat-label">Engagement</div>
+        <div class="stat-value">4.7%</div>
+        <div class="stat-change">+0.3% vs last week</div>
+      </div>
+      <div class="home-stat-tile">
+        <div class="stat-label">Views (7d)</div>
+        <div class="stat-value">892K</div>
+        <div class="stat-change">+12% vs last week</div>
+      </div>
+      <div class="home-stat-tile">
+        <div class="stat-label">Link Clicks</div>
+        <div class="stat-value">8,439</div>
+        <div class="stat-change">+342 this week</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ENGAGEMENT ENGINE ═══ -->
+<div class="engine-section">
+  <div class="engine-header">
+    <div class="engine-title">
+      <div class="engine-title-icon">&#9889;</div>
+      <h2>ENGAGEMENT ENGINE</h2>
+    </div>
+    <button class="engine-new-btn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Automation
+    </button>
+  </div>
+
+  <div class="engine-grid">
+    <!-- Automations -->
+    <div class="engine-card-auto">
+      <div class="home-card-label">&#9889; AUTOMATIONS</div>
+      <div class="automations-list">
+        <div class="auto-item">
+          <span class="auto-item-keyword">BURN</span>
+          <div class="auto-item-info">
+            <div class="auto-item-title">Upper Body Split PDF</div>
+            <div class="auto-item-meta">DMs workout guide + captures email</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="auto-item-stat">847</div>
+            <div class="auto-item-stat-label">Triggered</div>
+          </div>
+        </div>
+        <div class="auto-item">
+          <span class="auto-item-keyword">GUIDE</span>
+          <div class="auto-item-info">
+            <div class="auto-item-title">Nutrition Starter Guide</div>
+            <div class="auto-item-meta">DMs link + follows up in 24h</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="auto-item-stat">523</div>
+            <div class="auto-item-stat-label">Triggered</div>
+          </div>
+        </div>
+        <div class="auto-item">
+          <span class="auto-item-keyword">PLAN</span>
+          <div class="auto-item-info">
+            <div class="auto-item-title">4-Week Training Plan</div>
+            <div class="auto-item-meta">DMs capture page link</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="auto-item-stat">312</div>
+            <div class="auto-item-stat-label">Triggered</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conversion Funnel -->
+    <div class="engine-card-funnel">
+      <div class="home-card-label">&#128202; CONVERSION FUNNEL</div>
+      <div class="funnel-list">
+        <div class="funnel-row">
+          <div class="funnel-row-header">
+            <span class="funnel-keyword">"BURN"</span>
+            <span class="funnel-pct">68%</span>
+          </div>
+          <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:68%"></div></div>
+          <div class="funnel-steps">847 comments &rarr; 576 emails captured</div>
+        </div>
+        <div class="funnel-row">
+          <div class="funnel-row-header">
+            <span class="funnel-keyword">"GUIDE"</span>
+            <span class="funnel-pct">74%</span>
+          </div>
+          <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:74%"></div></div>
+          <div class="funnel-steps">523 comments &rarr; 387 emails captured</div>
+        </div>
+        <div class="funnel-row">
+          <div class="funnel-row-header">
+            <span class="funnel-keyword">"PLAN"</span>
+            <span class="funnel-pct">61%</span>
+          </div>
+          <div class="funnel-bar-bg"><div class="funnel-bar-fill" style="width:61%"></div></div>
+          <div class="funnel-steps">312 comments &rarr; 190 emails captured</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="engine-grid" style="margin-top:16px;">
+    <!-- Captured Leads -->
+    <div class="engine-card-leads">
+      <div class="home-card-label">&#128203; CAPTURED LEADS</div>
+      <div style="display:flex;gap:12px;margin-bottom:14px;">
+        <div style="flex:1;background:var(--rose-bg);border:1px solid var(--rose-border);border-radius:8px;padding:10px;text-align:center;">
+          <div style="font-size:20px;font-weight:600;color:var(--rose);">1,153</div>
+          <div style="font-size:10px;color:var(--hub-text-muted);text-transform:uppercase;letter-spacing:0.06em;">Total Emails</div>
+        </div>
+        <div style="flex:1;background:var(--rose-bg);border:1px solid var(--rose-border);border-radius:8px;padding:10px;text-align:center;">
+          <div style="font-size:20px;font-weight:600;color:var(--rose);">89</div>
+          <div style="font-size:10px;color:var(--hub-text-muted);text-transform:uppercase;letter-spacing:0.06em;">This Week</div>
+        </div>
+      </div>
+      <div class="lead-item">
+        <span class="lead-keyword">BURN</span>
+        <span class="lead-email">jessica.k@gmail.com</span>
+        <span class="lead-time">2h ago</span>
+      </div>
+      <div class="lead-item">
+        <span class="lead-keyword">GUIDE</span>
+        <span class="lead-email">sarah.fitness@outlook.com</span>
+        <span class="lead-time">5h ago</span>
+      </div>
+      <div class="lead-item">
+        <span class="lead-keyword">PLAN</span>
+        <span class="lead-email">amylifts22@gmail.com</span>
+        <span class="lead-time">1d ago</span>
+      </div>
+      <button style="margin-top:12px;background:var(--rose-bg);border:1px solid var(--rose-border);border-radius:8px;padding:7px 14px;font-size:11px;color:var(--rose);cursor:pointer;font-family:var(--sans);width:100%;font-weight:600;">Export Emails (CSV)</button>
+    </div>
+
+    <!-- DM Settings -->
+    <div class="engine-card-dm">
+      <div class="home-card-label">&#128172; DM SETTINGS</div>
+      <div class="dm-preview" style="margin-bottom:12px;">
+        <div class="dm-label">Welcome DM</div>
+        <div class="dm-text">Hey! &#128075; Thanks for reaching out. I'm so glad you're here! Here's the link to grab your free guide &mdash; let me know if you have any questions! &#128155;</div>
+      </div>
+      <div class="dm-preview">
+        <div class="dm-label">Follow-up (24h)</div>
+        <div class="dm-text">Hey again! Just checking in &mdash; did you get a chance to download the guide? If you have any questions about getting started, I'm here to help! &#128170;</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scheduled Posts -->
+  <div class="home-card" style="margin-top:16px; grid-column: 1 / -1;">
+    <div class="home-card-label" style="display:flex;justify-content:space-between;align-items:center;">
+      &#128197; Scheduled Posts
+      <div style="display:flex;gap:6px;">
+        <button style="font-size:11px;padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:var(--accent-pale);color:var(--text);cursor:pointer;font-family:var(--sans);">Upcoming</button>
+        <button style="font-size:11px;padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;font-family:var(--sans);">Posted</button>
+      </div>
+    </div>
+    <div class="scheduled-row">
+      <img class="scheduled-thumb" src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=88&h=88&fit=crop" alt="">
+      <div class="scheduled-info">
+        <div class="scheduled-caption">The burn that builds you up &#128293; Some days the weight feels impossible...</div>
+        <div class="scheduled-time">Today at 7:00 PM</div>
+      </div>
+      <span class="scheduled-platform ig">&#128247; Instagram</span>
+    </div>
+    <div class="scheduled-row">
+      <img class="scheduled-thumb" src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=88&h=88&fit=crop" alt="">
+      <div class="scheduled-info">
+        <div class="scheduled-caption">Monday mindset: you don't have to be perfect, you just have to show up &#128170;</div>
+        <div class="scheduled-time">Tomorrow at 6:30 PM</div>
+      </div>
+      <span class="scheduled-platform ig">&#128247; Instagram</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

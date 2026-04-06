@@ -2211,6 +2211,90 @@ const FONT_MAP = {
   box-shadow: 0 0 8px rgba(167,139,250,0.6);
 }
 
+/* Strategist — animated aurora background */
+#viewStrategist {
+  background: #F8F6F2;
+}
+.strategist-aurora {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+#viewStrategist > *:not(.strategist-aurora) {
+  position: relative;
+  z-index: 1;
+}
+.strategist-aurora-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+#viewStrategist.active .strategist-aurora-orb {
+  opacity: 1;
+}
+.strategist-aurora-1 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(124,106,247,0.18) 0%, transparent 70%);
+  top: -80px; right: -60px;
+  animation: auroraFloat1 12s ease-in-out infinite;
+}
+.strategist-aurora-2 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(167,139,250,0.15) 0%, transparent 70%);
+  bottom: 10%; left: -40px;
+  animation: auroraFloat2 16s ease-in-out infinite;
+}
+.strategist-aurora-3 {
+  width: 250px; height: 250px;
+  background: radial-gradient(circle, rgba(192,132,252,0.12) 0%, transparent 70%);
+  top: 40%; left: 50%;
+  animation: auroraFloat3 20s ease-in-out infinite;
+}
+@keyframes auroraFloat1 {
+  0%,100% { transform: translate(0,0) scale(1); opacity: 0.7; }
+  30% { transform: translate(-60px,40px) scale(1.15); opacity: 1; }
+  60% { transform: translate(30px,-30px) scale(0.9); opacity: 0.6; }
+}
+@keyframes auroraFloat2 {
+  0%,100% { transform: translate(0,0) scale(1); opacity: 0.6; }
+  40% { transform: translate(80px,-50px) scale(1.2); opacity: 1; }
+  70% { transform: translate(-30px,40px) scale(0.85); opacity: 0.5; }
+}
+@keyframes auroraFloat3 {
+  0%,100% { transform: translate(0,0) scale(1); opacity: 0.5; }
+  50% { transform: translate(-60px,-40px) scale(1.3); opacity: 0.9; }
+}
+
+/* Strategist — enhanced insight card heartbeat glow */
+.strategist-insight {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+#viewStrategist.active .strategist-insight {
+  animation: insightHeartbeat 3s ease-in-out infinite;
+}
+@keyframes insightHeartbeat {
+  0%, 100% { box-shadow: 0 0 0px rgba(124,106,247,0); border-color: rgba(167,139,250,0.25); }
+  15% { box-shadow: 0 0 20px rgba(124,106,247,0.2); border-color: rgba(124,106,247,0.5); }
+  30% { box-shadow: 0 0 4px rgba(124,106,247,0.05); border-color: rgba(167,139,250,0.3); }
+  45% { box-shadow: 0 0 16px rgba(124,106,247,0.15); border-color: rgba(124,106,247,0.45); }
+  60% { box-shadow: 0 0 0px rgba(124,106,247,0); border-color: rgba(167,139,250,0.25); }
+}
+
+/* Strategist — staggered prompt chip entrance */
+.strategist-prompt-chip {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.35s ease, transform 0.35s ease, border-color 0.2s, background 0.2s;
+}
+#viewStrategist.active .strategist-prompt-chip.chip-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* Strategist sidebar active state — purple */
 .sidebar-nav-item[data-view="strategist"].active {
   background: rgba(167,139,250,0.12);
@@ -2397,6 +2481,25 @@ const FONT_MAP = {
 .hub-tab[data-tab="analytics"].active { color: #4F8EF7; background: rgba(79,142,247,0.08); border-color: rgba(79,142,247,0.2); }
 .hub-tab[data-tab="planner"].active { color: #F59E0B; background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2); }
 .hub-tab[data-tab="strategist"].active { color: #7C6AF7; background: rgba(124,106,247,0.08); border-color: rgba(124,106,247,0.2); }
+
+/* Strategist tab — breathing purple glow (always visible) */
+.hub-tab[data-tab="strategist"] {
+  position: relative;
+}
+.hub-tab[data-tab="strategist"]::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 11px;
+  background: radial-gradient(ellipse at center, rgba(124,106,247,0.35) 0%, transparent 70%);
+  z-index: -1;
+  animation: strategistTabPulse 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes strategistTabPulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
 .hub-tab svg { opacity: 0.7; }
 .hub-tab.active svg { opacity: 1; }
 .hub-nav-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
@@ -3707,10 +3810,16 @@ a.hub-nav-icon { text-decoration: none; }
   </div><!-- end planner padding wrapper -->
 </div>
 
-<div class="hub-view hub-redesign" id="viewStrategist" style="background: #F8F6F2; border-left: 3px solid var(--purple);">
+<div class="hub-view hub-redesign" id="viewStrategist" style="border-left: 3px solid var(--purple); position: relative; overflow: hidden;">
+  <!-- Animated purple aurora background -->
+  <div class="strategist-aurora" aria-hidden="true">
+    <div class="strategist-aurora-orb strategist-aurora-1"></div>
+    <div class="strategist-aurora-orb strategist-aurora-2"></div>
+    <div class="strategist-aurora-orb strategist-aurora-3"></div>
+  </div>
 
   <div class="tab-header" style="border-color: var(--purple-border); background: var(--purple-bg)">
-    <span class="tab-header-label" style="color: var(--purple)">AI STRATEGIST <button class="help-btn" onclick="showHelp(this,event)" data-help-key="strategist">?</button></span>
+    <span class="section-label-new" style="background: var(--purple)">AI STRATEGIST <button class="help-btn" onclick="showHelp(this,event)" data-help-key="strategist">?</button></span>
     <span class="tab-header-sub" style="color: var(--hub-text-faint)">Powered by your real data &middot; LIVE</span>
     <span class="live-dot"></span>
   </div>
@@ -4029,7 +4138,8 @@ function showHub() {
     }
     var al = document.getElementById('automationsList');
     if (al && al.querySelector('.skeleton')) {
-      al.innerHTML = '<div class="automation-empty">No automations yet — tap + to create one</div>';
+      automationsData = [];
+      renderAutomations();
     }
     var fl = document.getElementById('funnelList');
     if (fl && fl.querySelector('.skeleton')) {
@@ -4060,6 +4170,34 @@ function switchView(viewName) {
   // Toggle strategist padding mode
   var hubMain = document.querySelector('.hub-main');
   if (hubMain) hubMain.classList.toggle('strategist-active', viewName === 'strategist');
+
+  // Strategist entrance animations
+  if (viewName === 'strategist') {
+    // Staggered prompt chip entrance
+    var chips = document.querySelectorAll('.strategist-prompt-chip');
+    chips.forEach(function(c, i) {
+      c.classList.remove('chip-visible');
+      setTimeout(function() { c.classList.add('chip-visible'); }, 120 + i * 90);
+    });
+    // Typing intro on insight text (only if it has fresh content)
+    var insightEl = document.getElementById('strategistInsightText');
+    if (insightEl && insightEl.dataset.typed !== 'done' && insightEl.textContent && insightEl.textContent !== 'Loading your personalized strategy...') {
+      var fullText = insightEl.textContent;
+      insightEl.textContent = '';
+      insightEl.dataset.typed = 'done';
+      var ci = 0;
+      (function typeChar() {
+        if (ci < fullText.length) {
+          insightEl.textContent += fullText.charAt(ci);
+          ci++;
+          setTimeout(typeChar, 14 + Math.random() * 10);
+        }
+      })();
+    }
+  } else {
+    // Reset chips when leaving
+    document.querySelectorAll('.strategist-prompt-chip').forEach(function(c) { c.classList.remove('chip-visible'); });
+  }
 
   // Move chat elements based on view
   if (viewName === 'strategist') {

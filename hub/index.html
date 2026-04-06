@@ -7108,13 +7108,17 @@ var editingKeyword = null;
 
 function loadAutomations() {
   fetch('/api/automations', { headers: { 'Authorization': 'Bearer ' + password } })
-    .then(function(r) { return r.json(); })
+    .then(function(r) { if (!r.ok) throw new Error('API ' + r.status); return r.json(); })
     .then(function(data) {
       automationsData = data.automations || [];
       renderAutomations();
       populateAutomationDropdown();
     })
-    .catch(function() {});
+    .catch(function() {
+      automationsData = [];
+      renderAutomations();
+      populateAutomationDropdown();
+    });
 }
 
 function populateAutomationDropdown() {
@@ -7122,12 +7126,28 @@ function populateAutomationDropdown() {
   if (!sel) return;
   var current = sel.value;
   sel.innerHTML = '<option value="">No automation (just caption)</option>';
-  automationsData.filter(function(a) { return a.active; }).forEach(function(a) {
-    var opt = document.createElement('option');
-    opt.value = a.keyword;
-    opt.textContent = '\uD83D\uDD17 ' + a.keyword + ' \u2014 ' + a.captureHeadline;
-    sel.appendChild(opt);
-  });
+
+  var activeAutos = automationsData.filter(function(a) { return a.active; });
+
+  if (activeAutos.length) {
+    // Show saved automations
+    activeAutos.forEach(function(a) {
+      var opt = document.createElement('option');
+      opt.value = a.keyword;
+      opt.textContent = '\uD83D\uDD17 ' + a.keyword + ' \u2014 ' + a.captureHeadline;
+      sel.appendChild(opt);
+    });
+  } else {
+    // No saved automations — show suggested ones so the dropdown isn't empty
+    var suggestions = getSuggestedAutomations();
+    suggestions.forEach(function(s) {
+      var opt = document.createElement('option');
+      opt.value = s.keyword;
+      opt.textContent = '\u2728 ' + s.keyword + ' \u2014 ' + s.headline + ' (suggested)';
+      sel.appendChild(opt);
+    });
+  }
+
   sel.value = current;
 }
 

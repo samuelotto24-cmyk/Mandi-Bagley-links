@@ -2110,7 +2110,7 @@ const FONT_MAP = {
 
 @media (max-width: 768px) {
   /* Chat FAB — above contact bar */
-  .chat-fab-btn { bottom: 128px; right: 16px; width: 44px; height: 44px; font-size: 18px; }
+  .chat-fab-btn { bottom: calc(140px + env(safe-area-inset-bottom, 0px)); right: 16px; width: 44px; height: 44px; font-size: 18px; }
   /* Chat panel — full width */
   .chat-panel { width: 100vw; }
   /* Strategist view — fit mobile viewport */
@@ -2124,9 +2124,9 @@ const FONT_MAP = {
   .strategist-prompts { gap: 6px; margin-bottom: 12px; }
   .strategist-prompt-chip { font-size: 11px; padding: 6px 12px; }
   .strategist-chat-container { min-height: 120px; }
-  /* Contact bar — dock above bottom nav */
+  /* Contact bar — dock above bottom tab bar */
   .contact-bar {
-    bottom: 64px; left: 8px; right: 8px; transform: none;
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px)); left: 8px; right: 8px; transform: none;
     width: auto;
   }
   .contact-bar-btn { font-size: 11px; padding: 8px 14px; flex: 1; justify-content: center; }
@@ -2462,7 +2462,9 @@ const FONT_MAP = {
 /* ── Top Navigation Bar ── */
 .hub-nav {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 24px; height: 60px; background: var(--hub-surface);
+  padding: 0 24px; padding-top: env(safe-area-inset-top, 0px);
+  height: calc(60px + env(safe-area-inset-top, 0px));
+  background: var(--hub-surface);
   border-bottom: 1px solid var(--hub-border);
   position: sticky; top: 0; z-index: 100; gap: 24px;
 }
@@ -3222,19 +3224,93 @@ a.hub-nav-icon { text-decoration: none; }
 
 /* ── Hub Redesign Mobile Responsive ── */
 @media (max-width: 768px) {
-  .hub-nav { padding: 0 10px; gap: 8px; }
-  .hub-nav-name { display: none; }
-  .hub-tab span:not(.notif-dot) { display: none; }
-  .hub-tab { padding: 10px 14px; min-width: 44px; min-height: 44px; justify-content: center; }
-  .hub-nav-tabs { gap: 2px; flex: 1; justify-content: center; }
+  /* Mobile: move tabs to bottom bar for easy thumb access */
+  .hub-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    top: auto !important;
+    left: 0; right: 0;
+    height: auto !important;
+    padding: 0 !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+    flex-direction: column;
+    gap: 0;
+    border-bottom: none;
+    border-top: 1px solid var(--hub-border);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+    z-index: 200;
+  }
+  .hub-nav-brand { display: none; }
+  .hub-nav-actions { display: none; }
+  .hub-nav-tabs {
+    display: flex;
+    width: 100%;
+    gap: 0;
+    flex: none;
+    justify-content: stretch;
+  }
+  .hub-tab {
+    flex: 1;
+    flex-direction: column;
+    gap: 3px;
+    padding: 10px 4px 8px;
+    min-height: 56px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0;
+    font-size: 10px;
+    border: none !important;
+    position: relative;
+  }
+  .hub-tab span:not(.notif-dot) {
+    display: block !important;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .hub-tab svg { width: 20px; height: 20px; }
+  .hub-tab.active {
+    background: transparent !important;
+  }
+  .hub-tab[data-tab="home"].active { color: #10B981; }
+  .hub-tab[data-tab="analytics"].active { color: #4F8EF7; }
+  .hub-tab[data-tab="planner"].active { color: #F59E0B; }
+  .hub-tab[data-tab="strategist"].active { color: #7C6AF7; }
+  .hub-tab.active::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 20%; right: 20%;
+    height: 3px;
+    border-radius: 0 0 3px 3px;
+    background: currentColor;
+  }
+  /* Strategist tab glow — needs to work in bottom bar too */
+  .hub-tab[data-tab="strategist"]::after {
+    inset: -3px;
+    border-radius: 0;
+  }
+
+  /* Add bottom padding to hub-main so content isn't hidden behind bottom bar */
+  .hub-shell.hub-redesign .hub-main { padding-bottom: 140px !important; }
+
   .home-hero-grid { grid-template-columns: 1fr; }
   .home-support-grid { grid-template-columns: 1fr; }
   .stats-strip { overflow-x: auto; }
   .stat-pill { padding: 0 16px; }
-  .hub-nav-actions .hub-create-btn span { display: none; }
-  .hub-nav-link span { display: none; }
-  .hub-nav-link { padding: 7px 10px; }
-  .hub-nav-actions { gap: 4px; }
+
+  /* Mobile top bar for name + create button */
+  .hub-mobile-top {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    padding-top: calc(12px + env(safe-area-inset-top, 0px));
+    background: var(--hub-surface);
+    border-bottom: 1px solid var(--hub-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
 }
 
 /* ── Override hub-shell for top-nav layout ── */
@@ -3341,6 +3417,15 @@ a.hub-nav-icon { text-decoration: none; }
   <a class="sidebar-nav-item" id="navSite" href="#" target="_blank" title="View My Site">🌐</a>
   <a class="sidebar-nav-item" href="/dashboard" target="_blank" title="Full Analytics Dashboard">📊</a>
 </nav>
+
+<!-- ═══ MOBILE TOP BAR (name + create) ═══ -->
+<div class="hub-mobile-top" style="display:none;">
+  <span style="font-size:14px;font-weight:600;color:var(--hub-text-primary);" id="hubMobileTitle">Hub</span>
+  <button class="hub-create-btn" onclick="switchToCreatePost()" style="padding:7px 14px;font-size:12px;">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Create
+  </button>
+</div>
 
 <!-- ═══ NEW TOP NAVIGATION BAR ═══ -->
 <nav class="hub-nav">
@@ -4061,7 +4146,10 @@ function showHub() {
   var sidebarLogo = document.getElementById('sidebarLogo');
   if (sidebarLogo) sidebarLogo.textContent = CLIENT.name.charAt(0);
   var hubNavName = document.getElementById('hubNavName');
-  if (hubNavName) hubNavName.textContent = CLIENT.name.split(' ')[0] + "'s Hub";
+  var hubTitle = CLIENT.name.split(' ')[0] + "'s Hub";
+  if (hubNavName) hubNavName.textContent = hubTitle;
+  var hubMobileTitle = document.getElementById('hubMobileTitle');
+  if (hubMobileTitle) hubMobileTitle.textContent = hubTitle;
 
   // Populate greeting
   const firstName = CLIENT.name.split(' ')[0];
@@ -5218,7 +5306,11 @@ function renderEmptyStates() {
 
   // New redesigned home elements
   var hb = document.getElementById('homeBriefingContent');
-  if (hb) hb.innerHTML = '<div style="color:var(--hub-text-muted);font-style:italic;">Briefing couldn\'t load right now — tap ↻ to try again.</div>';
+  if (hb) hb.innerHTML = '<div style="color:var(--hub-text-muted);font-size:13px;text-align:center;padding:12px 0;">' +
+    '<div style="font-size:20px;margin-bottom:8px;">&#128268;</div>' +
+    '<div style="font-weight:600;color:var(--hub-text-primary);margin-bottom:4px;">Briefing couldn\'t load</div>' +
+    '<div>Tap the ↻ button above to try again</div>' +
+    '</div>';
   var hs = document.getElementById('homeStatsGrid');
   if (hs) hs.innerHTML = '<div style="grid-column:1/-1;color:var(--hub-text-muted);font-size:12px;text-align:center;padding:8px;">Connect your platforms to see stats</div>';
   var hl = document.getElementById('homeLeadsList');

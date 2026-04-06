@@ -2455,6 +2455,65 @@ const FONT_MAP = {
 }
 .onboarding-start:hover { opacity: 0.9; }
 
+/* ── Guided Demo Tour ── */
+.tour-overlay {
+  position: fixed; inset: 0; z-index: 9998;
+  background: rgba(0,0,0,0.55);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.tour-overlay.active { opacity: 1; pointer-events: auto; }
+.tour-spotlight {
+  position: fixed; z-index: 9999;
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.55), 0 0 30px rgba(124,106,247,0.4);
+  transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+  pointer-events: none;
+}
+.tour-tooltip {
+  position: fixed; z-index: 10000;
+  background: #fff; border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 14px; padding: 20px 24px;
+  max-width: 340px; width: 90vw;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+  transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+  opacity: 0; transform: translateY(10px);
+}
+.tour-tooltip.visible { opacity: 1; transform: translateY(0); }
+.tour-tooltip-step {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #7C6AF7; margin-bottom: 6px;
+}
+.tour-tooltip-title {
+  font-family: var(--serif); font-size: 20px; color: #111;
+  margin-bottom: 6px;
+}
+.tour-tooltip-desc {
+  font-size: 13px; color: rgba(0,0,0,0.6); line-height: 1.55;
+  margin-bottom: 16px;
+}
+.tour-tooltip-btns { display: flex; gap: 8px; }
+.tour-next-btn {
+  flex: 1; padding: 10px 20px; border: none; border-radius: 10px;
+  background: #7C6AF7; color: #fff; font-family: var(--sans);
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: opacity 0.15s;
+}
+.tour-next-btn:hover { opacity: 0.88; }
+.tour-skip-btn {
+  padding: 10px 16px; border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 10px; background: transparent; color: rgba(0,0,0,0.45);
+  font-family: var(--sans); font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: color 0.15s;
+}
+.tour-skip-btn:hover { color: #111; }
+.tour-dots { display: flex; gap: 6px; justify-content: center; margin-top: 14px; }
+.tour-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(0,0,0,0.15);
+}
+.tour-dot.active { background: #7C6AF7; width: 18px; border-radius: 3px; }
+
 /* ══════════════════════════════════════════════════════
    HUB REDESIGN — NEW DESIGN SYSTEM
    ══════════════════════════════════════════════════════ */
@@ -3422,7 +3481,7 @@ a.hub-nav-icon { text-decoration: none; }
 <div class="hub-mobile-top" style="display:none;">
   <span style="font-size:14px;font-weight:600;color:var(--hub-text-primary);" id="hubMobileTitle">Hub</span>
   <div style="display:flex;gap:8px;align-items:center;">
-    <a href="/hub/demo.html" target="_blank" style="font-size:12px;font-weight:600;color:var(--purple);background:var(--purple-bg);border:1px solid var(--purple-border);border-radius:8px;padding:7px 14px;text-decoration:none;">🎯 Demo</a>
+    <button onclick="startDemoTour()" style="font-size:12px;font-weight:600;color:var(--purple);background:var(--purple-bg);border:1px solid var(--purple-border);border-radius:8px;padding:7px 14px;cursor:pointer;font-family:var(--sans);">🎯 Demo</button>
     <button class="hub-create-btn" onclick="switchToCreatePost()" style="padding:7px 14px;font-size:12px;">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Create
@@ -3466,7 +3525,7 @@ a.hub-nav-icon { text-decoration: none; }
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       <span>Create Post</span>
     </button>
-    <a class="hub-nav-link" href="/hub/demo.html" target="_blank" title="View Demo">🎯 <span>Demo</span></a>
+    <button class="hub-nav-link" onclick="startDemoTour()" title="Hub Tour">🎯 <span>Demo</span></button>
     <a class="hub-nav-link" id="navSiteTop" href="#" target="_blank" title="View My Site">🌐 <span>My Site</span></a>
     <a class="hub-nav-link" href="/dashboard" target="_blank" title="Full Analytics Dashboard">📊 <span>Dashboard</span></a>
     <button class="hub-nav-icon" title="Message Sam" onclick="openModal('message')">✉️</button>
@@ -4025,6 +4084,20 @@ a.hub-nav-icon { text-decoration: none; }
 
 <!-- Connect popup removed — replaced with inline banner -->
 
+<!-- Guided Demo Tour -->
+<div class="tour-overlay" id="tourOverlay" onclick="endDemoTour()"></div>
+<div class="tour-spotlight" id="tourSpotlight" style="display:none;"></div>
+<div class="tour-tooltip" id="tourTooltip" style="display:none;">
+  <div class="tour-tooltip-step" id="tourStep"></div>
+  <div class="tour-tooltip-title" id="tourTitle"></div>
+  <div class="tour-tooltip-desc" id="tourDesc"></div>
+  <div class="tour-tooltip-btns">
+    <button class="tour-skip-btn" onclick="endDemoTour()">Skip</button>
+    <button class="tour-next-btn" id="tourNextBtn" onclick="nextTourStep()">Next</button>
+  </div>
+  <div class="tour-dots" id="tourDots"></div>
+</div>
+
 <!-- Onboarding Modal -->
 <div class="onboarding-overlay" id="onboardingOverlay">
   <div class="onboarding-modal">
@@ -4399,6 +4472,140 @@ function checkOnboarding() {
 function dismissOnboarding() {
   document.getElementById('onboardingOverlay').classList.remove('active');
   localStorage.setItem('hub_onboarded', '1');
+}
+
+/* ═══════════════════════════════════════════════════
+   GUIDED DEMO TOUR
+   ═══════════════════════════════════════════════════ */
+var tourSteps = [
+  {
+    target: '.briefing-card-new',
+    title: "Today's Briefing",
+    desc: "Your AI-generated daily game plan. It analyzes your real analytics data and gives you personalized action items, content ideas, and growth signals — refreshed every day.",
+  },
+  {
+    target: '.create-post-card-new',
+    title: 'Create Post',
+    desc: "Upload a photo and AI generates a platform-optimized caption with hashtags, best posting time, and engagement tips. Select an automation to include a lead-gen CTA.",
+  },
+  {
+    target: '.engine-section',
+    title: 'Engagement Engine',
+    desc: "Your automated comment-to-customer system. Set up keyword triggers that auto-reply to comments, send DMs, and funnel followers to capture pages — turning engagement into leads.",
+  },
+  {
+    target: '.home-support-grid',
+    title: 'Brand Codes, Leads & Stats',
+    desc: "Track your affiliate code usage, see recent leads captured from automations, and monitor key metrics like followers, engagement rate, and link clicks — all in one place.",
+  },
+  {
+    target: '.hub-tab[data-tab="analytics"]',
+    title: 'Analytics',
+    desc: "Deep dive into your connected platforms — Instagram, TikTok, YouTube. See follower growth, engagement rates, audience heatmaps, and traffic sources.",
+    switchTo: 'analytics',
+  },
+  {
+    target: '.hub-tab[data-tab="planner"]',
+    title: 'Planner',
+    desc: "Your weekly content calendar. AI suggests what type of content to post each day based on your engagement data and peak traffic times.",
+    switchTo: 'planner',
+  },
+  {
+    target: '.hub-tab[data-tab="strategist"]',
+    title: 'AI Strategist',
+    desc: "Your personal AI strategy advisor. Ask it anything — what to post, how to grow, draft brand pitches, analyze engagement — all powered by your actual data.",
+    switchTo: 'strategist',
+  },
+];
+var tourCurrent = 0;
+
+function startDemoTour() {
+  tourCurrent = 0;
+  switchView('home');
+  setTimeout(function() { showTourStep(0); }, 300);
+}
+
+function showTourStep(idx) {
+  var step = tourSteps[idx];
+  if (!step) { endDemoTour(); return; }
+
+  // Switch view if needed
+  if (step.switchTo) switchView(step.switchTo);
+
+  setTimeout(function() {
+    var el = document.querySelector(step.target);
+    if (!el) { nextTourStep(); return; }
+
+    // Show overlay
+    document.getElementById('tourOverlay').classList.add('active');
+
+    // Position spotlight
+    var rect = el.getBoundingClientRect();
+    var pad = 8;
+    var spot = document.getElementById('tourSpotlight');
+    spot.style.display = 'block';
+    spot.style.top = (rect.top - pad) + 'px';
+    spot.style.left = (rect.left - pad) + 'px';
+    spot.style.width = (rect.width + pad * 2) + 'px';
+    spot.style.height = (rect.height + pad * 2) + 'px';
+
+    // Scroll element into view
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Position tooltip
+    var tip = document.getElementById('tourTooltip');
+    tip.style.display = 'block';
+    tip.classList.remove('visible');
+
+    document.getElementById('tourStep').textContent = 'Step ' + (idx + 1) + ' of ' + tourSteps.length;
+    document.getElementById('tourTitle').textContent = step.title;
+    document.getElementById('tourDesc').textContent = step.desc;
+    document.getElementById('tourNextBtn').textContent = idx === tourSteps.length - 1 ? 'Finish' : 'Next';
+
+    // Dots
+    var dotsHtml = '';
+    for (var i = 0; i < tourSteps.length; i++) {
+      dotsHtml += '<div class="tour-dot' + (i === idx ? ' active' : '') + '"></div>';
+    }
+    document.getElementById('tourDots').innerHTML = dotsHtml;
+
+    // Position below or above the spotlight
+    setTimeout(function() {
+      var spotRect = spot.getBoundingClientRect();
+      var tipW = tip.offsetWidth;
+      var tipH = tip.offsetHeight;
+      var below = spotRect.bottom + 16;
+      var above = spotRect.top - tipH - 16;
+
+      if (below + tipH < window.innerHeight) {
+        tip.style.top = below + 'px';
+      } else if (above > 0) {
+        tip.style.top = above + 'px';
+      } else {
+        tip.style.top = Math.max(16, window.innerHeight / 2 - tipH / 2) + 'px';
+      }
+      tip.style.left = Math.max(16, Math.min(spotRect.left, window.innerWidth - tipW - 16)) + 'px';
+      tip.classList.add('visible');
+    }, 50);
+  }, step.switchTo ? 350 : 50);
+}
+
+function nextTourStep() {
+  tourCurrent++;
+  if (tourCurrent >= tourSteps.length) {
+    endDemoTour();
+  } else {
+    showTourStep(tourCurrent);
+  }
+}
+
+function endDemoTour() {
+  document.getElementById('tourOverlay').classList.remove('active');
+  document.getElementById('tourSpotlight').style.display = 'none';
+  var tip = document.getElementById('tourTooltip');
+  tip.classList.remove('visible');
+  setTimeout(function() { tip.style.display = 'none'; }, 300);
+  switchView('home');
 }
 
 /* ═══════════════════════════════════════════════════

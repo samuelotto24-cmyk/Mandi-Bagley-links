@@ -3481,7 +3481,7 @@ a.hub-nav-icon { text-decoration: none; }
 <div class="hub-mobile-top" style="display:none;">
   <span style="font-size:14px;font-weight:600;color:var(--hub-text-primary);" id="hubMobileTitle">Hub</span>
   <div style="display:flex;gap:8px;align-items:center;">
-    <button onclick="startDemoTour()" style="font-size:12px;font-weight:600;color:var(--purple);background:var(--purple-bg);border:1px solid var(--purple-border);border-radius:8px;padding:7px 14px;cursor:pointer;font-family:var(--sans);">🎯 Demo</button>
+    <button type="button" onclick="window.startDemoTour()" style="font-size:12px;font-weight:600;color:var(--purple);background:var(--purple-bg);border:1px solid var(--purple-border);border-radius:8px;padding:7px 14px;cursor:pointer;font-family:var(--sans);">🎯 Demo</button>
     <button class="hub-create-btn" onclick="switchToCreatePost()" style="padding:7px 14px;font-size:12px;">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Create
@@ -3525,7 +3525,7 @@ a.hub-nav-icon { text-decoration: none; }
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       <span>Create Post</span>
     </button>
-    <button class="hub-nav-link" onclick="startDemoTour()" title="Hub Tour">🎯 <span>Demo</span></button>
+    <button type="button" class="hub-nav-link" onclick="window.startDemoTour()" title="Hub Tour" style="cursor:pointer;">🎯 <span>Demo</span></button>
     <a class="hub-nav-link" id="navSiteTop" href="#" target="_blank" title="View My Site">🌐 <span>My Site</span></a>
     <a class="hub-nav-link" href="/dashboard" target="_blank" title="Full Analytics Dashboard">📊 <span>Dashboard</span></a>
     <button class="hub-nav-icon" title="Message Sam" onclick="openModal('message')">✉️</button>
@@ -4521,10 +4521,12 @@ var tourSteps = [
 var tourCurrent = 0;
 
 function startDemoTour() {
+  console.log('[Tour] Starting demo tour...');
   tourCurrent = 0;
   switchView('home');
   setTimeout(function() { showTourStep(0); }, 300);
 }
+window.startDemoTour = startDemoTour;
 
 function showTourStep(idx) {
   var step = tourSteps[idx];
@@ -4617,6 +4619,8 @@ function endDemoTour() {
   setTimeout(function() { tip.style.display = 'none'; }, 300);
   switchView('home');
 }
+window.endDemoTour = endDemoTour;
+window.nextTourStep = nextTourStep;
 
 /* ═══════════════════════════════════════════════════
    QUICK STATS (fast — pure Redis, no LLM)

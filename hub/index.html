@@ -3828,6 +3828,12 @@ a.hub-nav-icon { text-decoration: none; }
       </div>
       <span class="platform-card-badge disconnected" id="igBadge">Not Connected</span>
       <a class="platform-card-connect-btn instagram" id="igConnectBtn" href="/api/instagram-auth">Connect</a>
+      <button id="igDisconnectBtn" style="display:none;background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text-muted);font-size:11px;cursor:pointer;" onclick="confirmDisconnectInstagram()">Disconnect</button>
+    </div>
+    <div id="igDisconnectConfirm" style="display:none;padding:12px 20px;background:rgba(239,68,68,0.08);border-bottom:1px solid var(--border);">
+      <span style="font-size:12px;color:#f87171;">Disconnect Instagram? You'll need to reconnect to see analytics.</span>
+      <button onclick="disconnectInstagram()" style="margin-left:12px;background:#f87171;color:#fff;border:none;border-radius:6px;padding:4px 12px;font-size:11px;cursor:pointer;">Yes, disconnect</button>
+      <button onclick="cancelDisconnectInstagram()" style="margin-left:6px;background:none;border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:11px;color:var(--text-muted);cursor:pointer;">Cancel</button>
     </div>
     <div id="igData" style="display:none;"></div>
     <div id="igEmptyState" class="platform-card-empty">
@@ -7826,6 +7832,8 @@ function loadInstagramData() {
       if (connectBtn) connectBtn.style.display = 'none';
       if (badge) { badge.textContent = 'Connected'; badge.className = 'platform-card-badge connected'; }
       if (emptyState) emptyState.style.display = 'none';
+      var igDisBtn = document.getElementById('igDisconnectBtn');
+      if (igDisBtn) igDisBtn.style.display = 'inline-block';
 
       if (igData) {
         igData.style.display = 'block';
@@ -7900,6 +7908,40 @@ function loadInstagramData() {
     if (btn) btn.textContent = 'Connected';
   }
 })();
+
+function confirmDisconnectInstagram() {
+  document.getElementById('igDisconnectBtn').style.display = 'none';
+  document.getElementById('igDisconnectConfirm').style.display = 'block';
+}
+
+function cancelDisconnectInstagram() {
+  document.getElementById('igDisconnectConfirm').style.display = 'none';
+  document.getElementById('igDisconnectBtn').style.display = 'block';
+}
+
+async function disconnectInstagram() {
+  try {
+    var res = await fetch('/api/instagram-disconnect', { method: 'POST', headers: { 'Authorization': 'Bearer ' + password } });
+    if (res.ok) {
+      document.getElementById('igDisconnectBtn').style.display = 'none';
+      document.getElementById('igDisconnectConfirm').style.display = 'none';
+      document.getElementById('igData').style.display = 'none';
+      document.getElementById('igConnectBtn').style.display = '';
+      document.getElementById('igStatus').textContent = 'Not connected';
+      var igBadge = document.getElementById('igBadge');
+      if (igBadge) { igBadge.textContent = 'Not Connected'; igBadge.className = 'platform-card-badge disconnected'; }
+      var igEmpty = document.getElementById('igEmptyState');
+      if (igEmpty) igEmpty.style.display = '';
+      window._igFollowers = 0;
+      window._igEngagement = null;
+      window._igAvgLikes = 0;
+      window._igPosts = 0;
+      if (typeof renderHomeStats === 'function') renderHomeStats();
+    }
+  } catch (e) {
+    console.error('Instagram disconnect failed:', e);
+  }
+}
 
 /* ── SCHEDULED POSTS ── */
 var scheduledPostsData = [];

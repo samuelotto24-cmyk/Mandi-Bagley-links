@@ -3827,7 +3827,7 @@ a.hub-nav-icon { text-decoration: none; }
         <div class="platform-card-handle" id="igStatus">Not connected</div>
       </div>
       <span class="platform-card-badge disconnected" id="igBadge">Not Connected</span>
-      <a class="platform-card-connect-btn instagram" id="igConnectBtn" href="/api/instagram-auth">Connect</a>
+      <a class="platform-card-connect-btn instagram" id="igConnectBtn" href="/api/ig-auth">Connect</a>
       <button id="igDisconnectBtn" style="display:none;background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text-muted);font-size:11px;cursor:pointer;" onclick="confirmDisconnectInstagram()">Disconnect</button>
     </div>
     <div id="igDisconnectConfirm" style="display:none;padding:12px 20px;background:rgba(239,68,68,0.08);border-bottom:1px solid var(--border);">
@@ -5642,10 +5642,7 @@ function copyReferralCode() {
 /* ── Social Analytics ── */
 async function loadSocialAnalytics() {
   try {
-    var res = await fetch('/api/youtube/data', { headers: { 'Authorization': 'Bearer ' + password } });
-    if (!res.ok) return;
-    var data = await res.json();
-    // YouTube connect via fetch (no password in URL)
+    // YouTube connect via fetch (no password in URL) — always wire up
     document.getElementById('ytConnectBtn').onclick = function(e) {
       e.preventDefault();
       fetch('/api/youtube/connect', { headers: { 'Authorization': 'Bearer ' + password }, redirect: 'manual' })
@@ -5655,6 +5652,9 @@ async function loadSocialAnalytics() {
           else { fetch('/api/youtube/connect', { headers: { 'Authorization': 'Bearer ' + password } }).then(function(r2) { if (r2.redirected) window.location.href = r2.url; }); }
         });
     };
+    var res = await fetch('/api/youtube/data', { headers: { 'Authorization': 'Bearer ' + password } });
+    if (!res.ok) return;
+    var data = await res.json();
     if (!data.connected) return;
     var card = document.getElementById('ytCard');
     card.classList.add('connected');

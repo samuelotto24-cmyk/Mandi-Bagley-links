@@ -55,5 +55,8 @@ export default async function handler(req) {
     state: state,
   }).toString();
 
-  return Response.redirect(authUrl, 302);
+  // Return URL as JSON so the hub JS can navigate (fetch can't follow cross-origin redirects)
+  return new Response(JSON.stringify({ url: authUrl }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
 }

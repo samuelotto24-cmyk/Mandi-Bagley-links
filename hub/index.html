@@ -5642,15 +5642,12 @@ function copyReferralCode() {
 /* ── Social Analytics ── */
 async function loadSocialAnalytics() {
   try {
-    // YouTube connect via fetch (no password in URL) — always wire up
+    // YouTube connect — get auth URL as JSON then navigate
     document.getElementById('ytConnectBtn').onclick = function(e) {
       e.preventDefault();
-      fetch('/api/youtube/connect', { headers: { 'Authorization': 'Bearer ' + password }, redirect: 'manual' })
-        .then(function(r) {
-          var loc = r.headers.get('location');
-          if (loc) { window.location.href = loc; }
-          else { fetch('/api/youtube/connect', { headers: { 'Authorization': 'Bearer ' + password } }).then(function(r2) { if (r2.redirected) window.location.href = r2.url; }); }
-        });
+      fetch('/api/youtube/connect', { headers: { 'Authorization': 'Bearer ' + password } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) { if (data.url) window.location.href = data.url; });
     };
     var res = await fetch('/api/youtube/data', { headers: { 'Authorization': 'Bearer ' + password } });
     if (!res.ok) return;

@@ -4975,6 +4975,83 @@ a.hub-nav-icon { text-decoration: none; }
 .editor-test-btn:hover { opacity: 0.85; transform: translateY(-1px); }
 .editor-test-btn svg { stroke: var(--bg); }
 
+/* ── Design with Claude button (broadcast composer only) ── */
+.editor-design-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg,
+    var(--studio-grad-1, #1a0f0a) 0%,
+    var(--studio-grad-2, #4a2818) 25%,
+    var(--studio-grad-3, #8a5a3d) 50%,
+    var(--studio-grad-4, #c9a06b) 75%,
+    var(--studio-grad-5, #f4ecdf) 100%);
+  background-size: 280% 280%;
+  animation: studio-shift 14s ease-in-out infinite;
+  color: #f4ecdf;
+  border: 1px solid rgba(244,236,223,0.18);
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: opacity 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(74,40,24,0.32);
+}
+.editor-design-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(74,40,24,0.42);
+}
+.editor-design-btn svg { stroke: #f4ecdf; }
+.editor-design-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Design-with-Claude modal preset chips ── */
+.dwc-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-top: -6px;
+  margin-bottom: 4px;
+}
+.dwc-preset-label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-right: 4px;
+}
+.dwc-preset {
+  font-size: 12px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+.dwc-preset:hover {
+  background: var(--accent-pale);
+  color: var(--text);
+  border-color: var(--accent-border);
+}
+.dwc-preset.selected {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
 /* ── Send-test modal ── */
 .comms-test-modal-overlay {
   position: fixed;
@@ -5904,6 +5981,12 @@ a.hub-nav-icon { text-decoration: none; }
         <div class="editor-title-eyebrow" id="editorTitleEyebrow">When this sends</div>
         <div class="editor-title" id="editorTitle">Welcome Email</div>
       </div>
+      <button class="editor-design-btn" id="editorDesignBtn" onclick="openDesignWithClaudeModal()" style="display:none;" title="Generate a full draft from a one-line brief">
+        <span class="editor-design-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z"/><path d="M19 14l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z" opacity="0.6"/></svg>
+        </span>
+        <span>Design with Claude</span>
+      </button>
       <button class="editor-test-btn" id="editorTestBtn" onclick="openCommsTestModal()" title="Send a test email to yourself">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         <span>Send test</span>
@@ -5976,6 +6059,34 @@ a.hub-nav-icon { text-decoration: none; }
       <div class="design-studio-preview" id="designPreview">
         <div class="design-studio-preview-frame" id="designPreviewFrame"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- Design with Claude modal — generates a full draft from a brief -->
+  <div class="comms-test-modal-overlay" id="designWithClaudeModal" onclick="if(event.target===this)closeDesignWithClaudeModal()">
+    <div class="comms-test-modal" style="max-width:520px;">
+      <div class="comms-test-modal-eyebrow">Design with Claude</div>
+      <div class="comms-test-modal-title">What's this newsletter <em>about</em>?</div>
+      <div class="comms-test-modal-body">Tell me in one or two sentences. Be specific — what you're sharing, who it's for, what feeling. I'll draft the whole thing in your voice.</div>
+
+      <textarea class="comms-test-modal-input" id="dwcPrompt" rows="4" placeholder="e.g. October recipes I've been making + a quick reset workout for travel weeks" style="font-family:var(--sans);line-height:1.55;resize:vertical;min-height:90px;"></textarea>
+
+      <div class="dwc-presets">
+        <span class="dwc-preset-label">Style:</span>
+        <button class="dwc-preset selected" data-preset="general"   onclick="selectDwcPreset(this)">General mix</button>
+        <button class="dwc-preset"          data-preset="letter"    onclick="selectDwcPreset(this)">Personal letter</button>
+        <button class="dwc-preset"          data-preset="tip"       onclick="selectDwcPreset(this)">Focused tip</button>
+        <button class="dwc-preset"          data-preset="spotlight" onclick="selectDwcPreset(this)">Spotlight</button>
+        <button class="dwc-preset"          data-preset="launch"    onclick="selectDwcPreset(this)">Launch</button>
+      </div>
+
+      <div class="comms-test-modal-actions" style="margin-top:18px;">
+        <button class="comms-test-modal-cancel" onclick="closeDesignWithClaudeModal()">Cancel</button>
+        <button class="comms-test-modal-send" id="dwcGenerateBtn" onclick="generateWithClaude()">
+          <span id="dwcGenerateText">Generate Draft</span>
+        </button>
+      </div>
+      <div class="comms-test-modal-status" id="dwcStatus"></div>
     </div>
   </div>
 
@@ -9269,7 +9380,7 @@ function copyAndOpen(platform) {
 // Move the editor + its modals out of the stacking-context trap inside .hub-main
 // so they render on top of the sticky hub-nav. Run once at parse time.
 (function liftCommsOverlaysToBody() {
-  const ids = ['messagesEditor', 'broadcastSendModal', 'commsTestModal', 'designStudio'];
+  const ids = ['messagesEditor', 'broadcastSendModal', 'commsTestModal', 'designStudio', 'designWithClaudeModal'];
   for (const id of ids) {
     const el = document.getElementById(id);
     if (el && el.parentNode !== document.body) {
@@ -9510,7 +9621,7 @@ function renderCommsCards() {
         '<div class="message-card-meta"><span>Triggered: newsletter signup</span></div>' +
       '</div>' +
       '<div class="message-card-actions">' +
-        '<a class="message-card-action primary" href="/lead-magnet/free-guide.pdf" target="_blank" rel="noopener" onclick="event.stopPropagation();">View PDF</a>' +
+        '<a class="message-card-action primary" href="/lead-magnet/the-bikini-pro-foundations.pdf" target="_blank" rel="noopener" onclick="event.stopPropagation();">View PDF</a>' +
         '<button class="message-card-action" onclick="openModal(\'update\');event.stopPropagation();">Request Update</button>' +
       '</div>' +
     '</div>'
@@ -9532,6 +9643,8 @@ function openCommsEditor(kind) {
   // Hide broadcast-specific actions
   const ba = document.getElementById('editorBroadcastActions');
   if (ba) ba.style.display = 'none';
+  const db = document.getElementById('editorDesignBtn');
+  if (db) db.style.display = 'none';
   setEditorStatus('saved');
   renderEditorFields(kind);
   renderEditorPreview();
@@ -9771,7 +9884,7 @@ function previewWelcome(v) {
       '<p class="pf-paragraph">' + safe(v.intro_p2) + '</p>' +
     '</div>' +
     '<div class="pf-section" style="text-align:center;padding:24px 40px 32px;">' +
-      '<div style="display:inline-block;width:140px;height:182px;background:linear-gradient(155deg,var(--pf-surface-alt),var(--pf-bg));border:1px solid var(--pf-border);margin-bottom:24px;font-family:var(--pf-display);color:var(--pf-text);display:flex;align-items:center;justify-content:center;font-style:italic;font-size:13px;line-height:1.3;padding:12px;text-align:center;">The Free Guide</div>' +
+      '<div style="display:inline-block;width:140px;height:182px;background:linear-gradient(155deg,var(--pf-surface-alt),var(--pf-bg));border:1px solid var(--pf-border);margin-bottom:24px;font-family:var(--pf-display);color:var(--pf-text);display:flex;align-items:center;justify-content:center;font-style:italic;font-size:13px;line-height:1.3;padding:12px;text-align:center;">The Bikini Pro Foundations</div>' +
       '<div><span class="pf-cta-primary">' + safe(v.cta_button) + '</span></div>' +
     '</div>' +
     '<div class="pf-divider" style="margin-left:40px;margin-right:40px;"></div>' +
@@ -10226,7 +10339,7 @@ function applyOverridesLocally() {
     bodyFont,
     name: CLIENT.name,
     role: CLIENT.nicheLabel || 'Coach',
-    leadMagnetTitle: 'The Free Guide',
+    leadMagnetTitle: 'The Bikini Pro Foundations',
   };
 }
 
@@ -10313,7 +10426,7 @@ function renderDesignPreview() {
       '</div>' +
       // intro
       '<div style="padding:40px 44px 8px;">' +
-        '<p style="font-size:16px;line-height:1.78;color:' + B.textSoft + ';margin:0 0 18px;">Thank you for joining the list. As promised — your free copy of <em style="color:' + B.accent + ';font-style:italic;">' + escapeAttr(B.leadMagnetTitle || 'The Free Guide') + '</em> is ready below.</p>' +
+        '<p style="font-size:16px;line-height:1.78;color:' + B.textSoft + ';margin:0 0 18px;">Thank you for joining the list. As promised — your free copy of <em style="color:' + B.accent + ';font-style:italic;">' + escapeAttr(B.leadMagnetTitle || 'The Bikini Pro Foundations') + '</em> is ready below.</p>' +
         '<p style="font-size:16px;line-height:1.78;color:' + B.textSoft + ';margin:0 0 18px;">Save it, print it, take it to the gym, and use it honestly for one week.</p>' +
       '</div>' +
       // CTA
@@ -10461,6 +10574,8 @@ async function openBroadcastComposer(id) {
   document.getElementById('editorTitleEyebrow').textContent = draft.id ? (draft.status === 'sent' ? 'Sent message' : 'Draft') : 'Compose';
   document.getElementById('editorChatThread').innerHTML = '<div class="editor-chat-empty">Ask me to write the body, draft a subject, or punch up the headline.</div>';
   document.getElementById('editorBroadcastActions').style.display = 'flex';
+  const db = document.getElementById('editorDesignBtn');
+  if (db) db.style.display = 'inline-flex';
   setEditorStatus(draft.id ? 'saved' : 'typing');
   renderBroadcastFields();
   renderEditorPreview();
@@ -10670,6 +10785,85 @@ async function confirmBroadcastSend() {
     status.className = 'comms-test-modal-status err';
     status.textContent = 'Couldn\'t reach the server. Try again.';
     btn.disabled = false;
+  }
+}
+
+/* ─── Design with Claude modal ─── */
+window.dwcState = { preset: 'general', generating: false };
+
+function openDesignWithClaudeModal() {
+  if (commsState.editorMode !== 'broadcast') return;
+  document.getElementById('designWithClaudeModal').classList.add('open');
+  const status = document.getElementById('dwcStatus');
+  status.textContent = '';
+  status.className = 'comms-test-modal-status';
+  setTimeout(function() { document.getElementById('dwcPrompt').focus(); }, 80);
+}
+
+function closeDesignWithClaudeModal() {
+  document.getElementById('designWithClaudeModal').classList.remove('open');
+}
+
+function selectDwcPreset(btn) {
+  document.querySelectorAll('.dwc-preset').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  dwcState.preset = btn.dataset.preset;
+}
+
+async function generateWithClaude() {
+  if (dwcState.generating) return;
+  const prompt = document.getElementById('dwcPrompt').value.trim();
+  const status = document.getElementById('dwcStatus');
+  const btnText = document.getElementById('dwcGenerateText');
+  const btn = document.getElementById('dwcGenerateBtn');
+  if (!prompt) {
+    status.className = 'comms-test-modal-status err';
+    status.textContent = 'Tell me what the newsletter is about — even one line.';
+    return;
+  }
+  dwcState.generating = true;
+  btn.disabled = true;
+  btnText.textContent = 'Drafting…';
+  status.className = 'comms-test-modal-status';
+  status.textContent = 'Claude is writing in your voice. ~10 seconds.';
+  try {
+    const res = await fetch('/api/broadcast-design', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, preset: dwcState.preset }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.ok || !json.draft) {
+      throw new Error(json.detail || json.error || 'failed');
+    }
+
+    // Populate the broadcast composer fields
+    const draft = broadcastState.current;
+    if (!draft) throw new Error('no_active_draft');
+    Object.assign(draft, json.draft);
+
+    // Re-render the field inputs and refresh preview
+    renderBroadcastFields();
+    renderEditorPreview();
+
+    // Update subject preview chip
+    const sp = document.getElementById('editorSubjectPreview');
+    if (sp) sp.textContent = draft.subject || '(no subject yet)';
+    document.getElementById('editorTitle').textContent = draft.subject || 'Generated draft';
+
+    // Save the draft
+    await saveBroadcastDraft();
+
+    status.className = 'comms-test-modal-status ok';
+    status.textContent = '✓ Draft generated. Edit anything that doesn\'t feel right.';
+    setTimeout(closeDesignWithClaudeModal, 1400);
+  } catch (e) {
+    status.className = 'comms-test-modal-status err';
+    status.textContent = 'Couldn\'t generate — try again or rephrase the brief.';
+  } finally {
+    dwcState.generating = false;
+    btn.disabled = false;
+    btnText.textContent = 'Generate Draft';
   }
 }
 

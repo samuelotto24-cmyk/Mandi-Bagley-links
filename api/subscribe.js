@@ -95,51 +95,6 @@ export function welcomeEmailHtml({ heroSrc, coverSrc, copy = {}, brand = null } 
     </tr></table>
   </td></tr>
 
-  <!-- ─── INSIDE THE GUIDE ─── -->
-  <tr><td style="padding:36px 48px 12px;">
-    <div style="font-size:11px;letter-spacing:0.24em;text-transform:uppercase;color:${B.accent};margin-bottom:10px;font-weight:500;text-align:center;">Inside the Guide</div>
-    <div style="font-family:${B.displayFont};font-size:26px;color:${B.text};line-height:1.15;text-align:center;margin-bottom:36px;">What you're about to read.</div>
-
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-      <tr><td style="padding:18px 0;border-bottom:1px solid ${B.borderSoft};">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-          <td valign="top" width="60" style="font-family:${B.displayFont};font-style:italic;color:${B.accent};font-size:18px;padding-right:14px;">No.01</td>
-          <td valign="top">
-            <div style="font-family:${B.displayFont};font-size:18px;color:${B.text};margin-bottom:4px;line-height:1.25;">The 7-Day Plan</div>
-            <div style="font-size:14px;color:${B.muted};line-height:1.6;">Day-by-day glute and core training, from heavy posterior work to active recovery.</div>
-          </td>
-        </tr></table>
-      </td></tr>
-      <tr><td style="padding:18px 0;border-bottom:1px solid ${B.borderSoft};">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-          <td valign="top" width="60" style="font-family:${B.displayFont};font-style:italic;color:${B.accent};font-size:18px;padding-right:14px;">No.02</td>
-          <td valign="top">
-            <div style="font-family:${B.displayFont};font-size:18px;color:${B.text};margin-bottom:4px;line-height:1.25;">Form Checkpoints</div>
-            <div style="font-size:14px;color:${B.muted};line-height:1.6;">The four lifts that matter most, with the cues I actually use with clients.</div>
-          </td>
-        </tr></table>
-      </td></tr>
-      <tr><td style="padding:18px 0;border-bottom:1px solid ${B.borderSoft};">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-          <td valign="top" width="60" style="font-family:${B.displayFont};font-style:italic;color:${B.accent};font-size:18px;padding-right:14px;">No.03</td>
-          <td valign="top">
-            <div style="font-family:${B.displayFont};font-size:18px;color:${B.text};margin-bottom:4px;line-height:1.25;">Eat for Your Physique</div>
-            <div style="font-size:14px;color:${B.muted};line-height:1.6;">A simple macro framework and a meal-day template you can use immediately.</div>
-          </td>
-        </tr></table>
-      </td></tr>
-      <tr><td style="padding:18px 0;">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-          <td valign="top" width="60" style="font-family:${B.displayFont};font-style:italic;color:${B.accent};font-size:18px;padding-right:14px;">No.04</td>
-          <td valign="top">
-            <div style="font-family:${B.displayFont};font-size:18px;color:${B.text};margin-bottom:4px;line-height:1.25;">The Quiet Work</div>
-            <div style="font-size:14px;color:${B.muted};line-height:1.6;">Sleep, steps, recovery, and the discipline that builds physiques in private.</div>
-          </td>
-        </tr></table>
-      </td></tr>
-    </table>
-  </td></tr>
-
   <!-- ─── PULL QUOTE ─── -->
   <tr><td style="padding:32px 48px 8px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:rgba(201,185,165,0.045);border:1px solid ${B.borderSoft};border-left:3px solid ${B.accent};">
@@ -251,8 +206,7 @@ export default async function handler(req) {
   const day = new Date(ts).toISOString().slice(0, 10);
 
   // Always store locally — source of truth for the dashboard.
-  // Also enqueue Day 4 + Day 7 nurture emails (scored by send-time ms).
-  const day4Ts = ts + 4 * 24 * 60 * 60 * 1000;
+  // Schedule the Day-7 follow-up (scored by send-time ms).
   const day7Ts = ts + 7 * 24 * 60 * 60 * 1000;
   try {
     await redisPipeline([
@@ -260,8 +214,7 @@ export default async function handler(req) {
       ['LTRIM',   `${PREFIX}:newsletter_subscribers`, '0', '499'],
       ['HINCRBY', `${PREFIX}:newsletter_daily`, day, '1'],
       ['HINCRBY', `${PREFIX}:leads`, 'newsletter', '1'],
-      ['ZADD',    `${PREFIX}:nurture_queue`, String(day4Ts), JSON.stringify({ email, kind: 'midweek', enq: ts })],
-      ['ZADD',    `${PREFIX}:nurture_queue`, String(day7Ts), JSON.stringify({ email, kind: 'day7',    enq: ts })],
+      ['ZADD',    `${PREFIX}:nurture_queue`, String(day7Ts), JSON.stringify({ email, kind: 'day7', enq: ts })],
     ]);
   } catch (_) { /* log-and-continue */ }
 

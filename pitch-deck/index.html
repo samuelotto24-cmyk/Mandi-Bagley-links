@@ -364,7 +364,7 @@ h3 { font-family: var(--serif); font-size: 26px; font-weight: 500; margin-bottom
     </div>
     <div class="col fade-up">
       <div class="video-wrap">
-        <video src="demo-video.mov" muted loop playsinline id="demoVideo"></video>
+        <video src="demo-video.mp4" muted loop playsinline autoplay id="demoVideo"></video>
       </div>
     </div>
   </div>
@@ -401,7 +401,7 @@ h3 { font-family: var(--serif); font-size: 26px; font-weight: 500; margin-bottom
     </div>
     <div class="col fade-up">
       <div class="video-wrap">
-        <video src="hub-video.mov" muted loop playsinline id="hubVideo"></video>
+        <video src="hub-video.mp4" muted loop playsinline autoplay id="hubVideo"></video>
       </div>
     </div>
   </div>
@@ -943,9 +943,9 @@ function goTo(n) {
   // Remove exit class from previous after transition
   setTimeout(function() { slides[prev].classList.remove('exit-up'); }, 700);
   // Auto-play videos on their slides
-  if (current === 3 && demoVideo) { demoVideo.currentTime = 0; demoVideo.play(); }
+  if (current === 3 && demoVideo) { demoVideo.currentTime = 0; demoVideo.play().catch(function(){}); }
   else if (demoVideo) { demoVideo.pause(); }
-  if (current === 4 && hubVideo) { hubVideo.currentTime = 0; hubVideo.play(); }
+  if (current === 4 && hubVideo) { hubVideo.currentTime = 0; hubVideo.play().catch(function(){}); }
   else if (hubVideo) { hubVideo.pause(); }
 }
 
@@ -965,6 +965,16 @@ document.addEventListener('touchend', function(e) {
   var diff = e.changedTouches[0].clientX - touchStartX;
   if (Math.abs(diff) > 50) { diff < 0 ? goTo(current + 1) : goTo(current - 1); }
 });
+
+// Try to play videos on first user interaction (some browsers require this)
+document.addEventListener('click', function() {
+  if (current === 3 && demoVideo) demoVideo.play().catch(function(){});
+  if (current === 4 && hubVideo) hubVideo.play().catch(function(){});
+}, { once: true });
+document.addEventListener('keydown', function() {
+  if (current === 3 && demoVideo) demoVideo.play().catch(function(){});
+  if (current === 4 && hubVideo) hubVideo.play().catch(function(){});
+}, { once: true });
 
 // Init
 document.getElementById('progress').style.width = (1 / total * 100) + '%';

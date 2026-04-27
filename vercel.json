@@ -11,10 +11,16 @@
     {
       "path": "/api/weekly-recap",
       "schedule": "0 15 * * 1"
+    },
+    {
+      "path": "/api/nurture-tick",
+      "schedule": "0 * * * *"
     }
   ],
   "rewrites": [
-    { "source": "/g/:slug", "destination": "/api/capture?slug=:slug" }
+    { "source": "/g/:slug", "destination": "/api/capture?slug=:slug" },
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/terms", "destination": "/terms.html" }
   ],
   "headers": [
     {

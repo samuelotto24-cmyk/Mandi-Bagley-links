@@ -39,11 +39,12 @@ export default async function handler(req) {
     });
 
     const tokenData = await tokenRes.json();
+    console.log('TOKEN EXCHANGE:', JSON.stringify(tokenData));
 
     if (!tokenData.access_token) {
       return new Response(null, {
         status: 302,
-        headers: { Location: '/hub/?instagram=error' },
+        headers: { Location: `/hub/?instagram=error&reason=token&detail=${encodeURIComponent(JSON.stringify(tokenData))}` },
       });
     }
 
@@ -64,7 +65,7 @@ export default async function handler(req) {
     if (!page) {
       return new Response(null, {
         status: 302,
-        headers: { Location: '/hub/?instagram=error' },
+        headers: { Location: `/hub/?instagram=error&reason=no_page&detail=${encodeURIComponent(JSON.stringify(pagesData))}` },
       });
     }
 
@@ -78,7 +79,7 @@ export default async function handler(req) {
     if (!igAccountId) {
       return new Response(null, {
         status: 302,
-        headers: { Location: '/hub/?instagram=error' },
+        headers: { Location: `/hub/?instagram=error&reason=no_ig_account&detail=${encodeURIComponent(JSON.stringify(igData))}` },
       });
     }
 

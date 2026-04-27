@@ -199,8 +199,11 @@
     padding: 10px 16px; border-radius: 8px; border: none;
     background: linear-gradient(135deg, var(--accent), var(--accent-glow));
     color: var(--bg); font-family: var(--sans); font-size: 13px;
-    font-weight: 600; cursor: pointer; transition: box-shadow 0.2s;
+    font-weight: 600; cursor: pointer; transition: box-shadow 0.2s, opacity 0.15s;
   }
+  .create-post-generate:disabled { opacity: 0.3; cursor: not-allowed; }
+  .create-post-generate:not(:disabled):hover { box-shadow: 0 0 20px var(--accent-pale); }
+  .create-post-drop.dragover { border-color: var(--purple) !important; background: rgba(124,106,247,0.08); }
 
   /* ── Generated caption output ── */
   .create-post-output {
@@ -532,40 +535,49 @@
     </div>
   </div>
 
-  <!-- CREATE POST — with demo image + generated caption -->
-  <div class="create-post-card-new">
+  <!-- CREATE POST — interactive demo -->
+  <div class="create-post-card-new" style="min-height:auto;">
     <div class="create-post-header">
       <span class="section-label-new" style="color: var(--purple)">CREATE POST</span>
       <span style="font-size:11px; color: var(--hub-text-faint);">Generate captions with AI</span>
     </div>
     <div class="create-post-inner">
-      <div class="create-post-drop" style="min-height: 120px; border-style: solid; border-color: var(--purple-border);">
-        <img id="demoImage" style="width:100%; height:100%; object-fit:cover; border-radius:8px; position:absolute; inset:0;" src="demo-photo.jpg" alt="Fitness photo demo">
+      <!-- Drop zone / preview -->
+      <div class="create-post-drop" id="cpDrop" style="min-height: 140px; cursor:pointer;" onclick="document.getElementById('cpFile').click()">
+        <div id="cpDropPrompt" class="create-post-drop-inner" style="text-align:center;padding:12px;">
+          <div style="font-size:20px;margin-bottom:4px;opacity:0.5;">&#128247;</div>
+          <div style="font-size:12px;color:var(--text-muted);font-weight:500;">Drop an image or tap to upload</div>
+          <div style="font-size:9px;color:var(--text-muted);opacity:0.6;margin-top:2px;">JPG, PNG, WebP</div>
+        </div>
+        <img id="cpPreview" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:8px;position:absolute;inset:0;">
+        <input type="file" id="cpFile" accept="image/*" style="display:none;">
       </div>
+      <button id="cpClearBtn" onclick="clearImage()" style="display:none;background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:var(--sans);align-self:flex-start;">&#10005; Remove</button>
+
+      <!-- Controls -->
       <div class="create-post-controls">
         <div class="create-post-platforms">
-          <button class="cp-platform-btn active">&#128247; IG</button>
-          <button class="cp-platform-btn">&#127925; TikTok</button>
-          <button class="cp-platform-btn">&#9654;&#65039; YouTube</button>
+          <button class="cp-platform-btn active" onclick="selectPlatform(this)" data-p="instagram">&#128247; IG</button>
+          <button class="cp-platform-btn" onclick="selectPlatform(this)" data-p="tiktok">&#127925; TikTok</button>
+          <button class="cp-platform-btn" onclick="selectPlatform(this)" data-p="youtube">&#9654;&#65039; YouTube</button>
         </div>
+        <select id="cpAutomation" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface-elevated);color:var(--text);font-family:var(--sans);font-size:13px;cursor:pointer;">
+          <option value="">No automation (just caption)</option>
+          <option value="BURN">&#9889; BURN — Upper Body Split PDF</option>
+          <option value="GUIDE">&#9889; GUIDE — Nutrition Starter Guide</option>
+          <option value="PLAN">&#9889; PLAN — 4-Week Training Plan</option>
+        </select>
+        <button id="cpGenerateBtn" class="create-post-generate" disabled onclick="generateCaption()" style="width:100%;">&#10024; Generate Caption</button>
       </div>
-      <div class="create-post-output">
+
+      <!-- Output (hidden until generated) -->
+      <div class="create-post-output" id="cpOutput" style="display:none;">
         <div class="create-post-result-header">
           <span>Your Caption</span>
-          <button class="create-post-copy">&#128203; Copy</button>
+          <button class="create-post-copy" onclick="navigator.clipboard.writeText(document.getElementById('cpCaption').textContent)">&#128203; Copy</button>
         </div>
-        <div class="create-post-caption">Red set &amp; ready to go &#128293;
-
-There's something about matching your outfit to your energy. Today was one of those days where everything just clicked &mdash; the playlist, the pump, the people around me pushing hard.
-
-Reminder: you don't need to have it all figured out. You just need 45 minutes and a reason to start.
-
-&#128172; Comment "BURN" and I'll send you my full upper body split</div>
-        <div class="create-post-meta" style="margin-top: 10px;">
-          <div class="create-post-meta-item">&#9201; <strong>Best time:</strong> 6 PM &ndash; 9 PM today</div>
-          <div class="create-post-meta-item">&#127991; <strong>Tags:</strong> #fitnessmotivation #gymlife #upperbody #strongwomen #fitfam</div>
-          <div class="create-post-meta-item">&#128161; <strong>Tip:</strong> Add 2&ndash;3 slides for carousel format &mdash; your carousels get 2.4x more saves</div>
-        </div>
+        <div class="create-post-caption" id="cpCaption"></div>
+        <div class="create-post-meta" id="cpMeta" style="display:none;margin-top:10px;"></div>
       </div>
     </div>
   </div>
@@ -811,6 +823,167 @@ Reminder: you don't need to have it all figured out. You just need 45 minutes an
     </div>
   </div>
 </div>
+
+<script>
+/* ═══════════════════════════════════════
+   CREATE POST — interactive demo logic
+   ═══════════════════════════════════════ */
+
+let hasImage = false;
+
+// ── Image upload ──
+const cpFile = document.getElementById('cpFile');
+const cpPreview = document.getElementById('cpPreview');
+const cpDrop = document.getElementById('cpDrop');
+const cpDropPrompt = document.getElementById('cpDropPrompt');
+const cpClearBtn = document.getElementById('cpClearBtn');
+const cpGenerateBtn = document.getElementById('cpGenerateBtn');
+
+cpFile.addEventListener('change', e => {
+  if (e.target.files[0]) showImage(e.target.files[0]);
+});
+
+cpDrop.addEventListener('dragover', e => { e.preventDefault(); cpDrop.style.borderColor = 'var(--purple)'; });
+cpDrop.addEventListener('dragleave', () => { cpDrop.style.borderColor = 'var(--purple-border)'; });
+cpDrop.addEventListener('drop', e => {
+  e.preventDefault();
+  cpDrop.style.borderColor = 'var(--purple-border)';
+  if (e.dataTransfer.files[0]) showImage(e.dataTransfer.files[0]);
+});
+
+function showImage(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    cpPreview.src = e.target.result;
+    cpPreview.style.display = 'block';
+    cpDropPrompt.style.display = 'none';
+    cpClearBtn.style.display = 'inline-block';
+    hasImage = true;
+    cpGenerateBtn.disabled = false;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImage() {
+  cpPreview.style.display = 'none';
+  cpPreview.src = '';
+  cpDropPrompt.style.display = 'block';
+  cpClearBtn.style.display = 'none';
+  cpFile.value = '';
+  hasImage = false;
+  cpGenerateBtn.disabled = true;
+  document.getElementById('cpOutput').style.display = 'none';
+}
+
+// ── Platform select ──
+function selectPlatform(btn) {
+  document.querySelectorAll('.cp-platform-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── Caption generation (simulated streaming) ──
+const DEMO_CAPTIONS = {
+  'BURN': {
+    caption: `Red set & ready to go 🔥
+
+There's something about matching your outfit to your energy. Today was one of those days where everything just clicked — the playlist, the pump, the people around me pushing hard.
+
+Reminder: you don't need to have it all figured out. You just need 45 minutes and a reason to start.
+
+💬 Comment "BURN" and I'll send you my full upper body split`,
+    time: '6 PM – 9 PM today',
+    tags: '#fitnessmotivation #gymlife #upperbody #strongwomen #fitfam #workoutinspo',
+    tip: 'Add 2–3 slides for carousel format — your carousels get 2.4x more saves'
+  },
+  'GUIDE': {
+    caption: `Red set & ready to go 🔥
+
+This is your sign to stop overcomplicating your meals. I spent years thinking I needed a "perfect" plan to get results — turns out I just needed the basics done right.
+
+Protein, consistency, and meals you actually look forward to eating. That's it.
+
+💬 Comment "GUIDE" and I'll DM you my free Nutrition Starter Guide`,
+    time: '7 PM – 9 PM today',
+    tags: '#nutritiontips #mealprep #healthyeating #fitnessfood #macros #eatclean',
+    tip: 'Nutrition posts get 40% more saves than workout posts — pin this one'
+  },
+  'PLAN': {
+    caption: `Red set & ready to go 🔥
+
+4 weeks. That's all it takes to build a real habit. Not motivation — a system that works even on the days you don't feel like it.
+
+I built a plan that breaks every week into exactly what to train, how long, and when to rest. No guesswork.
+
+💬 Comment "PLAN" and I'll send you the full 4-Week Training Plan`,
+    time: '6 PM – 8 PM today',
+    tags: '#trainingplan #workoutplan #gymroutine #fitnessprogram #consistency #4weekchallenge',
+    tip: 'Training plan CTAs convert 61% of commenters to email — your best funnel'
+  },
+  '': {
+    caption: `Red set & ready to go 🔥
+
+There's something about matching your outfit to your energy. Today was one of those days where everything just clicked — the playlist, the pump, the people around me pushing hard.
+
+Not every gym day is going to feel great. But the ones where you show up anyway? Those are the ones that matter most.
+
+Save this for your next "I don't feel like going" day 💪`,
+    time: '6 PM – 9 PM today',
+    tags: '#fitnessmotivation #gymlife #gymmotivation #strongwomen #fitfam',
+    tip: 'Motivational posts with a save CTA get 3x more reach via the algorithm'
+  }
+};
+
+let isGenerating = false;
+
+async function generateCaption() {
+  if (!hasImage || isGenerating) return;
+  isGenerating = true;
+
+  const keyword = document.getElementById('cpAutomation').value;
+  const data = DEMO_CAPTIONS[keyword] || DEMO_CAPTIONS[''];
+  const output = document.getElementById('cpOutput');
+  const caption = document.getElementById('cpCaption');
+  const meta = document.getElementById('cpMeta');
+
+  // Reset
+  caption.textContent = '';
+  meta.style.display = 'none';
+  output.style.display = 'block';
+
+  // Disable button, show loading state
+  cpGenerateBtn.disabled = true;
+  cpGenerateBtn.textContent = '⏳ Generating...';
+
+  // Brief "thinking" pause
+  await sleep(800);
+
+  // Stream the caption character by character
+  const chars = data.caption.split('');
+  for (let i = 0; i < chars.length; i++) {
+    caption.textContent += chars[i];
+    // Vary speed: faster for spaces, slower for newlines/punctuation
+    const ch = chars[i];
+    if (ch === '\n') await sleep(60);
+    else if ('.!?—'.includes(ch)) await sleep(40);
+    else await sleep(12 + Math.random() * 8);
+  }
+
+  // Show meta info
+  meta.innerHTML = `
+    <div class="create-post-meta-item">⏱ <strong>Best time:</strong> ${data.time}</div>
+    <div class="create-post-meta-item">🏷 <strong>Tags:</strong> ${data.tags}</div>
+    <div class="create-post-meta-item">💡 <strong>Tip:</strong> ${data.tip}</div>
+  `;
+  meta.style.display = 'flex';
+
+  // Re-enable
+  cpGenerateBtn.textContent = '✨ Generate Caption';
+  cpGenerateBtn.disabled = false;
+  isGenerating = false;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
 
 </body>
 </html>

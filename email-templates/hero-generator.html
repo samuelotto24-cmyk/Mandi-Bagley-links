@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html><head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #15110d; }
+  .stage {
+    width: 1200px;
+    height: 600px;
+    position: relative;
+    overflow: hidden;
+    background: #15110d;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 22%;
+    filter: brightness(0.62);
+  }
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(15,13,11,0.85) 0%, rgba(15,13,11,0.30) 30%, rgba(15,13,11,0.30) 70%, rgba(15,13,11,0.78) 100%);
+  }
+
+  /* Top strip — issue / wordmark / month */
+  .top {
+    position: absolute;
+    top: 48px;
+    left: 80px;
+    right: 80px;
+    z-index: 2;
+  }
+  .top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(201,185,165,0.4);
+    font-size: 12px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .top-row .issue { color: #c9b9a5; }
+  .top-row .name  { color: #f4ecdf; font-weight: 600; }
+  .top-row .month { color: #ddd2c0; font-style: normal; }
+
+  /* Center — main title */
+  .center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+    padding: 0 80px;
+    margin-top: 30px;
+  }
+  .title {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 96px;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    color: #f4ecdf;
+    text-align: center;
+  }
+  .title em { font-style: italic; color: #c9b9a5; }
+  .ornament {
+    width: 60px;
+    height: 1px;
+    background: #c9b9a5;
+    margin: 24px 0 18px;
+    position: relative;
+  }
+  .ornament::before, .ornament::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #c9b9a5;
+    transform: translateY(-50%);
+  }
+  .ornament::before { left: -10px; }
+  .ornament::after  { right: -10px; }
+  .role {
+    font-size: 12px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: #ddd2c0;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <img class="photo" src="file:///Users/samotto/cassandra-morales/lead-magnet/assets/training.jpg">
+    <div class="overlay"></div>
+    <div class="top">
+      <div class="top-row">
+        <span class="issue">Issue No.01</span>
+        <span class="name">__CLIENT_NAME__</span>
+        <span class="month">April 2026</span>
+      </div>
+    </div>
+    <div class="center">
+      <div class="title">The <em>Monthly</em></div>
+      <div class="ornament"></div>
+      <div class="role">__CLIENT_ROLE__</div>
+    </div>
+  </div>
+</body></html>

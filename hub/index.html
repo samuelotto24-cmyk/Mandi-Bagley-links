@@ -4390,11 +4390,15 @@ a.hub-nav-icon { text-decoration: none; }
 
 /* Preview pane (left) — matches the actual email aesthetic */
 .editor-preview {
+  /* Default espresso, overridden via inline style when brand bg changes */
+  --editor-preview-bg: #0F0D0B;
+  --editor-preview-glow: rgba(201,185,165,0.10);
   background:
-    radial-gradient(ellipse 800px 500px at 50% 0%, rgba(201,185,165,0.10) 0%, transparent 60%),
-    #0F0D0B;
+    radial-gradient(ellipse 800px 500px at 50% 0%, var(--editor-preview-glow) 0%, transparent 60%),
+    var(--editor-preview-bg);
   overflow: auto;
   padding: 44px 28px;
+  transition: background 220ms ease;
 }
 .preview-frame {
   /* Brand-themable via CSS vars; defaults to Cass's espresso. */
@@ -6714,6 +6718,41 @@ a.hub-nav-icon { text-decoration: none; }
       <div class="design-studio-preview" id="designPreview">
         <div class="design-studio-preview-frame" id="designPreviewFrame"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- Insert-video modal — paste video URL → thumbnail → click-through card -->
+  <div class="comms-test-modal-overlay" id="videoInsertModal" onclick="if(event.target===this)closeVideoInsertModal()">
+    <div class="comms-test-modal" style="max-width:520px;">
+      <div class="comms-test-modal-eyebrow">Insert video</div>
+      <div class="comms-test-modal-title" style="font-size:20px;">Embed a video.</div>
+      <div class="comms-test-modal-body" style="margin-bottom:12px;">
+        Heads up — emails can't play video inline (Gmail, Outlook all block it). I'll insert a clickable thumbnail that opens the video in a new tab. YouTube thumbnails auto-fetch; for other platforms paste a thumbnail URL.
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <input type="url" class="comms-test-modal-input" id="videoInsertUrl" placeholder="https://youtube.com/watch?v=... or instagram.com/reel/... etc." style="margin:0;" oninput="onVideoUrlChange(this.value)">
+        <div id="videoPlatformBadge" style="display:none;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted);font-weight:600;"></div>
+
+        <div id="videoThumbPreviewWrap" style="display:none;text-align:center;background:#0F0D0B;border:1px solid var(--border);border-radius:8px;padding:12px;position:relative;">
+          <img id="videoThumbPreview" alt="" style="display:block;max-width:100%;height:auto;margin:0 auto;border-radius:4px;">
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;pointer-events:none;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+
+        <input type="text" class="comms-test-modal-input" id="videoInsertThumb" placeholder="thumbnail image URL (optional, auto-filled for YouTube)" style="margin:0;font-family:'SF Mono',Menlo,monospace;font-size:12px;">
+        <button type="button" id="videoUploadThumbBtn" onclick="document.getElementById('videoThumbFile').click()" style="font-size:11.5px;color:var(--text-muted);background:transparent;border:1px dashed var(--border);padding:8px 12px;border-radius:8px;cursor:pointer;font-style:italic;font-family:var(--display-font);">↑ or upload your own thumbnail</button>
+        <input type="file" id="videoThumbFile" accept="image/*" style="display:none;" onchange="onVideoThumbFileSelected(event)">
+
+        <input type="text" class="comms-test-modal-input" id="videoInsertCaption" placeholder="caption / button label (e.g. ▶ Watch on YouTube)" style="margin:0;">
+      </div>
+
+      <div class="comms-test-modal-actions" style="margin-top:16px;">
+        <button class="comms-test-modal-cancel" onclick="closeVideoInsertModal()">Cancel</button>
+        <button class="comms-test-modal-send" onclick="confirmVideoInsert()">Insert</button>
+      </div>
+      <div class="comms-test-modal-status" id="videoInsertStatus"></div>
     </div>
   </div>
 
@@ -10134,7 +10173,7 @@ function copyAndOpen(platform) {
 // Move the editor + its modals out of the stacking-context trap inside .hub-main
 // so they render on top of the sticky hub-nav. Run once at parse time.
 (function liftCommsOverlaysToBody() {
-  const ids = ['messagesEditor', 'broadcastSendModal', 'commsTestModal', 'designStudio', 'designWithClaudeModal', 'linkInsertModal', 'importHtmlModal', 'imageInsertModal'];
+  const ids = ['messagesEditor', 'broadcastSendModal', 'commsTestModal', 'designStudio', 'designWithClaudeModal', 'linkInsertModal', 'importHtmlModal', 'imageInsertModal', 'videoInsertModal'];
   for (const id of ids) {
     const el = document.getElementById(id);
     if (el && el.parentNode !== document.body) {
@@ -10300,6 +10339,8 @@ function renderSubscribersPanel(d) {
 }
 
 // Apply a brand object to a preview-frame element by setting CSS variables.
+// Also updates the outer .editor-preview container so the page-bg around the
+// card matches what subscribers will see in the actual email body.
 function applyPreviewBrand(frameEl, brand) {
   if (!frameEl || !brand) return;
   const rgb = hexToRgb(brand.accent);
@@ -10321,6 +10362,13 @@ function applyPreviewBrand(frameEl, brand) {
   };
   for (const k of Object.keys(map)) {
     if (map[k]) frameEl.style.setProperty(k, map[k]);
+  }
+  // Sync the outer preview pane bg too so the page-around-card matches the
+  // email's body background. The accent glow stays subtle.
+  const outer = frameEl.closest('.editor-preview');
+  if (outer && brand.bg) {
+    outer.style.setProperty('--editor-preview-bg', brand.bg);
+    outer.style.setProperty('--editor-preview-glow', `rgba(${rgb}, 0.10)`);
   }
 }
 
@@ -11445,12 +11493,13 @@ function renderBroadcastFields() {
     const inputHtml = f.type === 'text'
       ? '<input class="editor-input" id="' + fid + '" type="text" value="' + escapeAttr(value) + '" data-field="' + f.key + '">'
       : '<textarea class="editor-textarea" id="' + fid + '" data-field="' + f.key + '" rows="' + (f.tall ? 8 : 3) + '">' + escapeAttr(value) + '</textarea>';
-    // Link + Image buttons — shown on focus for textareas only
+    // Link + Image + Video buttons — shown on focus for textareas only
     const showInsertBtns = f.type === 'textarea' && !/_url$/.test(f.key);
     const insertBtns = showInsertBtns
       ? '<div class="editor-field-insert-btns">' +
           '<button type="button" class="editor-field-link-btn" tabindex="-1" onmousedown="event.preventDefault();" onclick="openLinkInsertModalFromField(document.getElementById(\'' + fid + '\'))" title="Insert link (Cmd/Ctrl+K)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Link</button>' +
           '<button type="button" class="editor-field-link-btn" tabindex="-1" onmousedown="event.preventDefault();" onclick="openImageUploadFromField(document.getElementById(\'' + fid + '\'))" title="Insert image"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Image</button>' +
+          '<button type="button" class="editor-field-link-btn" tabindex="-1" onmousedown="event.preventDefault();" onclick="openVideoInsertFromField(document.getElementById(\'' + fid + '\'))" title="Insert video — YouTube auto-thumbnails; others need a thumb URL"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Video</button>' +
         '</div>'
       : '';
     const linkBtn = insertBtns;
@@ -11549,9 +11598,14 @@ function previewBroadcast(d) {
     .map(function(p) {
       // Allow <a>, <em>, <strong>, <br>, <img> through. Escape everything else.
       const escaped = safe(p).replace(/\n/g, '<br/>');
-      // Re-allow specific safe tags
+      // Re-allow specific safe tags. <a> and <img> can carry style/href attributes;
+      // <div> is allowed for centered video-card captions; <em>/<strong> are simple wraps.
       return '<p class="pf-paragraph">' + escaped
-        .replace(/&lt;a href=&quot;([^&]+?)&quot;&gt;/gi, '<a href="$1" target="_blank" style="color:var(--pf-accent);text-decoration:underline;">')
+        // <a> with full attributes (href, style, target) — unescape attrs so styles render
+        .replace(/&lt;a\b([^&]*?)&gt;/gi, function(_m, attrs) {
+          const unescaped = String(attrs).replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+          return '<a' + unescaped + ' target="_blank">';
+        })
         .replace(/&lt;\/a&gt;/gi, '</a>')
         .replace(/&lt;em&gt;/gi, '<em>').replace(/&lt;\/em&gt;/gi, '</em>')
         .replace(/&lt;strong&gt;/gi, '<strong>').replace(/&lt;\/strong&gt;/gi, '</strong>')
@@ -11560,6 +11614,12 @@ function previewBroadcast(d) {
           const unescaped = String(attrs).replace(/&quot;/g, '"').replace(/&amp;/g, '&');
           return '<img ' + unescaped + ' />';
         })
+        // <div style="..."> — allowed for centered captions (used by video insert)
+        .replace(/&lt;div\b([^&]*?)&gt;/gi, function(_m, attrs) {
+          const unescaped = String(attrs).replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+          return '<div' + unescaped + '>';
+        })
+        .replace(/&lt;\/div&gt;/gi, '</div>')
         + '</p>';
     }).join('');
 
@@ -11687,6 +11747,214 @@ async function confirmBroadcastSend() {
     status.textContent = 'Couldn\'t reach the server. Try again.';
     btn.disabled = false;
   }
+}
+
+/* ═══════════════════════════════════════════════════
+   VIDEO INSERT — clickable thumbnail card opening the video on its platform
+   ═══════════════════════════════════════════════════ */
+window._videoInsertContext = null;
+window._videoInsertPlatform = null;
+
+const VIDEO_PLATFORMS = [
+  {
+    id: 'youtube',
+    name: 'YouTube',
+    test: /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/)|youtu\.be\/)([\w-]{11})/,
+    extractId: (url) => {
+      const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|v\/)|youtu\.be\/)([\w-]{11})/);
+      return m ? m[1] : null;
+    },
+    thumbnail: (id) => `https://img.youtube.com/vi/${id}/maxresdefault.jpg`,
+    fallbackThumb: (id) => `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
+    defaultCta: '▶ Watch on YouTube',
+  },
+  {
+    id: 'instagram',
+    name: 'Instagram',
+    test: /instagram\.com\/(?:reel|p|tv)\/[\w-]+/,
+    extractId: () => null,
+    thumbnail: () => null,
+    defaultCta: '▶ Watch on Instagram',
+  },
+  {
+    id: 'tiktok',
+    name: 'TikTok',
+    test: /tiktok\.com\/@[\w.]+\/video\/\d+|vm\.tiktok\.com|tiktok\.com\/t\//,
+    extractId: () => null,
+    thumbnail: () => null,
+    defaultCta: '▶ Watch on TikTok',
+  },
+  {
+    id: 'vimeo',
+    name: 'Vimeo',
+    test: /vimeo\.com\/(\d+)/,
+    extractId: (url) => {
+      const m = url.match(/vimeo\.com\/(\d+)/);
+      return m ? m[1] : null;
+    },
+    thumbnail: () => null,
+    defaultCta: '▶ Watch on Vimeo',
+  },
+];
+
+function detectVideoPlatform(url) {
+  if (!url) return null;
+  for (const p of VIDEO_PLATFORMS) {
+    if (p.test.test(url)) return p;
+  }
+  return null;
+}
+
+function openVideoInsertFromField(el) {
+  const start = el.selectionStart || 0;
+  const end   = el.selectionEnd   || 0;
+  window._videoInsertContext = { el, selStart: start, selEnd: end, value: el.value };
+  document.getElementById('videoInsertUrl').value = '';
+  document.getElementById('videoInsertThumb').value = '';
+  document.getElementById('videoInsertCaption').value = '';
+  document.getElementById('videoInsertStatus').textContent = '';
+  document.getElementById('videoPlatformBadge').style.display = 'none';
+  document.getElementById('videoThumbPreviewWrap').style.display = 'none';
+  document.getElementById('videoInsertModal').classList.add('open');
+  setTimeout(function() { document.getElementById('videoInsertUrl').focus(); }, 60);
+}
+
+function closeVideoInsertModal() {
+  document.getElementById('videoInsertModal').classList.remove('open');
+  window._videoInsertContext = null;
+  window._videoInsertPlatform = null;
+}
+
+function onVideoUrlChange(url) {
+  const platform = detectVideoPlatform((url || '').trim());
+  window._videoInsertPlatform = platform;
+  const badge = document.getElementById('videoPlatformBadge');
+  const thumbInput = document.getElementById('videoInsertThumb');
+  const caption = document.getElementById('videoInsertCaption');
+  const previewWrap = document.getElementById('videoThumbPreviewWrap');
+  const previewImg  = document.getElementById('videoThumbPreview');
+
+  if (!platform) {
+    badge.style.display = 'none';
+    previewWrap.style.display = 'none';
+    return;
+  }
+  badge.style.display = 'inline-block';
+  badge.textContent = platform.name + ' detected';
+
+  // Auto-fill caption if blank
+  if (!caption.value) caption.value = platform.defaultCta;
+
+  // Auto-fetch YouTube thumbnail
+  if (platform.id === 'youtube') {
+    const videoId = platform.extractId(url);
+    if (videoId) {
+      const thumbUrl = platform.thumbnail(videoId);
+      thumbInput.value = thumbUrl;
+      previewImg.src = thumbUrl;
+      previewImg.onerror = function() {
+        // Fallback to hqdefault if maxres doesn't exist (some videos)
+        const fb = platform.fallbackThumb(videoId);
+        previewImg.src = fb;
+        thumbInput.value = fb;
+        previewImg.onerror = null;
+      };
+      previewWrap.style.display = 'block';
+    }
+  } else {
+    // Non-YouTube: clear preview unless thumb already provided
+    if (!thumbInput.value) {
+      previewWrap.style.display = 'none';
+    }
+  }
+}
+
+async function onVideoThumbFileSelected(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const status = document.getElementById('videoInsertStatus');
+  const thumbInput = document.getElementById('videoInsertThumb');
+  const previewWrap = document.getElementById('videoThumbPreviewWrap');
+  const previewImg  = document.getElementById('videoThumbPreview');
+
+  if (file.size > 5 * 1024 * 1024) {
+    status.className = 'comms-test-modal-status err';
+    status.textContent = 'Thumbnail over 5MB — compress first.';
+    return;
+  }
+  status.className = 'comms-test-modal-status';
+  status.textContent = 'Uploading thumbnail…';
+
+  try {
+    const dataUri = await new Promise(function(resolve, reject) {
+      const reader = new FileReader();
+      reader.onload = function() { resolve(reader.result); };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    const res = await fetch('/api/upload-image', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: dataUri, purpose: 'email' }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.ok || !json.url) throw new Error(json.error || 'upload_failed');
+
+    thumbInput.value = json.url;
+    previewImg.src = json.url;
+    previewWrap.style.display = 'block';
+    status.className = 'comms-test-modal-status ok';
+    status.textContent = '✓ Thumbnail uploaded.';
+  } catch (e) {
+    status.className = 'comms-test-modal-status err';
+    status.textContent = 'Upload failed.';
+  }
+}
+
+function confirmVideoInsert() {
+  const ctx = window._videoInsertContext;
+  if (!ctx) { closeVideoInsertModal(); return; }
+  let url = (document.getElementById('videoInsertUrl').value || '').trim();
+  const thumb = (document.getElementById('videoInsertThumb').value || '').trim();
+  let caption = (document.getElementById('videoInsertCaption').value || '').trim();
+  const status = document.getElementById('videoInsertStatus');
+
+  if (!url) {
+    status.className = 'comms-test-modal-status err';
+    status.textContent = 'Paste the video URL first.';
+    return;
+  }
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  if (!caption) {
+    const platform = window._videoInsertPlatform;
+    caption = platform ? platform.defaultCta : '▶ Watch the video';
+  }
+
+  // Build inline HTML — image (clickable) + caption link below
+  let html;
+  if (thumb) {
+    html =
+      '<a href="' + escapeAttr(url) + '" target="_blank" style="display:block;text-decoration:none;margin:18px auto;max-width:560px;">' +
+        '<img src="' + escapeAttr(thumb) + '" alt="' + escapeAttr(caption.replace(/^▶\s*/, '')) + '" style="display:block;width:100%;max-width:560px;height:auto;border:0;margin:0 auto;" />' +
+      '</a>' +
+      '<div style="text-align:center;margin:8px 0 18px;"><a href="' + escapeAttr(url) + '" target="_blank" style="display:inline-block;font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;color:var(--pf-accent);border:1px solid var(--pf-accent);padding:8px 16px;background:rgba(var(--pf-accent-rgb),0.05);">' + escapeAttr(caption) + '</a></div>';
+  } else {
+    // No thumbnail — text-only video card with bordered button
+    html =
+      '<div style="text-align:center;margin:18px 0;"><a href="' + escapeAttr(url) + '" target="_blank" style="display:inline-block;font-size:12px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;color:var(--pf-accent);border:1px solid var(--pf-accent);padding:14px 28px;background:rgba(var(--pf-accent-rgb),0.05);">' + escapeAttr(caption) + '</a></div>';
+  }
+
+  const before = ctx.value.slice(0, ctx.selStart);
+  const after  = ctx.value.slice(ctx.selEnd);
+  // Surround with blank lines so it sits as its own block in the body
+  const padded = (before && !before.endsWith('\n\n') ? '\n\n' : '') + html + (after && !after.startsWith('\n\n') ? '\n\n' : '');
+  const newVal = before + padded + after;
+  ctx.el.value = newVal;
+  ctx.el.focus();
+  const cursorPos = before.length + padded.length;
+  ctx.el.setSelectionRange(cursorPos, cursorPos);
+  ctx.el.dispatchEvent(new Event('input', { bubbles: true }));
+  closeVideoInsertModal();
 }
 
 /* ═══════════════════════════════════════════════════

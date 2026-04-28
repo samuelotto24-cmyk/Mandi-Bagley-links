@@ -4530,6 +4530,258 @@ a.hub-nav-icon { text-decoration: none; }
   color: var(--pf-muted);
 }
 
+/* ── Content / Design tabs in right pane (broadcast composer only) ── */
+.editor-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 14px 28px 0;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-elevated);
+}
+.editor-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: none;
+  padding: 10px 14px 12px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 180ms ease, border-color 180ms ease;
+}
+.editor-tab svg { stroke: currentColor; }
+.editor-tab.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+.editor-tab:hover:not(.active) {
+  color: var(--text);
+}
+
+/* ── Design panel (per-broadcast overrides) ── */
+.editor-design-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 28px 16px;
+}
+.design-panel-section {
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.design-panel-section:last-child { border-bottom: none; }
+.design-panel-section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.design-panel-kicker {
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+.design-panel-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent-border), transparent);
+}
+.design-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.design-row-label {
+  font-family: var(--display-font);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--text);
+}
+.design-row-input,
+.design-row-select {
+  width: 100%;
+  padding: 9px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text);
+}
+.design-row-input:focus,
+.design-row-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-pale);
+}
+.design-color-row {
+  display: grid;
+  grid-template-columns: 110px auto auto 1fr;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.design-color-swatch {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  padding: 0;
+}
+.design-color-input {
+  width: 100px;
+  padding: 9px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+  color: var(--text);
+  text-transform: uppercase;
+}
+.design-color-clear {
+  font-size: 11px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-style: italic;
+  font-family: var(--display-font);
+}
+.design-color-clear:hover { color: var(--text); background: var(--accent-pale); }
+
+.design-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+.design-toggle-label {
+  font-size: 13px;
+  color: var(--text);
+}
+.design-toggle-help {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-style: italic;
+  font-family: var(--display-font);
+  margin-top: 2px;
+}
+.design-toggle {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  background: var(--border);
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: background 200ms ease;
+  flex-shrink: 0;
+}
+.design-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left 200ms ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.design-toggle.on {
+  background: var(--accent);
+}
+.design-toggle.on::after { left: 18px; }
+
+.design-slider-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 50px;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.design-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+}
+.design-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.design-slider-value {
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.design-reset-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-family: var(--sans);
+  cursor: pointer;
+  font-style: italic;
+}
+.design-reset-all:hover { color: var(--text); border-color: var(--accent-border); }
+
+/* Inline link button next to text inputs */
+.editor-field-link-btn {
+  position: absolute;
+  bottom: 8px; right: 8px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-family: var(--sans);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 200ms ease, color 180ms ease, background 180ms ease, border-color 180ms ease;
+  z-index: 1;
+}
+.editor-field-link-btn svg { stroke: currentColor; }
+.editor-field:focus-within .editor-field-link-btn {
+  opacity: 0.95;
+}
+.editor-field-link-btn:hover {
+  background: var(--accent-pale);
+  color: var(--text);
+  border-color: var(--accent-border);
+}
+
 /* ─── Right pane (editorial) ─── */
 .editor-right {
   display: flex;
@@ -6028,7 +6280,18 @@ a.hub-nav-icon { text-decoration: none; }
       </div>
 
       <div class="editor-right">
+        <div class="editor-tabs" id="editorTabs" style="display:none;">
+          <button class="editor-tab active" data-tab="content" onclick="switchEditorTab('content')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg>
+            <span>Content</span>
+          </button>
+          <button class="editor-tab" data-tab="design" onclick="switchEditorTab('design')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22a10 10 0 1 1 10-10c0 1.93-1.59 3.5-3.5 3.5h-1.86a3.5 3.5 0 0 0-1.4 6.71A2 2 0 0 1 14 22h-2z"/></svg>
+            <span>Design</span>
+          </button>
+        </div>
         <div class="editor-fields" id="editorFields"></div>
+        <div class="editor-design-panel" id="editorDesignPanel" style="display:none;"></div>
 
         <div class="editor-broadcast-actions" id="editorBroadcastActions" style="display:none;">
           <button class="editor-broadcast-delete" onclick="deleteBroadcastDraft()" title="Delete draft">
@@ -6084,6 +6347,26 @@ a.hub-nav-icon { text-decoration: none; }
       <div class="design-studio-preview" id="designPreview">
         <div class="design-studio-preview-frame" id="designPreviewFrame"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- Insert-link modal (cmd/ctrl+K when a text field is focused) -->
+  <div class="comms-test-modal-overlay" id="linkInsertModal" onclick="if(event.target===this)closeLinkInsertModal()">
+    <div class="comms-test-modal" style="max-width:440px;">
+      <div class="comms-test-modal-eyebrow">Insert link</div>
+      <div class="comms-test-modal-title" style="font-size:20px;">Add a link.</div>
+      <div class="comms-test-modal-body" style="margin-bottom:14px;">Type the visible text and the URL. We'll wrap it in HTML for you.</div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+        <input type="text" class="comms-test-modal-input" id="linkInsertText" placeholder="link text" style="margin-bottom:0;">
+        <input type="url" class="comms-test-modal-input" id="linkInsertUrl" placeholder="https://example.com" style="margin-bottom:0;">
+      </div>
+
+      <div class="comms-test-modal-actions">
+        <button class="comms-test-modal-cancel" onclick="closeLinkInsertModal()">Cancel</button>
+        <button class="comms-test-modal-send" onclick="confirmLinkInsert()">Insert</button>
+      </div>
+      <div class="comms-test-modal-status" id="linkInsertStatus"></div>
     </div>
   </div>
 
@@ -9412,7 +9695,7 @@ function copyAndOpen(platform) {
 // Move the editor + its modals out of the stacking-context trap inside .hub-main
 // so they render on top of the sticky hub-nav. Run once at parse time.
 (function liftCommsOverlaysToBody() {
-  const ids = ['messagesEditor', 'broadcastSendModal', 'commsTestModal', 'designStudio', 'designWithClaudeModal'];
+  const ids = ['messagesEditor', 'broadcastSendModal', 'commsTestModal', 'designStudio', 'designWithClaudeModal', 'linkInsertModal'];
   for (const id of ids) {
     const el = document.getElementById(id);
     if (el && el.parentNode !== document.body) {
@@ -9677,6 +9960,13 @@ function openCommsEditor(kind) {
   if (ba) ba.style.display = 'none';
   const db = document.getElementById('editorDesignBtn');
   if (db) db.style.display = 'none';
+  const tabs = document.getElementById('editorTabs');
+  if (tabs) tabs.style.display = 'none';
+  // Make sure the design panel is hidden + content panel visible
+  const dp = document.getElementById('editorDesignPanel');
+  if (dp) dp.style.display = 'none';
+  const ef = document.getElementById('editorFields');
+  if (ef) ef.style.display = '';
   setEditorStatus('saved');
   renderEditorFields(kind);
   renderEditorPreview();
@@ -9890,6 +10180,15 @@ function renderEditorPreview() {
   let html = '';
   if (commsState.editorMode === 'broadcast') {
     const d = broadcastState.current || {};
+    // Apply per-broadcast design overrides on top of the global brand for the preview
+    if (commsState.brand && d.design) {
+      const merged = { ...commsState.brand };
+      if (d.design.accentColor) { merged.accent = d.design.accentColor; merged.ctaBg = d.design.accentColor; }
+      if (d.design.bgColor)     merged.bg = d.design.bgColor;
+      if (d.design.displayFont) merged.displayFont = d.design.displayFont;
+      if (d.design.bodyFont)    merged.bodyFont = d.design.bodyFont;
+      applyPreviewBrand(frame, merged);
+    }
     html = previewBroadcast(d);
   } else {
     const kind = commsState.currentKind;
@@ -10608,6 +10907,10 @@ async function openBroadcastComposer(id) {
   document.getElementById('editorBroadcastActions').style.display = 'flex';
   const db = document.getElementById('editorDesignBtn');
   if (db) db.style.display = 'inline-flex';
+  // Show Content/Design tabs (broadcast mode only) and reset to Content
+  const tabs = document.getElementById('editorTabs');
+  if (tabs) tabs.style.display = 'flex';
+  switchEditorTab('content');
   setEditorStatus(draft.id ? 'saved' : 'typing');
   renderBroadcastFields();
   renderEditorPreview();
@@ -10642,11 +10945,17 @@ function renderBroadcastFields() {
     const inputHtml = f.type === 'text'
       ? '<input class="editor-input" id="' + fid + '" type="text" value="' + escapeAttr(value) + '" data-field="' + f.key + '">'
       : '<textarea class="editor-textarea" id="' + fid + '" data-field="' + f.key + '" rows="' + (f.tall ? 8 : 3) + '">' + escapeAttr(value) + '</textarea>';
+    // Link button — shows on focus for textareas only (not single-line inputs, not URLs)
+    const showLinkBtn = f.type === 'textarea' && !/_url$/.test(f.key);
+    const linkBtn = showLinkBtn
+      ? '<button type="button" class="editor-field-link-btn" tabindex="-1" onmousedown="event.preventDefault();" onclick="openLinkInsertModalFromField(document.getElementById(\'' + fid + '\'))" title="Insert link (Cmd/Ctrl+K)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Link</button>'
+      : '';
     html += (
-      '<div class="editor-field" data-field="' + f.key + '">' +
+      '<div class="editor-field" data-field="' + f.key + '" style="position:relative;">' +
         '<div class="editor-field-label"><span>' + escapeAttr(f.label) + '</span></div>' +
         (f.help ? '<div class="editor-field-help">' + escapeAttr(f.help) + '</div>' : '') +
         inputHtml +
+        linkBtn +
       '</div>'
     );
   }
@@ -10726,24 +11035,75 @@ async function deleteBroadcastDraft() {
 
 /* ── Live preview for broadcasts (mirror of broadcast-renderer.js, simplified) ── */
 function previewBroadcast(d) {
+  const design = d.design || {};
+  const showPullQuote    = design.showPullQuote    !== false;
+  const showSecondaryCta = design.showSecondaryCta !== false;
+  const headlineSize = design.headlineSize || 48;
+
+  // Body — keep raw HTML for inline <a>, <em>, <strong> tags she's inserted
   const safeBody = (d.body || '').split(/\n\s*\n/).filter(Boolean)
-    .map(p => '<p class="pf-paragraph">' + safe(p).replace(/\n/g, '<br/>') + '</p>').join('');
+    .map(function(p) {
+      // Allow <a>, <em>, <strong>, <br> through. Escape everything else.
+      const escaped = safe(p).replace(/\n/g, '<br/>');
+      // Re-allow specific safe tags
+      return '<p class="pf-paragraph">' + escaped
+        .replace(/&lt;a href=&quot;([^&]+?)&quot;&gt;/gi, '<a href="$1" target="_blank" style="color:var(--pf-accent);text-decoration:underline;">')
+        .replace(/&lt;\/a&gt;/gi, '</a>')
+        .replace(/&lt;em&gt;/gi, '<em>').replace(/&lt;\/em&gt;/gi, '</em>')
+        .replace(/&lt;strong&gt;/gi, '<strong>').replace(/&lt;\/strong&gt;/gi, '</strong>')
+        + '</p>';
+    }).join('');
+
   const headSection = (
     '<div class="pf-section" style="text-align:center;padding-top:54px;">' +
       (d.kicker   ? '<div class="pf-kicker">' + safe(d.kicker) + '</div>' : '') +
-      '<div class="pf-headline">' + safe(d.headline || '(headline)') + '</div>' +
+      '<div class="pf-headline" style="font-size:' + headlineSize + 'px;">' + safe(d.headline || '(headline)') + '</div>' +
       (d.subhead  ? '<div class="pf-subhead">' + safe(d.subhead) + '</div>' : '') +
     '</div>'
   );
   const ctaPrimaryHtml = (d.cta_label && d.cta_url)
     ? '<div class="pf-section" style="text-align:center;padding-top:8px;"><span class="pf-cta-primary">' + safe(d.cta_label) + '</span></div>'
     : '';
-  const ctaSecondaryHtml = (d.cta_secondary_label && d.cta_secondary_url)
+  const ctaSecondaryHtml = (showSecondaryCta && d.cta_secondary_label && d.cta_secondary_url)
     ? '<div class="pf-section" style="text-align:center;padding-top:0;"><span class="pf-cta-outline">' + safe(d.cta_secondary_label) + '</span></div>'
     : '';
-  const quoteHtml = d.pull_quote ? '<div class="pf-section"><div class="pf-quote">' + safe(d.pull_quote) + '</div></div>' : '';
+  const quoteHtml = (showPullQuote && d.pull_quote)
+    ? '<div class="pf-section"><div class="pf-quote">' + safe(d.pull_quote) + '</div></div>' : '';
   const bodyHtml  = safeBody ? '<div class="pf-section">' + safeBody + '</div>' : '';
-  return headSection + bodyHtml + quoteHtml + (ctaPrimaryHtml || ctaSecondaryHtml ? '<div class="pf-divider" style="margin-left:40px;margin-right:40px;"></div>' : '') + ctaPrimaryHtml + ctaSecondaryHtml + previewSignoff();
+
+  // Signoff — use custom values from draft.signoff if any
+  const so = d.signoff || {};
+  const signoffHtml = (so.closing || so.name || so.role)
+    ? customPreviewSignoff(so)
+    : previewSignoff();
+
+  return headSection + bodyHtml + quoteHtml + (ctaPrimaryHtml || ctaSecondaryHtml ? '<div class="pf-divider" style="margin-left:40px;margin-right:40px;"></div>' : '') + ctaPrimaryHtml + ctaSecondaryHtml + signoffHtml;
+}
+
+function customPreviewSignoff(so) {
+  const closing = (so.closing || '').trim() || 'until next time';
+  const name    = (so.name    || '').trim() || ((window.CLIENT && CLIENT.name) || '');
+  const role    = (so.role    || '').trim() || ((window.CLIENT && CLIENT.nicheLabel) || '');
+  const domain  = (window.CLIENT && CLIENT.url ? CLIENT.url.replace(/^https?:\/\//, '') : '');
+  return (
+    '<div style="text-align:center;padding:32px 40px 8px;">' +
+      '<div style="display:inline-flex;align-items:center;gap:12px;">' +
+        '<span style="display:inline-block;width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--pf-border));"></span>' +
+        '<span style="font-family:var(--pf-display);font-style:italic;font-size:13px;color:var(--pf-accent);opacity:0.75;">' + safe(closing) + '</span>' +
+        '<span style="display:inline-block;width:60px;height:1px;background:linear-gradient(90deg,var(--pf-border),transparent);"></span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="pf-signoff" style="padding:22px 40px 40px;">' +
+      '<div class="pf-signoff-name" style="font-size:26px;letter-spacing:-0.005em;margin-bottom:8px;">' + safe(name) + '</div>' +
+      (role ? '<div class="pf-signoff-role" style="margin-bottom:18px;">' + safe(role) + '</div>' : '') +
+      '<div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:16px;">' +
+        '<span style="width:5px;height:5px;border-radius:50%;background:var(--pf-accent);display:inline-block;"></span>' +
+        '<span style="width:60px;height:1px;background:var(--pf-accent);opacity:0.45;display:inline-block;"></span>' +
+        '<span style="width:5px;height:5px;border-radius:50%;background:var(--pf-accent);display:inline-block;"></span>' +
+      '</div>' +
+      '<div style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--pf-accent);">' + safe(domain) + '</div>' +
+    '</div>'
+  );
 }
 
 /* ── Send broadcast (test or real) ── */
@@ -10819,6 +11179,299 @@ async function confirmBroadcastSend() {
     btn.disabled = false;
   }
 }
+
+/* ═══════════════════════════════════════════════════
+   BROADCAST DESIGN PANEL — per-broadcast theme overrides
+   ═══════════════════════════════════════════════════ */
+
+function switchEditorTab(tab) {
+  const fields = document.getElementById('editorFields');
+  const design = document.getElementById('editorDesignPanel');
+  const tabs   = document.querySelectorAll('.editor-tab');
+  tabs.forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  if (tab === 'design') {
+    fields.style.display = 'none';
+    design.style.display = '';
+    renderDesignPanel();
+  } else {
+    fields.style.display = '';
+    design.style.display = 'none';
+  }
+}
+
+function ensureDraftDesign(draft) {
+  if (!draft.design) draft.design = {
+    accentColor: null, bgColor: null,
+    displayFont: null, bodyFont: null,
+    headlineSize: 48,
+    showPullQuote: true, showSecondaryCta: true,
+  };
+  if (!draft.signoff) draft.signoff = { closing: '', name: '', role: '' };
+  return draft;
+}
+
+const DESIGN_FONT_OPTIONS = {
+  display: [
+    { id: '',                                                  label: '— Use theme default —' },
+    { id: "'DM Serif Display', Georgia, serif",                label: 'DM Serif Display' },
+    { id: "'Cormorant Garamond', Georgia, serif",              label: 'Cormorant Garamond' },
+    { id: "'Playfair Display', Georgia, serif",                label: 'Playfair Display' },
+    { id: "'Crimson Pro', Georgia, serif",                     label: 'Crimson Pro' },
+  ],
+  body: [
+    { id: '',                                                                  label: '— Use theme default —' },
+    { id: "'DM Sans', 'Helvetica Neue', Arial, sans-serif",                    label: 'DM Sans' },
+    { id: "'Inter', system-ui, sans-serif",                                    label: 'Inter' },
+  ],
+};
+
+function renderDesignPanel() {
+  const draft = ensureDraftDesign(broadcastState.current || {});
+  const wrap = document.getElementById('editorDesignPanel');
+  if (!wrap) return;
+  const d = draft.design;
+  const s = draft.signoff;
+
+  function fontOpts(kind, current) {
+    return DESIGN_FONT_OPTIONS[kind].map(o =>
+      `<option value="${escapeAttr(o.id)}"${o.id === (current || '') ? ' selected' : ''}>${escapeAttr(o.label)}</option>`
+    ).join('');
+  }
+
+  wrap.innerHTML = `
+    <div class="design-panel-section">
+      <div class="design-panel-section-head">
+        <span class="design-panel-kicker">Colors</span>
+        <span class="design-panel-line"></span>
+      </div>
+      <div class="design-color-row">
+        <span class="design-row-label">Accent</span>
+        <input type="color" class="design-color-swatch" value="${d.accentColor || '#c9b9a5'}" oninput="onDesignColor('accentColor', this.value)">
+        <input type="text"  class="design-color-input" value="${d.accentColor || ''}" placeholder="theme" oninput="onDesignColor('accentColor', this.value)">
+        <button class="design-color-clear" onclick="onDesignColor('accentColor', '')">use theme</button>
+      </div>
+      <div class="design-color-row">
+        <span class="design-row-label">Background</span>
+        <input type="color" class="design-color-swatch" value="${d.bgColor || '#15110d'}" oninput="onDesignColor('bgColor', this.value)">
+        <input type="text"  class="design-color-input" value="${d.bgColor || ''}" placeholder="theme" oninput="onDesignColor('bgColor', this.value)">
+        <button class="design-color-clear" onclick="onDesignColor('bgColor', '')">use theme</button>
+      </div>
+    </div>
+
+    <div class="design-panel-section">
+      <div class="design-panel-section-head">
+        <span class="design-panel-kicker">Typography</span>
+        <span class="design-panel-line"></span>
+      </div>
+      <div class="design-row">
+        <span class="design-row-label">Display font</span>
+        <select class="design-row-select" onchange="onDesignChange('displayFont', this.value || null)">
+          ${fontOpts('display', d.displayFont)}
+        </select>
+      </div>
+      <div class="design-row">
+        <span class="design-row-label">Body font</span>
+        <select class="design-row-select" onchange="onDesignChange('bodyFont', this.value || null)">
+          ${fontOpts('body', d.bodyFont)}
+        </select>
+      </div>
+      <div class="design-slider-row">
+        <span class="design-row-label">Headline size</span>
+        <input type="range" class="design-slider" min="28" max="72" step="2"
+               value="${d.headlineSize || 48}"
+               oninput="onDesignChange('headlineSize', parseInt(this.value,10)); document.getElementById('headlineSizeVal').textContent = this.value + 'px';">
+        <span class="design-slider-value" id="headlineSizeVal">${d.headlineSize || 48}px</span>
+      </div>
+    </div>
+
+    <div class="design-panel-section">
+      <div class="design-panel-section-head">
+        <span class="design-panel-kicker">Sections</span>
+        <span class="design-panel-line"></span>
+      </div>
+      <div class="design-toggle-row">
+        <div>
+          <div class="design-toggle-label">Pull quote</div>
+          <div class="design-toggle-help">Show the italic blockquote section</div>
+        </div>
+        <button class="design-toggle ${d.showPullQuote !== false ? 'on' : ''}"
+                onclick="onDesignToggle('showPullQuote')"></button>
+      </div>
+      <div class="design-toggle-row">
+        <div>
+          <div class="design-toggle-label">Secondary CTA</div>
+          <div class="design-toggle-help">Show the outline button under the primary CTA</div>
+        </div>
+        <button class="design-toggle ${d.showSecondaryCta !== false ? 'on' : ''}"
+                onclick="onDesignToggle('showSecondaryCta')"></button>
+      </div>
+    </div>
+
+    <div class="design-panel-section">
+      <div class="design-panel-section-head">
+        <span class="design-panel-kicker">Sign-off</span>
+        <span class="design-panel-line"></span>
+      </div>
+      <div class="design-row">
+        <span class="design-row-label">Closing line</span>
+        <input type="text" class="design-row-input" value="${escapeAttr(s.closing)}"
+               placeholder="until next time" oninput="onSignoffChange('closing', this.value)">
+      </div>
+      <div class="design-row">
+        <span class="design-row-label">Name</span>
+        <input type="text" class="design-row-input" value="${escapeAttr(s.name)}"
+               placeholder="${escapeAttr((window.CLIENT && CLIENT.name) || '')}" oninput="onSignoffChange('name', this.value)">
+      </div>
+      <div class="design-row">
+        <span class="design-row-label">Role / tag</span>
+        <input type="text" class="design-row-input" value="${escapeAttr(s.role)}"
+               placeholder="${escapeAttr((window.CLIENT && CLIENT.nicheLabel) || '')}" oninput="onSignoffChange('role', this.value)">
+      </div>
+    </div>
+
+    <div style="text-align:center;padding-top:8px;">
+      <button class="design-reset-all" onclick="resetDraftDesign()">Reset all overrides</button>
+    </div>
+  `;
+}
+
+function onDesignColor(key, value) {
+  ensureDraftDesign(broadcastState.current);
+  const v = String(value || '').trim();
+  // Accept #RRGGBB or empty (use theme)
+  if (!v) {
+    broadcastState.current.design[key] = null;
+  } else if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+    broadcastState.current.design[key] = v;
+  } else if (/^#[0-9a-fA-F]{3}$/.test(v)) {
+    // expand 3-digit hex
+    broadcastState.current.design[key] = v.replace(/^#(.)(.)(.)$/, '#$1$1$2$2$3$3');
+  } else {
+    return; // ignore invalid
+  }
+  renderEditorPreview();
+  scheduleDraftSave();
+}
+
+function onDesignChange(key, value) {
+  ensureDraftDesign(broadcastState.current);
+  broadcastState.current.design[key] = value;
+  renderEditorPreview();
+  scheduleDraftSave();
+}
+
+function onDesignToggle(key) {
+  ensureDraftDesign(broadcastState.current);
+  const cur = broadcastState.current.design[key];
+  broadcastState.current.design[key] = !(cur !== false);  // flip
+  // Re-render the panel so the toggle visual flips
+  renderDesignPanel();
+  renderEditorPreview();
+  scheduleDraftSave();
+}
+
+function onSignoffChange(key, value) {
+  ensureDraftDesign(broadcastState.current);
+  broadcastState.current.signoff[key] = value;
+  renderEditorPreview();
+  scheduleDraftSave();
+}
+
+function resetDraftDesign() {
+  if (!confirm('Reset all design overrides for this draft?')) return;
+  if (!broadcastState.current) return;
+  broadcastState.current.design = {
+    accentColor: null, bgColor: null,
+    displayFont: null, bodyFont: null,
+    headlineSize: 48,
+    showPullQuote: true, showSecondaryCta: true,
+  };
+  broadcastState.current.signoff = { closing: '', name: '', role: '' };
+  renderDesignPanel();
+  renderEditorPreview();
+  scheduleDraftSave();
+}
+
+// Debounced save helper used by design + signoff edits
+function scheduleDraftSave() {
+  if (window._draftSaveTimer) clearTimeout(window._draftSaveTimer);
+  setEditorStatus('typing');
+  window._draftSaveTimer = setTimeout(saveBroadcastDraft, 700);
+}
+
+/* ═══════════════════════════════════════════════════
+   LINK INSERTION — wraps selected text in <a href> via Cmd/Ctrl+K or button
+   ═══════════════════════════════════════════════════ */
+window._linkInsertContext = null;  // { el, selStart, selEnd, value }
+
+function openLinkInsertModalFromField(el) {
+  const start = el.selectionStart || 0;
+  const end   = el.selectionEnd   || 0;
+  window._linkInsertContext = { el, selStart: start, selEnd: end, value: el.value };
+  const selected = el.value.slice(start, end);
+  document.getElementById('linkInsertText').value = selected;
+  document.getElementById('linkInsertUrl').value = '';
+  document.getElementById('linkInsertStatus').textContent = '';
+  document.getElementById('linkInsertModal').classList.add('open');
+  setTimeout(function() {
+    if (selected) document.getElementById('linkInsertUrl').focus();
+    else          document.getElementById('linkInsertText').focus();
+  }, 60);
+}
+
+function closeLinkInsertModal() {
+  document.getElementById('linkInsertModal').classList.remove('open');
+  window._linkInsertContext = null;
+}
+
+function confirmLinkInsert() {
+  const ctx = window._linkInsertContext;
+  if (!ctx) { closeLinkInsertModal(); return; }
+  const text = (document.getElementById('linkInsertText').value || '').trim();
+  let   url  = (document.getElementById('linkInsertUrl').value  || '').trim();
+  const status = document.getElementById('linkInsertStatus');
+  if (!text) {
+    status.className = 'comms-test-modal-status err';
+    status.textContent = 'Add the visible text.';
+    return;
+  }
+  if (!url) {
+    status.className = 'comms-test-modal-status err';
+    status.textContent = 'Add a URL.';
+    return;
+  }
+  // Add https:// if user pasted bare domain
+  if (!/^https?:\/\//i.test(url) && !url.startsWith('mailto:') && !url.startsWith('#')) {
+    url = 'https://' + url;
+  }
+  const html = '<a href="' + escapeAttr(url) + '">' + escapeAttr(text) + '</a>';
+  const before = ctx.value.slice(0, ctx.selStart);
+  const after  = ctx.value.slice(ctx.selEnd);
+  const newVal = before + html + after;
+  ctx.el.value = newVal;
+  ctx.el.focus();
+  // Place cursor after the inserted link
+  const cursorPos = before.length + html.length;
+  ctx.el.setSelectionRange(cursorPos, cursorPos);
+  // Trigger input event so the field's change handler picks it up
+  ctx.el.dispatchEvent(new Event('input', { bubbles: true }));
+  closeLinkInsertModal();
+}
+
+// Global keyboard handler — Cmd/Ctrl+K when inside a broadcast composer field
+document.addEventListener('keydown', function(e) {
+  const isCmdK = (e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K');
+  if (!isCmdK) return;
+  const target = e.target;
+  if (!target) return;
+  const isField = (target.tagName === 'TEXTAREA' || (target.tagName === 'INPUT' && target.type === 'text'));
+  if (!isField) return;
+  // Only inside the broadcast composer
+  if (commsState.editorMode !== 'broadcast') return;
+  if (!target.dataset.field) return;
+  e.preventDefault();
+  openLinkInsertModalFromField(target);
+});
 
 /* ─── Design with Claude modal ─── */
 window.dwcState = { preset: 'general', generating: false };

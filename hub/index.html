@@ -4138,6 +4138,44 @@ a.hub-nav-icon { text-decoration: none; }
   background: linear-gradient(90deg, var(--accent-border), transparent);
 }
 
+/* Voice Guide editor inside Design Studio */
+.voice-guide-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+  resize: vertical;
+  min-height: 180px;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+.voice-guide-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-pale);
+}
+.voice-guide-reset-btn {
+  margin-top: 10px;
+  font-size: 11px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-style: italic;
+  font-family: var(--display-font);
+}
+.voice-guide-reset-btn:hover {
+  color: var(--text);
+  border-color: var(--accent-border);
+  background: var(--accent-pale);
+}
+
 /* Preset card */
 .preset-card {
   display: flex;
@@ -4753,6 +4791,50 @@ a.hub-nav-icon { text-decoration: none; }
 }
 .design-reset-all:hover { color: var(--text); border-color: var(--accent-border); }
 
+/* "Customize details" disclosure inside the Style tab */
+.design-customize-details {
+  margin-top: 8px;
+}
+.design-customize-details summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 14px 16px;
+  background: var(--surface-elevated);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  list-style: none;
+  user-select: none;
+  transition: background 180ms ease, border-color 180ms ease;
+}
+.design-customize-details summary::-webkit-details-marker { display: none; }
+.design-customize-details summary:hover {
+  background: var(--accent-pale);
+  border-color: var(--accent-border);
+}
+.design-customize-label {
+  font-family: var(--display-font);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--text);
+  flex: 1;
+}
+.design-customize-chevron {
+  font-size: 22px;
+  color: var(--text-muted);
+  transition: transform 200ms ease;
+  line-height: 1;
+}
+.design-customize-details[open] .design-customize-chevron {
+  transform: rotate(90deg);
+}
+.design-customize-details[open] summary {
+  margin-bottom: 18px;
+  background: var(--surface);
+  border-color: var(--accent);
+}
+
 /* Design panel — style preset cards */
 .design-preset-grid {
   display: grid;
@@ -4803,10 +4885,20 @@ a.hub-nav-icon { text-decoration: none; }
   .design-preset-grid { grid-template-columns: 1fr; }
 }
 
-/* Inline link button next to text inputs */
-.editor-field-link-btn {
+/* Inline insert buttons (Link + Image) at bottom-right of textareas */
+.editor-field-insert-btns {
   position: absolute;
   bottom: 8px; right: 8px;
+  display: flex;
+  gap: 5px;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  z-index: 1;
+}
+.editor-field:focus-within .editor-field-insert-btns {
+  opacity: 0.95;
+}
+.editor-field-link-btn {
   background: var(--surface-elevated);
   border: 1px solid var(--border);
   color: var(--text-muted);
@@ -4818,18 +4910,48 @@ a.hub-nav-icon { text-decoration: none; }
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  opacity: 0;
-  transition: opacity 200ms ease, color 180ms ease, background 180ms ease, border-color 180ms ease;
-  z-index: 1;
+  transition: color 180ms ease, background 180ms ease, border-color 180ms ease;
 }
 .editor-field-link-btn svg { stroke: currentColor; }
-.editor-field:focus-within .editor-field-link-btn {
-  opacity: 0.95;
-}
 .editor-field-link-btn:hover {
   background: var(--accent-pale);
   color: var(--text);
   border-color: var(--accent-border);
+}
+
+/* Image upload dropzone */
+.image-upload-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  background: var(--surface-elevated);
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 180ms ease, background 180ms ease;
+  width: 100%;
+}
+.image-upload-dropzone:hover {
+  border-color: var(--accent);
+  background: var(--accent-pale);
+}
+.image-upload-dropzone-icon {
+  color: var(--accent);
+}
+.image-upload-dropzone-icon svg { stroke: currentColor; }
+.image-upload-dropzone-text {
+  font-family: var(--display-font);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--text);
+}
+.image-upload-dropzone.uploading {
+  border-color: var(--accent);
+  pointer-events: none;
+  opacity: 0.7;
 }
 
 /* ─── Right pane (editorial) ─── */
@@ -5507,6 +5629,50 @@ a.hub-nav-icon { text-decoration: none; }
   cursor: pointer;
 }
 .broadcast-custom-banner-reset:hover { background: var(--accent-pale); }
+
+/* Email-client compatibility warnings — yellow banner that sticks until dismissed */
+.broadcast-warnings-banner {
+  display: none;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 24px;
+  background: rgba(255,180,80,0.10);
+  border-bottom: 1px solid rgba(255,140,40,0.25);
+  font-size: 12.5px;
+}
+.broadcast-warnings-banner.active { display: flex; }
+.broadcast-warnings-banner-icon {
+  color: rgb(180,90,30);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.broadcast-warnings-banner-icon svg { stroke: currentColor; }
+.broadcast-warnings-banner-text { flex: 1; line-height: 1.5; }
+.broadcast-warnings-banner-text strong {
+  display: block;
+  font-family: var(--display-font);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.broadcast-warnings-banner-text ul {
+  margin: 0; padding-left: 18px;
+  color: var(--text-muted);
+}
+.broadcast-warnings-banner-text li { margin-bottom: 2px; }
+.broadcast-warnings-banner-dismiss {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.broadcast-warnings-banner-dismiss:hover { color: var(--text); }
 
 /* ── Send-test modal ── */
 .comms-test-modal-overlay {
@@ -6441,7 +6607,7 @@ a.hub-nav-icon { text-decoration: none; }
         <span class="editor-design-icon">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z"/><path d="M19 14l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z" opacity="0.6"/></svg>
         </span>
-        <span>Design with Claude</span>
+        <span>Design</span>
       </button>
       <button class="editor-test-btn" id="editorTestBtn" onclick="openCommsTestModal()" title="Send a test email to yourself">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -6464,6 +6630,17 @@ a.hub-nav-icon { text-decoration: none; }
       <button class="broadcast-custom-banner-reset" onclick="resetBroadcastToFields()">Reset to fields</button>
     </div>
 
+    <div class="broadcast-warnings-banner" id="broadcastWarningsBanner">
+      <div class="broadcast-warnings-banner-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div class="broadcast-warnings-banner-text">
+        <strong>This design may not render perfectly in every email client.</strong>
+        <ul id="broadcastWarningsList"></ul>
+      </div>
+      <button class="broadcast-warnings-banner-dismiss" onclick="dismissBroadcastWarnings()" title="Dismiss">×</button>
+    </div>
+
     <div class="editor-grid">
       <div class="editor-preview" id="editorPreview">
         <div class="preview-frame" id="previewFrame"></div>
@@ -6477,7 +6654,7 @@ a.hub-nav-icon { text-decoration: none; }
           </button>
           <button class="editor-tab" data-tab="design" onclick="switchEditorTab('design')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22a10 10 0 1 1 10-10c0 1.93-1.59 3.5-3.5 3.5h-1.86a3.5 3.5 0 0 0-1.4 6.71A2 2 0 0 1 14 22h-2z"/></svg>
-            <span>Design</span>
+            <span>Style</span>
           </button>
         </div>
         <div class="editor-fields" id="editorFields"></div>
@@ -6537,6 +6714,36 @@ a.hub-nav-icon { text-decoration: none; }
       <div class="design-studio-preview" id="designPreview">
         <div class="design-studio-preview-frame" id="designPreviewFrame"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- Insert-image modal — file picker → upload → <img> tag at cursor -->
+  <div class="comms-test-modal-overlay" id="imageInsertModal" onclick="if(event.target===this)closeImageInsertModal()">
+    <div class="comms-test-modal" style="max-width:480px;">
+      <div class="comms-test-modal-eyebrow">Insert image</div>
+      <div class="comms-test-modal-title" style="font-size:20px;">Upload a photo.</div>
+      <div class="comms-test-modal-body">JPG, PNG, or GIF — under 5MB. We'll host it for a year.</div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+        <input type="file" id="imageInsertFile" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none;" onchange="onImageFileSelected(event)">
+        <button class="image-upload-dropzone" id="imageUploadDropzone" onclick="document.getElementById('imageInsertFile').click()">
+          <span class="image-upload-dropzone-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </span>
+          <span class="image-upload-dropzone-text" id="imageUploadDropzoneText">Click to pick a file</span>
+        </button>
+
+        <div style="font-size:11.5px;color:var(--text-muted);text-align:center;font-style:italic;">— or —</div>
+
+        <input type="text" class="comms-test-modal-input" id="imageInsertUrl" placeholder="https://example.com/photo.jpg" style="margin:0;">
+        <input type="text" class="comms-test-modal-input" id="imageInsertAlt" placeholder="alt text — describe the image (for accessibility)" style="margin:0;">
+      </div>
+
+      <div class="comms-test-modal-actions">
+        <button class="comms-test-modal-cancel" onclick="closeImageInsertModal()">Cancel</button>
+        <button class="comms-test-modal-send" id="imageInsertBtn" onclick="confirmImageInsert()">Insert</button>
+      </div>
+      <div class="comms-test-modal-status" id="imageInsertStatus"></div>
     </div>
   </div>
 
@@ -9927,7 +10134,7 @@ function copyAndOpen(platform) {
 // Move the editor + its modals out of the stacking-context trap inside .hub-main
 // so they render on top of the sticky hub-nav. Run once at parse time.
 (function liftCommsOverlaysToBody() {
-  const ids = ['messagesEditor', 'broadcastSendModal', 'commsTestModal', 'designStudio', 'designWithClaudeModal', 'linkInsertModal', 'importHtmlModal'];
+  const ids = ['messagesEditor', 'broadcastSendModal', 'commsTestModal', 'designStudio', 'designWithClaudeModal', 'linkInsertModal', 'importHtmlModal', 'imageInsertModal'];
   for (const id of ids) {
     const el = document.getElementById(id);
     if (el && el.parentNode !== document.body) {
@@ -10760,6 +10967,9 @@ window.designStudio = {
     bodyFontId: null,
   },
   brand: null,              // effective brand (defaults + overrides applied)
+  voiceGuide: '',           // current effective voice guide (override or default)
+  voiceGuideDefault: '',    // pristine default from client-config.js (for reset)
+  voiceGuideSaveTimer: null,
   saveTimer: null,
   loadedFonts: new Set(),
 };
@@ -10783,10 +10993,13 @@ async function loadDesignStudio() {
     designStudio.options = json.options;
     designStudio.clientDefaults = json.clientDefaults;
     designStudio.brand = json.brand;
+    designStudio.voiceGuide = json.voiceGuide || '';
+    designStudio.voiceGuideDefault = json.voiceGuideDefault || '';
     designStudio.current = {
       presetId: json.overrides?.presetId || null,
       displayFontId: json.overrides?.displayFontId || null,
       bodyFontId: json.overrides?.bodyFontId || null,
+      voiceGuide: json.overrides?.voiceGuide || null,
     };
     renderDesignControls();
     renderDesignPreview();
@@ -10860,6 +11073,17 @@ function renderDesignControls() {
         '<span class="design-studio-section-line"></span>' +
       '</div>' +
       bodyFontsHtml +
+    '</div>' +
+    '<div class="design-studio-section">' +
+      '<div class="design-studio-section-head">' +
+        '<span class="design-studio-section-kicker">Voice Guide</span>' +
+        '<span class="design-studio-section-line"></span>' +
+      '</div>' +
+      '<div style="font-size:12.5px;color:var(--text-muted);font-style:italic;font-family:var(--display-font);margin-bottom:10px;line-height:1.55;">' +
+        'How the AI writing assistant + Design with Claude should sound when drafting in your voice. Edit this when your voice shifts (post-launch, after a season, etc.)' +
+      '</div>' +
+      '<textarea class="voice-guide-textarea" id="voiceGuideTextarea" rows="10" oninput="onVoiceGuideChange(this.value)">' + escapeAttr(designStudio.voiceGuide || '') + '</textarea>' +
+      '<button class="voice-guide-reset-btn" onclick="resetVoiceGuide()" title="Restore the original voice guide from client-config.js">↺ reset to default</button>' +
     '</div>';
 }
 
@@ -10879,6 +11103,25 @@ function selectPreset(id) {
   renderDesignControls();
   renderDesignPreview();
   scheduleBrandSave();
+}
+
+function onVoiceGuideChange(value) {
+  designStudio.voiceGuide = value;
+  designStudio.current.voiceGuide = value || null;
+  if (designStudio.voiceGuideSaveTimer) clearTimeout(designStudio.voiceGuideSaveTimer);
+  showBrandSaving('Saving…');
+  designStudio.voiceGuideSaveTimer = setTimeout(saveDesignStudio, 800);
+}
+
+async function resetVoiceGuide() {
+  if (!confirm('Restore the default voice guide from client-config.js? Your custom edits to it will be lost.')) return;
+  designStudio.voiceGuide = designStudio.voiceGuideDefault || '';
+  designStudio.current.voiceGuide = null;  // null tells the server to clear the override
+  // Update the textarea + save
+  const ta = document.getElementById('voiceGuideTextarea');
+  if (ta) ta.value = designStudio.voiceGuide;
+  showBrandSaving('Saving…');
+  await saveDesignStudio();
 }
 
 function selectDisplayFont(id) {
@@ -11202,11 +11445,15 @@ function renderBroadcastFields() {
     const inputHtml = f.type === 'text'
       ? '<input class="editor-input" id="' + fid + '" type="text" value="' + escapeAttr(value) + '" data-field="' + f.key + '">'
       : '<textarea class="editor-textarea" id="' + fid + '" data-field="' + f.key + '" rows="' + (f.tall ? 8 : 3) + '">' + escapeAttr(value) + '</textarea>';
-    // Link button — shows on focus for textareas only (not single-line inputs, not URLs)
-    const showLinkBtn = f.type === 'textarea' && !/_url$/.test(f.key);
-    const linkBtn = showLinkBtn
-      ? '<button type="button" class="editor-field-link-btn" tabindex="-1" onmousedown="event.preventDefault();" onclick="openLinkInsertModalFromField(document.getElementById(\'' + fid + '\'))" title="Insert link (Cmd/Ctrl+K)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Link</button>'
+    // Link + Image buttons — shown on focus for textareas only
+    const showInsertBtns = f.type === 'textarea' && !/_url$/.test(f.key);
+    const insertBtns = showInsertBtns
+      ? '<div class="editor-field-insert-btns">' +
+          '<button type="button" class="editor-field-link-btn" tabindex="-1" onmousedown="event.preventDefault();" onclick="openLinkInsertModalFromField(document.getElementById(\'' + fid + '\'))" title="Insert link (Cmd/Ctrl+K)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Link</button>' +
+          '<button type="button" class="editor-field-link-btn" tabindex="-1" onmousedown="event.preventDefault();" onclick="openImageUploadFromField(document.getElementById(\'' + fid + '\'))" title="Insert image"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Image</button>' +
+        '</div>'
       : '';
+    const linkBtn = insertBtns;
     html += (
       '<div class="editor-field" data-field="' + f.key + '" style="position:relative;">' +
         '<div class="editor-field-label"><span>' + escapeAttr(f.label) + '</span></div>' +
@@ -11297,10 +11544,10 @@ function previewBroadcast(d) {
   const showSecondaryCta = design.showSecondaryCta !== false;
   const headlineSize = design.headlineSize || 48;
 
-  // Body — keep raw HTML for inline <a>, <em>, <strong> tags she's inserted
+  // Body — keep raw HTML for inline <a>, <em>, <strong>, <img> tags she's inserted
   const safeBody = (d.body || '').split(/\n\s*\n/).filter(Boolean)
     .map(function(p) {
-      // Allow <a>, <em>, <strong>, <br> through. Escape everything else.
+      // Allow <a>, <em>, <strong>, <br>, <img> through. Escape everything else.
       const escaped = safe(p).replace(/\n/g, '<br/>');
       // Re-allow specific safe tags
       return '<p class="pf-paragraph">' + escaped
@@ -11308,6 +11555,11 @@ function previewBroadcast(d) {
         .replace(/&lt;\/a&gt;/gi, '</a>')
         .replace(/&lt;em&gt;/gi, '<em>').replace(/&lt;\/em&gt;/gi, '</em>')
         .replace(/&lt;strong&gt;/gi, '<strong>').replace(/&lt;\/strong&gt;/gi, '</strong>')
+        // <img> — unescape attributes so the image renders inline in the preview
+        .replace(/&lt;img\b([^&]*?)\/?&gt;/gi, function(_m, attrs) {
+          const unescaped = String(attrs).replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+          return '<img ' + unescaped + ' />';
+        })
         + '</p>';
     }).join('');
 
@@ -11438,6 +11690,117 @@ async function confirmBroadcastSend() {
 }
 
 /* ═══════════════════════════════════════════════════
+   IMAGE UPLOAD + INSERT — for broadcast textareas
+   ═══════════════════════════════════════════════════ */
+window._imageInsertContext = null;       // { el, selStart, selEnd, value }
+window._imageInsertHostedUrl = null;     // populated after a successful upload
+
+function openImageUploadFromField(el) {
+  const start = el.selectionStart || 0;
+  const end   = el.selectionEnd   || 0;
+  window._imageInsertContext = { el, selStart: start, selEnd: end, value: el.value };
+  window._imageInsertHostedUrl = null;
+  document.getElementById('imageInsertFile').value = '';
+  document.getElementById('imageInsertUrl').value = '';
+  document.getElementById('imageInsertAlt').value = '';
+  document.getElementById('imageInsertStatus').textContent = '';
+  document.getElementById('imageInsertStatus').className = 'comms-test-modal-status';
+  document.getElementById('imageUploadDropzoneText').textContent = 'Click to pick a file';
+  document.getElementById('imageUploadDropzone').classList.remove('uploading');
+  document.getElementById('imageInsertModal').classList.add('open');
+}
+
+function closeImageInsertModal() {
+  document.getElementById('imageInsertModal').classList.remove('open');
+  window._imageInsertContext = null;
+  window._imageInsertHostedUrl = null;
+}
+
+async function onImageFileSelected(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const status = document.getElementById('imageInsertStatus');
+  const dropzone = document.getElementById('imageUploadDropzone');
+  const dropzoneText = document.getElementById('imageUploadDropzoneText');
+
+  if (file.size > 5 * 1024 * 1024) {
+    status.className = 'comms-test-modal-status err';
+    status.textContent = 'File is over 5MB. Compress first or use a hosted URL below.';
+    return;
+  }
+
+  dropzone.classList.add('uploading');
+  dropzoneText.textContent = 'Uploading…';
+  status.className = 'comms-test-modal-status';
+  status.textContent = '';
+
+  try {
+    // Convert file to base64 data URI
+    const dataUri = await new Promise(function(resolve, reject) {
+      const reader = new FileReader();
+      reader.onload = function() { resolve(reader.result); };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const res = await fetch('/api/upload-image', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: dataUri, purpose: 'email' }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.ok || !json.url) {
+      throw new Error(json.error || 'upload_failed');
+    }
+
+    window._imageInsertHostedUrl = json.url;
+    document.getElementById('imageInsertUrl').value = json.url;
+    dropzoneText.textContent = '✓ Uploaded — ready to insert';
+    status.className = 'comms-test-modal-status ok';
+    status.textContent = 'Ready. Add alt text below if you want, then hit Insert.';
+  } catch (e) {
+    dropzoneText.textContent = 'Click to pick a file';
+    status.className = 'comms-test-modal-status err';
+    status.textContent = 'Upload failed — try again or paste a hosted URL.';
+  } finally {
+    dropzone.classList.remove('uploading');
+  }
+}
+
+function confirmImageInsert() {
+  const ctx = window._imageInsertContext;
+  if (!ctx) { closeImageInsertModal(); return; }
+  let url = (document.getElementById('imageInsertUrl').value || '').trim();
+  const alt = (document.getElementById('imageInsertAlt').value || '').trim();
+  const status = document.getElementById('imageInsertStatus');
+
+  if (!url) {
+    status.className = 'comms-test-modal-status err';
+    status.textContent = 'Upload a file or paste a URL.';
+    return;
+  }
+  if (!/^https?:\/\//i.test(url) && !url.startsWith('/api/')) {
+    url = 'https://' + url;
+  }
+
+  // Build email-safe img tag with reasonable defaults
+  const html =
+    '<img src="' + escapeAttr(url) + '"' +
+    (alt ? ' alt="' + escapeAttr(alt) + '"' : ' alt=""') +
+    ' style="display:block;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;margin:8px 0;" />';
+
+  const before = ctx.value.slice(0, ctx.selStart);
+  const after  = ctx.value.slice(ctx.selEnd);
+  const newVal = before + html + after;
+  ctx.el.value = newVal;
+  ctx.el.focus();
+  const cursorPos = before.length + html.length;
+  ctx.el.setSelectionRange(cursorPos, cursorPos);
+  ctx.el.dispatchEvent(new Event('input', { bubbles: true }));
+  closeImageInsertModal();
+}
+
+/* ═══════════════════════════════════════════════════
    IMPORT FROM CLAUDE.AI — paste artifact HTML, sanitize, save as customHtml
    ═══════════════════════════════════════════════════ */
 function openImportHtmlModal() {
@@ -11551,14 +11914,50 @@ function showCustomDesignBanner() {
       (when ? when + ' · ' : '') +
       'from ' + (meta.source || 'claude.ai') +
       ' · ' + Math.round((meta.bytes || draft.customHtml.length) / 1024) + ' KB';
+    // Show warnings banner if there are unaddressed warnings
+    showCompatibilityWarnings(meta.warnings || []);
   } else {
     banner.classList.remove('active');
+    hideBroadcastWarnings();
   }
 }
 
 function hideCustomDesignBanner() {
   const banner = document.getElementById('broadcastCustomBanner');
   if (banner) banner.classList.remove('active');
+  hideBroadcastWarnings();
+}
+
+function showCompatibilityWarnings(warnings) {
+  const banner = document.getElementById('broadcastWarningsBanner');
+  const list   = document.getElementById('broadcastWarningsList');
+  if (!banner || !list) return;
+  // Skip if user dismissed warnings for this draft already
+  const draft = broadcastState.current;
+  if (!draft) return;
+  const dismissKey = 'bcast-warn-dismiss:' + (draft.id || '');
+  let dismissed = false;
+  try { dismissed = localStorage.getItem(dismissKey) === '1'; } catch (e) {}
+  if (!warnings || !warnings.length || dismissed) {
+    banner.classList.remove('active');
+    return;
+  }
+  list.innerHTML = warnings.map(function(w) {
+    return '<li>' + escapeAttr(w) + '</li>';
+  }).join('');
+  banner.classList.add('active');
+}
+
+function hideBroadcastWarnings() {
+  const banner = document.getElementById('broadcastWarningsBanner');
+  if (banner) banner.classList.remove('active');
+}
+
+function dismissBroadcastWarnings() {
+  hideBroadcastWarnings();
+  const draft = broadcastState.current;
+  if (!draft || !draft.id) return;
+  try { localStorage.setItem('bcast-warn-dismiss:' + draft.id, '1'); } catch (e) {}
 }
 
 async function resetBroadcastToFields() {
@@ -11730,8 +12129,14 @@ function renderDesignPanel() {
       <div class="design-preset-grid">
         ${presetCards}
       </div>
-      <div class="design-preset-help">Tap one to set fonts, headline size, and section toggles in one click. Color overrides below stay.</div>
+      <div class="design-preset-help">Tap one to set fonts, headline size, and section toggles in one click. Want finer control? Customize details below.</div>
     </div>
+
+    <details class="design-customize-details" id="designCustomizeDetails">
+      <summary>
+        <span class="design-customize-label">Customize details</span>
+        <span class="design-customize-chevron">›</span>
+      </summary>
 
     <div class="design-panel-section">
       <div class="design-panel-section-head">
@@ -11826,6 +12231,8 @@ function renderDesignPanel() {
     <div style="text-align:center;padding-top:8px;">
       <button class="design-reset-all" onclick="resetDraftDesign()">Reset all overrides</button>
     </div>
+
+    </details>
   `;
 }
 

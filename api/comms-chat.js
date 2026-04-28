@@ -1,8 +1,10 @@
 export const config = { runtime: 'edge' };
 
 import { COMMS_DEFAULTS } from '../lib/comms-defaults.js';
+import { CLIENT_BRAND }   from '../lib/client-config.js';
+import { getBrand }       from '../lib/brand-store.js';
 
-const PASSWORD      = process.env.DASHBOARD_PASSWORD || '__DASHBOARD_PASSWORD__';
+const PASSWORD      = process.env.DASHBOARD_PASSWORD || 'Cassandra2024';
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || process.env.AI_KEY;
 
 function authed(req) {
@@ -18,19 +20,22 @@ function json(body, status = 200) {
   });
 }
 
-const VOICE_GUIDE = `
-__CLIENT_NAME__ is an IFBB Bikini Pro and 1:1 coach. Her voice rules:
-- Real, not polished. Sounds like she'd text a friend.
-- Short sentences. Punchy beats polished.
-- Em-dashes over commas for rhythm.
-- Lowercase first words sometimes — feels personal, not corporate.
-- No "Hey there!" or fake warmth.
-- No emojis unless she's already using one.
-- Sign off with first name only, never "Cass M." or "__CLIENT_NAME__."
-- Honest, direct. Doesn't overpromise.
-- HTML inline tags allowed: <em>, <strong>, <br>. Use <em> for emphasis (renders italic in the email).
-- Plain text only — no markdown. No **bold**, no *italic*, no headings.
+// Default voice rules — fall back to these when no client-config.js voiceGuide
+// is set. Brand-store's getBrand() merges any Redis override on top.
+const DEFAULT_VOICE_GUIDE = `
+Real, not polished. Sounds like a friend, not a brand.
+Short sentences. Em-dashes for rhythm.
+No fake warmth, no empty hype.
+HTML inline tags allowed: <em>, <strong>, <br>. Plain text only otherwise.
 `.trim();
+
+async function getVoiceGuide() {
+  try {
+    const brand = await getBrand();
+    if (brand?.voiceGuide) return brand.voiceGuide;
+  } catch (_) {}
+  return CLIENT_BRAND.voiceGuide || DEFAULT_VOICE_GUIDE;
+}
 
 const BROADCAST_FIELD_LABELS = {
   subject: 'Subject line',
@@ -45,7 +50,7 @@ const BROADCAST_FIELD_LABELS = {
   cta_secondary_url: 'Secondary CTA URL',
 };
 
-function buildSystemPrompt({ kind, fieldKey, currentDraft }) {
+function buildSystemPrompt({ kind, fieldKey, currentDraft, voiceGuide }) {
   let emailContext, fieldContext;
   if (kind === 'broadcast') {
     emailContext = `She's composing a one-off broadcast email to her newsletter subscribers — could be a launch announcement, a personal note, a campaign blast, or a free piece of value.`;
@@ -62,9 +67,9 @@ function buildSystemPrompt({ kind, fieldKey, currentDraft }) {
       : '';
   }
 
-  return `You are a personal copywriting assistant for __CLIENT_NAME__. She talks to you while editing the messages that go out automatically to her audience.
+  return `You are a personal copywriting assistant for ${CLIENT_BRAND.name}. She talks to you while editing the messages that go out automatically to her audience.
 
-${VOICE_GUIDE}
+${voiceGuide}
 
 ${emailContext}
 ${fieldContext}
@@ -101,7 +106,8 @@ export default async function handler(req) {
 
   if (!message) return json({ error: 'empty_message' }, 400);
 
-  const systemPrompt = buildSystemPrompt({ kind, fieldKey, currentDraft });
+  const voiceGuide = await getVoiceGuide();
+  const systemPrompt = buildSystemPrompt({ kind, fieldKey, currentDraft, voiceGuide });
 
   const messages = history
     .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')

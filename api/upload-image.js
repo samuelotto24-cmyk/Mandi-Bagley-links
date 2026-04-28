@@ -68,10 +68,16 @@ export default async function handler(req) {
     const id = crypto.randomUUID();
     const key = PREFIX + 'tmp:img:' + id;
 
-    // Parse optional TTL parameter (default 1 hour, max 7 days)
+    // TTL — defaults vary by purpose. `email` images live for 1 year so old
+    // newsletters stay openable; `instagram` images expire after 1 hour
+    // since IG only needs the URL during publishing.
+    const purpose = String(body.purpose || 'instagram').toLowerCase();
+    const maxTTL  = 31_536_000; // 1 year
+    const purposeDefault = purpose === 'email' ? 31_536_000 : 3600;
     const requestedTTL = parseInt(body.ttl, 10);
-    const maxTTL = 604800; // 7 days
-    const ttl = (requestedTTL > 0 && requestedTTL <= maxTTL) ? requestedTTL : 3600;
+    const ttl = (requestedTTL > 0 && requestedTTL <= maxTTL)
+      ? requestedTTL
+      : purposeDefault;
 
     // Store in Redis with configurable TTL
     await fetch(`${REDIS_URL}/pipeline`, {

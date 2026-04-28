@@ -1,6 +1,7 @@
 export const config = { runtime: 'edge' };
 
 import { CLIENT_BRAND } from '../lib/client-config.js';
+import { getBrand }     from '../lib/brand-store.js';
 
 const PASSWORD      = process.env.DASHBOARD_PASSWORD || 'Cassandra2024';
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY || process.env.AI_KEY;
@@ -26,8 +27,8 @@ const PRESETS = {
   general:       'A general newsletter mix — a real moment from life, something practical, and what is coming next.',
 };
 
-function buildSystemPrompt() {
-  const B = CLIENT_BRAND;
+function buildSystemPrompt(brand) {
+  const B = brand || CLIENT_BRAND;
   const voiceGuide = B.voiceGuide || `Voice: real, direct, human, no fake warmth.`;
 
   return `You are a personal copywriter for ${B.name} (${B.role || ''}).
@@ -90,7 +91,7 @@ Draft the newsletter now. JSON only.`;
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 2000,
-      system: buildSystemPrompt(),
+      system: buildSystemPrompt(await getBrand().catch(() => null)),
       messages: [{ role: 'user', content: userMessage }],
     }),
   });

@@ -4,7 +4,7 @@ import { getOverrides, saveOverrides, resetOverrides, applyOverrides } from '../
 import { THEME_PRESETS, DISPLAY_FONTS, BODY_FONTS } from '../lib/brand-presets.js';
 import { CLIENT_BRAND } from '../lib/client-config.js';
 
-const PASSWORD = process.env.DASHBOARD_PASSWORD || '__DASHBOARD_PASSWORD__';
+const PASSWORD = process.env.DASHBOARD_PASSWORD || 'Cassandra2024';
 
 function authed(req) {
   const h = req.headers.get('authorization') || '';
@@ -29,6 +29,8 @@ export default async function handler(req) {
       ok: true,
       overrides: over,
       brand,
+      voiceGuide: brand.voiceGuide || CLIENT_BRAND.voiceGuide || '',
+      voiceGuideDefault: CLIENT_BRAND.voiceGuide || '',
       defaults: {
         presetId:      null,        // null means "use client-config default"
         displayFontId: null,

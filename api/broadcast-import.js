@@ -53,10 +53,19 @@ export default async function handler(req) {
     bytes:      result.bytes,
   };
 
-  // If subject is empty, try to extract from <title> for convenience
+  // If subject is empty, try to extract — prefer <title>, fall back to first <h1>
   if (!draft.subject) {
-    const m = result.html.match(/<title[^>]*>([^<]+)<\/title>/i);
-    if (m) draft.subject = m[1].trim().slice(0, 300);
+    const titleM = result.html.match(/<title[^>]*>([^<]+)<\/title>/i);
+    if (titleM) {
+      draft.subject = titleM[1].trim().slice(0, 300);
+    } else {
+      // Strip tags from first heading and use that as subject
+      const h1M = result.html.match(/<h[12][^>]*>([\s\S]*?)<\/h[12]>/i);
+      if (h1M) {
+        const text = h1M[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+        if (text) draft.subject = text.slice(0, 300);
+      }
+    }
   }
 
   const saved = await saveDraft(draft);

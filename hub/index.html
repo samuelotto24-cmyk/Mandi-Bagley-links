@@ -4464,7 +4464,7 @@ a.hub-nav-icon { text-decoration: none; }
 }
 .preview-frame .pf-headline {
   font-family: var(--pf-display);
-  font-size: 42px;
+  font-size: var(--pf-headline-size, 42px);
   line-height: 1.05;
   color: var(--pf-text);
   text-align: center;
@@ -10388,6 +10388,7 @@ function applyPreviewBrand(frameEl, brand) {
     '--pf-cta-fg':      brand.ctaFg,
     '--pf-display':     brand.displayFont,
     '--pf-body':        brand.bodyFont,
+    '--pf-headline-size': (typeof brand.headlineSize === 'number' && brand.headlineSize >= 24 && brand.headlineSize <= 80) ? brand.headlineSize + 'px' : null,
   };
   for (const k of Object.keys(map)) {
     if (map[k]) frameEl.style.setProperty(k, map[k]);
@@ -10477,8 +10478,9 @@ function openCommsEditor(kind) {
   const db = document.getElementById('editorDesignBtn');
   if (db) db.style.display = 'none';
   const tabs = document.getElementById('editorTabs');
-  if (tabs) tabs.style.display = 'none';
-  // Make sure the design panel is hidden + content panel visible
+  if (tabs) tabs.style.display = '';   // show Content + Style tabs in comms mode too
+  // Reset to Content tab on open (so the editor doesn't open straight into Style)
+  document.querySelectorAll('.editor-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === 'content'));
   const dp = document.getElementById('editorDesignPanel');
   if (dp) dp.style.display = 'none';
   const ef = document.getElementById('editorFields');
@@ -10732,7 +10734,19 @@ function renderEditorPreview() {
   } else {
     const kind = commsState.currentKind;
     if (!kind) return;
-    const v = (commsState.data[kind] || {}).values || {};
+    const c = commsState.data[kind] || {};
+    const v = c.values || {};
+    // Apply per-kind design overrides on top of the global brand for the preview
+    if (commsState.brand && c.design) {
+      const merged = { ...commsState.brand };
+      const cd = c.design;
+      if (cd.accentColor) { merged.accent = cd.accentColor; merged.ctaBg = cd.accentColor; }
+      if (cd.bgColor)     merged.bg = cd.bgColor;
+      if (cd.displayFont) merged.displayFont = cd.displayFont;
+      if (cd.bodyFont)    merged.bodyFont = cd.bodyFont;
+      if (typeof cd.headlineSize === 'number') merged.headlineSize = cd.headlineSize;
+      applyPreviewBrand(frame, merged);
+    }
     if (kind === 'welcome')         html = previewWelcome(v);
     else if (kind === 'day4')       html = previewDay4(v);
     else if (kind === 'day7')       html = previewDay7(v);
@@ -10794,7 +10808,7 @@ function previewDay7(v) {
   return (
     '<div class="pf-section" style="text-align:center;padding-top:54px;">' +
       '<div class="pf-kicker">' + safe(v.kicker) + '</div>' +
-      '<div class="pf-headline" style="font-size:50px;">' + safe(v.headline) + '</div>' +
+      '<div class="pf-headline">' + safe(v.headline) + '</div>' +
     '</div>' +
     '<div class="pf-section">' +
       '<p class="pf-paragraph">' + safe(v.intro_p1) + '</p>' +
@@ -12441,6 +12455,60 @@ function ensureDraftDesign(draft) {
   return draft;
 }
 
+// The Style tab now serves both broadcast drafts AND comms (welcome / day7 /
+// apply_reply). Both states use the same {design, signoff} shape, so we just
+// route reads/writes through the right "subject" object based on editor mode.
+function designSubject() {
+  if (commsState.editorMode === 'broadcast') return broadcastState.current;
+  const k = commsState.currentKind;
+  return k ? (commsState.data[k] = commsState.data[k] || {}) : {};
+}
+
+function scheduleDesignSave() {
+  if (commsState.editorMode === 'broadcast') return scheduleDraftSave();
+  return scheduleCommsDesignSave();
+}
+
+function scheduleCommsDesignSave() {
+  if (window._commsDesignSaveTimer) clearTimeout(window._commsDesignSaveTimer);
+  setEditorStatus('typing');
+  window._commsDesignSaveTimer = setTimeout(saveCommsDesign, 700);
+}
+
+async function saveCommsDesign() {
+  const kind = commsState.currentKind;
+  if (!kind) return;
+  const subj = commsState.data[kind] || {};
+  // Strip the local "default" object back to null when nothing is overridden,
+  // so the badge clears and the email falls back to the global brand.
+  const d = subj.design || {};
+  const cleanD = {};
+  if (d.accentColor) cleanD.accentColor = d.accentColor;
+  if (d.bgColor)     cleanD.bgColor = d.bgColor;
+  if (d.displayFont) cleanD.displayFont = d.displayFont;
+  if (d.bodyFont)    cleanD.bodyFont = d.bodyFont;
+  if (typeof d.headlineSize === 'number' && d.headlineSize !== 48) cleanD.headlineSize = d.headlineSize;
+  if (d.showPullQuote === false)    cleanD.showPullQuote = false;
+  if (d.showSecondaryCta === false) cleanD.showSecondaryCta = false;
+  const s = subj.signoff || {};
+  const cleanS = {};
+  if (s.closing && s.closing.trim()) cleanS.closing = s.closing;
+  if (s.name && s.name.trim())       cleanS.name = s.name;
+  if (s.role && s.role.trim())       cleanS.role = s.role;
+  try {
+    const res = await fetch('/api/comms?kind=' + encodeURIComponent(kind) + '&target=design', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        design:  Object.keys(cleanD).length ? cleanD : null,
+        signoff: Object.keys(cleanS).length ? cleanS : null,
+      }),
+    });
+    if (!res.ok) throw new Error('save_failed');
+    setEditorStatus('saved');
+  } catch { setEditorStatus('error'); }
+}
+
 // 5 named presets — each is a saved combination of design + signoff defaults.
 // Apply one and the existing controls below reflect the change.
 const BROADCAST_DESIGN_PRESETS = [
@@ -12514,13 +12582,15 @@ const BROADCAST_DESIGN_PRESETS = [
 function applyDesignPreset(presetId) {
   const preset = BROADCAST_DESIGN_PRESETS.find(p => p.id === presetId);
   if (!preset) return;
-  ensureDraftDesign(broadcastState.current);
+  const subj = designSubject();
+  if (!subj) return;
+  ensureDraftDesign(subj);
   // Apply preset values without overwriting the user's color overrides
-  Object.assign(broadcastState.current.design, preset.design);
-  Object.assign(broadcastState.current.signoff, preset.signoff);
+  Object.assign(subj.design, preset.design);
+  Object.assign(subj.signoff, preset.signoff);
   renderDesignPanel();
   renderEditorPreview();
-  scheduleDraftSave();
+  scheduleDesignSave();
 }
 
 const DESIGN_FONT_OPTIONS = {
@@ -12539,7 +12609,9 @@ const DESIGN_FONT_OPTIONS = {
 };
 
 function renderDesignPanel() {
-  const draft = ensureDraftDesign(broadcastState.current || {});
+  const subj = designSubject();
+  if (!subj) return;
+  const draft = ensureDraftDesign(subj);
   const wrap = document.getElementById('editorDesignPanel');
   if (!wrap) return;
   const d = draft.design;
@@ -12676,60 +12748,67 @@ function renderDesignPanel() {
 }
 
 function onDesignColor(key, value) {
-  ensureDraftDesign(broadcastState.current);
+  const subj = designSubject();
+  if (!subj) return;
+  ensureDraftDesign(subj);
   const v = String(value || '').trim();
   // Accept #RRGGBB or empty (use theme)
   if (!v) {
-    broadcastState.current.design[key] = null;
+    subj.design[key] = null;
   } else if (/^#[0-9a-fA-F]{6}$/.test(v)) {
-    broadcastState.current.design[key] = v;
+    subj.design[key] = v;
   } else if (/^#[0-9a-fA-F]{3}$/.test(v)) {
-    // expand 3-digit hex
-    broadcastState.current.design[key] = v.replace(/^#(.)(.)(.)$/, '#$1$1$2$2$3$3');
+    subj.design[key] = v.replace(/^#(.)(.)(.)$/, '#$1$1$2$2$3$3');
   } else {
-    return; // ignore invalid
+    return;
   }
   renderEditorPreview();
-  scheduleDraftSave();
+  scheduleDesignSave();
 }
 
 function onDesignChange(key, value) {
-  ensureDraftDesign(broadcastState.current);
-  broadcastState.current.design[key] = value;
+  const subj = designSubject();
+  if (!subj) return;
+  ensureDraftDesign(subj);
+  subj.design[key] = value;
   renderEditorPreview();
-  scheduleDraftSave();
+  scheduleDesignSave();
 }
 
 function onDesignToggle(key) {
-  ensureDraftDesign(broadcastState.current);
-  const cur = broadcastState.current.design[key];
-  broadcastState.current.design[key] = !(cur !== false);  // flip
-  // Re-render the panel so the toggle visual flips
+  const subj = designSubject();
+  if (!subj) return;
+  ensureDraftDesign(subj);
+  const cur = subj.design[key];
+  subj.design[key] = !(cur !== false);  // flip
   renderDesignPanel();
   renderEditorPreview();
-  scheduleDraftSave();
+  scheduleDesignSave();
 }
 
 function onSignoffChange(key, value) {
-  ensureDraftDesign(broadcastState.current);
-  broadcastState.current.signoff[key] = value;
+  const subj = designSubject();
+  if (!subj) return;
+  ensureDraftDesign(subj);
+  subj.signoff[key] = value;
   renderEditorPreview();
-  scheduleDraftSave();
+  scheduleDesignSave();
 }
 
 function resetDraftDesign() {
-  if (!confirm('Reset all design overrides for this draft?')) return;
-  if (!broadcastState.current) return;
-  broadcastState.current.design = {
+  const subj = designSubject();
+  if (!subj) return;
+  if (!confirm('Reset all design overrides for this email?')) return;
+  subj.design = {
     accentColor: null, bgColor: null,
     displayFont: null, bodyFont: null,
     headlineSize: 48,
     showPullQuote: true, showSecondaryCta: true,
   };
-  broadcastState.current.signoff = { closing: '', name: '', role: '' };
+  subj.signoff = { closing: '', name: '', role: '' };
   renderDesignPanel();
   renderEditorPreview();
-  scheduleDraftSave();
+  scheduleDesignSave();
 }
 
 // Debounced save helper used by design + signoff edits

@@ -1,8 +1,7 @@
 export const config = { runtime: 'edge' };
 
-import { getCopy } from '../lib/comms-store.js';
+import { getCopy, getBrandForKind } from '../lib/comms-store.js';
 import { CLIENT_BRAND } from '../lib/client-config.js';
-import { getBrand } from '../lib/brand-store.js';
 
 const BEEHIIV_API_KEY = process.env.BEEHIIV_API_KEY;
 const PUBLICATION_ID  = process.env.BEEHIIV_PUBLICATION_ID;
@@ -153,7 +152,7 @@ async function sendWelcomeEmail(to) {
   try {
     const [copy, brand] = await Promise.all([
       getCopy('welcome').catch(() => ({})),
-      getBrand().catch(() => null),
+      getBrandForKind('welcome').catch(() => null),
     ]);
     const subject = copy.subject || `Your free guide — ${CLIENT_BRAND.leadMagnetTitle}`;
     const res = await fetch('https://api.resend.com/emails', {

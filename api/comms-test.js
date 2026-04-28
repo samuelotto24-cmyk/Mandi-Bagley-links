@@ -1,21 +1,20 @@
 export const config = { runtime: 'edge' };
 
-import { getCopy } from '../lib/comms-store.js';
-import { getBrand } from '../lib/brand-store.js';
+import { getCopy, getBrandForKind } from '../lib/comms-store.js';
 import { welcomeEmailHtml }         from './subscribe.js';
 import { midWeekHtml, dayServenHtml } from './nurture-tick.js';
 import { applicantConfirmationHtml } from './apply.js';
 
-const PASSWORD   = process.env.DASHBOARD_PASSWORD || '__DASHBOARD_PASSWORD__';
+const PASSWORD   = process.env.DASHBOARD_PASSWORD || 'Cassandra2024';
 const RESEND_KEY = process.env.RESEND_API_KEY;
-const FROM_EMAIL = process.env.CONTACT_FROM_EMAIL || 'hub@__CLIENT_DOMAIN__';
-const SITE_NAME  = '__CLIENT_NAME__';
+const FROM_EMAIL = process.env.CONTACT_FROM_EMAIL || 'hub@fitwcassx.com';
+const SITE_NAME  = 'Cassandra Morales';
 
 const TEMPLATES = {
-  welcome:     { default_subject: 'Your free guide — welcome', render: (copy, brand) => welcomeEmailHtml({ copy, brand }) },
+  welcome:     { default_subject: 'Your free guide — The Bikini Pro Foundations', render: (copy, brand) => welcomeEmailHtml({ copy, brand }) },
   day4:        { default_subject: "How's the week feeling?",                       render: (copy, brand) => midWeekHtml(copy, brand) },
   day7:        { default_subject: 'You finished. What now?',                       render: (copy, brand) => dayServenHtml(copy, brand) },
-  apply_reply: { default_subject: 'Got your application — talk soon.',             render: (copy, brand) => applicantConfirmationHtml('there', copy, brand) },
+  apply_reply: { default_subject: 'Got your application — talk soon.',             render: (copy, brand) => applicantConfirmationHtml('Cassandra', copy, brand) },
 };
 
 function authed(req) {
@@ -48,7 +47,7 @@ export default async function handler(req) {
 
   const [copy, brand] = await Promise.all([
     getCopy(kind).catch(() => ({})),
-    getBrand().catch(() => null),
+    getBrandForKind(kind).catch(() => null),
   ]);
   const subject = '[TEST] ' + (copy.subject || tpl.default_subject);
   const html    = tpl.render(copy, brand);

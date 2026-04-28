@@ -1,14 +1,13 @@
 export const config = { runtime: 'edge' };
 
-import { getCopy } from '../lib/comms-store.js';
+import { getCopy, getBrandForKind } from '../lib/comms-store.js';
 import { CLIENT_BRAND } from '../lib/client-config.js';
-import { getBrand } from '../lib/brand-store.js';
 
 const REDIS_URL      = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN    = process.env.UPSTASH_REDIS_REST_TOKEN;
 const RESEND_KEY     = process.env.RESEND_API_KEY;
 const FROM_EMAIL     = process.env.CONTACT_FROM_EMAIL || `hub@${CLIENT_BRAND.domain}`;
-const TO_EMAIL       = process.env.CONTACT_TO_EMAIL   || '__CLIENT_TO_EMAIL__';
+const TO_EMAIL       = process.env.CONTACT_TO_EMAIL   || 'samuelotto24@gmail.com';
 const SITE_URL       = CLIENT_BRAND.siteUrl;
 const SITE_NAME      = CLIENT_BRAND.name;
 const PREFIX         = `${CLIENT_BRAND.redisPrefix}applications`;
@@ -124,7 +123,7 @@ export default async function handler(req) {
     try {
       const [replyCopy, brand] = await Promise.all([
         getCopy('apply_reply').catch(() => ({})),
-        getBrand().catch(() => null),
+        getBrandForKind('apply_reply').catch(() => null),
       ]);
       const replySubject = replyCopy.subject || 'Got your application — talk soon.';
       await fetch('https://api.resend.com/emails', {
@@ -153,6 +152,7 @@ function interpolate(str, vars) {
 
 export function applicantConfirmationHtml(name, copy = {}, brand = null) {
   const B = brand || CLIENT_BRAND;
+  const HSIZE = (typeof B.headlineSize === 'number' && B.headlineSize >= 24 && B.headlineSize <= 80) ? B.headlineSize : 42;
   const firstName = escapeHtml((name || '').split(' ')[0] || 'there');
 
   const kicker     = copy.kicker      ?? 'Application Received';
@@ -173,7 +173,7 @@ export function applicantConfirmationHtml(name, copy = {}, brand = null) {
 
   <tr><td style="padding:56px 48px 16px;text-align:center;">
     <div style="font-size:11px;letter-spacing:0.32em;text-transform:uppercase;color:${B.accent};margin-bottom:22px;font-weight:500;">${kicker}</div>
-    <div style="font-family:${B.displayFont};font-size:42px;color:${B.text};line-height:1.05;letter-spacing:-0.015em;">${headline}</div>
+    <div style="font-family:${B.displayFont};font-size:${HSIZE}px;color:${B.text};line-height:1.05;letter-spacing:-0.015em;">${headline}</div>
     <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:24px auto 0;"><tr>
       <td width="6" height="6" style="background:${B.accent};border-radius:50%;font-size:0;line-height:0;">&nbsp;</td>
       <td width="60" height="1" style="background:${B.accent};font-size:0;line-height:0;">&nbsp;</td>

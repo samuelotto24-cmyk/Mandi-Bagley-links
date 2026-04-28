@@ -1,8 +1,7 @@
 export const config = { runtime: 'edge' };
 
-import { getCopy } from '../lib/comms-store.js';
+import { getCopy, getBrandForKind } from '../lib/comms-store.js';
 import { CLIENT_BRAND } from '../lib/client-config.js';
-import { getBrand } from '../lib/brand-store.js';
 
 const REDIS_URL    = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN  = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -36,6 +35,7 @@ function escapeHtml(s) {
 
 export function midWeekHtml(copy = {}, brand = null) {
   const B = brand || CLIENT_BRAND;
+  const HSIZE = (typeof B.headlineSize === 'number' && B.headlineSize >= 24 && B.headlineSize <= 80) ? B.headlineSize : 46;
   const kicker      = copy.kicker      ?? 'The Mid-Week';
   const headline    = copy.headline    ?? 'Day Four.';
   const subhead     = copy.subheadline ?? 'The hard part is behind you.';
@@ -52,7 +52,7 @@ export function midWeekHtml(copy = {}, brand = null) {
 
   <tr><td style="padding:56px 48px 16px;text-align:center;">
     <div style="font-size:11px;letter-spacing:0.32em;text-transform:uppercase;color:${B.accent};margin-bottom:22px;font-weight:500;">${kicker}</div>
-    <div style="font-family:${B.displayFont};font-size:46px;color:${B.text};line-height:1.05;letter-spacing:-0.015em;">${headline}</div>
+    <div style="font-family:${B.displayFont};font-size:${HSIZE}px;color:${B.text};line-height:1.05;letter-spacing:-0.015em;">${headline}</div>
     <div style="font-family:${B.displayFont};font-style:italic;font-size:18px;color:${B.accent};margin-top:14px;">${subhead}</div>
   </td></tr>
 
@@ -143,6 +143,7 @@ export function midWeekHtml(copy = {}, brand = null) {
 
 export function dayServenHtml(copy = {}, brand = null) {
   const B = brand || CLIENT_BRAND;
+  const HSIZE = (typeof B.headlineSize === 'number' && B.headlineSize >= 24 && B.headlineSize <= 80) ? B.headlineSize : 50;
   const kicker     = copy.kicker      ?? 'You Finished.';
   const headline   = copy.headline    ?? 'Now what?';
   const intro1     = copy.intro_p1    ?? 'Seven days. Thirty-something exercises. Two glute-volume sessions, one rest day, four heavy lifts on the priority list.';
@@ -162,7 +163,7 @@ export function dayServenHtml(copy = {}, brand = null) {
 
   <tr><td style="padding:56px 48px 16px;text-align:center;">
     <div style="font-size:11px;letter-spacing:0.32em;text-transform:uppercase;color:${B.accent};margin-bottom:22px;font-weight:500;">${kicker}</div>
-    <div style="font-family:${B.displayFont};font-size:50px;color:${B.text};line-height:1;letter-spacing:-0.02em;">${headline}</div>
+    <div style="font-family:${B.displayFont};font-size:${HSIZE}px;color:${B.text};line-height:1;letter-spacing:-0.02em;">${headline}</div>
     <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:24px auto 0;"><tr>
       <td width="6" height="6" style="background:${B.accent};border-radius:50%;font-size:0;line-height:0;">&nbsp;</td>
       <td width="60" height="1" style="background:${B.accent};font-size:0;line-height:0;">&nbsp;</td>
@@ -252,7 +253,7 @@ async function sendEmail(to, kind) {
   try {
     const [copy, brand] = await Promise.all([
       getCopy(tpl.commsKey).catch(() => ({})),
-      getBrand().catch(() => null),
+      getBrandForKind(tpl.commsKey).catch(() => null),
     ]);
     const subject = copy.subject || tpl.defaultSubject;
     const res = await fetch('https://api.resend.com/emails', {
@@ -277,7 +278,7 @@ export default async function handler(req) {
   const url = new URL(req.url);
   const auth = req.headers.get('Authorization') || '';
   const isCron = CRON_SECRET && auth === `Bearer ${CRON_SECRET}`;
-  const isManual = url.searchParams.get('password') === (process.env.DASHBOARD_PASSWORD || '__DASHBOARD_PASSWORD__');
+  const isManual = url.searchParams.get('password') === (process.env.DASHBOARD_PASSWORD || 'Cassandra2024');
   if (!isCron && !isManual) return new Response('Unauthorized', { status: 401 });
 
   const now = Date.now();

@@ -1,8 +1,8 @@
 export const config = { runtime: 'edge' };
 
-import { getAllCopy, saveCopy, resetCopy } from '../lib/comms-store.js';
+import { getAllCopy, saveCopy, resetCopy, saveCommsDesign } from '../lib/comms-store.js';
 
-const PASSWORD = process.env.DASHBOARD_PASSWORD || '__DASHBOARD_PASSWORD__';
+const PASSWORD = process.env.DASHBOARD_PASSWORD || 'Cassandra2024';
 
 function authed(req) {
   const h = req.headers.get('authorization') || '';
@@ -29,9 +29,14 @@ export default async function handler(req) {
 
   if (req.method === 'POST') {
     const kind = url.searchParams.get('kind');
+    const target = url.searchParams.get('target') || 'copy';  // 'copy' | 'design'
     let body;
     try { body = await req.json(); } catch { return json({ error: 'bad_json' }, 400); }
     try {
+      if (target === 'design') {
+        const result = await saveCommsDesign(kind, body || {});
+        return json({ ok: true, ...result });
+      }
       const result = await saveCopy(kind, body);
       return json({ ok: true, ...result });
     } catch (e) {

@@ -5052,6 +5052,31 @@ a.hub-nav-icon { text-decoration: none; }
   border-color: var(--text);
 }
 
+.dwc-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+}
+.dwc-secondary-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 12px;
+  padding: 6px 4px;
+  cursor: pointer;
+  text-decoration: none;
+  font-style: italic;
+  transition: color 180ms ease;
+}
+.dwc-secondary-link:hover { color: var(--text); }
+.dwc-secondary-link svg { stroke: currentColor; }
+
 /* ── Send-test modal ── */
 .comms-test-modal-overlay {
   position: fixed;
@@ -6080,7 +6105,14 @@ a.hub-nav-icon { text-decoration: none; }
         <button class="dwc-preset"          data-preset="launch"    onclick="selectDwcPreset(this)">Launch</button>
       </div>
 
-      <div class="comms-test-modal-actions" style="margin-top:18px;">
+      <div class="dwc-actions-row">
+        <button class="dwc-secondary-link" onclick="openInClaudeAi()" title="Open this brief inside Claude.ai for the full canvas / artifacts experience (uses your Claude account, not Sam's API)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open in Claude.ai instead
+        </button>
+      </div>
+
+      <div class="comms-test-modal-actions" style="margin-top:14px;">
         <button class="comms-test-modal-cancel" onclick="closeDesignWithClaudeModal()">Cancel</button>
         <button class="comms-test-modal-send" id="dwcGenerateBtn" onclick="generateWithClaude()">
           <span id="dwcGenerateText">Generate Draft</span>
@@ -10808,6 +10840,57 @@ function selectDwcPreset(btn) {
   document.querySelectorAll('.dwc-preset').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
   dwcState.preset = btn.dataset.preset;
+}
+
+// Open Claude.ai in a new tab with the full brief — uses *her* Claude account
+// (full canvas / artifacts experience, no API cost). She copies the result back.
+function openInClaudeAi() {
+  const prompt = document.getElementById('dwcPrompt').value.trim();
+  if (!prompt) {
+    const status = document.getElementById('dwcStatus');
+    status.className = 'comms-test-modal-status err';
+    status.textContent = 'Add a brief first — even one line.';
+    return;
+  }
+
+  const presetHints = {
+    general:   'A general newsletter mix — a real moment from life, something practical, and what is coming next.',
+    letter:    'A personal letter — warm, narrative, single thread of thought. Light on CTAs.',
+    tip:       'A focused tip or framework — one specific idea broken into 2-3 paragraphs of practical detail.',
+    spotlight: 'A spotlight on something specific (recipe, workout, product, brand code) with a clear primary action.',
+    launch:    'A launch announcement — exciting, clear about what is launching, when, and what to do next.',
+  };
+  const hint = presetHints[dwcState.preset] || presetHints.general;
+
+  const name = (window.CLIENT && CLIENT.name) || 'a creator';
+  const role = (window.CLIENT && CLIENT.nicheLabel) || '';
+
+  // Voice guide is server-side only (in client-config.js / API). Build a
+  // condensed version for the link-out path so Claude.ai still has voice context.
+  const voiceLine = role
+    ? `I'm ${name} (${role}).`
+    : `I'm ${name}.`;
+
+  const fullPrompt = [
+    voiceLine,
+    '',
+    'Help me draft a one-off newsletter to my audience. Stay in my voice exactly — short, real, specific. Avoid corporate / hype-y phrasing.',
+    '',
+    'Brief:',
+    prompt,
+    '',
+    `Style: ${hint}`,
+    '',
+    'Please draft the full newsletter — give me a subject line, an optional small uppercase kicker, a display headline (2-7 words), an optional italic subhead, the body (3-5 short paragraphs separated by blank lines), an optional one-line pull quote, and a primary CTA suggestion. Inline <em> and <strong> are fine; no markdown.',
+  ].join('\n');
+
+  // Claude.ai accepts a `?q=` query param to prefill a new conversation
+  const url = 'https://claude.ai/new?q=' + encodeURIComponent(fullPrompt);
+  window.open(url, '_blank', 'noopener,noreferrer');
+
+  const status = document.getElementById('dwcStatus');
+  status.className = 'comms-test-modal-status ok';
+  status.textContent = '↗ Opened in a new tab. Copy the response back into the composer when you\'re happy.';
 }
 
 async function generateWithClaude() {

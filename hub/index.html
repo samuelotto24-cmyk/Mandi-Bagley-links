@@ -4753,6 +4753,56 @@ a.hub-nav-icon { text-decoration: none; }
 }
 .design-reset-all:hover { color: var(--text); border-color: var(--accent-border); }
 
+/* Design panel — style preset cards */
+.design-preset-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.design-preset-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--sans);
+  transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+.design-preset-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(21,17,13,0.06);
+}
+.design-preset-name {
+  font-family: var(--display-font);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.2;
+}
+.design-preset-desc {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.design-preset-help {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-style: italic;
+  font-family: var(--display-font);
+  text-align: center;
+  margin-top: 8px;
+}
+
+@media (max-width: 1100px) {
+  .design-preset-grid { grid-template-columns: 1fr; }
+}
+
 /* Inline link button next to text inputs */
 .editor-field-link-btn {
   position: absolute;
@@ -5304,30 +5354,159 @@ a.hub-nav-icon { text-decoration: none; }
   border-color: var(--text);
 }
 
-.dwc-actions-row {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 14px;
-  padding-top: 14px;
+/* Two-path action cards inside Design with Claude modal */
+.dwc-paths {
+  margin-top: 18px;
+  padding-top: 18px;
   border-top: 1px dashed var(--border);
 }
-.dwc-secondary-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-family: var(--sans);
-  font-size: 12px;
-  padding: 6px 4px;
-  cursor: pointer;
-  text-decoration: none;
-  font-style: italic;
-  transition: color 180ms ease;
+.dwc-path-label {
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 12px;
+  text-align: center;
 }
-.dwc-secondary-link:hover { color: var(--text); }
-.dwc-secondary-link svg { stroke: currentColor; }
+.dwc-path-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: var(--surface-elevated);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: border-color 180ms ease, transform 180ms ease, background 180ms ease;
+  font-family: var(--sans);
+}
+.dwc-path-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  background: var(--surface);
+}
+.dwc-path-card.alt {
+  background: var(--surface);
+}
+.dwc-path-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--accent-pale);
+  flex-shrink: 0;
+  color: var(--accent);
+  margin-top: 2px;
+}
+.dwc-path-text { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.dwc-path-title {
+  font-family: var(--display-font);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--text);
+  line-height: 1.25;
+}
+.dwc-path-sub {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* Import-link strip below the path cards */
+.dwc-import-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: var(--accent-pale);
+  border: 1px dashed var(--accent-border);
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--text);
+}
+.dwc-import-row span:first-child { font-style: italic; opacity: 0.85; }
+.dwc-import-link {
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  font-family: var(--sans);
+  white-space: nowrap;
+}
+.dwc-import-link:hover { opacity: 0.85; }
+
+/* Import warnings panel */
+.import-warnings {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: rgba(255,180,80,0.08);
+  border: 1px solid rgba(255,140,40,0.25);
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: var(--text);
+  line-height: 1.55;
+}
+.import-warnings-title {
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgb(180,90,30);
+  margin-bottom: 6px;
+}
+.import-warnings ul { margin: 0; padding-left: 20px; }
+.import-warnings li { margin-bottom: 3px; }
+
+/* "Custom design active" banner shown above the broadcast composer */
+.broadcast-custom-banner {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 24px;
+  background: linear-gradient(90deg, var(--accent-pale), transparent);
+  border-bottom: 1px solid var(--accent-border);
+  font-size: 12.5px;
+}
+.broadcast-custom-banner.active { display: flex; }
+.broadcast-custom-banner-text {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+}
+.broadcast-custom-banner-text strong {
+  font-family: var(--display-font);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+}
+.broadcast-custom-banner-text-meta {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-style: italic;
+}
+.broadcast-custom-banner-reset {
+  background: transparent;
+  border: 1px solid var(--accent-border);
+  color: var(--text);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-family: var(--sans);
+  cursor: pointer;
+}
+.broadcast-custom-banner-reset:hover { background: var(--accent-pale); }
 
 /* ── Send-test modal ── */
 .comms-test-modal-overlay {
@@ -6274,6 +6453,17 @@ a.hub-nav-icon { text-decoration: none; }
       </div>
     </div>
 
+    <div class="broadcast-custom-banner" id="broadcastCustomBanner">
+      <div class="broadcast-custom-banner-text">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <div>
+          <strong>Custom design imported.</strong>
+          <span class="broadcast-custom-banner-text-meta" id="broadcastCustomBannerMeta"></span>
+        </div>
+      </div>
+      <button class="broadcast-custom-banner-reset" onclick="resetBroadcastToFields()">Reset to fields</button>
+    </div>
+
     <div class="editor-grid">
       <div class="editor-preview" id="editorPreview">
         <div class="preview-frame" id="previewFrame"></div>
@@ -6370,12 +6560,12 @@ a.hub-nav-icon { text-decoration: none; }
     </div>
   </div>
 
-  <!-- Design with Claude modal — generates a full draft from a brief -->
+  <!-- Design with Claude modal — three paths: Quick generate / Full canvas / Import HTML -->
   <div class="comms-test-modal-overlay" id="designWithClaudeModal" onclick="if(event.target===this)closeDesignWithClaudeModal()">
-    <div class="comms-test-modal" style="max-width:520px;">
+    <div class="comms-test-modal" style="max-width:600px;">
       <div class="comms-test-modal-eyebrow">Design with Claude</div>
       <div class="comms-test-modal-title">What's this newsletter <em>about</em>?</div>
-      <div class="comms-test-modal-body">Tell me in one or two sentences. Be specific — what you're sharing, who it's for, what feeling. I'll draft the whole thing in your voice.</div>
+      <div class="comms-test-modal-body">Tell me in one or two sentences. Be specific. I'll either draft the words for you, or open Claude.ai with the full design canvas — your call.</div>
 
       <textarea class="comms-test-modal-input" id="dwcPrompt" rows="4" placeholder="e.g. October recipes I've been making + a quick reset workout for travel weeks" style="font-family:var(--sans);line-height:1.55;resize:vertical;min-height:90px;"></textarea>
 
@@ -6388,20 +6578,62 @@ a.hub-nav-icon { text-decoration: none; }
         <button class="dwc-preset"          data-preset="launch"    onclick="selectDwcPreset(this)">Launch</button>
       </div>
 
-      <div class="dwc-actions-row">
-        <button class="dwc-secondary-link" onclick="openInClaudeAi()" title="Open this brief inside Claude.ai for the full canvas / artifacts experience (uses your Claude account, not Sam's API)">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          Open in Claude.ai instead
+      <div class="dwc-paths">
+        <div class="dwc-path-label">Two ways to use this</div>
+
+        <button class="dwc-path-card" id="dwcGenerateBtn" onclick="generateWithClaude()">
+          <span class="dwc-path-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <span class="dwc-path-text">
+            <span class="dwc-path-title" id="dwcGenerateText">Quick — Generate the words</span>
+            <span class="dwc-path-sub">Fills in subject, body, CTAs from your brief. Edit in the form. Sends in seconds.</span>
+          </span>
+        </button>
+
+        <button class="dwc-path-card alt" onclick="openInClaudeAi()">
+          <span class="dwc-path-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </span>
+          <span class="dwc-path-text">
+            <span class="dwc-path-title">Full canvas — Design in Claude.ai</span>
+            <span class="dwc-path-sub">Opens Claude.ai with your brief + email-safe constraints. Use the artifact tool to design a custom HTML email. Then come back and import it.</span>
+          </span>
         </button>
       </div>
 
-      <div class="comms-test-modal-actions" style="margin-top:14px;">
-        <button class="comms-test-modal-cancel" onclick="closeDesignWithClaudeModal()">Cancel</button>
-        <button class="comms-test-modal-send" id="dwcGenerateBtn" onclick="generateWithClaude()">
-          <span id="dwcGenerateText">Generate Draft</span>
+      <div class="dwc-import-row">
+        <span>Already designed something in Claude.ai?</span>
+        <button class="dwc-import-link" onclick="openImportHtmlModal()">
+          Import HTML →
         </button>
       </div>
+
+      <div class="comms-test-modal-actions" style="margin-top:8px;">
+        <button class="comms-test-modal-cancel" onclick="closeDesignWithClaudeModal()">Close</button>
+      </div>
       <div class="comms-test-modal-status" id="dwcStatus"></div>
+    </div>
+  </div>
+
+  <!-- Import HTML modal — paste the artifact HTML from Claude.ai -->
+  <div class="comms-test-modal-overlay" id="importHtmlModal" onclick="if(event.target===this)closeImportHtmlModal()">
+    <div class="comms-test-modal" style="max-width:680px;">
+      <div class="comms-test-modal-eyebrow">Import design</div>
+      <div class="comms-test-modal-title">Paste the HTML <em>Claude built for you.</em></div>
+      <div class="comms-test-modal-body">Right-click the artifact in Claude.ai → Copy code → paste below. We'll sanitize it, flag anything that won't render in email, and use it for this broadcast.</div>
+
+      <textarea class="comms-test-modal-input" id="importHtmlInput" rows="14" placeholder="&lt;!DOCTYPE html&gt;..." style="font-family:'SF Mono', Menlo, monospace; font-size:12px; line-height:1.5; resize:vertical; min-height:240px;"></textarea>
+
+      <div id="importHtmlWarnings" class="import-warnings" style="display:none;"></div>
+
+      <div class="comms-test-modal-actions" style="margin-top:14px;">
+        <button class="comms-test-modal-cancel" onclick="closeImportHtmlModal()">Cancel</button>
+        <button class="comms-test-modal-send" id="importHtmlBtn" onclick="confirmImportHtml()">
+          <span id="importHtmlBtnText">Import &amp; Save</span>
+        </button>
+      </div>
+      <div class="comms-test-modal-status" id="importHtmlStatus"></div>
     </div>
   </div>
 
@@ -9695,7 +9927,7 @@ function copyAndOpen(platform) {
 // Move the editor + its modals out of the stacking-context trap inside .hub-main
 // so they render on top of the sticky hub-nav. Run once at parse time.
 (function liftCommsOverlaysToBody() {
-  const ids = ['messagesEditor', 'broadcastSendModal', 'commsTestModal', 'designStudio', 'designWithClaudeModal', 'linkInsertModal'];
+  const ids = ['messagesEditor', 'broadcastSendModal', 'commsTestModal', 'designStudio', 'designWithClaudeModal', 'linkInsertModal', 'importHtmlModal'];
   for (const id of ids) {
     const el = document.getElementById(id);
     if (el && el.parentNode !== document.body) {
@@ -9967,6 +10199,8 @@ function openCommsEditor(kind) {
   if (dp) dp.style.display = 'none';
   const ef = document.getElementById('editorFields');
   if (ef) ef.style.display = '';
+  // Hide the custom-design banner when leaving broadcast mode
+  hideCustomDesignBanner();
   setEditorStatus('saved');
   renderEditorFields(kind);
   renderEditorPreview();
@@ -10180,6 +10414,27 @@ function renderEditorPreview() {
   let html = '';
   if (commsState.editorMode === 'broadcast') {
     const d = broadcastState.current || {};
+    // Custom-imported HTML — render in a sandboxed iframe (faithful to what subscribers see)
+    if (d.customHtml && d.customHtml.length > 50) {
+      frame.innerHTML = '';
+      frame.style.background = '#FFFFFF';
+      const iframe = document.createElement('iframe');
+      iframe.setAttribute('sandbox', 'allow-same-origin');
+      iframe.style.width = '100%';
+      iframe.style.minHeight = '700px';
+      iframe.style.border = 'none';
+      iframe.style.background = '#FFFFFF';
+      iframe.srcdoc = d.customHtml;
+      frame.appendChild(iframe);
+      // Auto-resize the iframe to its content height
+      iframe.addEventListener('load', function() {
+        try {
+          const h = iframe.contentDocument.body.scrollHeight;
+          if (h && h > 200) iframe.style.height = (h + 20) + 'px';
+        } catch (e) { /* sandbox may block — keep min height */ }
+      });
+      return;
+    }
     // Apply per-broadcast design overrides on top of the global brand for the preview
     if (commsState.brand && d.design) {
       const merged = { ...commsState.brand };
@@ -10911,6 +11166,8 @@ async function openBroadcastComposer(id) {
   const tabs = document.getElementById('editorTabs');
   if (tabs) tabs.style.display = 'flex';
   switchEditorTab('content');
+  // Show the "custom design imported" banner if applicable
+  showCustomDesignBanner();
   setEditorStatus(draft.id ? 'saved' : 'typing');
   renderBroadcastFields();
   renderEditorPreview();
@@ -11181,6 +11438,142 @@ async function confirmBroadcastSend() {
 }
 
 /* ═══════════════════════════════════════════════════
+   IMPORT FROM CLAUDE.AI — paste artifact HTML, sanitize, save as customHtml
+   ═══════════════════════════════════════════════════ */
+function openImportHtmlModal() {
+  // Make sure we have a draft to attach to
+  if (!broadcastState.current || !broadcastState.current.id) {
+    saveBroadcastDraft().then(openImportHtmlModal);
+    return;
+  }
+  closeDesignWithClaudeModal();
+  document.getElementById('importHtmlInput').value = '';
+  document.getElementById('importHtmlWarnings').style.display = 'none';
+  document.getElementById('importHtmlWarnings').innerHTML = '';
+  document.getElementById('importHtmlStatus').textContent = '';
+  document.getElementById('importHtmlStatus').className = 'comms-test-modal-status';
+  document.getElementById('importHtmlBtnText').textContent = 'Import & Save';
+  document.getElementById('importHtmlBtn').disabled = false;
+  document.getElementById('importHtmlModal').classList.add('open');
+  setTimeout(function() { document.getElementById('importHtmlInput').focus(); }, 60);
+}
+
+function closeImportHtmlModal() {
+  document.getElementById('importHtmlModal').classList.remove('open');
+}
+
+async function confirmImportHtml() {
+  const html = document.getElementById('importHtmlInput').value.trim();
+  const status = document.getElementById('importHtmlStatus');
+  const warnEl = document.getElementById('importHtmlWarnings');
+  const btn    = document.getElementById('importHtmlBtn');
+  const btnTxt = document.getElementById('importHtmlBtnText');
+
+  if (!html) {
+    status.className = 'comms-test-modal-status err';
+    status.textContent = 'Paste the HTML first.';
+    return;
+  }
+  if (!broadcastState.current || !broadcastState.current.id) {
+    status.className = 'comms-test-modal-status err';
+    status.textContent = 'Save the draft first (just type a subject and try again).';
+    return;
+  }
+
+  btn.disabled = true;
+  btnTxt.textContent = 'Importing…';
+  status.className = 'comms-test-modal-status';
+  status.textContent = 'Sanitizing + saving…';
+
+  try {
+    const res = await fetch('/api/broadcast-import', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id:     broadcastState.current.id,
+        html,
+        source: 'claude.ai',
+      }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.ok) {
+      throw new Error(json.detail || json.error || 'failed');
+    }
+
+    // Attach customHtml + meta to the in-memory draft
+    broadcastState.current.customHtml = json.draft.customHtml;
+    broadcastState.current.customHtmlMeta = json.draft.customHtmlMeta;
+    if (json.draft.subject) {
+      broadcastState.current.subject = json.draft.subject;
+    }
+
+    // Update drafts list
+    const idx = broadcastState.drafts.findIndex(d => d.id === broadcastState.current.id);
+    if (idx !== -1) broadcastState.drafts[idx] = { ...broadcastState.current };
+
+    // Show warnings if any (non-blocking)
+    if (json.warnings && json.warnings.length) {
+      warnEl.style.display = 'block';
+      warnEl.innerHTML =
+        '<div class="import-warnings-title">Heads up — these may not render perfectly in all clients</div>' +
+        '<ul>' + json.warnings.map(w => '<li>' + escapeAttr(w) + '</li>').join('') + '</ul>';
+    }
+
+    status.className = 'comms-test-modal-status ok';
+    status.textContent = '✓ Imported — ' + Math.round(json.bytes / 1024) + ' KB. Preview updated.';
+
+    // Refresh editor state
+    showCustomDesignBanner();
+    renderEditorPreview();
+
+    setTimeout(function() {
+      closeImportHtmlModal();
+      btnTxt.textContent = 'Import & Save';
+      btn.disabled = false;
+    }, json.warnings && json.warnings.length ? 3000 : 1400);
+  } catch (e) {
+    status.className = 'comms-test-modal-status err';
+    status.textContent = 'Import failed — ' + (e.message || 'try again');
+    btn.disabled = false;
+    btnTxt.textContent = 'Import & Save';
+  }
+}
+
+function showCustomDesignBanner() {
+  const banner = document.getElementById('broadcastCustomBanner');
+  const draft = broadcastState.current;
+  if (!banner || !draft) return;
+  if (draft.customHtml) {
+    banner.classList.add('active');
+    const meta = draft.customHtmlMeta || {};
+    const when = meta.importedAt ? timeAgoShort(new Date(meta.importedAt)) : '';
+    document.getElementById('broadcastCustomBannerMeta').textContent =
+      (when ? when + ' · ' : '') +
+      'from ' + (meta.source || 'claude.ai') +
+      ' · ' + Math.round((meta.bytes || draft.customHtml.length) / 1024) + ' KB';
+  } else {
+    banner.classList.remove('active');
+  }
+}
+
+function hideCustomDesignBanner() {
+  const banner = document.getElementById('broadcastCustomBanner');
+  if (banner) banner.classList.remove('active');
+}
+
+async function resetBroadcastToFields() {
+  if (!confirm('Drop the imported design and go back to the form-based composer? Your imported HTML will be cleared.')) return;
+  const draft = broadcastState.current;
+  if (!draft) return;
+  draft.customHtml = null;
+  draft.customHtmlMeta = null;
+  // Update local state + save
+  await saveBroadcastDraft();
+  hideCustomDesignBanner();
+  renderEditorPreview();
+}
+
+/* ═══════════════════════════════════════════════════
    BROADCAST DESIGN PANEL — per-broadcast theme overrides
    ═══════════════════════════════════════════════════ */
 
@@ -11208,6 +11601,88 @@ function ensureDraftDesign(draft) {
   };
   if (!draft.signoff) draft.signoff = { closing: '', name: '', role: '' };
   return draft;
+}
+
+// 5 named presets — each is a saved combination of design + signoff defaults.
+// Apply one and the existing controls below reflect the change.
+const BROADCAST_DESIGN_PRESETS = [
+  {
+    id: 'letter',
+    name: 'Personal Letter',
+    desc: 'Warm, intimate, no decorations. Reads like a one-on-one note.',
+    design: {
+      displayFont:  "'Cormorant Garamond', Georgia, serif",
+      bodyFont:     "'DM Sans', 'Helvetica Neue', Arial, sans-serif",
+      headlineSize: 36,
+      showPullQuote: false,
+      showSecondaryCta: false,
+    },
+    signoff: { closing: 'xx,', name: '', role: '' },
+  },
+  {
+    id: 'magazine',
+    name: 'Magazine',
+    desc: 'The current default. Balanced, editorial, all sections on.',
+    design: {
+      displayFont:  "'DM Serif Display', Georgia, serif",
+      bodyFont:     "'DM Sans', 'Helvetica Neue', Arial, sans-serif",
+      headlineSize: 48,
+      showPullQuote: true,
+      showSecondaryCta: true,
+    },
+    signoff: { closing: 'until next time', name: '', role: '' },
+  },
+  {
+    id: 'bold',
+    name: 'Bold',
+    desc: 'Big statement headline. Use for announcements that need weight.',
+    design: {
+      displayFont:  "'Playfair Display', Georgia, serif",
+      bodyFont:     "'DM Sans', 'Helvetica Neue', Arial, sans-serif",
+      headlineSize: 64,
+      showPullQuote: true,
+      showSecondaryCta: true,
+    },
+    signoff: { closing: '', name: '', role: '' },
+  },
+  {
+    id: 'minimal',
+    name: 'Minimal',
+    desc: 'Pared down. No display serif, no extras. Modern + quiet.',
+    design: {
+      displayFont:  "'DM Sans', 'Helvetica Neue', Arial, sans-serif",
+      bodyFont:     "'DM Sans', 'Helvetica Neue', Arial, sans-serif",
+      headlineSize: 32,
+      showPullQuote: false,
+      showSecondaryCta: false,
+    },
+    signoff: { closing: '—', name: '', role: '' },
+  },
+  {
+    id: 'drop',
+    name: 'Editorial Drop',
+    desc: 'For launches. Dramatic headline, both CTAs, italic kicker above.',
+    design: {
+      displayFont:  "'Playfair Display', Georgia, serif",
+      bodyFont:     "'DM Sans', 'Helvetica Neue', Arial, sans-serif",
+      headlineSize: 56,
+      showPullQuote: true,
+      showSecondaryCta: true,
+    },
+    signoff: { closing: 'now live —', name: '', role: '' },
+  },
+];
+
+function applyDesignPreset(presetId) {
+  const preset = BROADCAST_DESIGN_PRESETS.find(p => p.id === presetId);
+  if (!preset) return;
+  ensureDraftDesign(broadcastState.current);
+  // Apply preset values without overwriting the user's color overrides
+  Object.assign(broadcastState.current.design, preset.design);
+  Object.assign(broadcastState.current.signoff, preset.signoff);
+  renderDesignPanel();
+  renderEditorPreview();
+  scheduleDraftSave();
 }
 
 const DESIGN_FONT_OPTIONS = {
@@ -11238,7 +11713,26 @@ function renderDesignPanel() {
     ).join('');
   }
 
+  // Preset cards
+  const presetCards = BROADCAST_DESIGN_PRESETS.map(p => `
+    <button class="design-preset-card" data-preset="${p.id}" onclick="applyDesignPreset('${p.id}')">
+      <span class="design-preset-name">${escapeAttr(p.name)}</span>
+      <span class="design-preset-desc">${escapeAttr(p.desc)}</span>
+    </button>
+  `).join('');
+
   wrap.innerHTML = `
+    <div class="design-panel-section">
+      <div class="design-panel-section-head">
+        <span class="design-panel-kicker">Style presets</span>
+        <span class="design-panel-line"></span>
+      </div>
+      <div class="design-preset-grid">
+        ${presetCards}
+      </div>
+      <div class="design-preset-help">Tap one to set fonts, headline size, and section toggles in one click. Color overrides below stay.</div>
+    </div>
+
     <div class="design-panel-section">
       <div class="design-panel-section-head">
         <span class="design-panel-kicker">Colors</span>
@@ -11524,18 +12018,46 @@ function openInClaudeAi() {
     ? `I'm ${name} (${role}).`
     : `I'm ${name}.`;
 
+  // Brand palette (so Claude defaults to her colors)
+  const brand = (commsState && commsState.brand) || {};
+  const paletteLines = brand.bg ? [
+    'My brand palette (use as the starting point):',
+    `- Background: ${brand.bg}`,
+    `- Surface / card: ${brand.surface || ''}`,
+    `- Text: ${brand.text || ''}`,
+    `- Accent: ${brand.accent || ''}`,
+    `- Display font: ${brand.displayFont || "'DM Serif Display', Georgia, serif"}`,
+    `- Body font: ${brand.bodyFont || "'DM Sans', Arial, sans-serif"}`,
+  ].join('\n') : '';
+
   const fullPrompt = [
     voiceLine,
     '',
-    'Help me draft a one-off newsletter to my audience. Stay in my voice exactly — short, real, specific. Avoid corporate / hype-y phrasing.',
+    'Design a custom newsletter email for my list — as a complete, email-safe HTML artifact I can copy and use.',
     '',
     'Brief:',
     prompt,
     '',
     `Style: ${hint}`,
     '',
-    'Please draft the full newsletter — give me a subject line, an optional small uppercase kicker, a display headline (2-7 words), an optional italic subhead, the body (3-5 short paragraphs separated by blank lines), an optional one-line pull quote, and a primary CTA suggestion. Inline <em> and <strong> are fine; no markdown.',
-  ].join('\n');
+    'My voice:',
+    '- Short, specific, real. No corporate / hype-y phrasing.',
+    '- Em-dashes over commas for rhythm.',
+    '- Lowercase first words sometimes when it feels personal.',
+    '- Sign off with first name only.',
+    '',
+    paletteLines,
+    '',
+    'Email-safe HTML constraints (important — modern CSS breaks in Outlook/Gmail):',
+    '- Use <table>-based layout (no flexbox, no grid, no position:absolute/fixed).',
+    '- All styling must be INLINE on the elements (no <style> blocks — Gmail strips them).',
+    '- Max width 600px for the main email container, centered with margin: 0 auto.',
+    '- Use system fonts or Georgia/serif fallbacks (no @import / Google Fonts links — they don\'t load in many clients).',
+    '- For images, use absolute https URLs (no data: URIs).',
+    '- Include a placeholder unsubscribe footer at the bottom (we\'ll inject the real one server-side, but leave space for it).',
+    '',
+    'Output the full HTML as an Artifact (right pane) so I can copy it. Don\'t add commentary outside the artifact.',
+  ].filter(Boolean).join('\n');
 
   // Claude.ai accepts a `?q=` query param to prefill a new conversation
   const url = 'https://claude.ai/new?q=' + encodeURIComponent(fullPrompt);

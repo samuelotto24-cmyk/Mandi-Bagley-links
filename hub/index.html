@@ -3860,27 +3860,53 @@ a.hub-nav-icon { text-decoration: none; }
   background: var(--surface-elevated);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  overflow: hidden;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
 }
+.subs-tip:hover { border-color: var(--accent-border); }
+.subs-tip[open] {
+  box-shadow: 0 6px 18px rgba(21,17,13,0.06);
+}
+.subs-tip summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.subs-tip summary::-webkit-details-marker { display: none; }
 .subs-tip-num {
   font-family: var(--display-font);
   font-style: italic;
   font-size: 12px;
   color: var(--accent);
+  flex-shrink: 0;
 }
 .subs-tip-title {
   font-size: 13px;
   font-weight: 600;
   color: var(--text);
   line-height: 1.3;
+  flex: 1;
 }
-.subs-tip-body {
-  font-size: 11.5px;
+.subs-tip-chevron {
+  font-size: 18px;
   color: var(--text-muted);
-  line-height: 1.5;
+  transition: transform 200ms ease;
+  line-height: 1;
+}
+.subs-tip[open] .subs-tip-chevron { transform: rotate(90deg); }
+.subs-tip-body {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  padding: 0 14px 14px;
+  font-style: italic;
+  font-family: var(--display-font);
+  font-weight: 300;
 }
 
 @media (max-width: 900px) {
@@ -10325,15 +10351,18 @@ function renderSubscribersPanel(d) {
     }).join('');
   }
 
-  // Growth tips
+  // Growth tips — collapsed by default. Click expands the body.
   const tips = pickTips(3);
   document.getElementById('subsTips').innerHTML = tips.map(function(t, i) {
     return (
-      '<div class="subs-tip">' +
-        '<span class="subs-tip-num">No.0' + (i + 1) + '</span>' +
-        '<span class="subs-tip-title">' + escapeAttr(t.title) + '</span>' +
+      '<details class="subs-tip">' +
+        '<summary>' +
+          '<span class="subs-tip-num">No.0' + (i + 1) + '</span>' +
+          '<span class="subs-tip-title">' + escapeAttr(t.title) + '</span>' +
+          '<span class="subs-tip-chevron">›</span>' +
+        '</summary>' +
         '<span class="subs-tip-body">' + escapeAttr(t.body) + '</span>' +
-      '</div>'
+      '</details>'
     );
   }).join('');
 }
@@ -11048,6 +11077,8 @@ async function loadDesignStudio() {
       displayFontId: json.overrides?.displayFontId || null,
       bodyFontId: json.overrides?.bodyFontId || null,
       voiceGuide: json.overrides?.voiceGuide || null,
+      customPalette: json.overrides?.customPalette || null,
+      headlineSize:  json.overrides?.headlineSize  || null,
     };
     renderDesignControls();
     renderDesignPreview();
@@ -11122,6 +11153,35 @@ function renderDesignControls() {
       '</div>' +
       bodyFontsHtml +
     '</div>' +
+
+    // Custom palette — colour-wheel pickers for individual tokens
+    '<div class="design-studio-section">' +
+      '<div class="design-studio-section-head">' +
+        '<span class="design-studio-section-kicker">Custom Palette</span>' +
+        '<span class="design-studio-section-line"></span>' +
+      '</div>' +
+      '<div style="font-size:12.5px;color:var(--text-muted);font-style:italic;font-family:var(--display-font);margin-bottom:14px;line-height:1.55;">' +
+        'Override individual colours from the preset above. Pick a colour wheel or paste a hex.' +
+      '</div>' +
+      renderPaletteOverrides() +
+    '</div>' +
+
+    // Headline size slider
+    '<div class="design-studio-section">' +
+      '<div class="design-studio-section-head">' +
+        '<span class="design-studio-section-kicker">Headline Size</span>' +
+        '<span class="design-studio-section-line"></span>' +
+      '</div>' +
+      '<div class="design-slider-row">' +
+        '<span class="design-row-label">Headline</span>' +
+        '<input type="range" class="design-slider" min="28" max="72" step="2" ' +
+          'value="' + (cur.headlineSize || 48) + '" ' +
+          'oninput="onDesignStudioHeadlineSize(parseInt(this.value,10)); document.getElementById(\'dsHeadlineVal\').textContent = this.value + \'px\';">' +
+        '<span class="design-slider-value" id="dsHeadlineVal">' + (cur.headlineSize || 48) + 'px</span>' +
+      '</div>' +
+      (cur.headlineSize ? '<div style="text-align:right;margin-top:4px;"><button class="design-color-clear" onclick="resetDesignStudioHeadline()">use preset default</button></div>' : '') +
+    '</div>' +
+
     '<div class="design-studio-section">' +
       '<div class="design-studio-section-head">' +
         '<span class="design-studio-section-kicker">Voice Guide</span>' +
@@ -11188,6 +11248,100 @@ function selectBodyFont(id) {
   scheduleBrandSave();
 }
 
+// Palette tokens exposed to the user — friendly labels match how they're used
+const DESIGN_STUDIO_PALETTE_TOKENS = [
+  { key: 'accent',     label: 'Accent' },
+  { key: 'bg',         label: 'Background' },
+  { key: 'surface',    label: 'Surface' },
+  { key: 'surfaceAlt', label: 'Surface alt' },
+  { key: 'text',       label: 'Text' },
+  { key: 'textSoft',   label: 'Text soft' },
+  { key: 'border',     label: 'Border' },
+  { key: 'ctaBg',      label: 'CTA bg' },
+  { key: 'ctaFg',      label: 'CTA text' },
+];
+
+function renderPaletteOverrides() {
+  const cur = designStudio.current;
+  const brand = designStudio.brand || {};
+  const custom = cur.customPalette || {};
+  return DESIGN_STUDIO_PALETTE_TOKENS.map(function(tok) {
+    const effective = (custom[tok.key] && /^#[0-9a-fA-F]{6}$/.test(custom[tok.key]))
+      ? custom[tok.key]
+      : (brand[tok.key] || '#000000');
+    const overridden = !!custom[tok.key];
+    const safeKey = tok.key.replace(/'/g, "\\'");
+    return (
+      '<div class="design-color-row">' +
+        '<span class="design-row-label">' + escapeAttr(tok.label) + '</span>' +
+        '<input type="color" class="design-color-swatch" value="' + effective + '" ' +
+          'oninput="onDesignStudioPaletteColor(\'' + safeKey + '\', this.value)">' +
+        '<input type="text" class="design-color-input" value="' + (overridden ? effective : '') + '" placeholder="theme" ' +
+          'oninput="onDesignStudioPaletteColor(\'' + safeKey + '\', this.value)">' +
+        '<button class="design-color-clear" onclick="onDesignStudioPaletteColor(\'' + safeKey + '\', \'\')">use preset</button>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+function onDesignStudioPaletteColor(token, value) {
+  if (!designStudio.current.customPalette) designStudio.current.customPalette = {};
+  const v = String(value || '').trim();
+  if (!v) {
+    delete designStudio.current.customPalette[token];
+    if (Object.keys(designStudio.current.customPalette).length === 0) {
+      designStudio.current.customPalette = null;
+    }
+  } else if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+    designStudio.current.customPalette[token] = v;
+  } else if (/^#[0-9a-fA-F]{3}$/.test(v)) {
+    designStudio.current.customPalette[token] = v.replace(/^#(.)(.)(.)$/, '#$1$1$2$2$3$3');
+  } else {
+    return;
+  }
+  applyOverridesLocally();
+  renderDesignPreview();
+  scheduleBrandSave();
+  // Light re-render: only update the swatches inline so the user doesn't lose focus
+  syncPaletteSwatches();
+}
+
+function syncPaletteSwatches() {
+  // Update the color swatch values to reflect the merged brand (so non-overridden
+  // tokens still show the live preset color in the picker)
+  const rows = document.querySelectorAll('#designControls .design-color-row');
+  if (!rows.length) return;
+  const cur = designStudio.current;
+  const brand = designStudio.brand || {};
+  const custom = cur.customPalette || {};
+  rows.forEach(function(row, idx) {
+    const tok = DESIGN_STUDIO_PALETTE_TOKENS[idx];
+    if (!tok) return;
+    const effective = (custom[tok.key] && /^#[0-9a-fA-F]{6}$/.test(custom[tok.key]))
+      ? custom[tok.key]
+      : (brand[tok.key] || '#000000');
+    const swatch = row.querySelector('.design-color-swatch');
+    if (swatch && document.activeElement !== swatch) swatch.value = effective;
+  });
+}
+
+function onDesignStudioHeadlineSize(value) {
+  const n = parseInt(value, 10);
+  if (!Number.isFinite(n)) return;
+  designStudio.current.headlineSize = (n >= 24 && n <= 80) ? n : null;
+  applyOverridesLocally();
+  renderDesignPreview();
+  scheduleBrandSave();
+}
+
+function resetDesignStudioHeadline() {
+  designStudio.current.headlineSize = null;
+  applyOverridesLocally();
+  renderDesignControls();
+  renderDesignPreview();
+  scheduleBrandSave();
+}
+
 // Mirror server-side applyOverrides() so the preview updates instantly
 function applyOverridesLocally() {
   const cur = designStudio.current;
@@ -11210,10 +11364,17 @@ function applyOverridesLocally() {
     const f = opts.bodyFonts.find(f => f.id === cur.bodyFontId);
     if (f) bodyFont = f.family;
   }
+  // Per-token custom palette overrides (only valid hex)
+  if (cur.customPalette && typeof cur.customPalette === 'object') {
+    for (const [k, v] of Object.entries(cur.customPalette)) {
+      if (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v)) palette[k] = v;
+    }
+  }
   designStudio.brand = {
     ...palette,
     displayFont,
     bodyFont,
+    headlineSize: (typeof cur.headlineSize === 'number' && cur.headlineSize >= 24 && cur.headlineSize <= 80) ? cur.headlineSize : null,
     name: CLIENT.name,
     role: CLIENT.nicheLabel || 'Coach',
     leadMagnetTitle: 'The Bikini Pro Foundations',
@@ -11258,7 +11419,14 @@ async function resetDesignStudio() {
     });
     if (!res.ok) throw new Error('reset_failed');
     const json = await res.json().catch(() => null);
-    designStudio.current = { presetId: null, displayFontId: null, bodyFontId: null };
+    designStudio.current = {
+      presetId: null,
+      displayFontId: null,
+      bodyFontId: null,
+      voiceGuide: null,
+      customPalette: null,
+      headlineSize: null,
+    };
     applyOverridesLocally();
     renderDesignControls();
     renderDesignPreview();
@@ -11293,12 +11461,15 @@ function renderDesignPreview() {
   const B = designStudio.brand;
   if (!B) return;
 
+  // Preview scales relative to the broadcast default (48px) — keep the hero proportional
+  const headlineFull = (typeof B.headlineSize === 'number' && B.headlineSize >= 24 && B.headlineSize <= 80) ? B.headlineSize : 48;
+  const headlinePx = Math.round(headlineFull * 0.7);  // mock preview is smaller than a real email
   // Build a small "welcome email" mockup using the live brand
   const html = (
     '<div style="background:linear-gradient(180deg, ' + B.surface + ' 0%, ' + B.surfaceAlt + ' 100%);font-family:' + B.bodyFont + ';color:' + B.textSoft + ';">' +
       // hero
       '<div style="padding:54px 40px;text-align:center;background:linear-gradient(155deg, ' + B.bg + ' 0%, ' + B.surfaceAlt + ' 100%);">' +
-        '<div style="font-family:' + B.displayFont + ';font-style:italic;font-size:34px;color:' + B.text + ';line-height:1.05;letter-spacing:-0.005em;">' + escapeAttr(B.name) + '</div>' +
+        '<div style="font-family:' + B.displayFont + ';font-style:italic;font-size:' + headlinePx + 'px;color:' + B.text + ';line-height:1.05;letter-spacing:-0.005em;">' + escapeAttr(B.name) + '</div>' +
         '<div style="font-size:11px;letter-spacing:0.32em;text-transform:uppercase;color:' + B.accent + ';margin-top:14px;">Welcome to the list</div>' +
       '</div>' +
       // intro

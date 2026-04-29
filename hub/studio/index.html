@@ -308,6 +308,77 @@
     padding: 8px 12px; margin-bottom: 12px; border-radius: 0 2px 2px 0;
   }
 
+  /* ── AI toolbar (below AI-expandable fields) ─────────── */
+  .ai-toolbar {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-top: 6px;
+  }
+  .ai-chip {
+    appearance: none;
+    background: var(--accent-pale);
+    color: var(--accent);
+    border: 1px solid transparent;
+    padding: 4px 10px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+    cursor: pointer; border-radius: 99px;
+    font-family: var(--body-font);
+    transition: all .12s;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .ai-chip:hover { background: var(--accent); color: #fff; }
+  .ai-chip:disabled { opacity: 0.5; cursor: wait; }
+  .ai-chip .spark { font-size: 10px; }
+
+  .ai-prompt-row {
+    display: none;
+    margin-top: 8px;
+    gap: 6px;
+  }
+  .ai-prompt-row.shown { display: flex; }
+  .ai-prompt-row input {
+    flex: 1; padding: 7px 10px;
+    border: 1px solid var(--accent); border-radius: 2px;
+    font-family: var(--body-font); font-size: 13px;
+    background: var(--surface);
+  }
+  .ai-prompt-row button {
+    padding: 7px 12px; font-size: 12px;
+  }
+  .ai-streaming { background-color: rgba(16,185,129,0.04); }
+
+  .topic-list {
+    margin-top: 8px; display: flex; flex-direction: column; gap: 4px;
+  }
+  .topic-item {
+    background: var(--surface); border: 1px solid var(--border-soft);
+    padding: 7px 10px; cursor: pointer; border-radius: 2px;
+    font-size: 13px; color: var(--text-soft);
+    transition: all .12s;
+  }
+  .topic-item:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Subject suggestions popover */
+  .subject-suggest {
+    position: absolute; right: 0; top: 100%; margin-top: 4px;
+    background: var(--surface); border: 1px solid var(--accent);
+    box-shadow: 0 12px 32px rgba(16,185,129,0.16);
+    z-index: 12; padding: 8px; border-radius: 2px;
+    min-width: 320px;
+    display: none;
+  }
+  .subject-suggest.open { display: block; }
+  .subject-suggest .opt {
+    padding: 8px 10px; cursor: pointer;
+    font-size: 13px; color: var(--text-soft);
+    border-radius: 2px; transition: background .12s;
+  }
+  .subject-suggest .opt:hover { background: var(--accent-pale); color: var(--accent); }
+  .subject-suggest .preheader-row {
+    border-top: 1px solid var(--border-soft); margin-top: 4px;
+    padding: 8px 10px; font-size: 11px; color: var(--muted);
+  }
+  .subject-suggest .preheader-row strong { color: var(--text); display: block; margin-top: 2px; font-weight: 500; font-size: 12px; }
+
   .empty-letter {
     text-align: center; padding: 64px 24px;
     color: var(--muted);
@@ -489,6 +560,8 @@
     <div class="rail-section">
       <div class="rail-label">Tools</div>
       <a class="nav-link" href="/hub/studio/drops">Drops Manager <span class="arrow">→</span></a>
+      <a class="nav-link" href="/hub/studio/qa">Q&amp;A Inbox <span class="arrow">→</span></a>
+      <a class="nav-link" href="/ask" target="_blank">Public ask form <span class="arrow">↗</span></a>
     </div>
   </div>
 
@@ -502,9 +575,13 @@
 
     <div id="letterEditor" style="display:none">
       <div class="letter-meta">
-        <div class="field">
-          <label for="letterSubject">Subject line</label>
+        <div class="field" style="position:relative;">
+          <label for="letterSubject">
+            Subject line
+            <button type="button" class="ai-chip" style="float:right;margin-top:-2px;" onclick="suggestSubject(event)" id="suggestSubjectBtn"><span class="spark">✨</span> Suggest</button>
+          </label>
           <input id="letterSubject" placeholder="What lands in their inbox preview">
+          <div class="subject-suggest" id="subjectSuggest"></div>
         </div>
         <div class="field">
           <label for="letterPreheader">Preheader (optional)</label>
@@ -664,6 +741,119 @@
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // AI STREAMING — POST to /api/studio/ai?op=… with body, stream SSE,
+  // accumulate chunks into the given textarea, fire onDone(finalText).
+  // ═══════════════════════════════════════════════════════════════
+  async function aiStream({ op, body, textarea, replace = true, onDone }) {
+    if (!textarea) return;
+    if (replace) textarea.value = '';
+    textarea.classList.add('ai-streaming');
+    textarea.disabled = false;
+
+    let finalText = '';
+    try {
+      const res = await fetch(`/api/studio/ai?op=${encodeURIComponent(op)}`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify(body),
+      });
+      if (res.status === 401) { showGate(); return; }
+      if (res.status === 429) {
+        const j = await res.json().catch(() => ({}));
+        alert(j.message || 'AI cap reached for today.');
+        return;
+      }
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || res.status + ' ' + res.statusText);
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const j = line.slice(6).trim();
+          if (j === '[DONE]') continue;
+          try {
+            const evt = JSON.parse(j);
+            if (evt.text) {
+              finalText += evt.text;
+              textarea.value += evt.text;
+              textarea.scrollTop = textarea.scrollHeight;
+            }
+          } catch {}
+        }
+      }
+      if (onDone) onDone(finalText);
+    } catch (e) {
+      alert('AI failed: ' + e.message);
+    } finally {
+      textarea.classList.remove('ai-streaming');
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // SUBJECT SUGGESTER
+  // ═══════════════════════════════════════════════════════════════
+  async function suggestSubject(e) {
+    e.preventDefault();
+    if (!state.letter || !state.letter.sections.length) {
+      alert('Add a section first — I need something to suggest from.');
+      return;
+    }
+    const popover = document.getElementById('subjectSuggest');
+    const btn = document.getElementById('suggestSubjectBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="spark">…</span> Thinking';
+    popover.classList.remove('open');
+
+    try {
+      const data = await api('/api/studio/ai?op=subject', {
+        method: 'POST',
+        body: JSON.stringify({ letter: state.letter }),
+      });
+      if (!data.subjects?.length) throw new Error('no_suggestions');
+      popover.innerHTML = data.subjects.map(s =>
+        `<div class="opt" data-subject>${esc(s)}</div>`
+      ).join('') + (data.preheader
+        ? `<div class="preheader-row">Preheader (auto-fills too):<strong>${esc(data.preheader)}</strong></div>`
+        : '');
+      popover.querySelectorAll('[data-subject]').forEach(el => {
+        el.onclick = () => {
+          state.letter.subject = el.textContent;
+          if (data.preheader) state.letter.preheader = data.preheader;
+          document.getElementById('letterSubject').value   = state.letter.subject;
+          document.getElementById('letterPreheader').value = state.letter.preheader;
+          popover.classList.remove('open');
+          scheduleSave();
+        };
+      });
+      popover.classList.add('open');
+    } catch (err) {
+      alert('Subject suggest failed: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="spark">✨</span> Suggest';
+    }
+  }
+  // Click-outside closes
+  document.addEventListener('click', (e) => {
+    const popover = document.getElementById('subjectSuggest');
+    if (!popover) return;
+    if (popover.classList.contains('open') &&
+        !popover.contains(e.target) &&
+        e.target.id !== 'suggestSubjectBtn' &&
+        !e.target.closest('#suggestSubjectBtn')) {
+      popover.classList.remove('open');
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════════
   // SECTION LIBRARY (rail)
   // ═══════════════════════════════════════════════════════════════
   function renderSectionLib() {
@@ -697,15 +887,32 @@
       wrap.innerHTML = `<div style="font-size:12px;color:var(--muted);padding:6px 10px;">No letters yet.<br>Click + New to start.</div>`;
       return;
     }
-    for (const l of state.letters) {
+    const drafts = state.letters.filter(l => l.status === 'draft');
+    const sent   = state.letters.filter(l => l.status === 'sent');
+
+    function rowFor(l) {
       const row = document.createElement('button');
       row.className = 'letter-row' + (l.id === state.letterId ? ' active' : '');
+      const subtitle = l.status === 'sent' && l.sentAt
+        ? new Date(Number(l.sentAt)).toLocaleDateString(undefined, { month:'short', day:'numeric' })
+        : '';
       row.innerHTML = `
-        <span class="name">${esc(l.name || 'Untitled')}</span>
+        <span class="name">${esc(l.name || 'Untitled')}${subtitle ? ` <span style="color:var(--muted);font-weight:400;font-size:11px;">· ${subtitle}</span>` : ''}</span>
         <span class="pill ${l.status}">${l.status}</span>
       `;
       row.onclick = () => openLetter(l.id);
-      wrap.appendChild(row);
+      return row;
+    }
+
+    if (drafts.length) {
+      for (const l of drafts) wrap.appendChild(rowFor(l));
+    }
+    if (sent.length) {
+      const sep = document.createElement('div');
+      sep.style.cssText = 'font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);padding:14px 10px 6px;font-weight:600;';
+      sep.textContent = `Sent (${sent.length})`;
+      wrap.appendChild(sep);
+      for (const l of sent.slice(0, 30)) wrap.appendChild(rowFor(l));
     }
   }
 
@@ -734,15 +941,59 @@
         <div class="idea-meta">
           <div>${idea.type ? '· ' + esc(state.sectionTypes[idea.type]?.label || idea.type) : ''}</div>
           <div class="idea-actions">
+            <button class="ai-chip" data-act="expand"><span class="spark">✨</span> Expand</button>
             <button class="btn btn-tiny" data-act="use">Use</button>
             <button class="icon-btn danger" data-act="delete" title="Delete">×</button>
           </div>
         </div>
       `;
+      el.querySelector('[data-act="expand"]').onclick = () => expandIdea(idea);
       el.querySelector('[data-act="use"]').onclick = () => useIdea(idea);
       el.querySelector('[data-act="delete"]').onclick = () => deleteIdea(idea.id);
       wrap.appendChild(el);
     }
+  }
+  async function expandIdea(idea) {
+    // Pick a type if not set
+    let typeId = idea.type;
+    if (!typeId || !state.sectionTypes[typeId]) {
+      const labels = state.sectionTypeOrder.map(id => state.sectionTypes[id]?.label || id);
+      const choice = window.prompt(`Expand into which section type?\n\n${state.sectionTypeOrder.map((id, i) => `${i + 1}. ${state.sectionTypes[id]?.label || id}`).join('\n')}\n\nEnter number:`, '2');
+      if (!choice) return;
+      const idx = parseInt(choice, 10) - 1;
+      if (isNaN(idx) || !state.sectionTypeOrder[idx]) { alert('Invalid choice.'); return; }
+      typeId = state.sectionTypeOrder[idx];
+    }
+    if (!state.letter) await newLetter();
+    addSection(typeId, {}, idea.id);
+    // Wait a tick for the DOM to render the new section
+    setTimeout(async () => {
+      const sec = state.letter.sections[state.letter.sections.length - 1];
+      const t = state.sectionTypes[typeId];
+      const targetField = (t.fields || []).find(f => f.aiExpandable);
+      if (!targetField) { alert('That section type can\'t be AI-expanded.'); return; }
+      // Find the textarea in the DOM
+      const ta = document.getElementById(`f_${sec.id}_${targetField.key}`);
+      if (!ta) return;
+      await aiStream({
+        op: 'expand',
+        body: { ideaText: idea.text, sectionType: typeId },
+        textarea: ta,
+        replace: true,
+        onDone: (text) => {
+          sec.fields[targetField.key] = text;
+          scheduleSave();
+        },
+      });
+      // Mark idea as used
+      try {
+        await api('/api/studio/ideas?id=' + encodeURIComponent(idea.id), {
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'used' }),
+        });
+        await reloadIdeas();
+      } catch {}
+    }, 60);
   }
   async function captureIdea() {
     const txt = document.getElementById('ideaText').value.trim();
@@ -908,20 +1159,79 @@
       const note = document.createElement('div');
       note.className = 'auto-note';
       if (t.dataSource === 'drops') {
-        note.innerHTML = `Drops auto-pull from your <a href="/hub/studio/drops" style="color:var(--accent);">Drops Manager</a>. The first ${state.studioConfig.maxDropsPerLetter || 4} active drops will appear in the rendered letter.`;
+        note.innerHTML = `Drops auto-pull from your <a href="/hub/studio/drops" style="color:var(--accent);">Drops Manager</a>. By default, the first ${state.studioConfig.maxDropsPerLetter || 4} active drops are included. Use the checkboxes below to override which ones go in this specific letter.`;
       } else if (t.dataSource === 'social_recent') {
-        note.innerHTML = `Recent post recap will pull from your IG/TikTok stats once Phase 3 ships. For now this section will render as a placeholder.`;
+        note.innerHTML = `Recent post recap will pull from your IG/TikTok stats once that integration ships. For now this section renders a placeholder.`;
       }
       container.appendChild(note);
     }
     for (const fld of (t.fields || [])) {
-      if (fld.hidden) continue;
+      if (fld.hidden && fld.key !== 'selectedDropIds') continue;
+      // Special case: drops selection picker
+      if (fld.key === 'selectedDropIds' && t.dataSource === 'drops') {
+        container.appendChild(renderDropsPicker(sec));
+        continue;
+      }
       const block = renderFieldBlock(fld, sec.fields[fld.key], (newVal) => {
         sec.fields[fld.key] = newVal;
         scheduleSave();
       }, sec);
       container.appendChild(block);
     }
+  }
+  function renderDropsPicker(sec) {
+    const wrap = document.createElement('div');
+    wrap.className = 'field-block';
+    wrap.innerHTML = `<label>Which drops to include</label>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Loading active drops…</div>`;
+
+    api('/api/studio/drops').then(data => {
+      const drops = data.drops || [];
+      if (!drops.length) {
+        wrap.innerHTML = `<label>Which drops to include</label>
+          <div style="font-size:12px;color:var(--muted);font-style:italic;">No active drops. <a href="/hub/studio/drops" style="color:var(--accent);">Add some →</a></div>`;
+        return;
+      }
+      // selectedDropIds = empty array means "auto" (use first N active).
+      // Non-empty array means explicit override.
+      let selected = Array.isArray(sec.fields.selectedDropIds) ? sec.fields.selectedDropIds : [];
+      const usingAuto = !selected.length;
+      const cap = state.studioConfig.maxDropsPerLetter || 4;
+
+      const list = document.createElement('div');
+      list.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
+      drops.forEach((d, i) => {
+        const row = document.createElement('label');
+        row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg);border:1px solid var(--border-soft);border-radius:2px;cursor:pointer;';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        // Default-checked: first N if using auto, or explicitly listed
+        cb.checked = usingAuto ? (i < cap) : selected.includes(d.id);
+        cb.onchange = () => {
+          const list2 = drops.filter((_, idx) => {
+            const cbi = wrap.querySelectorAll('input[type="checkbox"]')[idx];
+            return cbi.checked;
+          }).map(x => x.id);
+          sec.fields.selectedDropIds = list2;
+          scheduleSave();
+        };
+        const label = document.createElement('div');
+        label.style.cssText = 'flex:1;display:flex;align-items:center;gap:8px;';
+        label.innerHTML = `
+          <span style="font-family:var(--display-font);font-size:15px;color:var(--text);font-weight:500;">${esc(d.brand)}</span>
+          <code style="font-size:11px;color:var(--accent);background:var(--accent-pale);padding:2px 6px;border-radius:2px;">${esc(d.code)}</code>
+        `;
+        row.appendChild(cb);
+        row.appendChild(label);
+        list.appendChild(row);
+      });
+      wrap.innerHTML = `<label>Which drops to include</label>`;
+      wrap.appendChild(list);
+    }).catch(e => {
+      wrap.innerHTML = `<label>Which drops to include</label><div style="color:var(--danger);font-size:12px;">Couldn't load drops: ${esc(e.message)}</div>`;
+    });
+
+    return wrap;
   }
   function renderFieldBlock(fld, value, onChange, sec) {
     if (fld.type === 'list') return renderListField(fld, value, onChange, sec);
@@ -943,7 +1253,127 @@
     input.value = value || '';
     input.addEventListener('input', () => onChange(input.value));
     wrap.appendChild(input);
+
+    // ── AI toolbar (only for AI-expandable fields) ─────────────
+    if (fld.aiExpandable) {
+      const toolbar = document.createElement('div');
+      toolbar.className = 'ai-toolbar';
+
+      const genBtn = document.createElement('button');
+      genBtn.className = 'ai-chip';
+      genBtn.innerHTML = '<span class="spark">✨</span> Generate';
+      const polishBtn = document.createElement('button');
+      polishBtn.className = 'ai-chip';
+      polishBtn.innerHTML = '<span class="spark">🪄</span> Polish';
+      const topicBtn = document.createElement('button');
+      topicBtn.className = 'ai-chip';
+      topicBtn.innerHTML = '<span class="spark">💡</span> Topic ideas';
+
+      toolbar.appendChild(genBtn);
+      toolbar.appendChild(polishBtn);
+      toolbar.appendChild(topicBtn);
+      wrap.appendChild(toolbar);
+
+      // Generate prompt input row (hidden by default)
+      const promptRow = document.createElement('div');
+      promptRow.className = 'ai-prompt-row';
+      const promptIn = document.createElement('input');
+      promptIn.placeholder = 'What\'s it about? (one sentence)';
+      const promptGo = document.createElement('button');
+      promptGo.className = 'btn btn-sm btn-accent';
+      promptGo.textContent = 'Go';
+      promptRow.appendChild(promptIn);
+      promptRow.appendChild(promptGo);
+      wrap.appendChild(promptRow);
+
+      // Topic ideas list (hidden by default)
+      const topics = document.createElement('div');
+      topics.className = 'topic-list';
+      topics.style.display = 'none';
+      wrap.appendChild(topics);
+
+      genBtn.onclick = (e) => {
+        e.preventDefault();
+        promptRow.classList.toggle('shown');
+        topics.style.display = 'none';
+        if (promptRow.classList.contains('shown')) setTimeout(() => promptIn.focus(), 50);
+      };
+      promptGo.onclick = async (e) => {
+        e.preventDefault();
+        const prompt = promptIn.value.trim();
+        if (!prompt) return;
+        const recentSections = (state.letter?.sections || []).slice(0, 5).map(s => ({
+          type: s.type,
+          summary: pickSnippet(s.fields || {}).slice(0, 120),
+        }));
+        await aiStream({
+          op: 'generate',
+          body: { sectionType: sec.type, prompt, currentDraft: input.value, recentSections },
+          textarea: input,
+          replace: true,
+          onDone: (text) => onChange(text),
+        });
+        promptRow.classList.remove('shown');
+        promptIn.value = '';
+      };
+      polishBtn.onclick = async (e) => {
+        e.preventDefault();
+        if (!input.value.trim()) { alert('Nothing to polish yet — write something first.'); return; }
+        const instruction = window.prompt('How to polish? (e.g., "shorter", "more vulnerable", "remove the cliche line")', 'Tighten without losing the meaning. Keep her voice.');
+        if (!instruction) return;
+        await aiStream({
+          op: 'polish',
+          body: { text: input.value, instruction },
+          textarea: input,
+          replace: true,
+          onDone: (text) => onChange(text),
+        });
+      };
+      topicBtn.onclick = async (e) => {
+        e.preventDefault();
+        if (topics.style.display === 'block') {
+          topics.style.display = 'none';
+          return;
+        }
+        topics.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:6px 0;">Thinking…</div>';
+        topics.style.display = 'block';
+        promptRow.classList.remove('shown');
+        try {
+          const recentLetters = state.letters.slice(0, 4).map(l => ({ name: l.name, subject: l.subject }));
+          const data = await api(`/api/studio/ai?op=topics`, {
+            method: 'POST',
+            body: JSON.stringify({ sectionType: sec.type, recentLetters }),
+          });
+          if (!data.topics?.length) {
+            topics.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:6px 0;">No topic ideas right now — try writing the first sentence yourself and use Polish.</div>';
+            return;
+          }
+          topics.innerHTML = '';
+          data.topics.forEach(t => {
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = t;
+            item.onclick = () => {
+              promptIn.value = t;
+              promptRow.classList.add('shown');
+              topics.style.display = 'none';
+              setTimeout(() => promptIn.focus(), 30);
+            };
+            topics.appendChild(item);
+          });
+        } catch (err) {
+          topics.innerHTML = `<div style="font-size:11px;color:var(--danger);padding:6px 0;">Topic ideas failed: ${esc(err.message)}</div>`;
+        }
+      };
+    }
+
     return wrap;
+  }
+  function pickSnippet(f) {
+    for (const k of ['body','reflection','topic','title','intro','prize']) {
+      if (typeof f[k] === 'string' && f[k].trim()) return f[k].trim();
+    }
+    return '';
   }
   function renderListField(fld, value, onChange, sec) {
     const items = Array.isArray(value) ? [...value] : [];

@@ -15,6 +15,10 @@
     {
       "path": "/api/nurture-tick",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/studio/lockin-suggest",
+      "schedule": "0 18 * * 0"
     }
   ],
   "rewrites": [
@@ -22,7 +26,9 @@
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/terms", "destination": "/terms.html" },
     { "source": "/hub/studio", "destination": "/hub/studio/index.html" },
-    { "source": "/hub/studio/drops", "destination": "/hub/studio/drops.html" }
+    { "source": "/hub/studio/drops", "destination": "/hub/studio/drops.html" },
+    { "source": "/hub/studio/qa", "destination": "/hub/studio/qa.html" },
+    { "source": "/ask", "destination": "/ask.html" }
   ],
   "headers": [
     {

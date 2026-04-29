@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ask Mandi — Mandi Bagley</title>
+<meta name="description" content="Ask Mandi anything — recipes, training, faith, real life. She reads every question and answers in upcoming newsletters.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:           #FAF8F5;
+    --surface:      #FFFFFF;
+    --border:       #E5DFD3;
+    --text:         #000000;
+    --text-soft:    #3A3631;
+    --muted:        #8A857B;
+    --accent:       #10B981;
+    --accent-pale:  rgba(16,185,129,0.10);
+    --display-font: 'Cormorant Garamond', Georgia, serif;
+    --body-font:    'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--body-font);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .wrap {
+    max-width: 540px; margin: 0 auto;
+    padding: 60px 20px 80px;
+  }
+  .back {
+    color: var(--text-soft); text-decoration: none;
+    font-size: 12px; letter-spacing: 0.06em;
+    display: inline-block; margin-bottom: 30px;
+  }
+  .back:hover { color: var(--accent); }
+
+  h1 {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 56px; font-weight: 500;
+    margin: 0 0 8px; letter-spacing: -0.01em; line-height: 1.05;
+  }
+  h1 em { color: var(--accent); }
+  .lede {
+    font-size: 16px; color: var(--text-soft);
+    line-height: 1.6; margin: 0 0 36px; max-width: 460px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px 28px 24px;
+    border-radius: 4px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.04);
+  }
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .field input, .field textarea {
+    width: 100%; appearance: none;
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: var(--body-font);
+    font-size: 15px; padding: 11px 13px;
+    border-radius: 2px;
+  }
+  .field textarea { min-height: 120px; resize: vertical; line-height: 1.55; }
+  .field input:focus, .field textarea:focus {
+    outline: 0; border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-pale);
+  }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  /* honeypot */
+  .hp { position: absolute; left: -9999px; opacity: 0; height: 0; width: 0; }
+
+  .submit {
+    appearance: none; background: var(--accent); color: #fff;
+    border: 0; padding: 13px 28px;
+    font-family: var(--body-font); font-size: 13px; font-weight: 600;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    cursor: pointer; border-radius: 2px;
+    width: 100%;
+  }
+  .submit:hover { background: #0ea372; }
+  .submit:disabled { opacity: 0.6; cursor: wait; }
+
+  .disclosure {
+    font-size: 12px; color: var(--muted);
+    margin-top: 16px; line-height: 1.5;
+  }
+  .disclosure a { color: var(--text-soft); text-decoration: underline; }
+
+  .err, .ok {
+    padding: 12px 14px; border-radius: 2px;
+    font-size: 14px; margin-bottom: 16px;
+    display: none;
+  }
+  .err { background: rgba(196,69,69,0.08); border: 1px solid rgba(196,69,69,0.3); color: #c44; }
+  .ok  { background: var(--accent-pale); border: 1px solid var(--accent); color: var(--accent); }
+  .err.shown, .ok.shown { display: block; }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 42px; }
+    .field-row { grid-template-columns: 1fr; }
+    .wrap { padding: 40px 16px 60px; }
+    .card { padding: 22px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">← Back to mandibagley.com</a>
+  <h1>Ask <em>Mandi</em></h1>
+  <p class="lede">Got a question about training, recipes, faith, or real life? Send it in. I read every one and answer the best ones in the next Lock-In Letter.</p>
+
+  <div class="card">
+    <div class="ok" id="ok"></div>
+    <div class="err" id="err"></div>
+    <form id="askForm" autocomplete="off">
+      <div class="field">
+        <label for="question">Your question</label>
+        <textarea id="question" name="question" placeholder="What do you want me to answer?" required></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="name">First name (optional)</label>
+          <input id="name" name="name" type="text" placeholder="Jess">
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="you@example.com" required>
+        </div>
+      </div>
+      <input class="hp" name="hp" tabindex="-1" autocomplete="off">
+      <button class="submit" type="submit">Send my question</button>
+      <p class="disclosure">By submitting, you'll also be added to my newsletter. <a href="/unsubscribe">Unsubscribe</a> anytime.</p>
+    </form>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('askForm');
+  const ok   = document.getElementById('ok');
+  const err  = document.getElementById('err');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    ok.classList.remove('shown');
+    err.classList.remove('shown');
+    const btn = form.querySelector('.submit');
+    btn.disabled = true; btn.textContent = 'Sending…';
+
+    const data = {
+      question: document.getElementById('question').value.trim(),
+      email:    document.getElementById('email').value.trim(),
+      name:     document.getElementById('name').value.trim(),
+      hp:       document.querySelector('input[name="hp"]').value,
+    };
+    try {
+      const res = await fetch('/api/qa-submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.message || j.error || 'Send failed');
+      ok.textContent = j.message || 'Got it — I read every question.';
+      ok.classList.add('shown');
+      form.reset();
+    } catch (e) {
+      err.textContent = e.message;
+      err.classList.add('shown');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Send my question';
+    }
+  });
+</script>
+</body>
+</html>

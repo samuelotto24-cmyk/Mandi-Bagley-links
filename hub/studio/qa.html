@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Q&A Inbox · Letter Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:           #FAF8F5;
+    --surface:      #FFFFFF;
+    --surface-alt:  #F3F0EC;
+    --border:       #E5DFD3;
+    --border-soft:  #EFE9DC;
+    --text:         #000000;
+    --text-soft:    #3A3631;
+    --muted:        #8A857B;
+    --accent:       #10B981;
+    --accent-pale:  rgba(16,185,129,0.10);
+    --danger:       #C44545;
+    --display-font: 'Cormorant Garamond', Georgia, serif;
+    --body-font:    'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--body-font);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh; padding-bottom: 80px;
+  }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 5;
+    background: rgba(250,248,245,0.92);
+    backdrop-filter: saturate(140%) blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .topbar a.back {
+    color: var(--text-soft); text-decoration: none;
+    font-size: 13px;
+  }
+  .topbar a.back:hover { color: var(--accent); }
+  .topbar .brand {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 22px; line-height: 1; flex: 1;
+  }
+
+  .container { max-width: 880px; margin: 0 auto; padding: 28px 20px; }
+  h1 {
+    font-family: var(--display-font); font-weight: 500;
+    font-size: 44px; margin: 0 0 6px; letter-spacing: -0.01em;
+  }
+  h1 em { font-style: italic; color: var(--accent); }
+  .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
+
+  .ask-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent-pale); color: var(--accent);
+    padding: 8px 14px; font-size: 12px; font-weight: 600;
+    border-radius: 99px; text-decoration: none;
+    margin-bottom: 22px;
+  }
+  .ask-link:hover { background: var(--accent); color: #fff; }
+
+  .filters {
+    display: flex; gap: 4px; margin-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .filter {
+    background: none; border: 0;
+    padding: 9px 14px; font-size: 13px; font-weight: 500;
+    color: var(--muted); cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px; letter-spacing: 0.02em;
+  }
+  .filter.active { color: var(--text); border-bottom-color: var(--accent); }
+  .filter .count { font-size: 11px; color: var(--muted); margin-left: 6px; }
+
+  .qa-list { display: flex; flex-direction: column; gap: 10px; }
+  .qa-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 2px; padding: 16px 18px;
+    transition: border-color .12s;
+  }
+  .qa-card:hover { border-color: var(--text); }
+  .qa-card.starred { border-left: 3px solid var(--accent); }
+  .qa-card.used { opacity: 0.55; }
+  .qa-card.used:hover { opacity: 1; }
+  .qa-card.archived { opacity: 0.45; }
+  .qa-card.archived:hover { opacity: 1; }
+
+  .qa-meta {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 11px; color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .qa-meta .name { color: var(--text-soft); font-weight: 600; }
+  .qa-meta .pill {
+    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 99px; font-weight: 600;
+    background: var(--surface-alt); color: var(--muted);
+  }
+  .qa-meta .pill.starred { background: var(--accent-pale); color: var(--accent); }
+  .qa-meta .pill.used    { background: rgba(0,0,0,0.06);  color: var(--text-soft); }
+
+  .qa-question {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 22px; line-height: 1.35; color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .qa-actions {
+    display: flex; gap: 6px;
+    border-top: 1px solid var(--border-soft);
+    padding-top: 10px;
+  }
+  .btn {
+    appearance: none; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text);
+    font-family: var(--body-font); font-size: 12px; font-weight: 500;
+    padding: 6px 12px; cursor: pointer;
+    border-radius: 2px; transition: all .12s;
+  }
+  .btn:hover { border-color: var(--text); }
+  .btn.accent { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+  .btn.accent:hover { background: #0ea372; }
+  .btn.danger { color: var(--danger); }
+  .btn.danger:hover { border-color: var(--danger); background: rgba(196,69,69,0.06); }
+
+  .empty {
+    text-align: center; padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty h2 {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 26px; color: var(--text-soft); margin: 0 0 8px;
+    font-weight: 400;
+  }
+
+  .gate {
+    position: fixed; inset: 0;
+    background: var(--bg); z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .gate-card {
+    background: var(--surface); border: 1px solid var(--border);
+    width: 100%; max-width: 360px;
+    padding: 30px 28px; border-radius: 4px; text-align: center;
+  }
+  .gate-card h2 {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 30px; margin: 0 0 4px; font-weight: 500;
+  }
+  .gate-card p { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+  .gate-card input {
+    width: 100%; padding: 11px 14px; border: 1px solid var(--border);
+    border-radius: 2px; font-size: 14px; font-family: var(--body-font); margin-bottom: 12px;
+  }
+  .gate-card .btn { width: 100%; padding: 11px 14px; }
+  .gate-err { color: var(--danger); font-size: 12px; margin-top: 10px; min-height: 16px; }
+
+  @media (max-width: 700px) {
+    .container { padding: 18px 14px; }
+    h1 { font-size: 34px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate" style="display:none">
+  <div class="gate-card">
+    <h2>Q&amp;A Inbox</h2>
+    <p>Enter the hub password to continue.</p>
+    <input id="gatePw" type="password" autocomplete="current-password" placeholder="Password">
+    <button class="btn accent" onclick="gateLogin()">Enter</button>
+    <div class="gate-err" id="gateErr"></div>
+  </div>
+</div>
+
+<div class="topbar">
+  <a class="back" href="/hub/studio">← Studio</a>
+  <div class="brand">Q&amp;A Inbox</div>
+</div>
+
+<div class="container">
+  <h1>Reader <em>questions</em></h1>
+  <div class="subtitle">Anything submitted from your public <a href="/ask" target="_blank" style="color:var(--accent)">/ask</a> page lands here.</div>
+  <a class="ask-link" href="/ask" target="_blank">↗ Open public form</a>
+
+  <div class="filters" id="filters">
+    <button class="filter active" data-f="new">New <span class="count" id="cnt-new"></span></button>
+    <button class="filter" data-f="starred">Starred <span class="count" id="cnt-starred"></span></button>
+    <button class="filter" data-f="used">Used <span class="count" id="cnt-used"></span></button>
+    <button class="filter" data-f="archived">Archived <span class="count" id="cnt-archived"></span></button>
+  </div>
+
+  <div id="list" class="qa-list"></div>
+  <div id="empty" class="empty" style="display:none">
+    <h2>Nothing here yet</h2>
+    <p>Once questions come in, they show up here.</p>
+  </div>
+</div>
+
+<script>
+  let password = sessionStorage.getItem('hubPassword') || '';
+  let view = 'new';
+  let items = [];
+
+  function authHeaders() { return { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' }; }
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+  function showGate() { document.getElementById('gate').style.display = 'flex'; setTimeout(() => document.getElementById('gatePw').focus(), 50); }
+  function gateLogin() {
+    const pw = document.getElementById('gatePw').value.trim();
+    const err = document.getElementById('gateErr'); err.textContent = '';
+    if (!pw) return;
+    fetch('/api/auth', { headers: { 'Authorization': 'Bearer ' + pw } })
+      .then(r => { if (!r.ok) throw new Error('Incorrect password.'); return r.json(); })
+      .then(() => { password = pw; sessionStorage.setItem('hubPassword', pw); document.getElementById('gate').style.display = 'none'; load(); })
+      .catch(e => { err.textContent = e.message; });
+  }
+  document.getElementById('gatePw').addEventListener('keydown', e => { if (e.key === 'Enter') gateLogin(); });
+
+  document.querySelectorAll('.filter').forEach(f => {
+    f.onclick = () => {
+      view = f.dataset.f;
+      document.querySelectorAll('.filter').forEach(x => x.classList.toggle('active', x === f));
+      render();
+    };
+  });
+
+  async function load() {
+    try {
+      const res = await fetch('/api/studio/qa', { headers: authHeaders() });
+      if (res.status === 401) return showGate();
+      const data = await res.json();
+      items = data.items || [];
+      render();
+    } catch (e) {
+      document.getElementById('list').innerHTML = `<div style="color:var(--danger);text-align:center;padding:40px;">Couldn't load Q&A: ${esc(e.message)}</div>`;
+    }
+  }
+
+  function render() {
+    const counts = { new: 0, starred: 0, used: 0, archived: 0 };
+    for (const it of items) counts[it.status] = (counts[it.status] || 0) + 1;
+    Object.keys(counts).forEach(k => {
+      const el = document.getElementById('cnt-' + k);
+      if (el) el.textContent = counts[k] ? `(${counts[k]})` : '';
+    });
+
+    const list = document.getElementById('list');
+    const empty = document.getElementById('empty');
+    list.innerHTML = '';
+    const filtered = items.filter(it => it.status === view);
+    if (!filtered.length) { list.style.display = 'none'; empty.style.display = 'block'; return; }
+    list.style.display = ''; empty.style.display = 'none';
+
+    for (const it of filtered) {
+      const card = document.createElement('div');
+      card.className = 'qa-card ' + it.status;
+      card.innerHTML = `
+        <div class="qa-meta">
+          <span class="name">${esc(it.name || 'Anonymous')}</span>
+          <span>${esc(it.email || '')}</span>
+          <span>· ${new Date(it.createdAt).toLocaleDateString(undefined, { month:'short', day:'numeric' })}</span>
+          ${it.status !== 'new' ? `<span class="pill ${it.status}">${it.status}</span>` : ''}
+        </div>
+        <div class="qa-question">"${esc(it.question)}"</div>
+        <div class="qa-actions">
+          ${it.status === 'starred'
+            ? `<button class="btn" data-act="unstar">Unstar</button>`
+            : `<button class="btn accent" data-act="star">★ Star for next letter</button>`}
+          ${it.status === 'used'
+            ? `<button class="btn" data-act="reopen">Mark new</button>`
+            : `<button class="btn" data-act="used">Mark used</button>`}
+          <button class="btn" data-act="archive" style="margin-left:auto;">Archive</button>
+          <button class="btn danger" data-act="delete">Delete</button>
+        </div>
+      `;
+      card.querySelectorAll('[data-act]').forEach(b => {
+        b.onclick = () => {
+          const act = b.dataset.act;
+          if (act === 'delete') return remove(it.id);
+          const map = { star: 'starred', unstar: 'new', used: 'used', reopen: 'new', archive: 'archived' };
+          patch(it.id, map[act]);
+        };
+      });
+      list.appendChild(card);
+    }
+  }
+
+  async function patch(id, status) {
+    try {
+      await fetch('/api/studio/qa?id=' + encodeURIComponent(id), {
+        method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ status }),
+      });
+      load();
+    } catch (e) { alert('Update failed: ' + e.message); }
+  }
+  async function remove(id) {
+    if (!confirm('Delete this question? Cannot be undone.')) return;
+    try {
+      await fetch('/api/studio/qa?id=' + encodeURIComponent(id), {
+        method: 'DELETE', headers: authHeaders(),
+      });
+      load();
+    } catch (e) { alert('Delete failed: ' + e.message); }
+  }
+
+  if (!password) showGate(); else load();
+</script>
+</body>
+</html>

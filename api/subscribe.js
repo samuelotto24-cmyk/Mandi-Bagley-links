@@ -221,7 +221,7 @@ export default async function handler(req) {
   // She can pause it from Messages → "Emails that send themselves".
   const welcomePaused = await isCommsDisabled('welcome').catch(() => false);
   const welcome = welcomePaused
-    ? { ok: true, paused: true }
+    ? { ok: false, paused: true }
     : await sendWelcomeEmail(email);
 
   // Best-effort Beehiiv sync (for the ongoing newsletter; not the magnet).
@@ -247,5 +247,11 @@ export default async function handler(req) {
     } catch (_) { /* swallow */ }
   }
 
-  return json({ ok: true, welcomeSent: welcome.ok, beehiiv: beehiivOk, welcomeError: welcome.error || undefined });
+  return json({
+    ok: true,
+    welcomeSent: welcome.ok,
+    welcomePaused: !!welcome.paused,
+    beehiiv: beehiivOk,
+    welcomeError: welcome.error || undefined,
+  });
 }

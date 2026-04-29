@@ -104,8 +104,13 @@ export default async function handler(req) {
   if (!letter) return json({ error: 'letter_not_found' }, 404);
   const subject = (letter.subject || letter.name || '').trim();
   if (!subject) return json({ error: 'subject_required' }, 400);
-  if (!letter.sections || !letter.sections.length) {
+  // Custom HTML letters bypass sections; section letters need at least one
+  const isCustom = letter.type === 'custom';
+  if (!isCustom && (!letter.sections || !letter.sections.length)) {
     return json({ error: 'no_sections' }, 400);
+  }
+  if (isCustom && !(letter.customHtml || '').trim()) {
+    return json({ error: 'no_html', message: 'Custom letter has no HTML to send.' }, 400);
   }
 
   // Resolve recipients
@@ -117,15 +122,17 @@ export default async function handler(req) {
   }
   if (!recipients.length) return json({ error: 'no_recipients' }, 400);
 
-  // Render with brand overrides applied + drops auto-pulled
+  // Render with brand overrides applied + drops auto-pulled (sections only)
   const brand = await getBrand().catch(() => CLIENT_BRAND);
   const dataContext = {};
-  const types = new Set(letter.sections.map(s => s?.type).filter(Boolean));
-  if (types.has('drops')) {
-    const cap = brand.studioConfig?.maxDropsPerLetter || CLIENT_BRAND.studioConfig?.maxDropsPerLetter || 4;
-    dataContext.drops = (await listDrops()).slice(0, cap);
+  if (!isCustom) {
+    const types = new Set((letter.sections || []).map(s => s?.type).filter(Boolean));
+    if (types.has('drops')) {
+      const cap = brand.studioConfig?.maxDropsPerLetter || CLIENT_BRAND.studioConfig?.maxDropsPerLetter || 4;
+      dataContext.drops = (await listDrops()).slice(0, cap);
+    }
+    if (types.has('recap')) dataContext.recap = []; // Phase 4 wires this in
   }
-  if (types.has('recap')) dataContext.recap = []; // Phase 4 wires this in
 
   const html = renderLetter(letter, brand, dataContext);
   const text = buildPlainText(letter, brand);

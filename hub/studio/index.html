@@ -2348,13 +2348,21 @@
 
   // ═══════════════════════════════════════════════════════════════
   // BRAND DRAWER (right-slide over preview)
+  // Note: uses state.brandData (full /api/brand response with options +
+  // clientDefaults), NOT state.brand which holds the truncated subset
+  // from /api/studio/config used at boot.
   // ═══════════════════════════════════════════════════════════════
-  state.brand = null;
+  state.brandData = null;
   state.brandSaveTimer = null;
   async function openBrandDrawer() {
     document.getElementById('brandDrawer').classList.add('open');
     document.getElementById('brandBackdrop').classList.add('shown');
-    if (!state.brand) await loadBrandData();
+    // Always reload to get the freshest overrides + render options
+    if (!state.brandData || !state.brandData.options) {
+      const body = document.getElementById('brandDrawerBody');
+      body.innerHTML = `<div style="font-size:13px;color:var(--muted);padding:30px 0;text-align:center;">Loading…</div>`;
+      await loadBrandData();
+    }
     renderBrandDrawer();
   }
   function closeBrandDrawer() {
@@ -2362,12 +2370,20 @@
     document.getElementById('brandBackdrop').classList.remove('shown');
   }
   async function loadBrandData() {
-    const data = await api('/api/brand');
-    state.brand = data;
+    try {
+      state.brandData = await api('/api/brand');
+    } catch (e) {
+      console.error('loadBrandData failed', e);
+      state.brandData = null;
+    }
   }
   function renderBrandDrawer() {
-    if (!state.brand) return;
-    const b = state.brand;
+    if (!state.brandData || !state.brandData.options) {
+      const body = document.getElementById('brandDrawerBody');
+      body.innerHTML = `<div style="color:var(--danger);font-size:13px;padding:20px 0;">Couldn't load brand data. Try closing and reopening.</div>`;
+      return;
+    }
+    const b = state.brandData;
     const o = b.overrides || {};
     const body = document.getElementById('brandDrawerBody');
     body.innerHTML = `
@@ -2535,10 +2551,11 @@
       });
       const j = await res.json();
       if (!res.ok) throw new Error(j.error || 'save_failed');
-      state.brand.overrides = j.overrides;
-      state.brand.brand = j.brand;
-      // Update voiceGuide field if it changed
-      if (patch.voiceGuide !== undefined) state.brand.voiceGuide = j.brand.voiceGuide || '';
+      if (state.brandData) {
+        state.brandData.overrides = j.overrides;
+        state.brandData.brand = j.brand;
+        if (patch.voiceGuide !== undefined) state.brandData.voiceGuide = j.brand.voiceGuide || '';
+      }
       renderBrandDrawer();
       // Refresh preview to reflect new palette/fonts
       refreshPreview();

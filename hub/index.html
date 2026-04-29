@@ -168,9 +168,9 @@ const FONT_MAP = {
     --hub-text-muted: rgba(0,0,0,0.65);
     --hub-text-faint: rgba(0,0,0,0.40);
 
-    --emerald: #10B981;
-    --emerald-bg: rgba(16,185,129,0.08);
-    --emerald-border: rgba(16,185,129,0.2);
+    --emerald: #DC2626;
+    --emerald-bg: rgba(220,38,38,0.08);
+    --emerald-border: rgba(220,38,38,0.2);
     --purple: #7C6AF7;
     --purple-bg: rgba(124,106,247,0.08);
     --purple-border: rgba(124,106,247,0.2);
@@ -2591,7 +2591,7 @@ const FONT_MAP = {
 }
 .hub-tab:hover { background: rgba(0,0,0,0.03); color: var(--hub-text-primary); }
 .hub-tab.active { border: 1px solid transparent; }
-.hub-tab[data-tab="home"].active { color: #10B981; background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.2); }
+.hub-tab[data-tab="home"].active { color: #DC2626; background: rgba(220,38,38,0.08); border-color: rgba(220,38,38,0.2); }
 .hub-tab[data-tab="analytics"].active { color: #4F8EF7; background: rgba(79,142,247,0.08); border-color: rgba(79,142,247,0.2); }
 .hub-tab[data-tab="planner"].active { color: #F59E0B; background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2); }
 .hub-tab[data-tab="messages"].active { color: var(--accent); background: var(--accent-pale); border-color: var(--accent-border); }
@@ -2620,7 +2620,7 @@ const FONT_MAP = {
 .hub-nav-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .hub-create-btn {
   display: flex; align-items: center; gap: 6px; padding: 7px 16px;
-  background: #10B981; color: #fff; border: none; border-radius: 8px;
+  background: #DC2626; color: #fff; border: none; border-radius: 8px;
   font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
   cursor: pointer; transition: opacity 0.15s;
 }
@@ -2711,7 +2711,7 @@ a.hub-nav-icon { text-decoration: none; }
 }
 .support-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0;
-  height: 3px; background: var(--card-color, #10B981); border-radius: 12px 12px 0 0;
+  height: 3px; background: var(--card-color, #DC2626); border-radius: 12px 12px 0 0;
 }
 .support-card-header { margin-bottom: 14px; }
 
@@ -3385,7 +3385,7 @@ a.hub-nav-icon { text-decoration: none; }
   .hub-tab.active {
     background: transparent !important;
   }
-  .hub-tab[data-tab="home"].active { color: #10B981; }
+  .hub-tab[data-tab="home"].active { color: #DC2626; }
   .hub-tab[data-tab="analytics"].active { color: #4F8EF7; }
   .hub-tab[data-tab="planner"].active { color: #F59E0B; }
   .hub-tab[data-tab="messages"].active { color: #15110d; }
@@ -6045,17 +6045,17 @@ a.hub-nav-icon { text-decoration: none; }
 <nav class="hub-nav">
   <div class="hub-nav-brand">
     <svg width="24" height="24" viewBox="0 0 160 160" fill="none">
-      <rect x="18" y="18" width="52" height="52" rx="10" fill="none" stroke="#10B981" stroke-width="7"/>
-      <text x="44" y="54" text-anchor="middle" font-family="DM Sans" font-size="28" font-weight="600" fill="#10B981">S</text>
-      <rect x="90" y="18" width="52" height="52" rx="10" fill="none" stroke="#10B981" stroke-width="5" opacity="0.2"/>
-      <rect x="18" y="90" width="52" height="52" rx="10" fill="none" stroke="#10B981" stroke-width="5" opacity="0.2"/>
-      <rect x="90" y="90" width="52" height="52" rx="10" fill="#10B981"/>
+      <rect x="18" y="18" width="52" height="52" rx="10" fill="none" stroke="#DC2626" stroke-width="7"/>
+      <text x="44" y="54" text-anchor="middle" font-family="DM Sans" font-size="28" font-weight="600" fill="#DC2626">S</text>
+      <rect x="90" y="18" width="52" height="52" rx="10" fill="none" stroke="#DC2626" stroke-width="5" opacity="0.2"/>
+      <rect x="18" y="90" width="52" height="52" rx="10" fill="none" stroke="#DC2626" stroke-width="5" opacity="0.2"/>
+      <rect x="90" y="90" width="52" height="52" rx="10" fill="#DC2626"/>
       <text x="116" y="126" text-anchor="middle" font-family="DM Sans" font-size="28" font-weight="600" fill="#090907">O</text>
     </svg>
     <span class="hub-nav-name" id="hubNavName">Creator Hub</span>
   </div>
   <div class="hub-nav-tabs">
-    <button class="hub-tab active" data-tab="home" onclick="switchView('home')" style="--tab-color: #10B981">
+    <button class="hub-tab active" data-tab="home" onclick="switchView('home')" style="--tab-color: #DC2626">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
       <span>Home</span>
     </button>
@@ -6077,7 +6077,7 @@ a.hub-nav-icon { text-decoration: none; }
     </button>
   </div>
   <div class="hub-nav-actions">
-    <a href="/hub/studio" class="hub-create-btn" title="Open Letter Studio" style="background:#10B981;border-color:#10B981;color:#fff;text-decoration:none;">
+    <a href="/hub/studio" class="hub-create-btn" title="Open Letter Studio" style="background:#DC2626;border-color:#DC2626;color:#fff;text-decoration:none;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9 6 9-6"/><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7"/><path d="M3 7l9-4 9 4"/></svg>
       <span>Letter Studio</span>
     </a>
@@ -6240,9 +6240,9 @@ a.hub-nav-icon { text-decoration: none; }
 
   <!-- ZONE C — SUPPORT GRID -->
   <div class="home-support-grid">
-    <div class="support-card" style="--card-color: #10B981">
+    <div class="support-card" style="--card-color: #DC2626">
       <div class="support-card-header">
-        <span class="section-label-new" style="background: #10B981">BRAND CODES <button class="help-btn" onclick="showHelp(this,event)" data-help-key="brandCodes">?</button></span>
+        <span class="section-label-new" style="background: #DC2626">BRAND CODES <button class="help-btn" onclick="showHelp(this,event)" data-help-key="brandCodes">?</button></span>
       </div>
       <div id="homeBrandCodesList"></div>
     </div>
@@ -6598,13 +6598,13 @@ a.hub-nav-icon { text-decoration: none; }
       position:relative;overflow:hidden;
       background:linear-gradient(135deg, #FFFFFF 0%, #F3F0EC 100%);
       border:2px solid var(--accent);
-      box-shadow:0 18px 48px rgba(16,185,129,0.14);
+      box-shadow:0 18px 48px rgba(220,38,38,0.14);
       padding:26px 28px 24px; border-radius:6px;
       margin-bottom:32px;
     ">
       <div style="
         position:absolute;top:-40px;right:-40px;width:180px;height:180px;
-        background:radial-gradient(circle, rgba(16,185,129,0.14), transparent 70%);
+        background:radial-gradient(circle, rgba(220,38,38,0.14), transparent 70%);
         pointer-events:none;
       "></div>
       <div style="display:flex;align-items:flex-start;gap:18px;position:relative;">
@@ -6612,7 +6612,7 @@ a.hub-nav-icon { text-decoration: none; }
           width:56px;height:56px;flex:none;
           background:var(--accent);color:#fff;
           border-radius:14px;display:flex;align-items:center;justify-content:center;
-          box-shadow:0 8px 20px rgba(16,185,129,0.32);
+          box-shadow:0 8px 20px rgba(220,38,38,0.32);
         ">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9 6 9-6"/><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7"/><path d="M3 7l9-4 9 4"/></svg>
         </span>
@@ -9561,7 +9561,7 @@ function renderHeatmap(hourlyData) {
       } else if (intensity < 0.75) {
         bg = 'rgba(34,197,94,' + (0.4 + intensity * 0.6).toFixed(2) + ')';
       } else {
-        bg = 'rgba(16,185,129,' + (0.6 + intensity * 0.4).toFixed(2) + ')';
+        bg = 'rgba(220,38,38,' + (0.6 + intensity * 0.4).toFixed(2) + ')';
       }
       html += '<div class="heatmap-cell" style="background:' + bg + '" data-day="' + days[d] + '" data-hour="' + h + '" data-count="' + count + '" onmouseenter="showHeatmapTip(event,this)" onmouseleave="hideHeatmapTip()"></div>';
     }
@@ -9572,7 +9572,7 @@ function renderHeatmap(hourlyData) {
   html += '<div class="heatmap-legend">';
   html += '<span class="heatmap-legend-label">Less</span>';
   html += '<div class="heatmap-legend-bar">';
-  var legendColors = ['rgba(0,0,0,0.04)','rgba(239,68,68,0.4)','rgba(245,158,11,0.6)','rgba(34,197,94,0.7)','rgba(16,185,129,0.9)'];
+  var legendColors = ['rgba(0,0,0,0.04)','rgba(239,68,68,0.4)','rgba(245,158,11,0.6)','rgba(34,197,94,0.7)','rgba(220,38,38,0.9)'];
   for (var i = 0; i < legendColors.length; i++) {
     html += '<div class="heatmap-legend-swatch" style="background:' + legendColors[i] + '"></div>';
   }
@@ -13229,25 +13229,25 @@ var automationsData = [];
 /* ── Suggested Automations (niche-based) ── */
 var SUGGESTED_AUTOMATIONS = {
   fitness: [
-    { keyword: 'MEAL', emoji: '🥗', headline: 'Free 7-Day Meal Plan', desc: 'Simple, delicious meals to hit your macros', freebieType: 'pdf_link', color: '#10B981' },
+    { keyword: 'MEAL', emoji: '🥗', headline: 'Free 7-Day Meal Plan', desc: 'Simple, delicious meals to hit your macros', freebieType: 'pdf_link', color: '#DC2626' },
     { keyword: 'WORKOUT', emoji: '💪', headline: 'Free Workout Guide', desc: 'My go-to routine you can do anywhere', freebieType: 'pdf_link', color: '#4F8EF7' },
     { keyword: 'RECIPE', emoji: '🍳', headline: 'Top 10 Easy Recipes', desc: 'High-protein meals in under 20 minutes', freebieType: 'pdf_link', color: '#F59E0B' },
     { keyword: 'LINKS', emoji: '🔗', headline: 'My Favorite Products', desc: 'Everything I use and recommend', freebieType: 'external_url', color: '#F472B6' },
   ],
   beauty: [
     { keyword: 'ROUTINE', emoji: '✨', headline: 'My Skincare Routine', desc: 'Step-by-step morning & night routine', freebieType: 'pdf_link', color: '#F472B6' },
-    { keyword: 'DEALS', emoji: '🏷️', headline: 'Exclusive Discount Codes', desc: 'Save on all my favorite products', freebieType: 'discount_code', color: '#10B981' },
+    { keyword: 'DEALS', emoji: '🏷️', headline: 'Exclusive Discount Codes', desc: 'Save on all my favorite products', freebieType: 'discount_code', color: '#DC2626' },
     { keyword: 'FAVES', emoji: '💄', headline: 'My Holy Grail Products', desc: 'The products I genuinely can\'t live without', freebieType: 'external_url', color: '#7C6AF7' },
   ],
   food: [
     { keyword: 'RECIPE', emoji: '🍳', headline: 'Free Recipe Pack', desc: '5 fan-favorite recipes with full instructions', freebieType: 'pdf_link', color: '#F59E0B' },
-    { keyword: 'MEALPREP', emoji: '📦', headline: 'Meal Prep Guide', desc: 'Save time with a full week of prepped meals', freebieType: 'pdf_link', color: '#10B981' },
+    { keyword: 'MEALPREP', emoji: '📦', headline: 'Meal Prep Guide', desc: 'Save time with a full week of prepped meals', freebieType: 'pdf_link', color: '#DC2626' },
     { keyword: 'LIST', emoji: '🛒', headline: 'Grocery Shopping List', desc: 'My go-to weekly shopping list', freebieType: 'pdf_link', color: '#4F8EF7' },
   ],
   lifestyle: [
     { keyword: 'GUIDE', emoji: '📖', headline: 'Free Starter Guide', desc: 'Everything you need to get started', freebieType: 'pdf_link', color: '#7C6AF7' },
     { keyword: 'FAVES', emoji: '⭐', headline: 'My Favorites List', desc: 'Everything I use and love', freebieType: 'external_url', color: '#F59E0B' },
-    { keyword: 'DEALS', emoji: '🏷️', headline: 'Exclusive Deals', desc: 'Discount codes just for my followers', freebieType: 'discount_code', color: '#10B981' },
+    { keyword: 'DEALS', emoji: '🏷️', headline: 'Exclusive Deals', desc: 'Discount codes just for my followers', freebieType: 'discount_code', color: '#DC2626' },
   ],
 };
 
@@ -13932,7 +13932,7 @@ function renderPlannerPosts() {
         pills.style.cssText = 'display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;';
         activeAutos.forEach(function(a) {
           var pill = document.createElement('span');
-          pill.style.cssText = 'font-size:8px;padding:2px 6px;border-radius:4px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:#10B981;font-weight:600;letter-spacing:0.5px;';
+          pill.style.cssText = 'font-size:8px;padding:2px 6px;border-radius:4px;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);color:#DC2626;font-weight:600;letter-spacing:0.5px;';
           pill.textContent = a.keyword;
           pill.title = a.captureHeadline + ' — active automation';
           pills.appendChild(pill);

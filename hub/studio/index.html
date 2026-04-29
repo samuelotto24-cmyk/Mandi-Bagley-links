@@ -17,9 +17,9 @@
     --text:         #000000;
     --text-soft:    #3A3631;
     --muted:        #8A857B;
-    --accent:       #10B981;
-    --accent-pale:  rgba(16,185,129,0.10);
-    --accent-border:rgba(16,185,129,0.32);
+    --accent:       #DC2626;
+    --accent-pale:  rgba(220,38,38,0.10);
+    --accent-border:rgba(220,38,38,0.32);
     --danger:       #C44545;
     --display-font: 'Cormorant Garamond', Georgia, serif;
     --body-font:    'DM Sans', 'Helvetica Neue', Arial, sans-serif;
@@ -121,7 +121,7 @@
     background: var(--accent); color: #fff; border-color: var(--accent);
     font-weight: 600;
   }
-  .btn-accent:hover { background: #0ea372; border-color: #0ea372; }
+  .btn-accent:hover { background: #B91C1C; border-color: #B91C1C; }
   .btn-ghost-danger { color: var(--danger); border-color: transparent; }
   .btn-ghost-danger:hover { border-color: var(--danger); background: rgba(196,69,69,0.06); }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -431,12 +431,23 @@
     transition: border-color .12s, box-shadow .12s;
   }
   .section-card:hover { border-color: var(--text); }
-  .section-card.expanded { border-color: var(--accent); box-shadow: 0 6px 20px rgba(16,185,129,0.08); }
+  .section-card.expanded { border-color: var(--accent); box-shadow: 0 6px 20px rgba(220,38,38,0.08); }
 
   .section-head {
     display: flex; align-items: center; padding: 12px 16px;
     cursor: pointer; gap: 12px;
   }
+  .drag-handle {
+    cursor: grab;
+    color: var(--muted); font-size: 14px; line-height: 1;
+    padding: 4px 2px; user-select: none;
+    transition: color .12s;
+  }
+  .drag-handle:hover { color: var(--text); }
+  .drag-handle:active { cursor: grabbing; }
+  .section-card.dragging { opacity: 0.4; }
+  .section-card.drop-above { border-top: 3px solid var(--accent); }
+  .section-card.drop-below { border-bottom: 3px solid var(--accent); }
   .section-emoji { font-size: 18px; }
   .section-label {
     font-family: var(--display-font); font-size: 20px; font-weight: 500;
@@ -511,26 +522,70 @@
     padding: 8px 12px; margin-bottom: 12px; border-radius: 0 2px 2px 0;
   }
 
-  /* ── AI toolbar (below AI-expandable fields) ─────────── */
+  /* ── AI assist (below AI-expandable fields) ─────────── */
+  .ai-assist {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: linear-gradient(135deg, rgba(220,38,38,0.04) 0%, rgba(220,38,38,0.08) 100%);
+    border: 1px solid rgba(220,38,38,0.18);
+    border-radius: 4px;
+  }
+  .ai-assist-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .ai-assist-label {
+    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .ai-assist-label .spark {
+    font-size: 12px;
+    animation: aiPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes aiPulse {
+    0%, 100% { opacity: 0.7; transform: scale(1); }
+    50%      { opacity: 1;   transform: scale(1.18); }
+  }
   .ai-toolbar {
     display: flex; flex-wrap: wrap; gap: 6px;
-    margin-top: 6px;
   }
   .ai-chip {
     appearance: none;
-    background: var(--accent-pale);
+    background: #fff;
     color: var(--accent);
-    border: 1px solid transparent;
-    padding: 4px 10px;
-    font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+    border: 1px solid var(--accent);
+    padding: 5px 12px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
     cursor: pointer; border-radius: 99px;
     font-family: var(--body-font);
     transition: all .12s;
-    display: inline-flex; align-items: center; gap: 4px;
+    display: inline-flex; align-items: center; gap: 5px;
   }
   .ai-chip:hover { background: var(--accent); color: #fff; }
   .ai-chip:disabled { opacity: 0.5; cursor: wait; }
-  .ai-chip .spark { font-size: 10px; }
+  .ai-chip .spark { font-size: 11px; }
+
+  /* Streaming state — visible "AI is writing..." */
+  .ai-streaming {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px rgba(220,38,38,0.18), 0 0 24px rgba(220,38,38,0.12) !important;
+    animation: aiStreamPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes aiStreamPulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(220,38,38,0.18), 0 0 24px rgba(220,38,38,0.12); }
+    50%      { box-shadow: 0 0 0 5px rgba(220,38,38,0.28), 0 0 32px rgba(220,38,38,0.22); }
+  }
+  .ai-status-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700;
+  }
+  .ai-status-badge::before {
+    content: ''; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent);
+    animation: aiPulse 1.2s ease-in-out infinite;
+  }
 
   .ai-prompt-row {
     display: none;
@@ -547,7 +602,7 @@
   .ai-prompt-row button {
     padding: 7px 12px; font-size: 12px;
   }
-  .ai-streaming { background-color: rgba(16,185,129,0.04); }
+  .ai-streaming { background-color: rgba(220,38,38,0.04); }
 
   .topic-list {
     margin-top: 8px; display: flex; flex-direction: column; gap: 4px;
@@ -564,7 +619,7 @@
   .subject-suggest {
     position: absolute; right: 0; top: 100%; margin-top: 4px;
     background: var(--surface); border: 1px solid var(--accent);
-    box-shadow: 0 12px 32px rgba(16,185,129,0.16);
+    box-shadow: 0 12px 32px rgba(220,38,38,0.16);
     z-index: 12; padding: 8px; border-radius: 2px;
     min-width: 320px;
     display: none;
@@ -686,8 +741,8 @@
     position: fixed;
     border: 3px solid var(--accent);
     border-radius: 6px;
-    box-shadow: 0 0 0 3px rgba(16,185,129,0.25),
-                0 0 60px 8px rgba(16,185,129,0.45),
+    box-shadow: 0 0 0 3px rgba(220,38,38,0.25),
+                0 0 60px 8px rgba(220,38,38,0.45),
                 inset 0 0 0 9999px rgba(0,0,0,0);
     pointer-events: none;
     transition: top .3s, left .3s, width .3s, height .3s;
@@ -1167,6 +1222,13 @@
     if (replace) textarea.value = '';
     textarea.classList.add('ai-streaming');
     textarea.disabled = false;
+    // Find the AI assist box for this field and flip its status badge on
+    const assistBox = textarea.parentElement?.querySelector('.ai-assist');
+    const statusBadge = assistBox?.querySelector('[data-status]');
+    if (statusBadge) {
+      statusBadge.textContent = op === 'polish' ? 'Polishing' : op === 'expand' ? 'Expanding' : 'Generating';
+      statusBadge.style.display = '';
+    }
 
     let finalText = '';
     try {
@@ -1213,6 +1275,7 @@
       alert('AI failed: ' + e.message);
     } finally {
       textarea.classList.remove('ai-streaming');
+      if (statusBadge) statusBadge.style.display = 'none';
     }
   }
 
@@ -1536,8 +1599,10 @@
     card.className = 'section-card' + (sec.id === state.expandedSectionId ? ' expanded' : '');
 
     const summary = sectionSummaryText(sec);
+    card.dataset.sectionIdx = idx;
     card.innerHTML = `
       <div class="section-head">
+        <span class="drag-handle" draggable="true" title="Drag to reorder">⋮⋮</span>
         <div class="section-emoji">${esc(t.emoji || '')}</div>
         <div class="section-label">${esc(t.label)}</div>
         <div class="section-summary">${esc(summary)}</div>
@@ -1550,11 +1615,52 @@
       <div class="section-body" data-body></div>
     `;
 
-    // Click on head toggles expanded
+    // Click on head toggles expanded (but not the drag handle or actions)
     card.querySelector('.section-head').addEventListener('click', e => {
       if (e.target.closest('.section-actions')) return;
+      if (e.target.classList.contains('drag-handle')) return;
       state.expandedSectionId = state.expandedSectionId === sec.id ? null : sec.id;
       renderSections();
+    });
+
+    // Drag-and-drop reorder
+    const handle = card.querySelector('.drag-handle');
+    handle.addEventListener('dragstart', e => {
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(idx));
+      card.classList.add('dragging');
+    });
+    handle.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      document.querySelectorAll('.section-card').forEach(c => {
+        c.classList.remove('drop-above', 'drop-below');
+      });
+    });
+    card.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const rect = card.getBoundingClientRect();
+      const above = (e.clientY - rect.top) < rect.height / 2;
+      card.classList.toggle('drop-above', above);
+      card.classList.toggle('drop-below', !above);
+    });
+    card.addEventListener('dragleave', () => {
+      card.classList.remove('drop-above', 'drop-below');
+    });
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      const fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+      const above = card.classList.contains('drop-above');
+      card.classList.remove('drop-above', 'drop-below');
+      if (isNaN(fromIdx) || fromIdx === idx) return;
+      const sections = state.letter.sections;
+      const [moved] = sections.splice(fromIdx, 1);
+      // Adjust target index since we removed an earlier item
+      let toIdx = above ? idx : idx + 1;
+      if (fromIdx < idx) toIdx--;
+      sections.splice(toIdx, 0, moved);
+      renderSections();
+      scheduleSave();
     });
 
     card.querySelector('[data-act="up"]').onclick   = (e) => { e.stopPropagation(); moveSection(idx, -1); };
@@ -1724,8 +1830,16 @@
     input.addEventListener('input', () => onChange(input.value));
     wrap.appendChild(input);
 
-    // ── AI toolbar (only for AI-expandable fields) ─────────────
+    // ── AI assist box (only for AI-expandable fields) ─────────────
     if (fld.aiExpandable) {
+      const assist = document.createElement('div');
+      assist.className = 'ai-assist';
+      assist.innerHTML = `
+        <div class="ai-assist-header">
+          <span class="ai-assist-label"><span class="spark">✨</span> AI assist</span>
+          <span class="ai-status-badge" data-status style="display:none;">Generating</span>
+        </div>
+      `;
       const toolbar = document.createElement('div');
       toolbar.className = 'ai-toolbar';
 
@@ -1742,9 +1856,9 @@
       toolbar.appendChild(genBtn);
       toolbar.appendChild(polishBtn);
       toolbar.appendChild(topicBtn);
-      wrap.appendChild(toolbar);
+      assist.appendChild(toolbar);
 
-      // Generate prompt input row (hidden by default)
+      // Generate prompt input row (hidden by default) — lives inside assist
       const promptRow = document.createElement('div');
       promptRow.className = 'ai-prompt-row';
       const promptIn = document.createElement('input');
@@ -1754,13 +1868,15 @@
       promptGo.textContent = 'Go';
       promptRow.appendChild(promptIn);
       promptRow.appendChild(promptGo);
-      wrap.appendChild(promptRow);
+      assist.appendChild(promptRow);
 
       // Topic ideas list (hidden by default)
       const topics = document.createElement('div');
       topics.className = 'topic-list';
       topics.style.display = 'none';
-      wrap.appendChild(topics);
+      assist.appendChild(topics);
+
+      wrap.appendChild(assist);
 
       genBtn.onclick = (e) => {
         e.preventDefault();
@@ -2252,6 +2368,20 @@
         <div id="bdBodyFonts"></div>
       </div>
       <div class="brand-section">
+        <div class="brand-section-label">Custom palette (per-token)</div>
+        <p style="font-size:11px;color:var(--muted);margin:-4px 0 8px;">Tweak individual tokens. These override whatever the preset sets.</p>
+        <div id="bdPalette"></div>
+        <div style="margin-top:6px;"><button class="btn btn-tiny" onclick="resetBrandPalette()">Reset palette tokens</button></div>
+      </div>
+      <div class="brand-section">
+        <div class="brand-section-label">Headline size <span id="bdSizeVal" style="color:var(--accent);margin-left:6px;font-weight:600;"></span></div>
+        <p style="font-size:11px;color:var(--muted);margin:-4px 0 8px;">How big the letter title renders. Default is 34px.</p>
+        <input type="range" id="bdHeadline" min="24" max="80" step="1" style="width:100%;accent-color:var(--accent);">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:2px;">
+          <span>24</span><span>80</span>
+        </div>
+      </div>
+      <div class="brand-section">
         <div class="brand-section-label">Voice guide (used by AI)</div>
         <p style="font-size:11px;color:var(--muted);margin:-4px 0 8px;">The rules the AI reads on every Generate / Polish / Expand call. Edit if your voice evolves.</p>
         <div class="voice-edit"><textarea id="bdVoice" placeholder="(Voice rules)">${esc(b.voiceGuide || '')}</textarea></div>
@@ -2292,10 +2422,75 @@
     renderBdFontList('bdDisplayFonts', b.options.displayFonts, 'displayFontId', o.displayFontId, b.clientDefaults.displayFont);
     renderBdFontList('bdBodyFonts',    b.options.bodyFonts,    'bodyFontId',    o.bodyFontId,    b.clientDefaults.bodyFont);
 
+    // Per-token palette
+    renderBdPalette(b);
+    // Headline size slider
+    const hl = document.getElementById('bdHeadline');
+    const hlVal = document.getElementById('bdSizeVal');
+    const currentSize = (typeof o.headlineSize === 'number') ? o.headlineSize : 34;
+    hl.value = currentSize;
+    hlVal.textContent = currentSize + 'px' + (typeof o.headlineSize === 'number' ? '' : ' (default)');
+    hl.addEventListener('input', e => {
+      hlVal.textContent = e.target.value + 'px';
+      clearTimeout(state.brandSaveTimer);
+      state.brandSaveTimer = setTimeout(() => saveBrandPatch({ headlineSize: Number(e.target.value) }), 320);
+    });
+
     document.getElementById('bdVoice').addEventListener('input', e => {
       clearTimeout(state.brandSaveTimer);
       state.brandSaveTimer = setTimeout(() => saveBrandPatch({ voiceGuide: e.target.value }), 600);
     });
+  }
+
+  // Per-token color editor — every render token gets a color wheel.
+  // Click any swatch to open the OS color wheel and pick exactly the shade
+  // you want. "Overridden" pill shows when a token is set above the preset.
+  const PALETTE_TOKENS = [
+    { key: 'bg',         label: 'Page background',  desc: 'Outside the letter card' },
+    { key: 'surface',    label: 'Letter card',      desc: 'The card behind sections' },
+    { key: 'surfaceAlt', label: 'Card gradient',    desc: 'Bottom of the card gradient' },
+    { key: 'border',     label: 'Border',           desc: 'Card borders + dividers' },
+    { key: 'borderSoft', label: 'Soft border',      desc: 'Section dividers' },
+    { key: 'text',       label: 'Text (primary)',   desc: 'Headlines + emphasis text' },
+    { key: 'textSoft',   label: 'Body text',        desc: 'Paragraphs + body copy' },
+    { key: 'muted',      label: 'Muted',            desc: 'Captions, kickers, footer text' },
+    { key: 'accent',     label: 'Accent',           desc: 'Highlights, code chips, links' },
+    { key: 'ctaBg',      label: 'CTA button bg',    desc: 'Primary button background' },
+    { key: 'ctaFg',      label: 'CTA button text',  desc: 'Primary button text color' },
+  ];
+  function renderBdPalette(b) {
+    const wrap = document.getElementById('bdPalette');
+    wrap.innerHTML = '';
+    const custom = b.overrides?.customPalette || {};
+    const effective = b.brand;       // brand object after presets + overrides applied
+    const defaults  = b.clientDefaults.palette;
+    for (const t of PALETTE_TOKENS) {
+      const overridden = !!custom[t.key];
+      const value = (overridden ? custom[t.key] : effective[t.key]) || defaults[t.key];
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-soft);';
+      row.innerHTML = `
+        <label style="position:relative;width:36px;height:36px;flex-shrink:0;cursor:pointer;border-radius:50%;overflow:hidden;border:2px solid var(--border);box-shadow:inset 0 0 0 2px #fff,0 2px 6px rgba(0,0,0,0.08);transition:transform .12s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform=''" title="Click to open color wheel">
+          <input type="color" value="${value}" data-token="${t.key}" style="position:absolute;inset:0;border:0;padding:0;cursor:pointer;background:${value};">
+        </label>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;color:var(--text);font-weight:600;">${t.label}</div>
+          <div style="font-size:10px;color:var(--muted);">${t.desc}${overridden ? ' · <span style="color:var(--accent);font-weight:600;">overridden</span>' : ''}</div>
+        </div>
+        <code style="font-size:10px;color:var(--muted);background:var(--bg);padding:3px 6px;border-radius:2px;">${value}</code>
+      `;
+      const input = row.querySelector('input[type="color"]');
+      input.addEventListener('input', e => {
+        clearTimeout(state.brandSaveTimer);
+        const newPalette = { ...(b.overrides?.customPalette || {}), [t.key]: e.target.value };
+        state.brandSaveTimer = setTimeout(() => saveBrandPatch({ customPalette: newPalette }), 280);
+      });
+      wrap.appendChild(row);
+    }
+  }
+  function resetBrandPalette() {
+    if (!confirm('Clear all per-token palette overrides? Preset / defaults will take over.')) return;
+    saveBrandPatch({ customPalette: {} });
   }
   function renderBdFontList(elId, fonts, key, current, defaultFamily) {
     const wrap = document.getElementById(elId);

@@ -275,9 +275,10 @@
         </div>
         <div class="qa-question">"${esc(it.question)}"</div>
         <div class="qa-actions">
+          <button class="btn accent" data-act="useInLetter" title="Creates a new draft with this question pre-filled in a Q&A section">Use in new letter ↗</button>
           ${it.status === 'starred'
             ? `<button class="btn" data-act="unstar">Unstar</button>`
-            : `<button class="btn accent" data-act="star">★ Star for next letter</button>`}
+            : `<button class="btn" data-act="star">★ Star for later</button>`}
           ${it.status === 'used'
             ? `<button class="btn" data-act="reopen">Mark new</button>`
             : `<button class="btn" data-act="used">Mark used</button>`}
@@ -289,6 +290,7 @@
         b.onclick = () => {
           const act = b.dataset.act;
           if (act === 'delete') return remove(it.id);
+          if (act === 'useInLetter') return useInLetter(it);
           const map = { star: 'starred', unstar: 'new', used: 'used', reopen: 'new', archive: 'archived' };
           patch(it.id, map[act]);
         };
@@ -313,6 +315,51 @@
       });
       load();
     } catch (e) { alert('Delete failed: ' + e.message); }
+  }
+
+  // Create a new letter with a Q&A section pre-filled with this question,
+  // mark the Q&A as 'used', and navigate to the new letter in Studio.
+  async function useInLetter(qa) {
+    try {
+      const sectionId = 's_' + Math.random().toString(36).slice(2, 12);
+      const askerLabel = qa.name ? `${qa.name}` : '';
+      const letterName = `Reply: ${qa.question.slice(0, 50)}${qa.question.length > 50 ? '…' : ''}`;
+      const res = await fetch('/api/studio/letters', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({
+          name: letterName,
+          subject: '',
+          preheader: '',
+          sections: [{
+            id: sectionId,
+            type: 'qa',
+            fields: {
+              intro: 'You asked. Here\'s my honest answer.',
+              pairs: [{
+                question: qa.question,
+                askerLabel,
+                answer: '',
+              }],
+            },
+            sourceIdeaId: qa.id,
+          }],
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'create_failed');
+
+      // Mark this Q&A as used
+      await fetch('/api/studio/qa?id=' + encodeURIComponent(qa.id), {
+        method: 'PATCH', headers: authHeaders(),
+        body: JSON.stringify({ status: 'used' }),
+      }).catch(() => {});
+
+      // Navigate to Studio with the new letter open
+      location.href = `/hub/studio?id=${encodeURIComponent(data.letter.id)}`;
+    } catch (e) {
+      alert('Couldn\'t create the letter: ' + e.message);
+    }
   }
 
   if (!password) showGate(); else load();

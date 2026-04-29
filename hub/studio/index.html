@@ -1353,8 +1353,42 @@
     api('/api/studio/drops').then(data => {
       const drops = data.drops || [];
       if (!drops.length) {
+        // Empty state — offer brand templates inline so she doesn't have to leave
+        const templates = state.studioConfig?.brandTemplates || [];
         wrap.innerHTML = `<label>Which drops to include</label>
-          <div style="font-size:12px;color:var(--muted);font-style:italic;">No active drops. <a href="/hub/studio/drops" style="color:var(--accent);">Add some →</a></div>`;
+          <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;">
+            No drops yet. Quick-add one of your usual brands:
+          </div>`;
+        const templateRow = document.createElement('div');
+        templateRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;';
+        if (templates.length) {
+          for (const t of templates) {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-sm';
+            btn.textContent = '+ ' + t.brand;
+            btn.onclick = async (e) => {
+              e.preventDefault();
+              const code = window.prompt(`Code for ${t.brand}?`, t.placeholder || '');
+              if (!code) return;
+              try {
+                await api('/api/studio/drops', {
+                  method: 'POST',
+                  body: JSON.stringify({ brand: t.brand, code: code.trim() }),
+                });
+                showToast('Drop added', `${t.brand} (${code}) is now active.`, 'success');
+                renderSections(); // re-renders everything; this picker re-fetches
+              } catch (err) { showToast('Add failed', err.message, 'error'); }
+            };
+            templateRow.appendChild(btn);
+          }
+        }
+        const manageBtn = document.createElement('a');
+        manageBtn.href = '/hub/studio/drops';
+        manageBtn.target = '_blank';
+        manageBtn.style.cssText = 'font-size:12px;color:var(--muted);text-decoration:underline;align-self:center;margin-left:4px;';
+        manageBtn.textContent = 'Drops Manager ↗';
+        templateRow.appendChild(manageBtn);
+        wrap.appendChild(templateRow);
         return;
       }
       // selectedDropIds = empty array means "auto" (use first N active).
@@ -1462,6 +1496,8 @@
 
       genBtn.onclick = (e) => {
         e.preventDefault();
+        promptRow.dataset.mode = 'generate';
+        promptIn.placeholder = "What's it about? (one sentence)";
         promptRow.classList.toggle('shown');
         topics.style.display = 'none';
         if (promptRow.classList.contains('shown')) setTimeout(() => promptIn.focus(), 50);
@@ -1470,33 +1506,51 @@
         e.preventDefault();
         const prompt = promptIn.value.trim();
         if (!prompt) return;
-        const recentSections = (state.letter?.sections || []).slice(0, 5).map(s => ({
-          type: s.type,
-          summary: pickSnippet(s.fields || {}).slice(0, 120),
-        }));
-        await aiStream({
-          op: 'generate',
-          body: { sectionType: sec.type, prompt, currentDraft: input.value, recentSections },
-          textarea: input,
-          replace: true,
-          onDone: (text) => onChange(text),
-        });
+        const mode = promptRow.dataset.mode || 'generate';
+        if (mode === 'polish') {
+          await aiStream({
+            op: 'polish',
+            body: { text: input.value, instruction: prompt },
+            textarea: input,
+            replace: true,
+            onDone: (text) => onChange(text),
+          });
+        } else {
+          const recentSections = (state.letter?.sections || []).slice(0, 5).map(s => ({
+            type: s.type,
+            summary: pickSnippet(s.fields || {}).slice(0, 120),
+          }));
+          await aiStream({
+            op: 'generate',
+            body: { sectionType: sec.type, prompt, currentDraft: input.value, recentSections },
+            textarea: input,
+            replace: true,
+            onDone: (text) => onChange(text),
+          });
+        }
         promptRow.classList.remove('shown');
         promptIn.value = '';
+        promptRow.dataset.mode = 'generate';
+        promptIn.placeholder = "What's it about? (one sentence)";
       };
       polishBtn.onclick = async (e) => {
         e.preventDefault();
-        if (!input.value.trim()) { alert('Nothing to polish yet — write something first.'); return; }
-        const instruction = window.prompt('How to polish? (e.g., "shorter", "more vulnerable", "remove the cliche line")', 'Tighten without losing the meaning. Keep her voice.');
-        if (!instruction) return;
-        await aiStream({
-          op: 'polish',
-          body: { text: input.value, instruction },
-          textarea: input,
-          replace: true,
-          onDone: (text) => onChange(text),
-        });
+        if (!input.value.trim()) {
+          showToast('Nothing to polish', 'Write something first, then I can tighten it.', 'info', 3500);
+          return;
+        }
+        // Reuse the prompt row but in polish mode
+        promptRow.dataset.mode = 'polish';
+        promptIn.placeholder = 'How? ("shorter", "more vulnerable", "less cliche")';
+        promptIn.value = '';
+        promptRow.classList.add('shown');
+        topics.style.display = 'none';
+        setTimeout(() => promptIn.focus(), 50);
       };
+      // promptIn Enter key triggers Go
+      promptIn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); promptGo.click(); }
+      });
       topicBtn.onclick = async (e) => {
         e.preventDefault();
         if (topics.style.display === 'block') {
@@ -1742,6 +1796,7 @@
     document.getElementById('tourOverlay').classList.remove('shown');
     document.getElementById('tourSpotlight').style.display = 'none';
     document.getElementById('tourCard').style.display = 'none';
+    try { localStorage.setItem('studio_tutorial_seen', '1'); } catch {}
   }
   function tourNext() {
     if (tourIdx >= TOUR_STEPS.length - 1) return endStudioTutorial();
@@ -1852,10 +1907,50 @@
     card.style.left = left + 'px';
   }
 
-  // Auto-start tutorial via ?tour=1 URL param
-  if (new URL(location.href).searchParams.get('tour') === '1') {
-    setTimeout(() => { if (state.password && state.brand) startStudioTutorial(); else setTimeout(startStudioTutorial, 800); }, 600);
+  // Auto-start tutorial:
+  //  - explicit via ?tour=1 (always)
+  //  - first-time visit (no localStorage flag)
+  // Tutorial completion or skip sets the flag so it never auto-fires twice.
+  function maybeAutoStartTutorial() {
+    const url = new URL(location.href);
+    const explicit = url.searchParams.get('tour') === '1';
+    const seen = localStorage.getItem('studio_tutorial_seen') === '1';
+    if (!explicit && seen) return;
+    // Wait for boot to finish so target elements exist
+    const tryStart = (attempts = 0) => {
+      if (state.brand && state.sectionTypeOrder.length) {
+        startStudioTutorial();
+      } else if (attempts < 20) {
+        setTimeout(() => tryStart(attempts + 1), 250);
+      }
+    };
+    setTimeout(tryStart, 400);
   }
+  maybeAutoStartTutorial();
+
+  // ═══════════════════════════════════════════════════════════════
+  // SAVE FLUSH ON UNLOAD
+  // Pending debounced save → fire synchronously via fetch keepalive.
+  // Prevents losing the last few keystrokes if she closes the tab.
+  // ═══════════════════════════════════════════════════════════════
+  window.addEventListener('beforeunload', () => {
+    if (state.saveTimer && state.letter) {
+      try {
+        const payload = {
+          name: state.letter.name,
+          subject: state.letter.subject,
+          preheader: state.letter.preheader,
+          sections: state.letter.sections,
+        };
+        fetch('/api/studio/letters?id=' + encodeURIComponent(state.letter.id), {
+          method: 'PATCH',
+          headers: authHeaders(),
+          body: JSON.stringify(payload),
+          keepalive: true,
+        });
+      } catch (_) {}
+    }
+  });
 
   // ═══════════════════════════════════════════════════════════════
   // TOAST

@@ -805,6 +805,135 @@
     .tour-card { left: 16px !important; right: 16px; max-width: none; bottom: 16px !important; top: auto !important; }
   }
 
+  /* ── Design-with-Claude modal ────────────────────────── */
+  .dwc-modal { max-width: 600px; }
+  .dwc-eyebrow {
+    font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700; margin-bottom: 6px;
+  }
+  .dwc-title {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 28px; line-height: 1.15; font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .dwc-title em { color: var(--accent); }
+  .dwc-body {
+    font-size: 13px; color: var(--text-soft);
+    line-height: 1.55; margin-bottom: 14px;
+  }
+  .dwc-prompt {
+    width: 100%; padding: 11px 13px;
+    border: 1px solid var(--border); border-radius: 3px;
+    font-family: var(--body-font); font-size: 14px;
+    line-height: 1.55; resize: vertical; min-height: 90px;
+    background: var(--bg);
+  }
+  .dwc-prompt:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-pale); }
+
+  .dwc-presets {
+    display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+    margin: 12px 0 8px;
+  }
+  .dwc-preset-label {
+    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin-right: 4px;
+  }
+  .dwc-preset {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text-soft); cursor: pointer; padding: 5px 11px;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.02em;
+    border-radius: 99px; font-family: var(--body-font);
+  }
+  .dwc-preset:hover { border-color: var(--text); }
+  .dwc-preset.selected { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+  .dwc-paths { margin-top: 14px; }
+  .dwc-path-label {
+    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin-bottom: 8px;
+  }
+  .dwc-path-card {
+    appearance: none; cursor: pointer; width: 100%; text-align: left;
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 14px 16px; margin-bottom: 8px; border-radius: 4px;
+    display: flex; align-items: flex-start; gap: 12px;
+    font-family: var(--body-font);
+    transition: all .12s;
+  }
+  .dwc-path-card:hover { border-color: var(--accent); box-shadow: 0 6px 20px rgba(220,38,38,0.08); }
+  .dwc-path-card.alt { background: linear-gradient(135deg, rgba(220,38,38,0.04), rgba(220,38,38,0.08)); border-color: rgba(220,38,38,0.25); }
+  .dwc-path-icon {
+    width: 32px; height: 32px; flex-shrink: 0;
+    background: var(--accent-pale); color: var(--accent);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  }
+  .dwc-path-text { flex: 1; min-width: 0; }
+  .dwc-path-title {
+    display: block; font-family: var(--display-font);
+    font-size: 18px; color: var(--text); line-height: 1.2;
+    font-weight: 500; margin-bottom: 3px;
+  }
+  .dwc-path-sub {
+    display: block; font-size: 12px; color: var(--text-soft);
+    line-height: 1.5;
+  }
+
+  .dwc-import-row {
+    margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid var(--border-soft);
+    font-size: 12px; color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .dwc-import-link {
+    appearance: none; background: none; border: 0;
+    color: var(--accent); font-weight: 600; cursor: pointer;
+    font-family: var(--body-font); font-size: 12px;
+  }
+  .dwc-import-link:hover { text-decoration: underline; }
+
+  .dwc-status { margin-top: 10px; font-size: 12px; min-height: 16px; }
+  .dwc-status.ok  { color: var(--accent); }
+  .dwc-status.err { color: var(--danger); }
+
+  /* Import HTML modal — second step */
+  .import-textarea {
+    width: 100%; padding: 12px 14px;
+    border: 1px solid var(--border); border-radius: 3px;
+    font-family: 'SF Mono', Menlo, monospace; font-size: 12px;
+    line-height: 1.5; resize: vertical; min-height: 240px;
+    background: var(--bg); color: var(--text);
+  }
+  .import-textarea:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-pale); }
+  .import-warnings {
+    margin-top: 10px; padding: 10px 12px;
+    background: rgba(255,165,0,0.06); border: 1px solid rgba(255,165,0,0.3);
+    color: #b96900; border-radius: 3px;
+    font-size: 12px; line-height: 1.5;
+  }
+  .import-warnings ul { margin: 4px 0 0 0; padding-left: 18px; }
+
+  /* Custom HTML letter view (when type=custom) */
+  .custom-letter-view {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 22px 26px; border-radius: 3px; margin-bottom: 18px;
+  }
+  .custom-letter-view h3 {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 22px; margin: 0 0 6px; font-weight: 500;
+  }
+  .custom-letter-view p {
+    font-size: 13px; color: var(--text-soft); line-height: 1.6;
+    margin: 0 0 14px;
+  }
+  .custom-html-preview {
+    background: var(--bg); border: 1px dashed var(--border);
+    padding: 10px; border-radius: 2px;
+    font-family: 'SF Mono', Menlo, monospace; font-size: 11px;
+    color: var(--muted); max-height: 80px; overflow: hidden;
+    white-space: pre-wrap;
+    margin-bottom: 14px;
+  }
+
   /* ── Toast ───────────────────────────────────────────── */
   .toast {
     position: fixed;
@@ -918,6 +1047,7 @@
   <div class="brand">Letter Studio</div>
   <input class="letter-title" id="letterTitle" placeholder="Untitled letter">
   <div class="save-indicator" id="saveIndicator"></div>
+  <button class="btn" onclick="openDwcModal()" title="Design with Claude — alternate route to a custom HTML letter" style="background:linear-gradient(135deg,#fff,var(--accent-pale));border-color:var(--accent);color:var(--accent);">🎨 Design with Claude</button>
   <button class="icon-btn" onclick="startStudioTutorial()" title="Show me around" style="width:32px;height:32px;font-size:16px;">🎯</button>
   <button class="btn" id="newLetterBtn" onclick="newLetter()">+ New</button>
   <button class="btn btn-accent" id="sendBtn" onclick="openSendModal()" disabled>Send</button>
@@ -1079,6 +1209,81 @@
     <div class="modal-foot">
       <button class="btn" onclick="closeInlineAddDrop()">Cancel</button>
       <button class="btn btn-accent" id="addDropSaveBtn" onclick="saveInlineDrop()">Save drop</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Design with Claude modal ─── -->
+<div class="modal-backdrop" id="dwcModal" onclick="if(event.target===this)closeDwcModal()">
+  <div class="modal dwc-modal">
+    <div class="modal-head">
+      <div>
+        <div class="dwc-eyebrow">🎨 Design with Claude</div>
+        <div class="dwc-title">What's this letter <em>about</em>?</div>
+      </div>
+      <button class="modal-close" onclick="closeDwcModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="dwc-body">Tell me in one or two sentences. Be specific. I'll either draft a letter for you, or open Claude.ai with the full design canvas — your call.</div>
+      <textarea class="dwc-prompt" id="dwcPrompt" rows="4" placeholder="e.g. October recipes I've been making + a quick reset workout for travel weeks"></textarea>
+
+      <div class="dwc-presets">
+        <span class="dwc-preset-label">Style:</span>
+        <button class="dwc-preset selected" data-preset="general"   onclick="selectDwcPreset(this)">General mix</button>
+        <button class="dwc-preset"          data-preset="letter"    onclick="selectDwcPreset(this)">Personal letter</button>
+        <button class="dwc-preset"          data-preset="tip"       onclick="selectDwcPreset(this)">Focused tip</button>
+        <button class="dwc-preset"          data-preset="spotlight" onclick="selectDwcPreset(this)">Spotlight</button>
+        <button class="dwc-preset"          data-preset="launch"    onclick="selectDwcPreset(this)">Launch</button>
+      </div>
+
+      <div class="dwc-paths">
+        <div class="dwc-path-label">Two ways to use this</div>
+
+        <button class="dwc-path-card" id="dwcGenerateBtn" onclick="dwcQuickGenerate()">
+          <span class="dwc-path-icon">✨</span>
+          <span class="dwc-path-text">
+            <span class="dwc-path-title" id="dwcGenerateText">Quick — Draft the letter</span>
+            <span class="dwc-path-sub">Creates a new letter with a Free Letter section, AI-drafted from your brief in your voice. Fastest path.</span>
+          </span>
+        </button>
+
+        <button class="dwc-path-card alt" onclick="dwcOpenInClaudeAi()">
+          <span class="dwc-path-icon">↗</span>
+          <span class="dwc-path-text">
+            <span class="dwc-path-title">Full canvas — Design in Claude.ai</span>
+            <span class="dwc-path-sub">Opens Claude.ai with your brief + email-safe constraints + your brand palette pre-loaded. Use the artifact tool to design a custom HTML email. Then come back and Import HTML.</span>
+          </span>
+        </button>
+      </div>
+
+      <div class="dwc-import-row">
+        <span>Already designed something in Claude.ai?</span>
+        <button class="dwc-import-link" onclick="openImportHtmlModal()">Import HTML →</button>
+      </div>
+
+      <div class="dwc-status" id="dwcStatus"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Import HTML modal (paste artifact from Claude.ai) ─── -->
+<div class="modal-backdrop" id="importHtmlModal" onclick="if(event.target===this)closeImportHtmlModal()">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal-head">
+      <div>
+        <div class="dwc-eyebrow">Import design</div>
+        <div class="dwc-title">Paste the HTML <em>Claude built for you.</em></div>
+      </div>
+      <button class="modal-close" onclick="closeImportHtmlModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="dwc-body">Right-click the artifact in Claude.ai → Copy code → paste below. We'll sanitize it (strip scripts, neutralize unsafe URLs), flag anything that won't render in email, and save it as a custom letter.</div>
+      <textarea class="import-textarea" id="importHtmlInput" rows="14" placeholder="<!DOCTYPE html>..."></textarea>
+      <div id="importHtmlWarnings" class="import-warnings" style="display:none;"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeImportHtmlModal()">Cancel</button>
+      <button class="btn btn-accent" id="importHtmlBtn" onclick="confirmImportHtml()">Import &amp; Save</button>
     </div>
   </div>
 </div>
@@ -1592,7 +1797,49 @@
     document.getElementById('letterTitle').value     = state.letter.name      || '';
     document.getElementById('letterSubject').value   = state.letter.subject   || '';
     document.getElementById('letterPreheader').value = state.letter.preheader || '';
-    renderSections();
+
+    const sectionsList = document.getElementById('sectionsList');
+    let customView = document.getElementById('customLetterView');
+    const isCustom = state.letter.type === 'custom';
+
+    if (isCustom) {
+      // Hide section editor, show the custom HTML view
+      sectionsList.style.display = 'none';
+      if (!customView) {
+        customView = document.createElement('div');
+        customView.id = 'customLetterView';
+        customView.className = 'custom-letter-view';
+        sectionsList.parentElement.insertBefore(customView, sectionsList);
+      }
+      const preview = (state.letter.customHtml || '').slice(0, 240);
+      customView.innerHTML = `
+        <h3>🎨 Designed in Claude.ai</h3>
+        <p>This letter is a custom HTML design imported from Claude.ai. The renderer outputs your HTML exactly — no section system, no editing in fields. To change content, re-design in Claude.ai and re-import.</p>
+        <div class="custom-html-preview">${esc(preview)}${state.letter.customHtml.length > 240 ? '…' : ''}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-accent" onclick="openImportHtmlModal(true)">↻ Re-import HTML</button>
+          <button class="btn" onclick="convertCustomToSections()">Convert to sections</button>
+        </div>
+      `;
+      customView.style.display = '';
+    } else {
+      // Section letter — hide custom view if it exists, show sections editor
+      if (customView) customView.style.display = 'none';
+      sectionsList.style.display = '';
+      renderSections();
+    }
+  }
+  async function convertCustomToSections() {
+    if (!state.letter || state.letter.type !== 'custom') return;
+    if (!confirm('Convert to a sections letter? This drops the custom HTML and starts a fresh sections-based draft. The HTML will be lost — copy it elsewhere first if you want to keep it.')) return;
+    try {
+      await api('/api/studio/letters?id=' + encodeURIComponent(state.letter.id), {
+        method: 'PATCH',
+        body: JSON.stringify({ type: 'sections', customHtml: '' }),
+      });
+      await openLetter(state.letter.id);
+      showToast('Converted', 'Now a sections letter. Add sections from the rail.', 'info');
+    } catch (e) { showToast('Convert failed', e.message, 'error'); }
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -2590,6 +2837,190 @@
       closeBrandDrawer();
     }
   });
+
+  // ═══════════════════════════════════════════════════════════════
+  // DESIGN WITH CLAUDE — alternate authoring route
+  // Three paths: Quick generate (AI freeletter draft), Full canvas
+  // (opens Claude.ai with a brief), Import HTML (paste artifact).
+  // ═══════════════════════════════════════════════════════════════
+  state.dwcPreset = 'general';
+  state.dwcImportTargetExisting = false;
+  function openDwcModal() {
+    document.getElementById('dwcStatus').textContent = '';
+    document.getElementById('dwcStatus').className = 'dwc-status';
+    document.getElementById('dwcPrompt').value = '';
+    document.querySelectorAll('.dwc-preset').forEach(b => b.classList.toggle('selected', b.dataset.preset === 'general'));
+    state.dwcPreset = 'general';
+    document.getElementById('dwcModal').classList.add('open');
+    setTimeout(() => document.getElementById('dwcPrompt').focus(), 60);
+  }
+  function closeDwcModal() {
+    document.getElementById('dwcModal').classList.remove('open');
+  }
+  function selectDwcPreset(btn) {
+    document.querySelectorAll('.dwc-preset').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    state.dwcPreset = btn.dataset.preset;
+  }
+
+  // Path 2 — Full canvas: builds prompt with brief + email-safe constraints
+  // + brand palette and opens Claude.ai with it pre-filled.
+  function dwcOpenInClaudeAi() {
+    const prompt = document.getElementById('dwcPrompt').value.trim();
+    const status = document.getElementById('dwcStatus');
+    if (!prompt) {
+      status.textContent = 'Add a brief first — even one line.';
+      status.className = 'dwc-status err';
+      return;
+    }
+    const presetHints = {
+      general:   'A general newsletter mix — a real moment from life, something practical, and what is coming next.',
+      letter:    'A personal letter — warm, narrative, single thread of thought. Light on CTAs.',
+      tip:       'A focused tip or framework — one specific idea broken into 2-3 paragraphs of practical detail.',
+      spotlight: 'A spotlight on something specific (recipe, workout, product, brand code) with a clear primary action.',
+      launch:    'A launch announcement — exciting, clear about what is launching, when, and what to do next.',
+    };
+    const hint = presetHints[state.dwcPreset] || presetHints.general;
+    const b = state.brand || {};
+    const paletteLines = b.bg ? [
+      'My brand palette (use as the starting point):',
+      `- Background: ${b.bg}`,
+      `- Surface / card: ${b.surface || ''}`,
+      `- Text: ${b.text || ''}`,
+      `- Accent: ${b.accent || ''}`,
+      `- Display font: ${b.displayFont || ''}`,
+      `- Body font: ${b.bodyFont || ''}`,
+    ].join('\n') : '';
+    const fullPrompt = [
+      `I'm ${b.name || 'a creator'} (${b.role || ''}).`,
+      '',
+      'Design a custom newsletter email for my list — as a complete, email-safe HTML artifact I can copy and use.',
+      '',
+      'Brief:',
+      prompt,
+      '',
+      `Style: ${hint}`,
+      '',
+      paletteLines,
+      '',
+      'Email-safe HTML constraints (important — modern CSS breaks in Outlook/Gmail):',
+      '- Use <table>-based layout (no flexbox, no grid, no position:absolute/fixed).',
+      '- All styling must be INLINE on the elements (no <style> blocks — Gmail strips them).',
+      '- Max width 600px for the main email container, centered with margin: 0 auto.',
+      '- Use system fonts or Georgia/serif fallbacks (no @import / Google Fonts links — they don\'t load in many clients).',
+      '- For images, use absolute https URLs (no data: URIs).',
+      '- Include a placeholder unsubscribe footer at the bottom.',
+      '',
+      'Output the full HTML as an Artifact (right pane) so I can copy it. No commentary outside the artifact.',
+    ].filter(Boolean).join('\n');
+    const url = 'https://claude.ai/new?q=' + encodeURIComponent(fullPrompt);
+    window.open(url, '_blank', 'noopener,noreferrer');
+    status.textContent = '↗ Opened Claude.ai. When you\'re happy with the artifact, come back and click Import HTML.';
+    status.className = 'dwc-status ok';
+  }
+
+  // Path 1 — Quick generate: creates a new letter with a freeletter section
+  // AI-streamed from the brief. Fastest path; bypasses Claude.ai entirely.
+  async function dwcQuickGenerate() {
+    const prompt = document.getElementById('dwcPrompt').value.trim();
+    const status = document.getElementById('dwcStatus');
+    const btn = document.getElementById('dwcGenerateBtn');
+    const btnText = document.getElementById('dwcGenerateText');
+    if (!prompt) {
+      status.textContent = 'Tell me what the letter is about — even one line.';
+      status.className = 'dwc-status err';
+      return;
+    }
+    btn.disabled = true; btnText.textContent = 'Drafting…';
+    try {
+      // Create empty letter with one freeletter section
+      const sectionId = 's_' + Math.random().toString(36).slice(2, 12);
+      const data = await api('/api/studio/letters', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: prompt.slice(0, 60),
+          sections: [{
+            id: sectionId,
+            type: 'freeletter',
+            fields: { body: '' },
+          }],
+        }),
+      });
+      const letterId = data.letter.id;
+      await reloadLetters();
+      await openLetter(letterId);
+      closeDwcModal();
+      // Wait for the section to render, then stream into its body field
+      setTimeout(async () => {
+        const ta = document.getElementById(`f_${sectionId}_body`);
+        if (!ta) return;
+        await aiStream({
+          op: 'expand',
+          body: { ideaText: prompt, sectionType: 'freeletter' },
+          textarea: ta,
+          replace: true,
+          onDone: (text) => {
+            const sec = state.letter.sections.find(s => s.id === sectionId);
+            if (sec) sec.fields.body = text;
+            scheduleSave();
+          },
+        });
+      }, 150);
+    } catch (e) {
+      status.textContent = 'Draft failed: ' + e.message;
+      status.className = 'dwc-status err';
+    } finally {
+      btn.disabled = false; btnText.textContent = 'Quick — Draft the letter';
+    }
+  }
+
+  // Path 3 — Import HTML: paste, sanitize, save as custom letter
+  function openImportHtmlModal(targetExisting = false) {
+    state.dwcImportTargetExisting = (targetExisting === true && state.letter && state.letter.type === 'custom');
+    document.getElementById('importHtmlInput').value = '';
+    document.getElementById('importHtmlWarnings').style.display = 'none';
+    document.getElementById('importHtmlModal').classList.add('open');
+    closeDwcModal();
+    setTimeout(() => document.getElementById('importHtmlInput').focus(), 60);
+  }
+  function closeImportHtmlModal() {
+    document.getElementById('importHtmlModal').classList.remove('open');
+  }
+  async function confirmImportHtml() {
+    const html = document.getElementById('importHtmlInput').value;
+    const warningsEl = document.getElementById('importHtmlWarnings');
+    const btn = document.getElementById('importHtmlBtn');
+    if (!html.trim()) {
+      warningsEl.style.display = 'block';
+      warningsEl.innerHTML = '<strong>Paste your HTML first.</strong>';
+      return;
+    }
+    btn.disabled = true; btn.textContent = 'Sanitizing…';
+    try {
+      const payload = { html, brief: document.getElementById('dwcPrompt').value.trim() };
+      if (state.dwcImportTargetExisting && state.letter) payload.letterId = state.letter.id;
+      const data = await api('/api/studio/import-html', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      // Show warnings (non-blocking) before navigating
+      if (data.warnings && data.warnings.length) {
+        warningsEl.style.display = 'block';
+        warningsEl.innerHTML = '<strong>Imported, but heads-up:</strong><ul>' +
+          data.warnings.map(w => `<li>${esc(w)}</li>`).join('') + '</ul>';
+        await new Promise(r => setTimeout(r, 1400));
+      }
+      closeImportHtmlModal();
+      await reloadLetters();
+      await openLetter(data.letter.id);
+      showToast('Imported', `Custom letter saved (${(data.bytes/1024).toFixed(1)} KB).`, 'success');
+    } catch (e) {
+      warningsEl.style.display = 'block';
+      warningsEl.innerHTML = '<strong>Import failed:</strong> ' + esc(e.message);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Import & Save';
+    }
+  }
 
   // ═══════════════════════════════════════════════════════════════
   // TUTORIAL — guided spotlight tour

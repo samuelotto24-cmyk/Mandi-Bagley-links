@@ -1047,7 +1047,7 @@
   <div class="brand">Letter Studio</div>
   <input class="letter-title" id="letterTitle" placeholder="Untitled letter">
   <div class="save-indicator" id="saveIndicator"></div>
-  <button class="btn" onclick="openDwcModal()" title="Design with Claude — alternate route to a custom HTML letter" style="background:linear-gradient(135deg,#fff,var(--accent-pale));border-color:var(--accent);color:var(--accent);">🎨 Design with Claude</button>
+  <button class="btn dwc-button" onclick="openDwcModal()" title="Design with Claude — alternate route to a custom HTML letter" style="background:linear-gradient(135deg,#fff,var(--accent-pale));border-color:var(--accent);color:var(--accent);">🎨 Design with Claude</button>
   <button class="icon-btn" onclick="startStudioTutorial()" title="Show me around" style="width:32px;height:32px;font-size:16px;">🎯</button>
   <button class="btn" id="newLetterBtn" onclick="newLetter()">+ New</button>
   <button class="btn btn-accent" id="sendBtn" onclick="openSendModal()" disabled>Send</button>
@@ -1082,7 +1082,7 @@
     </div>
 
     <!-- ─── Drops (inline, default collapsed) ─── -->
-    <div class="rail-section">
+    <div class="rail-section" id="railDropsSection">
       <div class="rail-section-head">
         <button class="rail-toggle" data-toggle="dropsBody" aria-expanded="false">
           <span class="rail-label-inline">🏷️ Drops <span class="rail-count" id="dropsCount"></span></span>
@@ -3028,48 +3028,111 @@
   const TOUR_STEPS = [
     {
       title: 'Welcome to The Letter Studio',
-      body: "This is where you write everything that goes out — quick blasts, biweekly Lock-In Letters, drops, devotionals, Q&A. Three panes: Ideas, Letter, Preview. AI helps along the way.",
+      body: "This is where you write everything that goes out — quick blasts, biweekly Lock-In Letters, drops, devotionals, Q&A. Three panes: Ideas, Letter, Preview. AI helps in every pane.",
     },
     {
       target: '#sectionLib',
-      title: 'Add a section',
-      body: "Sections are the building blocks. Click any chip to drop one into your letter. You can have 1 (a quick blast) or 8 (a full Lock-In Letter).",
+      title: 'Section library',
+      body: "Click any chip to drop a section into your letter. 9 types — Devotional, Real Talk, Recipe, Drops, Favorites, Q&A, Recap, Giveaway, Free Letter. A letter can be 1 chip (quick blast) or 8 (Lock-In).",
     },
     {
       target: '#ideaText',
-      title: 'Capture an idea anytime',
-      body: "Have a thought mid-day? Type it here. Later, click ✨ Expand to turn it into a full section in your voice — AI does the heavy lift.",
+      title: 'Ideas inbox',
+      body: "Capture a thought mid-day — even one sentence. Later, ✨ Expand turns it into a full section in your voice. Add to letter dumps it raw. Either way, the idea is saved.",
+    },
+    {
+      target: '.ai-assist',
+      title: 'AI assist (inside any section)',
+      body: "Every editable field has this red box. ✨ Generate writes from a prompt, 🪄 Polish revises, 💡 Topic ideas suggests angles — all in your voice. The textarea pulses when AI is streaming so you know it's working.",
+      whenLetter: true,
+    },
+    {
+      target: '.drag-handle',
+      title: 'Drag to reorder',
+      body: "Grab the ⋮⋮ handle on any section card and drag it where you want. Red line shows the drop spot. Up/down arrows still work for keyboard or mobile.",
+      whenLetter: true,
     },
     {
       target: '.letter-meta',
       title: 'Subject + preheader',
-      body: "Don't agonize over these. Click ✨ Suggest next to the subject — the AI reads your letter and gives you 3 options.",
+      body: "Click ✨ Suggest next to the subject — AI reads your letter and gives 3 subject options + a matching preheader.",
       whenLetter: true,
+    },
+    {
+      target: '.preview-gear-labeled',
+      title: 'Brand & Look (color wheel + more)',
+      body: "Click here to slide in the Brand drawer. Palette presets, font pickers, headline size slider, voice guide editor, AND 11 circular color wheels — one for every render token (page bg, letter card, text, accent, CTA buttons, all of it). Live-updates the preview.",
     },
     {
       target: '.preview-frame-wrap',
       title: 'Live preview',
-      body: "What subscribers see, exactly. Toggle Desktop and Mobile. Click the ⚙ gear to change palette, fonts, or your voice guide — drawer slides in over the preview, updates live.",
+      body: "What subscribers see, exactly. Toggle Desktop / Mobile. Updates live as you type or change the brand.",
+    },
+    {
+      target: '.dwc-button',
+      title: '🎨 Design with Claude (alternate route)',
+      body: "Three paths: Quick draft (AI writes the whole letter from a brief), Full canvas (opens Claude.ai with your brief + brand to design custom HTML), Import HTML (paste an artifact, it gets sanitized + saved). Use this when section templates don't fit what you want.",
     },
     {
       target: '#sendBtn',
-      title: 'Send when ready',
-      body: "Drafts auto-save. Test-send to yourself first. Click ✨ Sanity check before a real send — the AI reads the whole letter for repeated framings, tone breaks, anything off.",
+      title: 'Send + sanity check',
+      body: "Drafts auto-save. Test-send to yourself first. Before a real send, click ✨ Sanity check — AI reads the whole letter for repeated framings, tone breaks, generic phrasing, anything off.",
     },
     {
-      target: '#dropsBody',
-      title: 'Drops + Questions',
-      body: "Your active brand codes and reader questions live right here on the rail. Click + to add a drop. Click Use ↗ on any question to drop it into your letter.",
+      target: '#railDropsSection',
+      title: 'Drops + Questions inline',
+      body: "Active brand codes and reader questions live right on the rail. Click + to add a drop without leaving Studio. Click Use ↗ on any question to drop it into your letter as a Q&A section.",
     },
     {
       title: "You're set",
-      body: "Replay this tour anytime from the rail (🎯 Tutorial). Now go write something good.",
+      body: "Replay this tour anytime via the 🎯 in the top bar. Now go write something good.",
     },
   ];
   let tourIdx = 0;
-  function startStudioTutorial() {
+  // Make sure section-specific steps have something to spotlight by ensuring
+  // a letter is open when the tour starts. If she has no draft, open the
+  // most-recent one. If she has no letters at all, create a sample.
+  async function ensureLetterForTour() {
+    if (state.letter) return;
+    if (state.letters && state.letters.length) {
+      const recent = state.letters.find(l => l.status === 'draft') || state.letters[0];
+      if (recent) {
+        await openLetter(recent.id);
+        return;
+      }
+    }
+    // No letters at all — auto-create a sample with one section so the tour
+    // can demonstrate AI assist + drag-drop properly. Mandi can delete it.
+    try {
+      const data = await api('/api/studio/letters', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Tutorial sample',
+          sections: [{
+            id: 's_' + Math.random().toString(36).slice(2, 12),
+            type: 'realtalk',
+            fields: { topic: 'Sample section', body: 'A real talk section to demonstrate the editor.' },
+          }],
+        }),
+      });
+      await reloadLetters();
+      await openLetter(data.letter.id);
+    } catch (e) {
+      console.error('tour: failed to auto-create sample letter', e);
+    }
+  }
+  async function startStudioTutorial() {
     tourIdx = 0;
     document.getElementById('tourOverlay').classList.add('shown');
+    await ensureLetterForTour();
+    // Expand the Drops rail section so the spotlight has a real visible target
+    const dropsToggle = document.querySelector('[data-toggle="dropsBody"]');
+    if (dropsToggle && dropsToggle.getAttribute('aria-expanded') === 'false') dropsToggle.click();
+    // Make sure first section is expanded so AI assist + drag handle are visible
+    if (state.letter?.sections?.length && !state.expandedSectionId) {
+      state.expandedSectionId = state.letter.sections[0].id;
+      renderSections();
+    }
     showTourStep();
   }
   function endStudioTutorial() {

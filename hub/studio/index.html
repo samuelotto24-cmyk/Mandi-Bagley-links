@@ -470,6 +470,34 @@
   }
   .err:empty { display: none; }
 
+  /* ── Toast ───────────────────────────────────────────── */
+  .toast {
+    position: fixed;
+    bottom: 24px; right: 24px; z-index: 200;
+    background: var(--text); color: var(--bg);
+    padding: 14px 22px;
+    border-radius: 4px;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.32);
+    font-family: var(--body-font); font-size: 14px;
+    max-width: 380px;
+    transform: translateY(20px); opacity: 0;
+    transition: transform .25s, opacity .25s;
+    pointer-events: none;
+    border-left: 3px solid var(--accent);
+  }
+  .toast.shown { transform: none; opacity: 1; pointer-events: auto; }
+  .toast.error { border-left-color: var(--danger); }
+  .toast.info  { border-left-color: var(--muted); }
+  .toast .toast-title {
+    font-weight: 600; margin-bottom: 2px;
+    font-family: var(--display-font); font-style: italic; font-size: 18px;
+    color: #fff;
+  }
+  .toast .toast-msg { color: rgba(255,255,255,0.84); line-height: 1.45; }
+  @media (max-width: 700px) {
+    .toast { left: 16px; right: 16px; bottom: 16px; max-width: none; }
+  }
+
   /* ── Login gate ──────────────────────────────────────── */
   .gate {
     position: fixed; inset: 0;
@@ -494,6 +522,23 @@
   .gate-card .btn { width: 100%; padding: 11px 14px; }
   .gate-err { color: var(--danger); font-size: 12px; margin-top: 10px; min-height: 16px; }
 
+  /* ── Mobile pane tabs (hidden on desktop) ───────────────── */
+  .mobile-tabs {
+    display: none;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 8px;
+  }
+  .mobile-tabs button {
+    flex: 1; appearance: none; background: transparent; border: 0;
+    padding: 11px 6px; font-family: var(--body-font);
+    font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+    color: var(--muted); cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+  .mobile-tabs button.active { color: var(--text); border-bottom-color: var(--accent); }
+
   /* ── Mobile ──────────────────────────────────────────── */
   @media (max-width: 1100px) {
     :root { --pane-rail: 240px; --pane-preview: 380px; }
@@ -501,14 +546,21 @@
   @media (max-width: 900px) {
     .layout {
       grid-template-columns: 1fr;
-      grid-template-rows: auto auto auto;
+      grid-template-rows: 1fr;
+      height: calc(100vh - var(--topbar-h) - 44px); /* topbar + mobile tabs */
     }
-    .pane { height: auto; max-height: none; }
-    .pane-rail, .pane-preview { border: 0; border-bottom: 1px solid var(--border); }
-    .preview-frame-wrap { height: 70vh; }
+    .mobile-tabs { display: flex; }
+    .pane { display: none; height: 100%; max-height: none; }
+    .pane.mobile-active { display: block; }
+    .pane-rail, .pane-preview { border: 0; }
+    .preview-frame-wrap { height: calc(100vh - var(--topbar-h) - 44px - 60px); }
     .topbar { padding: 0 12px; }
-    .topbar .brand { font-size: 18px; padding-right: 12px; }
+    .topbar .brand { display: none; }
     .topbar .letter-title { font-size: 18px; }
+    .save-indicator { display: none; }
+    .topbar .back { font-size: 11px; }
+    #newLetterBtn span, #newLetterBtn { padding: 6px 10px; font-size: 12px; }
+    #sendBtn { padding: 6px 10px; font-size: 12px; }
   }
 </style>
 </head>
@@ -535,9 +587,15 @@
   <button class="btn btn-accent" id="sendBtn" onclick="openSendModal()" disabled>Send</button>
 </div>
 
+<div class="mobile-tabs">
+  <button data-mobile-tab="rail"    class="active" onclick="setMobileTab('rail')">Ideas</button>
+  <button data-mobile-tab="letter"  onclick="setMobileTab('letter')">Letter</button>
+  <button data-mobile-tab="preview" onclick="setMobileTab('preview')">Preview</button>
+</div>
+
 <div class="layout">
   <!-- ─── Left rail ─── -->
-  <div class="pane pane-rail">
+  <div class="pane pane-rail mobile-active" data-mobile-pane="rail">
     <div class="rail-section">
       <div class="rail-label">Letters</div>
       <div class="letters-list" id="lettersList">
@@ -566,7 +624,7 @@
   </div>
 
   <!-- ─── Letter pane ─── -->
-  <div class="pane pane-letter" id="letterPane">
+  <div class="pane pane-letter" id="letterPane" data-mobile-pane="letter">
     <div class="empty-letter" id="emptyLetter">
       <h2>No letter open</h2>
       <p>Pick a draft from the sidebar, or start a new letter.</p>
@@ -599,7 +657,7 @@
   </div>
 
   <!-- ─── Preview pane ─── -->
-  <div class="pane pane-preview">
+  <div class="pane pane-preview" data-mobile-pane="preview">
     <div class="preview-bar">
       <div class="label">Live preview</div>
       <div class="toggle">
@@ -611,6 +669,12 @@
       <iframe class="preview-frame" id="previewFrame" title="Letter preview"></iframe>
     </div>
   </div>
+</div>
+
+<!-- ─── Toast ─── -->
+<div class="toast" id="toast">
+  <div class="toast-title" id="toastTitle"></div>
+  <div class="toast-msg" id="toastMsg"></div>
 </div>
 
 <!-- ─── Send modal ─── -->
@@ -636,9 +700,11 @@
         <label>Test email (only if "Just to me")</label>
         <input id="sendTestEmail" placeholder="you@example.com">
       </div>
+      <div id="sanityResult" style="display:none;font-size:13px;line-height:1.5;margin-top:6px;"></div>
     </div>
     <div class="modal-foot">
       <button class="btn" onclick="closeSendModal()">Cancel</button>
+      <button class="btn" id="sanityBtn" onclick="runSanityCheck()" style="margin-right:auto;"><span style="font-size:12px;">✨</span> Sanity check</button>
       <button class="btn btn-accent" id="sendConfirmBtn" onclick="confirmSend()">Send now</button>
     </div>
   </div>
@@ -1520,6 +1586,31 @@
     document.getElementById('previewMobile').classList.toggle('active', mode === 'mobile');
     document.getElementById('previewFrame').classList.toggle('mobile', mode === 'mobile');
   }
+  // ═══════════════════════════════════════════════════════════════
+  // TOAST
+  // ═══════════════════════════════════════════════════════════════
+  let toastTimer = null;
+  function showToast(title, msg = '', type = 'success', durationMs = 4000) {
+    const el = document.getElementById('toast');
+    document.getElementById('toastTitle').textContent = title;
+    document.getElementById('toastMsg').textContent = msg;
+    el.classList.remove('error', 'info', 'shown');
+    if (type === 'error') el.classList.add('error');
+    else if (type === 'info') el.classList.add('info');
+    requestAnimationFrame(() => el.classList.add('shown'));
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('shown'), durationMs);
+    el.onclick = () => { clearTimeout(toastTimer); el.classList.remove('shown'); };
+  }
+
+  function setMobileTab(name) {
+    document.querySelectorAll('.mobile-tabs button').forEach(b =>
+      b.classList.toggle('active', b.dataset.mobileTab === name));
+    document.querySelectorAll('[data-mobile-pane]').forEach(p =>
+      p.classList.toggle('mobile-active', p.dataset.mobilePane === name));
+    // Refresh preview when entering preview pane (in case state changed)
+    if (name === 'preview') refreshPreview();
+  }
 
   // ═══════════════════════════════════════════════════════════════
   // TITLE / META INPUTS
@@ -1548,7 +1639,43 @@
     document.getElementById('sendErr').textContent = '';
     document.getElementById('sendSubject').value = state.letter.subject || state.letter.name || '';
     document.getElementById('sendSegment').value = '__test__';
+    const sanityResult = document.getElementById('sanityResult');
+    sanityResult.style.display = 'none';
+    sanityResult.innerHTML = '';
     document.getElementById('sendModal').classList.add('open');
+  }
+  async function runSanityCheck() {
+    if (!state.letter) return;
+    const btn = document.getElementById('sanityBtn');
+    const out = document.getElementById('sanityResult');
+    btn.disabled = true; btn.innerHTML = '<span style="font-size:12px;">…</span> Reading';
+    out.style.display = 'block';
+    out.innerHTML = '<div style="color:var(--muted);">Reviewing the whole letter…</div>';
+    try {
+      const data = await api('/api/studio/ai?op=sanity', {
+        method: 'POST',
+        body: JSON.stringify({ letter: state.letter }),
+      });
+      if (!data.issues || !data.issues.length) {
+        out.innerHTML = '<div style="background:var(--accent-pale);border:1px solid var(--accent);color:var(--accent);padding:10px 12px;border-radius:2px;">✓ Reads clean — no issues flagged.</div>';
+      } else {
+        const list = data.issues.map(it => `
+          <li style="margin-bottom:8px;">
+            <strong style="color:var(--text);">Section ${it.section} ${it.kind ? '· ' + esc(it.kind) : ''}</strong><br>
+            <span style="color:var(--text-soft);">${esc(it.note)}</span>
+          </li>
+        `).join('');
+        out.innerHTML = `<div style="background:rgba(255,165,0,0.06);border:1px solid #b96900;padding:12px 14px;border-radius:2px;">
+          <div style="font-weight:600;color:#b96900;margin-bottom:8px;">A few notes before you send:</div>
+          <ul style="margin:0;padding-left:18px;color:var(--text-soft);">${list}</ul>
+        </div>`;
+      }
+    } catch (e) {
+      out.innerHTML = `<div style="color:var(--danger);">Sanity check failed: ${esc(e.message)}</div>`;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span style="font-size:12px;">✨</span> Sanity check';
+    }
   }
   function closeSendModal() {
     document.getElementById('sendModal').classList.remove('open');
@@ -1585,7 +1712,11 @@
         body: JSON.stringify(payload),
       });
       closeSendModal();
-      alert(`Sent ${data.sent} email${data.sent === 1 ? '' : 's'}.${data.beehiivOk ? ' Beehiiv archive created.' : ''}`);
+      const title = payload.mode === 'test' ? 'Test sent' : 'Letter sent';
+      const msg = payload.mode === 'test'
+        ? `One copy went to ${payload.testEmail}. Check your inbox.`
+        : `${data.sent} email${data.sent === 1 ? '' : 's'} delivered${data.failed ? ', ' + data.failed + ' failed' : ''}.${data.beehiivOk ? ' Beehiiv archive created as draft.' : ''}`;
+      showToast(title, msg, 'success', 6000);
       await reloadLetters();
       await openLetter(state.letter.id);
     } catch (e) {

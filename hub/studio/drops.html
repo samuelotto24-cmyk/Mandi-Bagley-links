@@ -343,9 +343,10 @@
   <div id="grid" class="grid"></div>
   <div id="loading" class="loading">Loading drops…</div>
   <div id="empty" class="empty" style="display:none">
-    <h2>No drops yet</h2>
-    <p>Add your first brand code so it can auto-fill into your next letter.</p>
-    <button class="btn btn-primary" onclick="openModal()">+ Add your first drop</button>
+    <h2 id="emptyHeadline">No drops yet</h2>
+    <p id="emptyBody">Add your first brand code so it can auto-fill into your next letter.</p>
+    <div id="brandTemplates" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:18px;"></div>
+    <button class="btn btn-primary" onclick="openModal()">+ Add manually</button>
   </div>
 </div>
 
@@ -397,9 +398,18 @@
   // ── Auth: read password from sessionStorage (matches hub) ────────
   let password = sessionStorage.getItem('hubPassword') || '';
   let view = 'active';
+  let brandTemplates = [];
 
   function authHeaders() {
     return { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' };
+  }
+  async function loadBrandTemplates() {
+    try {
+      const res = await fetch('/api/studio/config', { headers: authHeaders() });
+      if (!res.ok) return;
+      const data = await res.json();
+      brandTemplates = data?.studioConfig?.brandTemplates || [];
+    } catch (_) { /* ignore */ }
   }
 
   // ── Login gate ───────────────────────────────────────────────────
@@ -421,7 +431,7 @@
         password = pw;
         sessionStorage.setItem('hubPassword', pw);
         document.getElementById('gate').style.display = 'none';
-        load();
+        boot();
       })
       .catch(e => { err.textContent = e.message; });
   }
@@ -466,11 +476,23 @@
 
     if (!drops.length) {
       empty.style.display = 'block';
-      empty.querySelector('h2').textContent = view === 'active' ? 'No drops yet' : 'No archived drops';
-      empty.querySelector('p').textContent = view === 'active'
-        ? 'Add your first brand code so it can auto-fill into your next letter.'
+      document.getElementById('emptyHeadline').textContent = view === 'active' ? 'No drops yet' : 'No archived drops';
+      document.getElementById('emptyBody').textContent = view === 'active'
+        ? 'Add your first brand code so it can auto-fill into your next letter. Quick start with one of your usual brands:'
         : 'Drops you expire will land here.';
       empty.querySelector('button').style.display = view === 'active' ? '' : 'none';
+      const templates = document.getElementById('brandTemplates');
+      templates.innerHTML = '';
+      if (view === 'active' && brandTemplates.length) {
+        for (const t of brandTemplates) {
+          const btn = document.createElement('button');
+          btn.className = 'btn';
+          btn.style.cssText = 'padding:8px 14px;font-size:12px;';
+          btn.textContent = '+ ' + t.brand;
+          btn.onclick = () => openModal({ brand: t.brand, code: t.placeholder || '' });
+          templates.appendChild(btn);
+        }
+      }
       return;
     }
     empty.style.display = 'none';
@@ -629,7 +651,11 @@
   }
 
   // ── Boot ─────────────────────────────────────────────────────────
-  if (!password) showGate(); else load();
+  async function boot() {
+    await loadBrandTemplates();
+    load();
+  }
+  if (!password) showGate(); else boot();
 </script>
 </body>
 </html>

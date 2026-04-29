@@ -57,6 +57,7 @@ export default async function handler(req) {
     case 'polish':   return opPolish(body);
     case 'subject':  return opSubject(body);
     case 'topics':   return opTopics(body);
+    case 'sanity':   return opSanity(body);
     default:
       return json({ error: 'unknown_op', op }, 400);
   }
@@ -176,6 +177,59 @@ async function opTopics(body) {
     .slice(0, 5);
 
   return json({ ok: true, topics });
+}
+
+// ─────────────────────────────────────────────────────────────────
+async function opSanity(body) {
+  const letter = body.letter;
+  if (!letter || !Array.isArray(letter.sections)) {
+    return json({ error: 'invalid_letter' }, 400);
+  }
+  if (letter.sections.length < 2) {
+    // With only one section, cross-section issues can't exist.
+    return json({ ok: true, issues: [] });
+  }
+
+  // Build a compact representation of each section
+  const summary = letter.sections.map((s, i) => {
+    const t = SECTION_TYPES[s.type];
+    const f = s.fields || {};
+    const body = pickSnippet(f).slice(0, 600);
+    return `Section ${i + 1} (${t?.label || s.type}):\n${body || '(empty)'}`;
+  }).join('\n\n');
+
+  const system = buildVoicePrompt({ task: 'sanity' });
+  const messages = [{
+    role: 'user',
+    content: `Review this letter for issues that would distract a reader. Look for:
+- Two sections that hit the same angle/framing
+- Tone breaks (one section sounds different from the rest)
+- Too many CTAs or asks in one letter
+- Empty or placeholder-feeling sections
+- Specific phrases that read AI-generated or generic-creator (we want it to sound like ${CLIENT_BRAND.name})
+
+Return ONLY a JSON array (no commentary). Each entry: {section: <number>, kind: "<short tag>", note: "<one sentence>"}.
+Empty array [] if it reads well.
+
+Letter:
+${summary}`,
+  }];
+
+  let out;
+  try { out = await nonStreamAnthropic({ system, messages, model: AI_MODELS.deep, maxTokens: 600 }); }
+  catch (e) { return json({ error: String(e.message || e) }, 502); }
+
+  // Parse JSON from output (model sometimes wraps in code fences)
+  let issues = [];
+  try {
+    const cleaned = out.text.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+    const parsed = JSON.parse(cleaned);
+    if (Array.isArray(parsed)) issues = parsed.slice(0, 5);
+  } catch (e) {
+    // If parsing fails, return raw text so the UI can still show something
+    return json({ ok: true, issues: [], raw: out.text.slice(0, 800) });
+  }
+  return json({ ok: true, issues });
 }
 
 // ─────────────────────────────────────────────────────────────────

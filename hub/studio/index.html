@@ -1,0 +1,1179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Letter Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:           #FAF8F5;
+    --surface:      #FFFFFF;
+    --surface-alt:  #F3F0EC;
+    --border:       #E5DFD3;
+    --border-soft:  #EFE9DC;
+    --text:         #000000;
+    --text-soft:    #3A3631;
+    --muted:        #8A857B;
+    --accent:       #10B981;
+    --accent-pale:  rgba(16,185,129,0.10);
+    --accent-border:rgba(16,185,129,0.32);
+    --danger:       #C44545;
+    --display-font: 'Cormorant Garamond', Georgia, serif;
+    --body-font:    'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+
+    --pane-rail:    280px;
+    --pane-preview: 460px;
+    --topbar-h:     56px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body-font);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  /* ── Top bar ─────────────────────────────────────────── */
+  .topbar {
+    height: var(--topbar-h);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 18px;
+    gap: 16px;
+    position: relative; z-index: 5;
+  }
+  .topbar .back {
+    color: var(--text-soft); text-decoration: none;
+    font-size: 13px; letter-spacing: 0.04em;
+  }
+  .topbar .back:hover { color: var(--accent); }
+  .topbar .brand {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 22px; line-height: 1; flex: 0;
+    padding-right: 16px; border-right: 1px solid var(--border);
+  }
+  .topbar .letter-title {
+    flex: 1; min-width: 0;
+    font-family: var(--display-font); font-style: italic;
+    font-size: 22px; color: var(--text-soft);
+    border: 0; outline: 0;
+    background: transparent;
+  }
+  .topbar .letter-title:focus { color: var(--text); }
+  .topbar .letter-title::placeholder { color: var(--muted); font-style: italic; }
+  .save-indicator {
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); transition: color .15s;
+  }
+  .save-indicator.saving { color: var(--accent); }
+  .save-indicator.error  { color: var(--danger); }
+
+  /* ── Layout ──────────────────────────────────────────── */
+  .layout {
+    display: grid;
+    grid-template-columns: var(--pane-rail) 1fr var(--pane-preview);
+    height: calc(100vh - var(--topbar-h));
+    overflow: hidden;
+  }
+  .pane { overflow-y: auto; height: 100%; }
+  .pane-rail {
+    background: var(--surface-alt);
+    border-right: 1px solid var(--border);
+    padding: 14px 14px 80px;
+  }
+  .pane-letter {
+    background: var(--bg);
+    padding: 22px 28px 80px;
+  }
+  .pane-preview {
+    background: var(--surface-alt);
+    border-left: 1px solid var(--border);
+    padding: 14px;
+  }
+
+  /* ── Buttons ─────────────────────────────────────────── */
+  .btn {
+    appearance: none; border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text); font-family: var(--body-font);
+    font-size: 13px; font-weight: 500;
+    padding: 8px 14px; cursor: pointer;
+    transition: border-color .12s, background .12s, transform .04s;
+    border-radius: 2px; letter-spacing: 0.02em;
+  }
+  .btn:hover { border-color: var(--text); }
+  .btn:active { transform: translateY(1px); }
+  .btn-sm { padding: 6px 10px; font-size: 12px; }
+  .btn-tiny { padding: 4px 8px; font-size: 11px; }
+  .btn-primary {
+    background: var(--text); color: var(--bg); border-color: var(--text);
+    font-weight: 600;
+  }
+  .btn-primary:hover { background: #1a1a1a; }
+  .btn-accent {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+    font-weight: 600;
+  }
+  .btn-accent:hover { background: #0ea372; border-color: #0ea372; }
+  .btn-ghost-danger { color: var(--danger); border-color: transparent; }
+  .btn-ghost-danger:hover { border-color: var(--danger); background: rgba(196,69,69,0.06); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── Rail sections ───────────────────────────────────── */
+  .rail-section { margin-bottom: 22px; }
+  .rail-label {
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600;
+    margin: 0 0 8px 4px;
+  }
+  .letters-list {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .letter-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 10px; border: 1px solid transparent; cursor: pointer;
+    border-radius: 2px; transition: all .12s;
+    background: transparent;
+    text-align: left; width: 100%;
+    font-family: var(--body-font); font-size: 13px;
+    color: var(--text-soft);
+  }
+  .letter-row:hover { background: var(--surface); border-color: var(--border-soft); }
+  .letter-row.active { background: var(--surface); border-color: var(--text); color: var(--text); font-weight: 600; }
+  .letter-row .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .letter-row .pill {
+    font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 2px 6px; border-radius: 99px; font-weight: 600;
+    background: var(--surface-alt); color: var(--muted);
+  }
+  .letter-row .pill.sent  { background: var(--accent-pale); color: var(--accent); }
+  .letter-row .pill.draft { background: var(--surface-alt); color: var(--muted); }
+
+  .section-lib {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .section-chip {
+    appearance: none; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text);
+    padding: 7px 10px; font-size: 12px; cursor: pointer;
+    font-family: var(--body-font); border-radius: 2px;
+    display: inline-flex; align-items: center; gap: 5px;
+    transition: all .12s;
+  }
+  .section-chip:hover { border-color: var(--accent); background: var(--accent-pale); color: var(--accent); }
+
+  .ideas-inbox-input {
+    width: 100%; min-height: 70px;
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 10px 12px; font-family: var(--body-font); font-size: 13px;
+    color: var(--text); border-radius: 2px;
+    margin-bottom: 8px; resize: vertical;
+  }
+  .ideas-inbox-input:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-pale); }
+  .idea {
+    background: var(--surface); border: 1px solid var(--border-soft);
+    padding: 10px 12px; margin-bottom: 6px; border-radius: 2px;
+    font-size: 12px; color: var(--text-soft); line-height: 1.5;
+  }
+  .idea-text { margin-bottom: 6px; }
+  .idea-meta {
+    display: flex; align-items: center; gap: 6px; justify-content: space-between;
+    font-size: 10px; color: var(--muted);
+  }
+  .idea-actions { display: flex; gap: 4px; }
+  .idea.used { opacity: 0.5; }
+
+  .nav-link {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 10px; text-decoration: none; color: var(--text-soft);
+    font-size: 13px; border-radius: 2px;
+    transition: background .12s;
+  }
+  .nav-link:hover { background: var(--surface); color: var(--text); }
+  .nav-link .arrow { color: var(--muted); }
+
+  /* ── Letter pane ─────────────────────────────────────── */
+  .letter-meta {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px 18px;
+    margin-bottom: 18px;
+    border-radius: 2px;
+  }
+  .letter-meta .field { margin-bottom: 12px; }
+  .letter-meta .field:last-child { margin-bottom: 0; }
+  .letter-meta label {
+    display: block; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin-bottom: 4px;
+  }
+  .letter-meta input {
+    width: 100%; border: 0; outline: 0;
+    font-family: var(--body-font); font-size: 14px; color: var(--text);
+    padding: 4px 0; background: transparent;
+    border-bottom: 1px solid transparent;
+  }
+  .letter-meta input:focus { border-bottom-color: var(--accent); }
+
+  .sections-list { display: flex; flex-direction: column; gap: 10px; }
+  .section-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 2px;
+    transition: border-color .12s, box-shadow .12s;
+  }
+  .section-card:hover { border-color: var(--text); }
+  .section-card.expanded { border-color: var(--accent); box-shadow: 0 6px 20px rgba(16,185,129,0.08); }
+
+  .section-head {
+    display: flex; align-items: center; padding: 12px 16px;
+    cursor: pointer; gap: 12px;
+  }
+  .section-emoji { font-size: 18px; }
+  .section-label {
+    font-family: var(--display-font); font-size: 20px; font-weight: 500;
+    color: var(--text); flex: 1; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .section-summary {
+    font-size: 12px; color: var(--muted);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    max-width: 220px;
+  }
+  .section-actions { display: flex; gap: 4px; align-items: center; }
+  .icon-btn {
+    appearance: none; background: transparent; border: 1px solid transparent;
+    width: 28px; height: 28px; cursor: pointer; color: var(--muted);
+    border-radius: 2px; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .icon-btn:hover { background: var(--surface-alt); color: var(--text); border-color: var(--border); }
+  .icon-btn.danger:hover { color: var(--danger); border-color: var(--danger); }
+
+  .section-body {
+    border-top: 1px solid var(--border-soft);
+    padding: 16px 18px;
+    display: none;
+  }
+  .section-card.expanded .section-body { display: block; }
+
+  .field-block { margin-bottom: 14px; }
+  .field-block:last-child { margin-bottom: 0; }
+  .field-block label {
+    display: block;
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin-bottom: 5px;
+  }
+  .field-block input, .field-block textarea {
+    width: 100%; appearance: none;
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: var(--body-font);
+    font-size: 14px; padding: 9px 11px; border-radius: 2px;
+  }
+  .field-block textarea { min-height: 80px; resize: vertical; line-height: 1.55; }
+  .field-block input:focus, .field-block textarea:focus {
+    outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-pale);
+  }
+
+  /* List-of-items field (favorites items, qa pairs) */
+  .field-list { display: flex; flex-direction: column; gap: 10px; }
+  .field-list-item {
+    background: var(--bg); border: 1px solid var(--border-soft);
+    padding: 12px; border-radius: 2px;
+    position: relative;
+  }
+  .field-list-item .remove-item {
+    position: absolute; top: 8px; right: 8px;
+    background: transparent; border: 0; cursor: pointer;
+    color: var(--muted); font-size: 16px;
+  }
+  .field-list-item .remove-item:hover { color: var(--danger); }
+  .field-list-item .field-block { margin-bottom: 10px; }
+  .field-list-item .field-block:last-child { margin-bottom: 0; }
+  .field-list-add {
+    background: transparent; border: 1px dashed var(--border);
+    padding: 8px 12px; font-size: 12px; cursor: pointer;
+    color: var(--muted); border-radius: 2px;
+  }
+  .field-list-add:hover { color: var(--accent); border-color: var(--accent); }
+
+  .auto-note {
+    font-size: 12px; color: var(--muted); font-style: italic;
+    background: var(--bg); border-left: 2px solid var(--accent);
+    padding: 8px 12px; margin-bottom: 12px; border-radius: 0 2px 2px 0;
+  }
+
+  .empty-letter {
+    text-align: center; padding: 64px 24px;
+    color: var(--muted);
+  }
+  .empty-letter h2 {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 30px; font-weight: 500;
+    color: var(--text-soft); margin: 0 0 6px;
+  }
+  .empty-letter p { font-size: 14px; margin: 0 0 18px; }
+
+  /* ── Preview pane ────────────────────────────────────── */
+  .preview-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px; gap: 10px;
+  }
+  .preview-bar .label {
+    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600;
+  }
+  .preview-bar .toggle {
+    display: inline-flex; gap: 2px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 2px; padding: 2px;
+  }
+  .preview-bar .toggle button {
+    background: transparent; border: 0; padding: 5px 9px; font-size: 11px;
+    color: var(--muted); cursor: pointer; border-radius: 1px;
+    font-family: var(--body-font); letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .preview-bar .toggle button.active { background: var(--text); color: var(--bg); font-weight: 600; }
+
+  .preview-frame-wrap {
+    background: var(--bg); border: 1px solid var(--border);
+    overflow: hidden; height: calc(100vh - var(--topbar-h) - 80px);
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 12px;
+  }
+  .preview-frame {
+    width: 100%; height: 100%; border: 0;
+    background: #fff;
+    transition: max-width .25s ease;
+  }
+  .preview-frame.mobile { max-width: 375px; }
+
+  /* ── Send modal ──────────────────────────────────────── */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(15,12,8,0.55);
+    z-index: 50;
+    display: none; align-items: flex-start; justify-content: center;
+    padding: 60px 16px;
+    overflow-y: auto;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    width: 100%; max-width: 480px;
+    border-radius: 4px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+  }
+  .modal-head {
+    padding: 18px 22px 12px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .modal-title {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 24px; font-weight: 500;
+  }
+  .modal-body { padding: 16px 22px; }
+  .modal-foot {
+    padding: 12px 22px 18px;
+    display: flex; justify-content: flex-end; gap: 8px;
+    border-top: 1px solid var(--border-soft);
+  }
+  .modal .field { margin-bottom: 12px; }
+  .modal .field label {
+    display: block; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin-bottom: 4px;
+  }
+  .modal .field input, .modal .field select {
+    width: 100%; padding: 9px 11px; border: 1px solid var(--border);
+    border-radius: 2px; font-family: var(--body-font); font-size: 14px;
+  }
+  .err {
+    background: rgba(196,69,69,0.08); border: 1px solid rgba(196,69,69,0.3);
+    color: var(--danger); padding: 9px 12px; font-size: 13px;
+    border-radius: 2px; margin-bottom: 10px;
+  }
+  .err:empty { display: none; }
+
+  /* ── Login gate ──────────────────────────────────────── */
+  .gate {
+    position: fixed; inset: 0;
+    background: var(--bg); z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .gate-card {
+    background: var(--surface); border: 1px solid var(--border);
+    width: 100%; max-width: 360px;
+    padding: 30px 28px; border-radius: 4px; text-align: center;
+  }
+  .gate-card h2 {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 30px; margin: 0 0 4px; font-weight: 500;
+  }
+  .gate-card p { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+  .gate-card input {
+    width: 100%; padding: 11px 14px; border: 1px solid var(--border);
+    border-radius: 2px; font-size: 14px; font-family: var(--body-font); margin-bottom: 12px;
+  }
+  .gate-card .btn { width: 100%; padding: 11px 14px; }
+  .gate-err { color: var(--danger); font-size: 12px; margin-top: 10px; min-height: 16px; }
+
+  /* ── Mobile ──────────────────────────────────────────── */
+  @media (max-width: 1100px) {
+    :root { --pane-rail: 240px; --pane-preview: 380px; }
+  }
+  @media (max-width: 900px) {
+    .layout {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+    }
+    .pane { height: auto; max-height: none; }
+    .pane-rail, .pane-preview { border: 0; border-bottom: 1px solid var(--border); }
+    .preview-frame-wrap { height: 70vh; }
+    .topbar { padding: 0 12px; }
+    .topbar .brand { font-size: 18px; padding-right: 12px; }
+    .topbar .letter-title { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Login gate -->
+<div class="gate" id="gate" style="display:none">
+  <div class="gate-card">
+    <h2>Letter Studio</h2>
+    <p>Enter the hub password to continue.</p>
+    <input id="gatePw" type="password" autocomplete="current-password" placeholder="Password">
+    <button class="btn btn-primary" onclick="gateLogin()">Enter</button>
+    <div class="gate-err" id="gateErr"></div>
+  </div>
+</div>
+
+<!-- Top bar -->
+<div class="topbar">
+  <a class="back" href="/hub">← Hub</a>
+  <div class="brand">Letter Studio</div>
+  <input class="letter-title" id="letterTitle" placeholder="Untitled letter">
+  <div class="save-indicator" id="saveIndicator"></div>
+  <button class="btn" id="newLetterBtn" onclick="newLetter()">+ New</button>
+  <button class="btn btn-accent" id="sendBtn" onclick="openSendModal()" disabled>Send</button>
+</div>
+
+<div class="layout">
+  <!-- ─── Left rail ─── -->
+  <div class="pane pane-rail">
+    <div class="rail-section">
+      <div class="rail-label">Letters</div>
+      <div class="letters-list" id="lettersList">
+        <div style="font-size:12px;color:var(--muted);padding:6px 10px;">Loading…</div>
+      </div>
+    </div>
+
+    <div class="rail-section">
+      <div class="rail-label">Add a section</div>
+      <div class="section-lib" id="sectionLib"></div>
+    </div>
+
+    <div class="rail-section">
+      <div class="rail-label">Ideas inbox</div>
+      <textarea class="ideas-inbox-input" id="ideaText" placeholder="Capture a thought… ('Real Talk: discipline vs motivation' / 'recipe for blueberry muffins' / etc.)"></textarea>
+      <button class="btn btn-sm" onclick="captureIdea()">Capture</button>
+      <div id="ideasList" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="rail-section">
+      <div class="rail-label">Tools</div>
+      <a class="nav-link" href="/hub/studio/drops">Drops Manager <span class="arrow">→</span></a>
+    </div>
+  </div>
+
+  <!-- ─── Letter pane ─── -->
+  <div class="pane pane-letter" id="letterPane">
+    <div class="empty-letter" id="emptyLetter">
+      <h2>No letter open</h2>
+      <p>Pick a draft from the sidebar, or start a new letter.</p>
+      <button class="btn btn-primary" onclick="newLetter()">+ New letter</button>
+    </div>
+
+    <div id="letterEditor" style="display:none">
+      <div class="letter-meta">
+        <div class="field">
+          <label for="letterSubject">Subject line</label>
+          <input id="letterSubject" placeholder="What lands in their inbox preview">
+        </div>
+        <div class="field">
+          <label for="letterPreheader">Preheader (optional)</label>
+          <input id="letterPreheader" placeholder="The line that shows under the subject">
+        </div>
+      </div>
+
+      <div class="rail-label" style="margin:20px 0 10px;">Sections</div>
+      <div class="sections-list" id="sectionsList"></div>
+
+      <div style="margin-top:16px;">
+        <div style="font-size:11px;color:var(--muted);">Tip: add sections from the left rail. Drag isn't wired yet — use the up/down arrows.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Preview pane ─── -->
+  <div class="pane pane-preview">
+    <div class="preview-bar">
+      <div class="label">Live preview</div>
+      <div class="toggle">
+        <button id="previewDesktop" class="active" onclick="setPreviewMode('desktop')">Desktop</button>
+        <button id="previewMobile" onclick="setPreviewMode('mobile')">Mobile</button>
+      </div>
+    </div>
+    <div class="preview-frame-wrap">
+      <iframe class="preview-frame" id="previewFrame" title="Letter preview"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Send modal ─── -->
+<div class="modal-backdrop" id="sendModal" onclick="if(event.target===this)closeSendModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Send this letter</div>
+    </div>
+    <div class="modal-body">
+      <div class="err" id="sendErr"></div>
+      <div class="field">
+        <label>Subject (final)</label>
+        <input id="sendSubject" placeholder="Required">
+      </div>
+      <div class="field">
+        <label>Send to</label>
+        <select id="sendSegment">
+          <option value="all">All newsletter subscribers</option>
+          <option value="__test__">Just to me (test send)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Test email (only if "Just to me")</label>
+        <input id="sendTestEmail" placeholder="you@example.com">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeSendModal()">Cancel</button>
+      <button class="btn btn-accent" id="sendConfirmBtn" onclick="confirmSend()">Send now</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ═══════════════════════════════════════════════════════════════
+  // STATE
+  // ═══════════════════════════════════════════════════════════════
+  const state = {
+    password: sessionStorage.getItem('hubPassword') || '',
+    brand: null,
+    studioConfig: null,
+    sectionTypes: {},          // { id: typeDef }
+    sectionTypeOrder: [],      // ['devotional','realtalk',…]
+    letters: [],               // sidebar list
+    ideas: [],
+    letterId: null,
+    letter: null,              // { id, name, subject, preheader, sections: [...] }
+    expandedSectionId: null,
+    saveTimer: null,
+    previewTimer: null,
+    sending: false,
+  };
+
+  function authHeaders() {
+    return { 'Authorization': 'Bearer ' + state.password, 'Content-Type': 'application/json' };
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // ESCAPING
+  // ═══════════════════════════════════════════════════════════════
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // LOGIN GATE
+  // ═══════════════════════════════════════════════════════════════
+  function showGate() {
+    document.getElementById('gate').style.display = 'flex';
+    setTimeout(() => document.getElementById('gatePw').focus(), 50);
+  }
+  function gateLogin() {
+    const pw = document.getElementById('gatePw').value.trim();
+    const err = document.getElementById('gateErr');
+    err.textContent = '';
+    if (!pw) return;
+    fetch('/api/auth', { headers: { 'Authorization': 'Bearer ' + pw } })
+      .then(r => { if (!r.ok) throw new Error('Incorrect password.'); return r.json(); })
+      .then(() => {
+        state.password = pw;
+        sessionStorage.setItem('hubPassword', pw);
+        document.getElementById('gate').style.display = 'none';
+        boot();
+      })
+      .catch(e => { err.textContent = e.message; });
+  }
+  document.getElementById('gatePw').addEventListener('keydown', e => {
+    if (e.key === 'Enter') gateLogin();
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // BOOT
+  // ═══════════════════════════════════════════════════════════════
+  async function boot() {
+    try {
+      const cfg = await api('/api/studio/config');
+      state.brand = cfg.brand;
+      state.studioConfig = cfg.studioConfig;
+      state.sectionTypes = cfg.sectionTypes;
+      state.sectionTypeOrder = cfg.sectionTypeOrder;
+
+      renderSectionLib();
+      await reloadLetters();
+      await reloadIdeas();
+
+      // Open ?id= or first draft
+      const urlId = new URL(location.href).searchParams.get('id');
+      if (urlId) {
+        await openLetter(urlId);
+      }
+    } catch (e) {
+      console.error(e);
+      if (String(e.message || '').includes('401')) showGate();
+    }
+  }
+
+  async function api(path, opts = {}) {
+    const res = await fetch(path, { ...opts, headers: { ...authHeaders(), ...(opts.headers || {}) } });
+    if (res.status === 401) {
+      showGate();
+      throw new Error('401 unauthorized');
+    }
+    const data = await res.json().catch(() => null);
+    if (!res.ok) throw new Error(data?.error || res.status + ' ' + res.statusText);
+    return data;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // SECTION LIBRARY (rail)
+  // ═══════════════════════════════════════════════════════════════
+  function renderSectionLib() {
+    const lib = document.getElementById('sectionLib');
+    lib.innerHTML = '';
+    for (const id of state.sectionTypeOrder) {
+      const t = state.sectionTypes[id];
+      if (!t) continue;
+      const btn = document.createElement('button');
+      btn.className = 'section-chip';
+      btn.innerHTML = `<span>${esc(t.emoji || '')}</span><span>${esc(t.label)}</span>`;
+      btn.onclick = () => addSection(id);
+      lib.appendChild(btn);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // LETTERS LIST (sidebar)
+  // ═══════════════════════════════════════════════════════════════
+  async function reloadLetters() {
+    try {
+      const data = await api('/api/studio/letters');
+      state.letters = data.letters || [];
+    } catch { state.letters = []; }
+    renderLettersList();
+  }
+  function renderLettersList() {
+    const wrap = document.getElementById('lettersList');
+    wrap.innerHTML = '';
+    if (!state.letters.length) {
+      wrap.innerHTML = `<div style="font-size:12px;color:var(--muted);padding:6px 10px;">No letters yet.<br>Click + New to start.</div>`;
+      return;
+    }
+    for (const l of state.letters) {
+      const row = document.createElement('button');
+      row.className = 'letter-row' + (l.id === state.letterId ? ' active' : '');
+      row.innerHTML = `
+        <span class="name">${esc(l.name || 'Untitled')}</span>
+        <span class="pill ${l.status}">${l.status}</span>
+      `;
+      row.onclick = () => openLetter(l.id);
+      wrap.appendChild(row);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // IDEAS INBOX
+  // ═══════════════════════════════════════════════════════════════
+  async function reloadIdeas() {
+    try {
+      const data = await api('/api/studio/ideas');
+      state.ideas = data.ideas || [];
+    } catch { state.ideas = []; }
+    renderIdeas();
+  }
+  function renderIdeas() {
+    const wrap = document.getElementById('ideasList');
+    wrap.innerHTML = '';
+    if (!state.ideas.length) {
+      wrap.innerHTML = `<div style="font-size:11px;color:var(--muted);padding:4px 0;">No ideas captured yet.</div>`;
+      return;
+    }
+    for (const idea of state.ideas) {
+      const el = document.createElement('div');
+      el.className = 'idea' + (idea.status === 'used' ? ' used' : '');
+      el.innerHTML = `
+        <div class="idea-text">${esc(idea.text)}</div>
+        <div class="idea-meta">
+          <div>${idea.type ? '· ' + esc(state.sectionTypes[idea.type]?.label || idea.type) : ''}</div>
+          <div class="idea-actions">
+            <button class="btn btn-tiny" data-act="use">Use</button>
+            <button class="icon-btn danger" data-act="delete" title="Delete">×</button>
+          </div>
+        </div>
+      `;
+      el.querySelector('[data-act="use"]').onclick = () => useIdea(idea);
+      el.querySelector('[data-act="delete"]').onclick = () => deleteIdea(idea.id);
+      wrap.appendChild(el);
+    }
+  }
+  async function captureIdea() {
+    const txt = document.getElementById('ideaText').value.trim();
+    if (!txt) return;
+    try {
+      await api('/api/studio/ideas', {
+        method: 'POST',
+        body: JSON.stringify({ text: txt, type: null }),
+      });
+      document.getElementById('ideaText').value = '';
+      await reloadIdeas();
+    } catch (e) {
+      alert('Capture failed: ' + e.message);
+    }
+  }
+  async function deleteIdea(id) {
+    try {
+      await api('/api/studio/ideas?id=' + encodeURIComponent(id), { method: 'DELETE' });
+      await reloadIdeas();
+    } catch (e) { alert('Delete failed: ' + e.message); }
+  }
+  async function useIdea(idea) {
+    if (!state.letter) {
+      // No letter open — start a new one with this idea
+      await newLetter();
+    }
+    // Default to "freeletter" if idea has no type
+    const typeId = idea.type && state.sectionTypes[idea.type] ? idea.type : 'freeletter';
+    const t = state.sectionTypes[typeId];
+    if (!t) return;
+    // Pre-fill the first AI-expandable or multiline field
+    const initialFields = {};
+    const targetField = (t.fields || []).find(f => f.aiExpandable || f.multiline);
+    if (targetField) initialFields[targetField.key] = idea.text;
+    addSection(typeId, initialFields, idea.id);
+    // Mark idea as used
+    try {
+      await api('/api/studio/ideas?id=' + encodeURIComponent(idea.id), {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'used' }),
+      });
+      await reloadIdeas();
+    } catch {}
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // LETTER OPEN / NEW
+  // ═══════════════════════════════════════════════════════════════
+  async function newLetter() {
+    try {
+      const data = await api('/api/studio/letters', {
+        method: 'POST',
+        body: JSON.stringify({ name: 'Untitled letter' }),
+      });
+      await reloadLetters();
+      await openLetter(data.letter.id);
+    } catch (e) { alert('Create failed: ' + e.message); }
+  }
+  async function openLetter(id) {
+    try {
+      const data = await api('/api/studio/letters?id=' + encodeURIComponent(id));
+      state.letterId = id;
+      state.letter = data.letter;
+      // Update URL
+      const url = new URL(location.href);
+      url.searchParams.set('id', id);
+      history.replaceState({}, '', url);
+      renderLettersList();
+      renderLetterEditor();
+      refreshPreview();
+      document.getElementById('sendBtn').disabled = false;
+    } catch (e) { alert('Open failed: ' + e.message); }
+  }
+  function renderLetterEditor() {
+    document.getElementById('emptyLetter').style.display = 'none';
+    document.getElementById('letterEditor').style.display = 'block';
+    document.getElementById('letterTitle').value     = state.letter.name      || '';
+    document.getElementById('letterSubject').value   = state.letter.subject   || '';
+    document.getElementById('letterPreheader').value = state.letter.preheader || '';
+    renderSections();
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // SECTION RENDERING (in letter editor)
+  // ═══════════════════════════════════════════════════════════════
+  function renderSections() {
+    const wrap = document.getElementById('sectionsList');
+    wrap.innerHTML = '';
+    const sections = state.letter?.sections || [];
+    if (!sections.length) {
+      wrap.innerHTML = `<div style="background:var(--surface);border:1px dashed var(--border);padding:30px;text-align:center;color:var(--muted);font-size:13px;border-radius:2px;">
+        No sections yet. Add one from the rail on the left.
+      </div>`;
+      return;
+    }
+    sections.forEach((sec, idx) => wrap.appendChild(renderSectionCard(sec, idx, sections.length)));
+  }
+  function renderSectionCard(sec, idx, total) {
+    const t = state.sectionTypes[sec.type];
+    if (!t) {
+      const card = document.createElement('div');
+      card.className = 'section-card';
+      card.innerHTML = `<div class="section-head"><div class="section-emoji">⚠️</div><div class="section-label">Unknown type: ${esc(sec.type)}</div></div>`;
+      return card;
+    }
+    const card = document.createElement('div');
+    card.className = 'section-card' + (sec.id === state.expandedSectionId ? ' expanded' : '');
+
+    const summary = sectionSummaryText(sec);
+    card.innerHTML = `
+      <div class="section-head">
+        <div class="section-emoji">${esc(t.emoji || '')}</div>
+        <div class="section-label">${esc(t.label)}</div>
+        <div class="section-summary">${esc(summary)}</div>
+        <div class="section-actions">
+          <button class="icon-btn" data-act="up"     ${idx === 0 ? 'disabled' : ''}      title="Move up">↑</button>
+          <button class="icon-btn" data-act="down"   ${idx === total - 1 ? 'disabled' : ''} title="Move down">↓</button>
+          <button class="icon-btn danger" data-act="delete" title="Delete">×</button>
+        </div>
+      </div>
+      <div class="section-body" data-body></div>
+    `;
+
+    // Click on head toggles expanded
+    card.querySelector('.section-head').addEventListener('click', e => {
+      if (e.target.closest('.section-actions')) return;
+      state.expandedSectionId = state.expandedSectionId === sec.id ? null : sec.id;
+      renderSections();
+    });
+
+    card.querySelector('[data-act="up"]').onclick   = (e) => { e.stopPropagation(); moveSection(idx, -1); };
+    card.querySelector('[data-act="down"]').onclick = (e) => { e.stopPropagation(); moveSection(idx, 1); };
+    card.querySelector('[data-act="delete"]').onclick = (e) => {
+      e.stopPropagation();
+      if (!confirm('Delete this ' + t.label + ' section?')) return;
+      deleteSection(idx);
+    };
+
+    if (sec.id === state.expandedSectionId) {
+      const body = card.querySelector('[data-body]');
+      renderSectionBody(t, sec, body);
+    }
+    return card;
+  }
+  function sectionSummaryText(sec) {
+    const t = state.sectionTypes[sec.type];
+    if (!t) return '';
+    const f = sec.fields || {};
+    if (t.dataSource === 'drops') return 'Auto-pulled from active drops';
+    if (t.dataSource === 'social_recent') return 'Auto-pulled from recent posts';
+    // Pick first non-empty editorial field
+    for (const fld of (t.fields || [])) {
+      const v = f[fld.key];
+      if (typeof v === 'string' && v.trim()) return v.trim().slice(0, 80);
+    }
+    if (Array.isArray(f.items) && f.items.length)  return `${f.items.length} item${f.items.length>1?'s':''}`;
+    if (Array.isArray(f.pairs) && f.pairs.length)  return `${f.pairs.length} Q&A${f.pairs.length>1?'s':''}`;
+    return 'Click to edit';
+  }
+  function renderSectionBody(t, sec, container) {
+    container.innerHTML = '';
+    if (t.kind === 'auto') {
+      const note = document.createElement('div');
+      note.className = 'auto-note';
+      if (t.dataSource === 'drops') {
+        note.innerHTML = `Drops auto-pull from your <a href="/hub/studio/drops" style="color:var(--accent);">Drops Manager</a>. The first ${state.studioConfig.maxDropsPerLetter || 4} active drops will appear in the rendered letter.`;
+      } else if (t.dataSource === 'social_recent') {
+        note.innerHTML = `Recent post recap will pull from your IG/TikTok stats once Phase 3 ships. For now this section will render as a placeholder.`;
+      }
+      container.appendChild(note);
+    }
+    for (const fld of (t.fields || [])) {
+      if (fld.hidden) continue;
+      const block = renderFieldBlock(fld, sec.fields[fld.key], (newVal) => {
+        sec.fields[fld.key] = newVal;
+        scheduleSave();
+      }, sec);
+      container.appendChild(block);
+    }
+  }
+  function renderFieldBlock(fld, value, onChange, sec) {
+    if (fld.type === 'list') return renderListField(fld, value, onChange, sec);
+
+    const wrap = document.createElement('div');
+    wrap.className = 'field-block';
+    const id = `f_${sec.id}_${fld.key}`;
+    wrap.innerHTML = `<label for="${id}">${esc(fld.label)}</label>`;
+    let input;
+    if (fld.multiline) {
+      input = document.createElement('textarea');
+      if (fld.placeholder) input.placeholder = fld.placeholder;
+    } else {
+      input = document.createElement('input');
+      input.type = fld.type === 'image' ? 'url' : 'text';
+      if (fld.placeholder) input.placeholder = fld.placeholder;
+    }
+    input.id = id;
+    input.value = value || '';
+    input.addEventListener('input', () => onChange(input.value));
+    wrap.appendChild(input);
+    return wrap;
+  }
+  function renderListField(fld, value, onChange, sec) {
+    const items = Array.isArray(value) ? [...value] : [];
+    const wrap = document.createElement('div');
+    wrap.className = 'field-block';
+    wrap.innerHTML = `<label>${esc(fld.label)}</label>`;
+    const list = document.createElement('div');
+    list.className = 'field-list';
+    wrap.appendChild(list);
+
+    function rerender() {
+      list.innerHTML = '';
+      items.forEach((item, idx) => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'field-list-item';
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-item';
+        removeBtn.textContent = '×';
+        removeBtn.onclick = () => { items.splice(idx, 1); onChange([...items]); rerender(); };
+        itemEl.appendChild(removeBtn);
+        for (const sub of (fld.itemFields || [])) {
+          const sb = renderFieldBlock(
+            sub,
+            item[sub.key],
+            (v) => { item[sub.key] = v; onChange([...items]); },
+            sec
+          );
+          itemEl.appendChild(sb);
+        }
+        list.appendChild(itemEl);
+      });
+      const addBtn = document.createElement('button');
+      addBtn.className = 'field-list-add';
+      addBtn.textContent = '+ Add another';
+      addBtn.onclick = () => { items.push({}); onChange([...items]); rerender(); };
+      list.appendChild(addBtn);
+    }
+    rerender();
+    return wrap;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // SECTION ADD / REORDER / DELETE
+  // ═══════════════════════════════════════════════════════════════
+  function addSection(typeId, initialFields = {}, sourceIdeaId = null) {
+    if (!state.letter) {
+      newLetter().then(() => addSection(typeId, initialFields, sourceIdeaId));
+      return;
+    }
+    const t = state.sectionTypes[typeId];
+    if (!t) return;
+    const newSec = {
+      id: 's_' + Math.random().toString(36).slice(2, 12),
+      type: typeId,
+      fields: { ...initialFields },
+    };
+    if (sourceIdeaId) newSec.sourceIdeaId = sourceIdeaId;
+    state.letter.sections = state.letter.sections || [];
+    state.letter.sections.push(newSec);
+    state.expandedSectionId = newSec.id;
+    renderSections();
+    scheduleSave();
+  }
+  function moveSection(idx, dir) {
+    const sections = state.letter.sections;
+    const next = idx + dir;
+    if (next < 0 || next >= sections.length) return;
+    [sections[idx], sections[next]] = [sections[next], sections[idx]];
+    renderSections();
+    scheduleSave();
+  }
+  function deleteSection(idx) {
+    state.letter.sections.splice(idx, 1);
+    renderSections();
+    scheduleSave();
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // SAVE (debounced) + PREVIEW (debounced)
+  // ═══════════════════════════════════════════════════════════════
+  function setSaveIndicator(text, cls = '') {
+    const el = document.getElementById('saveIndicator');
+    el.textContent = text;
+    el.className = 'save-indicator ' + cls;
+  }
+  function scheduleSave() {
+    clearTimeout(state.saveTimer);
+    setSaveIndicator('Editing…');
+    state.saveTimer = setTimeout(saveNow, 700);
+    schedulePreview();
+  }
+  async function saveNow() {
+    if (!state.letter) return;
+    setSaveIndicator('Saving…', 'saving');
+    try {
+      const payload = {
+        name: state.letter.name,
+        subject: state.letter.subject,
+        preheader: state.letter.preheader,
+        sections: state.letter.sections,
+      };
+      const data = await api('/api/studio/letters?id=' + encodeURIComponent(state.letter.id), {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      });
+      // server returns the saved letter — sync any server-side normalization
+      state.letter = data.letter;
+      setSaveIndicator('Saved', '');
+      // Refresh sidebar in case name/status changed
+      const idx = state.letters.findIndex(l => l.id === state.letter.id);
+      if (idx >= 0) {
+        state.letters[idx] = { ...state.letters[idx], ...data.letter };
+        renderLettersList();
+      }
+    } catch (e) {
+      console.error(e);
+      setSaveIndicator('Save failed', 'error');
+    }
+  }
+  function schedulePreview() {
+    clearTimeout(state.previewTimer);
+    state.previewTimer = setTimeout(refreshPreview, 350);
+  }
+  async function refreshPreview() {
+    if (!state.letter) return;
+    try {
+      const data = await api('/api/studio/preview', {
+        method: 'POST',
+        body: JSON.stringify({ letter: state.letter }),
+      });
+      const frame = document.getElementById('previewFrame');
+      const doc = frame.contentDocument || frame.contentWindow.document;
+      doc.open(); doc.write(data.html); doc.close();
+    } catch (e) {
+      console.error('preview failed', e);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // PREVIEW MODE TOGGLE
+  // ═══════════════════════════════════════════════════════════════
+  function setPreviewMode(mode) {
+    document.getElementById('previewDesktop').classList.toggle('active', mode === 'desktop');
+    document.getElementById('previewMobile').classList.toggle('active', mode === 'mobile');
+    document.getElementById('previewFrame').classList.toggle('mobile', mode === 'mobile');
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // TITLE / META INPUTS
+  // ═══════════════════════════════════════════════════════════════
+  document.getElementById('letterTitle').addEventListener('input', e => {
+    if (!state.letter) return;
+    state.letter.name = e.target.value;
+    scheduleSave();
+  });
+  document.getElementById('letterSubject').addEventListener('input', e => {
+    if (!state.letter) return;
+    state.letter.subject = e.target.value;
+    scheduleSave();
+  });
+  document.getElementById('letterPreheader').addEventListener('input', e => {
+    if (!state.letter) return;
+    state.letter.preheader = e.target.value;
+    scheduleSave();
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // SEND MODAL
+  // ═══════════════════════════════════════════════════════════════
+  function openSendModal() {
+    if (!state.letter) return;
+    document.getElementById('sendErr').textContent = '';
+    document.getElementById('sendSubject').value = state.letter.subject || state.letter.name || '';
+    document.getElementById('sendSegment').value = '__test__';
+    document.getElementById('sendModal').classList.add('open');
+  }
+  function closeSendModal() {
+    document.getElementById('sendModal').classList.remove('open');
+  }
+  async function confirmSend() {
+    if (state.sending) return;
+    const subject = document.getElementById('sendSubject').value.trim();
+    const segment = document.getElementById('sendSegment').value;
+    const testEmail = document.getElementById('sendTestEmail').value.trim();
+    const errEl = document.getElementById('sendErr');
+    errEl.textContent = '';
+
+    if (!subject) { errEl.textContent = 'Subject is required.'; return; }
+    if (segment === '__test__' && !testEmail) { errEl.textContent = 'Test email is required for "Just to me".'; return; }
+
+    state.sending = true;
+    document.getElementById('sendConfirmBtn').textContent = 'Sending…';
+    document.getElementById('sendConfirmBtn').disabled = true;
+
+    try {
+      // Save the latest subject change first
+      state.letter.subject = subject;
+      await saveNow();
+      const payload = { letterId: state.letter.id };
+      if (segment === '__test__') {
+        payload.mode = 'test';
+        payload.testEmail = testEmail;
+      } else {
+        payload.mode = 'now';
+        payload.segment = segment;
+      }
+      const data = await api('/api/studio/send', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      closeSendModal();
+      alert(`Sent ${data.sent} email${data.sent === 1 ? '' : 's'}.${data.beehiivOk ? ' Beehiiv archive created.' : ''}`);
+      await reloadLetters();
+      await openLetter(state.letter.id);
+    } catch (e) {
+      errEl.textContent = 'Send failed: ' + e.message;
+    } finally {
+      state.sending = false;
+      document.getElementById('sendConfirmBtn').textContent = 'Send now';
+      document.getElementById('sendConfirmBtn').disabled = false;
+    }
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeSendModal();
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // BOOT TRIGGER
+  // ═══════════════════════════════════════════════════════════════
+  if (!state.password) showGate(); else boot();
+</script>
+</body>
+</html>

@@ -9,6 +9,7 @@ import {
   AI_MODELS,
 } from '../../lib/studio/ai.js';
 import { SECTION_TYPES } from '../../lib/studio/section-types.js';
+import { CLIENT_BRAND } from '../../lib/client-config.js';
 
 // All AI touchpoints under one endpoint, dispatched by `?op=`.
 //

@@ -24,7 +24,8 @@ const RESEND_KEY  = process.env.RESEND_API_KEY;
 const FROM_EMAIL  = process.env.CONTACT_FROM_EMAIL || `hub@${CLIENT_BRAND.domain}`;
 const TO_EMAIL    = process.env.CLIENT_EMAIL || process.env.CONTACT_TO_EMAIL;
 
-const LAST_KEY = studioKey('lockin:last_draft_at');
+const LAST_KEY     = studioKey('lockin:last_draft_at');
+const DISABLED_KEY = studioKey('lockin:disabled');
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -115,6 +116,33 @@ export default async function handler(req) {
 
   const url = new URL(req.url);
   const force = url.searchParams.get('force') === '1';
+  const action = url.searchParams.get('action');
+
+  // ── Toggle endpoint: pause / resume the auto-draft cron ──
+  // POST /api/studio/lockin-suggest?action=set-disabled  body: { disabled: true|false }
+  if (action === 'set-disabled') {
+    let body = {};
+    try { body = await req.json(); } catch { /* allow empty */ }
+    if (body.disabled === true) {
+      await redisCmd('SET', DISABLED_KEY, '1');
+      return json({ ok: true, kind: 'lockin', disabled: true });
+    } else {
+      await redisCmd('DEL', DISABLED_KEY);
+      return json({ ok: true, kind: 'lockin', disabled: false });
+    }
+  }
+  if (action === 'get-status') {
+    const isDisabled = (await redisCmd('GET', DISABLED_KEY)) === '1';
+    const lastAt = Number(await redisCmd('GET', LAST_KEY) || 0);
+    return json({ ok: true, kind: 'lockin', disabled: isDisabled, lastDraftAt: lastAt });
+  }
+
+  // Pause check — if Mandi disabled the Lock-In auto-draft from Messages,
+  // skip silently. Manual "force" still respects the toggle.
+  const disabled = (await redisCmd('GET', DISABLED_KEY)) === '1';
+  if (disabled) {
+    return json({ ok: true, skipped: true, reason: 'paused' });
+  }
 
   const cadenceWeeks = CLIENT_BRAND.studioConfig?.lockInCadenceWeeks || 2;
   const cadenceMs = cadenceWeeks * 7 * 24 * 60 * 60 * 1000;

@@ -1,6 +1,6 @@
 export const config = { runtime: 'edge' };
 
-import { getCopy, getBrandForKind } from '../lib/comms-store.js';
+import { getCopy, getBrandForKind, isCommsDisabled } from '../lib/comms-store.js';
 import { CLIENT_BRAND } from '../lib/client-config.js';
 
 const BEEHIIV_API_KEY = process.env.BEEHIIV_API_KEY;
@@ -217,9 +217,12 @@ export default async function handler(req) {
     ]);
   } catch (_) { /* log-and-continue */ }
 
-  // Send the welcome email with the lead magnet — this is THE deliverable
-  // the subscriber actually wants. Don't block on Beehiiv if it's down.
-  const welcome = await sendWelcomeEmail(email);
+  // Send the welcome email — but only if the welcome comm is enabled.
+  // She can pause it from Messages → "Emails that send themselves".
+  const welcomePaused = await isCommsDisabled('welcome').catch(() => false);
+  const welcome = welcomePaused
+    ? { ok: true, paused: true }
+    : await sendWelcomeEmail(email);
 
   // Best-effort Beehiiv sync (for the ongoing newsletter; not the magnet).
   let beehiivOk = false;

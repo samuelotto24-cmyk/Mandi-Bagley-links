@@ -1,6 +1,6 @@
 export const config = { runtime: 'edge' };
 
-import { getCopy, getBrandForKind } from '../lib/comms-store.js';
+import { getCopy, getBrandForKind, isCommsDisabled } from '../lib/comms-store.js';
 import { CLIENT_BRAND } from '../lib/client-config.js';
 
 const REDIS_URL    = process.env.UPSTASH_REDIS_REST_URL;
@@ -250,6 +250,10 @@ const TEMPLATES = {
 async function sendEmail(to, kind) {
   const tpl = TEMPLATES[kind];
   if (!tpl || !RESEND_KEY) return false;
+  // Per-kind pause — if Mandi disabled day4 / day7 from the Messages tab,
+  // silently skip instead of sending. Queue entry still gets removed by caller.
+  const paused = await isCommsDisabled(tpl.commsKey).catch(() => false);
+  if (paused) return false;
   try {
     const [copy, brand] = await Promise.all([
       getCopy(tpl.commsKey).catch(() => ({})),

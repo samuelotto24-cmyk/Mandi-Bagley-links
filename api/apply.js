@@ -1,6 +1,6 @@
 export const config = { runtime: 'edge' };
 
-import { getCopy, getBrandForKind } from '../lib/comms-store.js';
+import { getCopy, getBrandForKind, isCommsDisabled } from '../lib/comms-store.js';
 import { CLIENT_BRAND } from '../lib/client-config.js';
 
 const REDIS_URL      = process.env.UPSTASH_REDIS_REST_URL;
@@ -120,6 +120,11 @@ export default async function handler(req) {
     } catch (_) { /* email failure shouldn't block the user's confirmation */ }
 
     // ── Applicant auto-response — sets expectations + adds warmth ──
+    // Skip silently if she's paused this from Messages → "Emails that send themselves".
+    const applyReplyPaused = await isCommsDisabled('apply_reply').catch(() => false);
+    if (applyReplyPaused) {
+      return json({ ok: true, message: 'Application received' });
+    }
     try {
       const [replyCopy, brand] = await Promise.all([
         getCopy('apply_reply').catch(() => ({})),

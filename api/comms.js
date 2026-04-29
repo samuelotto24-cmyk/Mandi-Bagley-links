@@ -1,6 +1,6 @@
 export const config = { runtime: 'edge' };
 
-import { getAllCopy, saveCopy, resetCopy, saveCommsDesign } from '../lib/comms-store.js';
+import { getAllCopy, saveCopy, resetCopy, saveCommsDesign, setCommsDisabled } from '../lib/comms-store.js';
 
 const PASSWORD = process.env.DASHBOARD_PASSWORD || 'Cassandra2024';
 
@@ -29,13 +29,18 @@ export default async function handler(req) {
 
   if (req.method === 'POST') {
     const kind = url.searchParams.get('kind');
-    const target = url.searchParams.get('target') || 'copy';  // 'copy' | 'design'
+    const target = url.searchParams.get('target') || 'copy';  // 'copy' | 'design' | 'enabled'
     let body;
     try { body = await req.json(); } catch { return json({ error: 'bad_json' }, 400); }
     try {
       if (target === 'design') {
         const result = await saveCommsDesign(kind, body || {});
         return json({ ok: true, ...result });
+      }
+      if (target === 'enabled') {
+        // body: { disabled: true|false }
+        const result = await setCommsDisabled(kind, body?.disabled === true);
+        return json(result);
       }
       const result = await saveCopy(kind, body);
       return json({ ok: true, ...result });

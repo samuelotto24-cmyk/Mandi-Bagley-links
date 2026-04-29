@@ -3649,6 +3649,59 @@ a.hub-nav-icon { text-decoration: none; }
   border-radius: 999px;
   font-weight: 600;
 }
+
+/* ── Pause/resume toggle on automated email cards ── */
+.message-card-wrap {
+  position: relative;
+}
+.message-card-wrap.is-paused .message-card {
+  opacity: 0.55;
+  filter: saturate(0.6);
+}
+.message-card-wrap.is-paused .message-card:hover { opacity: 0.85; }
+.message-card-paused-badge {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  background: rgba(196,69,69,0.12);
+  color: #c44;
+  padding: 2px 8px;
+  border-radius: 99px;
+  vertical-align: middle;
+}
+.comms-toggle {
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 38px; height: 22px;
+  cursor: pointer;
+  z-index: 2;
+  display: inline-block;
+}
+.comms-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.comms-toggle-slider {
+  position: absolute; inset: 0;
+  background: rgba(196,69,69,0.25);
+  border-radius: 99px;
+  transition: background .18s;
+}
+.comms-toggle-slider::before {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 18px; height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  transition: transform .18s;
+}
+.comms-toggle input:checked + .comms-toggle-slider {
+  background: var(--accent, #DC2626);
+}
+.comms-toggle input:checked + .comms-toggle-slider::before {
+  transform: translateX(16px);
+}
 .message-card-action {
   font-size: 11px;
   letter-spacing: 0.18em;
@@ -10278,9 +10331,13 @@ async function loadComms(force) {
   if (commsState.loaded && !force) return renderCommsCards();
   commsState.loading = true;
   try {
-    const [commsRes, brandRes] = await Promise.all([
+    const [commsRes, brandRes, lockinRes] = await Promise.all([
       fetch('/api/comms', { headers: { 'Authorization': 'Bearer ' + password } }),
       fetch('/api/brand', { headers: { 'Authorization': 'Bearer ' + password } }).catch(() => null),
+      fetch('/api/studio/lockin-suggest?action=get-status', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' },
+      }).catch(() => null),
     ]);
     if (!commsRes.ok) throw new Error('fetch_failed');
     const commsJson = await commsRes.json();
@@ -10288,6 +10345,10 @@ async function loadComms(force) {
     if (brandRes && brandRes.ok) {
       const bjson = await brandRes.json().catch(() => null);
       if (bjson?.brand) commsState.brand = bjson.brand;
+    }
+    if (lockinRes && lockinRes.ok) {
+      const lj = await lockinRes.json().catch(() => null);
+      commsState.lockinDisabled = !!lj?.disabled;
     }
     commsState.loaded = true;
     renderCommsCards();
@@ -10467,21 +10528,50 @@ function renderCommsCards() {
     const editedBadge = editedCount > 0
       ? '<span class="message-card-edited-badge"><svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6"/></svg>Edited' + (editedCount > 1 ? ' · ' + editedCount + ' fields' : '') + '</span>'
       : '';
+    const isDisabled = !!c.disabled;
+    const pausedBadge = isDisabled
+      ? '<span class="message-card-paused-badge">PAUSED</span>'
+      : '';
     return (
-      '<button class="message-card" onclick="openCommsEditor(\'' + kind + '\')">' +
-        '<div class="message-card-thumb">' + (COMMS_ICONS[c.icon] || COMMS_ICONS.mail) + '</div>' +
-        '<div class="message-card-info">' +
-          '<div class="message-card-title">' + escapeAttr(c.label) + '</div>' +
-          '<div class="message-card-summary">' + escapeAttr(c.summary) + '</div>' +
-          '<div class="message-card-meta">' +
-            '<span>' + escapeAttr(c.when) + '</span>' +
-            (editedBadge ? '<span class="meta-dot"></span>' + editedBadge : '') +
+      '<div class="message-card-wrap' + (isDisabled ? ' is-paused' : '') + '">' +
+        '<button class="message-card" onclick="openCommsEditor(\'' + kind + '\')">' +
+          '<div class="message-card-thumb">' + (COMMS_ICONS[c.icon] || COMMS_ICONS.mail) + '</div>' +
+          '<div class="message-card-info">' +
+            '<div class="message-card-title">' + escapeAttr(c.label) + pausedBadge + '</div>' +
+            '<div class="message-card-summary">' + escapeAttr(c.summary) + '</div>' +
+            '<div class="message-card-meta">' +
+              '<span>' + escapeAttr(c.when) + '</span>' +
+              (editedBadge ? '<span class="meta-dot"></span>' + editedBadge : '') +
+            '</div>' +
           '</div>' +
-        '</div>' +
-        '<span class="message-card-action">Edit</span>' +
-      '</button>'
+          '<span class="message-card-action">Edit</span>' +
+        '</button>' +
+        '<label class="comms-toggle" title="' + (isDisabled ? 'Resume sending' : 'Pause this email') + '" onclick="event.stopPropagation();">' +
+          '<input type="checkbox" ' + (isDisabled ? '' : 'checked') + ' onchange="toggleCommsEnabled(\'' + kind + '\', this);">' +
+          '<span class="comms-toggle-slider"></span>' +
+        '</label>' +
+      '</div>'
     );
   }).join('');
+
+  // Lock-In Letter card — separate toggle, not a comms kind
+  const lockinDisabled = !!commsState.lockinDisabled;
+  const lockinCard = (
+    '<div class="message-card-wrap' + (lockinDisabled ? ' is-paused' : '') + '">' +
+      '<div class="message-card read-only" style="cursor:default;">' +
+        '<div class="message-card-thumb">' + COMMS_ICONS.mail + '</div>' +
+        '<div class="message-card-info">' +
+          '<div class="message-card-title">Lock-In Letter draft' + (lockinDisabled ? '<span class="message-card-paused-badge">PAUSED</span>' : '') + '</div>' +
+          '<div class="message-card-summary">Auto-assembles a draft of your biweekly Lock-In Letter every other Sunday at 6pm UTC. Never auto-sends — you always review before it ships.</div>' +
+          '<div class="message-card-meta"><span>Cron: every 2 weeks</span></div>' +
+        '</div>' +
+      '</div>' +
+      '<label class="comms-toggle" title="' + (lockinDisabled ? 'Resume auto-drafts' : 'Pause auto-drafts') + '">' +
+        '<input type="checkbox" ' + (lockinDisabled ? '' : 'checked') + ' onchange="toggleLockinEnabled(this);">' +
+        '<span class="comms-toggle-slider"></span>' +
+      '</label>' +
+    '</div>'
+  );
 
   // PDF — read-only card pointing at Sam, plus a direct preview link
   const pdfCard = (
@@ -10499,7 +10589,42 @@ function renderCommsCards() {
     '</div>'
   );
 
-  grid.innerHTML = cards + pdfCard;
+  grid.innerHTML = cards + lockinCard + pdfCard;
+}
+
+// Toggle handler — pauses or resumes one of the automated emails.
+async function toggleCommsEnabled(kind, checkbox) {
+  const wantsEnabled = checkbox.checked;
+  try {
+    const res = await fetch('/api/comms?kind=' + encodeURIComponent(kind) + '&target=enabled', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ disabled: !wantsEnabled }),
+    });
+    if (!res.ok) throw new Error('toggle_failed');
+    if (commsState.data[kind]) commsState.data[kind].disabled = !wantsEnabled;
+    renderCommsCards();
+  } catch (e) {
+    checkbox.checked = !wantsEnabled; // revert on error
+    alert('Toggle failed: ' + (e.message || e));
+  }
+}
+
+async function toggleLockinEnabled(checkbox) {
+  const wantsEnabled = checkbox.checked;
+  try {
+    const res = await fetch('/api/studio/lockin-suggest?action=set-disabled', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + password, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ disabled: !wantsEnabled }),
+    });
+    if (!res.ok) throw new Error('toggle_failed');
+    commsState.lockinDisabled = !wantsEnabled;
+    renderCommsCards();
+  } catch (e) {
+    checkbox.checked = !wantsEnabled;
+    alert('Toggle failed: ' + (e.message || e));
+  }
 }
 
 function openCommsEditor(kind) {

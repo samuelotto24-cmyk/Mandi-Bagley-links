@@ -303,16 +303,22 @@
   }
   .qa-mini .acts button.ghost:hover { color: var(--text); background: var(--surface-alt); }
 
-  /* ── Preview gear ──────────────────────────────────────── */
-  .preview-gear {
-    appearance: none; background: var(--surface);
-    border: 1px solid var(--border); cursor: pointer;
-    width: 32px; height: 32px; border-radius: 50%;
-    font-size: 14px; color: var(--text-soft);
-    display: flex; align-items: center; justify-content: center;
+  /* ── Preview gear (labeled, prominent) ────────────────────── */
+  .preview-gear-labeled {
+    appearance: none; cursor: pointer;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    padding: 6px 12px; border-radius: 99px;
+    font-family: var(--body-font);
+    font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+    display: inline-flex; align-items: center; gap: 6px;
     transition: all .12s;
   }
-  .preview-gear:hover { border-color: var(--accent); color: var(--accent); }
+  .preview-gear-labeled:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: var(--accent-pale);
+  }
 
   /* ── Brand drawer (right-slide over preview) ──────────── */
   .brand-drawer {
@@ -966,6 +972,13 @@
         <a href="/hub/studio/qa" target="_blank" class="rail-view-all">View all ↗</a>
       </div>
     </div>
+
+    <!-- ─── Brand & Look (opens drawer) ─── -->
+    <div class="rail-section">
+      <button class="nav-link" onclick="openBrandDrawer()" style="background:none;border:0;width:100%;text-align:left;font:inherit;cursor:pointer;">
+        🎨 Brand &amp; Look <span class="arrow">→</span>
+      </button>
+    </div>
   </div>
 
   <!-- ─── Letter pane ─── -->
@@ -1014,7 +1027,10 @@
           <button id="previewDesktop" class="active" onclick="setPreviewMode('desktop')">Desktop</button>
           <button id="previewMobile" onclick="setPreviewMode('mobile')">Mobile</button>
         </div>
-        <button class="preview-gear" onclick="openBrandDrawer()" title="Brand &amp; Look">⚙</button>
+        <button class="preview-gear-labeled" onclick="openBrandDrawer()" title="Open Brand &amp; Look drawer">
+          <span style="font-size:14px;">⚙</span>
+          <span>Brand &amp; Look</span>
+        </button>
       </div>
     </div>
     <div class="preview-frame-wrap">

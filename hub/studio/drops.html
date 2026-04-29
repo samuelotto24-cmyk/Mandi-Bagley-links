@@ -525,8 +525,9 @@
         <div class="drop-actions">
           <button class="btn" data-act="edit">Edit</button>
           ${view === 'active'
-            ? `<button class="btn btn-ghost-danger" data-act="expire">Expire</button>`
+            ? `<button class="btn" data-act="expire" title="Expire (keeps stats)">Expire</button>`
             : `<button class="btn" data-act="restore">Restore</button>`}
+          <button class="btn btn-ghost-danger" data-act="delete" title="Delete permanently">×</button>
         </div>
       `;
 
@@ -535,11 +536,24 @@
       if (actBtn) {
         actBtn.onclick = () => {
           if (view === 'active') {
-            if (!confirm(`Expire ${d.brand} (${d.code})?\nMoves it to the archive.`)) return;
+            if (!confirm(`Expire ${d.brand} (${d.code})?\nMoves it to the archive — keeps stats.`)) return;
             patchDrop(d.id, { action: 'expire' });
           } else {
             patchDrop(d.id, { action: 'restore' });
           }
+        };
+      }
+      const delBtn = card.querySelector('[data-act="delete"]');
+      if (delBtn) {
+        delBtn.onclick = async () => {
+          if (!confirm(`Delete ${d.brand} (${d.code}) permanently?\nThis can't be undone.`)) return;
+          try {
+            const res = await fetch('/api/studio/drops?id=' + encodeURIComponent(d.id), {
+              method: 'DELETE', headers: authHeaders(),
+            });
+            if (!res.ok) throw new Error((await res.json()).error || 'delete_failed');
+            load();
+          } catch (e) { alert('Delete failed: ' + e.message); }
         };
       }
 

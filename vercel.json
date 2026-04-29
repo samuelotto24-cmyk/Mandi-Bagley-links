@@ -28,6 +28,7 @@
     { "source": "/hub/studio", "destination": "/hub/studio/index.html" },
     { "source": "/hub/studio/drops", "destination": "/hub/studio/drops.html" },
     { "source": "/hub/studio/qa", "destination": "/hub/studio/qa.html" },
+    { "source": "/hub/studio/brand", "destination": "/hub/studio/brand.html" },
     { "source": "/ask", "destination": "/ask.html" }
   ],
   "headers": [

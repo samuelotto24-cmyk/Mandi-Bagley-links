@@ -470,6 +470,70 @@
   }
   .err:empty { display: none; }
 
+  /* ── Tutorial spotlight ──────────────────────────────── */
+  .tour-overlay {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(15,12,8,0.55);
+    backdrop-filter: blur(2px);
+    display: none;
+    pointer-events: auto;
+  }
+  .tour-overlay.shown { display: block; }
+  .tour-spotlight {
+    position: fixed;
+    border: 3px solid var(--accent);
+    border-radius: 6px;
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.25),
+                0 0 60px 8px rgba(16,185,129,0.45),
+                inset 0 0 0 9999px rgba(0,0,0,0);
+    pointer-events: none;
+    transition: top .3s, left .3s, width .3s, height .3s;
+    z-index: 301;
+  }
+  .tour-card {
+    position: fixed; z-index: 302;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    padding: 22px 26px 20px;
+    max-width: 380px;
+    border-radius: 6px;
+    transition: top .3s, left .3s;
+  }
+  .tour-step-num {
+    font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .tour-title {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 26px; line-height: 1.15; color: var(--text);
+    margin: 0 0 8px;
+    font-weight: 500;
+  }
+  .tour-body {
+    font-size: 14px; color: var(--text-soft);
+    line-height: 1.55; margin: 0 0 16px;
+  }
+  .tour-actions { display: flex; gap: 8px; align-items: center; }
+  .tour-actions .skip {
+    font-size: 12px; color: var(--muted); margin-right: auto;
+    background: none; border: 0; cursor: pointer;
+  }
+  .tour-actions .skip:hover { color: var(--text); }
+  .tour-progress {
+    display: flex; gap: 4px; margin-top: 16px; justify-content: center;
+  }
+  .tour-progress .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--border);
+  }
+  .tour-progress .dot.active { background: var(--accent); }
+
+  @media (max-width: 700px) {
+    .tour-card { left: 16px !important; right: 16px; max-width: none; bottom: 16px !important; top: auto !important; }
+  }
+
   /* ── Toast ───────────────────────────────────────────── */
   .toast {
     position: fixed;
@@ -616,10 +680,11 @@
     </div>
 
     <div class="rail-section">
-      <div class="rail-label">Tools</div>
-      <a class="nav-link" href="/hub/studio/drops">Drops Manager <span class="arrow">→</span></a>
-      <a class="nav-link" href="/hub/studio/qa">Q&amp;A Inbox <span class="arrow">→</span></a>
-      <a class="nav-link" href="/ask" target="_blank">Public ask form <span class="arrow">↗</span></a>
+      <div class="rail-label">Studio settings</div>
+      <a class="nav-link" href="/hub/studio/drops">🏷️ Drops Manager <span class="arrow">→</span></a>
+      <a class="nav-link" href="/hub/studio/qa">❓ Q&amp;A Inbox <span class="arrow">→</span></a>
+      <a class="nav-link" href="/hub/studio/brand">🎨 Brand &amp; Look <span class="arrow">→</span></a>
+      <button class="nav-link" onclick="startStudioTutorial()" style="background:none;border:0;text-align:left;width:100%;font:inherit;cursor:pointer;">🎯 Tutorial <span class="arrow">→</span></button>
     </div>
   </div>
 
@@ -653,6 +718,10 @@
       <div style="margin-top:16px;">
         <div style="font-size:11px;color:var(--muted);">Tip: add sections from the left rail. Drag isn't wired yet — use the up/down arrows.</div>
       </div>
+
+      <div style="margin-top:36px;padding-top:20px;border-top:1px solid var(--border-soft);display:flex;justify-content:flex-end;">
+        <button class="btn btn-ghost-danger" onclick="deleteCurrentLetter()" id="deleteLetterBtn" style="font-size:12px;">Delete this letter</button>
+      </div>
     </div>
   </div>
 
@@ -669,6 +738,21 @@
       <iframe class="preview-frame" id="previewFrame" title="Letter preview"></iframe>
     </div>
   </div>
+</div>
+
+<!-- ─── Tutorial overlay ─── -->
+<div class="tour-overlay" id="tourOverlay" onclick="if(event.target===this){endStudioTutorial();}"></div>
+<div class="tour-spotlight" id="tourSpotlight" style="display:none;"></div>
+<div class="tour-card" id="tourCard" style="display:none;">
+  <div class="tour-step-num" id="tourStepNum"></div>
+  <div class="tour-title" id="tourTitle"></div>
+  <div class="tour-body" id="tourBody"></div>
+  <div class="tour-actions">
+    <button class="skip" onclick="endStudioTutorial()">Skip tutorial</button>
+    <button class="btn" id="tourBack" onclick="tourBack()" style="display:none;">Back</button>
+    <button class="btn btn-accent" id="tourNext" onclick="tourNext()">Next →</button>
+  </div>
+  <div class="tour-progress" id="tourProgress"></div>
 </div>
 
 <!-- ─── Toast ─── -->
@@ -1007,8 +1091,8 @@
         <div class="idea-meta">
           <div>${idea.type ? '· ' + esc(state.sectionTypes[idea.type]?.label || idea.type) : ''}</div>
           <div class="idea-actions">
-            <button class="ai-chip" data-act="expand"><span class="spark">✨</span> Expand</button>
-            <button class="btn btn-tiny" data-act="use">Use</button>
+            <button class="ai-chip" data-act="expand" title="AI writes a full section in your voice from this idea"><span class="spark">✨</span> Expand to section</button>
+            <button class="btn btn-tiny" data-act="use" title="Add as-is to a section">Add to letter</button>
             <button class="icon-btn danger" data-act="delete" title="Delete">×</button>
           </div>
         </div>
@@ -1108,6 +1192,21 @@
   // ═══════════════════════════════════════════════════════════════
   // LETTER OPEN / NEW
   // ═══════════════════════════════════════════════════════════════
+  async function deleteCurrentLetter() {
+    if (!state.letter) return;
+    if (!confirm(`Delete "${state.letter.name || 'this letter'}"?\n\nThis can't be undone.`)) return;
+    try {
+      await api('/api/studio/letters?id=' + encodeURIComponent(state.letter.id), { method: 'DELETE' });
+      state.letter = null; state.letterId = null;
+      const url = new URL(location.href); url.searchParams.delete('id'); history.replaceState({}, '', url);
+      document.getElementById('letterEditor').style.display = 'none';
+      document.getElementById('emptyLetter').style.display = '';
+      document.getElementById('sendBtn').disabled = true;
+      await reloadLetters();
+      showToast('Deleted', 'Letter removed.', 'info');
+    } catch (e) { showToast('Delete failed', e.message, 'error'); }
+  }
+
   async function newLetter() {
     try {
       const data = await api('/api/studio/letters', {
@@ -1291,7 +1390,10 @@
         row.appendChild(label);
         list.appendChild(row);
       });
-      wrap.innerHTML = `<label>Which drops to include</label>`;
+      wrap.innerHTML = `<label style="display:flex;align-items:center;gap:10px;">
+        <span>Which drops to include</span>
+        <a href="/hub/studio/drops" target="_blank" style="font-size:11px;color:var(--accent);text-decoration:none;font-weight:600;letter-spacing:0.04em;text-transform:none;">Manage drops ↗</a>
+      </label>`;
       wrap.appendChild(list);
     }).catch(e => {
       wrap.innerHTML = `<label>Which drops to include</label><div style="color:var(--danger);font-size:12px;">Couldn't load drops: ${esc(e.message)}</div>`;
@@ -1586,6 +1688,175 @@
     document.getElementById('previewMobile').classList.toggle('active', mode === 'mobile');
     document.getElementById('previewFrame').classList.toggle('mobile', mode === 'mobile');
   }
+  // ═══════════════════════════════════════════════════════════════
+  // TUTORIAL — guided spotlight tour
+  // ═══════════════════════════════════════════════════════════════
+  const TOUR_STEPS = [
+    {
+      title: 'Welcome to The Letter Studio',
+      body: "This is where you write everything that goes out — quick blasts, biweekly Lock-In Letters, drops, devotionals, Q&A. Three panes: Ideas, Letter, Preview. AI helps along the way.",
+    },
+    {
+      target: '#sectionLib',
+      title: 'Add a section',
+      body: "Sections are the building blocks. Click any chip to drop one into your letter. You can have 1 (a quick blast) or 8 (a full Lock-In Letter).",
+    },
+    {
+      target: '#ideaText',
+      title: 'Capture an idea anytime',
+      body: "Have a thought mid-day? Type it here. Later, click ✨ Expand to turn it into a full section in your voice — AI does the heavy lift.",
+    },
+    {
+      target: '.letter-meta',
+      title: 'Subject + preheader',
+      body: "Don't agonize over these. Click ✨ Suggest next to the subject — the AI reads your letter and gives you 3 options.",
+      whenLetter: true,
+    },
+    {
+      target: '.preview-frame-wrap',
+      title: 'Live preview',
+      body: "What subscribers see, exactly. Toggle between Desktop and Mobile to check both. Updates as you type.",
+    },
+    {
+      target: '#sendBtn',
+      title: 'Send when ready',
+      body: "Drafts auto-save. Test-send to yourself first. Click ✨ Sanity check before a real send — the AI reads the whole letter for repeated framings, tone breaks, anything off.",
+    },
+    {
+      target: '.rail-section:last-of-type',
+      title: 'Studio settings',
+      body: "Drops Manager (your brand codes), Q&A Inbox (reader questions), Brand & Look (palette + voice guide). All here on the rail.",
+    },
+    {
+      title: "You're set",
+      body: "Replay this tour anytime from the rail (🎯 Tutorial). Now go write something good.",
+    },
+  ];
+  let tourIdx = 0;
+  function startStudioTutorial() {
+    tourIdx = 0;
+    document.getElementById('tourOverlay').classList.add('shown');
+    showTourStep();
+  }
+  function endStudioTutorial() {
+    document.getElementById('tourOverlay').classList.remove('shown');
+    document.getElementById('tourSpotlight').style.display = 'none';
+    document.getElementById('tourCard').style.display = 'none';
+  }
+  function tourNext() {
+    if (tourIdx >= TOUR_STEPS.length - 1) return endStudioTutorial();
+    tourIdx++;
+    showTourStep();
+  }
+  function tourBack() {
+    if (tourIdx === 0) return;
+    tourIdx--;
+    showTourStep();
+  }
+  function showTourStep() {
+    const step = TOUR_STEPS[tourIdx];
+    if (!step) return endStudioTutorial();
+
+    // If this step needs a letter open and there isn't one, skip forward
+    if (step.whenLetter && !state.letter) { tourNext(); return; }
+
+    const overlay  = document.getElementById('tourOverlay');
+    const spot     = document.getElementById('tourSpotlight');
+    const card     = document.getElementById('tourCard');
+    overlay.classList.add('shown');
+
+    // Step number + content
+    document.getElementById('tourStepNum').textContent = `Step ${tourIdx + 1} of ${TOUR_STEPS.length}`;
+    document.getElementById('tourTitle').textContent  = step.title;
+    document.getElementById('tourBody').textContent   = step.body;
+    const back = document.getElementById('tourBack');
+    back.style.display = tourIdx === 0 ? 'none' : '';
+    document.getElementById('tourNext').textContent = tourIdx === TOUR_STEPS.length - 1 ? 'Done' : 'Next →';
+
+    // Progress dots
+    const prog = document.getElementById('tourProgress');
+    prog.innerHTML = TOUR_STEPS.map((_, i) =>
+      `<span class="dot${i === tourIdx ? ' active' : ''}"></span>`
+    ).join('');
+
+    // Position
+    if (step.target) {
+      const target = document.querySelector(step.target);
+      if (!target) {
+        // Target missing — show without spotlight
+        spot.style.display = 'none';
+        positionTourCard(null, card);
+      } else {
+        const rect = target.getBoundingClientRect();
+        spot.style.display = 'block';
+        spot.style.top    = (rect.top - 8) + 'px';
+        spot.style.left   = (rect.left - 8) + 'px';
+        spot.style.width  = (rect.width + 16) + 'px';
+        spot.style.height = (rect.height + 16) + 'px';
+        // Scroll target into view if it's offscreen
+        if (rect.top < 0 || rect.bottom > window.innerHeight) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Wait for scroll, then reposition
+          setTimeout(() => {
+            const r2 = target.getBoundingClientRect();
+            spot.style.top    = (r2.top - 8) + 'px';
+            spot.style.left   = (r2.left - 8) + 'px';
+            spot.style.width  = (r2.width + 16) + 'px';
+            spot.style.height = (r2.height + 16) + 'px';
+            positionTourCard(r2, card);
+          }, 350);
+        } else {
+          positionTourCard(rect, card);
+        }
+      }
+    } else {
+      spot.style.display = 'none';
+      // Center card on screen
+      card.style.display = 'block';
+      card.style.top  = '50%';
+      card.style.left = '50%';
+      card.style.transform = 'translate(-50%, -50%)';
+      return;
+    }
+    card.style.display = 'block';
+    card.style.transform = '';
+  }
+  function positionTourCard(rect, card) {
+    if (!rect) {
+      card.style.top = '50%'; card.style.left = '50%';
+      card.style.transform = 'translate(-50%, -50%)';
+      return;
+    }
+    card.style.transform = '';
+    const cardW = 380;
+    const cardH = 220; // estimate
+    const margin = 14;
+    // Try right of target
+    let left = rect.right + margin;
+    let top  = rect.top;
+    if (left + cardW > window.innerWidth - 16) {
+      // Try left
+      left = rect.left - cardW - margin;
+      if (left < 16) {
+        // Below
+        left = Math.max(16, Math.min(window.innerWidth - cardW - 16, rect.left));
+        top  = rect.bottom + margin;
+        if (top + cardH > window.innerHeight - 16) {
+          // Above
+          top = Math.max(16, rect.top - cardH - margin);
+        }
+      }
+    }
+    top = Math.max(16, Math.min(window.innerHeight - cardH - 16, top));
+    card.style.top  = top + 'px';
+    card.style.left = left + 'px';
+  }
+
+  // Auto-start tutorial via ?tour=1 URL param
+  if (new URL(location.href).searchParams.get('tour') === '1') {
+    setTimeout(() => { if (state.password && state.brand) startStudioTutorial(); else setTimeout(startStudioTutorial, 800); }, 600);
+  }
+
   // ═══════════════════════════════════════════════════════════════
   // TOAST
   // ═══════════════════════════════════════════════════════════════

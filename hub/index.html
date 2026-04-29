@@ -6077,6 +6077,10 @@ a.hub-nav-icon { text-decoration: none; }
     </button>
   </div>
   <div class="hub-nav-actions">
+    <a href="/hub/studio" class="hub-create-btn" title="Open Letter Studio" style="background:#10B981;border-color:#10B981;color:#fff;text-decoration:none;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9 6 9-6"/><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7"/><path d="M3 7l9-4 9 4"/></svg>
+      <span>Letter Studio</span>
+    </a>
     <button class="hub-create-btn" onclick="switchToCreatePost()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       <span>Create Post</span>
@@ -6589,56 +6593,64 @@ a.hub-nav-icon { text-decoration: none; }
       <div class="subs-tips" id="subsTips"></div>
     </div>
 
-    <a href="/hub/studio" class="letter-studio-banner" style="
-      display:flex;align-items:center;gap:14px;
-      background:linear-gradient(135deg, #FAF8F5 0%, #F3F0EC 100%);
-      border:1px solid var(--accent);
-      box-shadow:0 8px 28px rgba(16,185,129,0.12);
-      padding:18px 22px; border-radius:4px;
-      text-decoration:none; color:var(--text);
-      margin-bottom:14px;
-      transition:transform .15s, box-shadow .15s;
-    " onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 12px 36px rgba(16,185,129,0.18)'"
-       onmouseout="this.style.transform='';this.style.boxShadow='0 8px 28px rgba(16,185,129,0.12)'">
-      <span style="
-        width:46px;height:46px;flex:none;
-        background:var(--accent);color:#fff;
-        border-radius:50%;display:flex;align-items:center;justify-content:center;
-      ">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9 6 9-6"/><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7"/><path d="M3 7l9-4 9 4"/></svg>
-      </span>
-      <span style="flex:1;min-width:0;">
-        <span style="display:block;font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:24px;line-height:1.1;color:var(--text);">The Letter Studio</span>
-        <span style="display:block;font-size:12px;color:var(--text-soft, #3A3631);margin-top:4px;line-height:1.45;">Compose multi-section letters with live preview. Lock-In Letter, Real Talk, Drops, recipes, devotional — all in one place.</span>
-      </span>
-      <span style="
-        font-size:11px;letter-spacing:0.16em;text-transform:uppercase;
-        color:var(--accent);font-weight:600;flex:none;
-      ">Open →</span>
-    </a>
-
-    <div class="messages-actions-row">
-      <button class="messages-new-btn" onclick="openBroadcastComposer()">
-        <span class="messages-new-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <!-- ─── Letter Studio hero CTA — primary writing surface ─── -->
+    <div style="
+      position:relative;overflow:hidden;
+      background:linear-gradient(135deg, #FFFFFF 0%, #F3F0EC 100%);
+      border:2px solid var(--accent);
+      box-shadow:0 18px 48px rgba(16,185,129,0.14);
+      padding:26px 28px 24px; border-radius:6px;
+      margin-bottom:32px;
+    ">
+      <div style="
+        position:absolute;top:-40px;right:-40px;width:180px;height:180px;
+        background:radial-gradient(circle, rgba(16,185,129,0.14), transparent 70%);
+        pointer-events:none;
+      "></div>
+      <div style="display:flex;align-items:flex-start;gap:18px;position:relative;">
+        <span style="
+          width:56px;height:56px;flex:none;
+          background:var(--accent);color:#fff;
+          border-radius:14px;display:flex;align-items:center;justify-content:center;
+          box-shadow:0 8px 20px rgba(16,185,129,0.32);
+        ">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9 6 9-6"/><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7"/><path d="M3 7l9-4 9 4"/></svg>
         </span>
-        <span class="messages-new-text">
-          <span class="messages-new-title">New broadcast</span>
-          <span class="messages-new-sub">Write a one-off email to your subscribers — newsletter blast, launch announcement, anything.</span>
-        </span>
-      </button>
-      <button class="messages-design-btn" onclick="openDesignStudio()">
-        <span class="messages-design-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>
-        </span>
-        <span class="messages-design-text">
-          <span class="messages-design-title">Design Studio</span>
-          <span class="messages-design-sub">Change the look of every email.</span>
-        </span>
-      </button>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:10px;letter-spacing:0.24em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:4px;">Your writing studio</div>
+          <div style="font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:34px;line-height:1.1;color:var(--text);margin-bottom:6px;">The Letter Studio</div>
+          <div style="font-size:13px;color:var(--text-soft,#3A3631);line-height:1.55;margin-bottom:18px;max-width:520px;">
+            Where you write everything that goes out — quick blasts, biweekly Lock-In Letters, drops, devotionals, Q&amp;A. AI helps you generate, polish, and check tone. Live preview as you type.
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+            <a href="/hub/studio" style="
+              display:inline-flex;align-items:center;gap:8px;
+              background:var(--accent);color:#fff;
+              padding:11px 22px;border-radius:3px;text-decoration:none;
+              font-size:12px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;
+            ">Open Studio →</a>
+            <a href="/hub/studio?tour=1" style="
+              display:inline-flex;align-items:center;gap:6px;
+              padding:10px 18px;border-radius:3px;text-decoration:none;
+              border:1px solid var(--border, #E5DFD3);color:var(--text-soft,#3A3631);
+              font-size:12px;font-weight:600;letter-spacing:0.04em;
+              background:#fff;
+            ">🎯 Tutorial</a>
+            <a href="/hub/studio/brand" style="
+              display:inline-flex;align-items:center;gap:6px;
+              padding:10px 18px;text-decoration:none;
+              color:var(--muted,#8A857B);
+              font-size:12px;letter-spacing:0.04em;
+            ">Brand &amp; Look →</a>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="messages-section-label">Automated messages</div>
+    <div class="messages-section-label">Emails that send themselves</div>
+    <div style="font-size:12px;color:var(--muted);margin:-6px 0 14px 0;line-height:1.5;">
+      Welcome, day-4 check-in, day-7 closer, application reply. These fire automatically — edit the copy here.
+    </div>
     <div class="messages-grid" id="messagesGrid">
       <div style="font-size:13px; color:var(--text-muted); padding:24px; text-align:center;">Loading…</div>
     </div>

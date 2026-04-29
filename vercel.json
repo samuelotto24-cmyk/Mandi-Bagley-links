@@ -20,7 +20,8 @@
   "rewrites": [
     { "source": "/g/:slug", "destination": "/api/capture?slug=:slug" },
     { "source": "/privacy", "destination": "/privacy.html" },
-    { "source": "/terms", "destination": "/terms.html" }
+    { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/hub/studio/drops", "destination": "/hub/studio/drops.html" }
   ],
   "headers": [
     {

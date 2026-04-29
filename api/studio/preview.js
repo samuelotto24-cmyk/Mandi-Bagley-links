@@ -4,6 +4,7 @@ import { authed, unauthorized, json } from '../../lib/studio/auth.js';
 import { renderLetter } from '../../lib/studio/render.js';
 import { listDrops } from '../../lib/studio/drops-store.js';
 import { CLIENT_BRAND } from '../../lib/client-config.js';
+import { getBrand } from '../../lib/brand-store.js';
 
 // POST { letter: { name, subject, preheader, sections } }
 //   → { ok, html, subject, preheader }
@@ -28,21 +29,24 @@ export default async function handler(req) {
   const dataContext = {};
   const types = new Set(letter.sections.map(s => s?.type).filter(Boolean));
 
+  // Use brand WITH overrides applied so the preview reflects live edits to
+  // palette / fonts / voice guide from the Brand drawer.
+  const brand = await getBrand().catch(() => CLIENT_BRAND);
+
   if (types.has('drops')) {
     try {
       const allDrops = await listDrops();
-      const cap = CLIENT_BRAND.studioConfig?.maxDropsPerLetter || 4;
+      const cap = brand.studioConfig?.maxDropsPerLetter || CLIENT_BRAND.studioConfig?.maxDropsPerLetter || 4;
       dataContext.drops = allDrops.slice(0, cap);
     } catch (_) { dataContext.drops = []; }
   }
-  // recap data source — wired in Phase 3 (IG/TikTok pull)
   if (types.has('recap')) dataContext.recap = [];
 
-  const html = renderLetter(letter, CLIENT_BRAND, dataContext);
+  const html = renderLetter(letter, brand, dataContext);
   return json({
     ok: true,
     html,
-    subject:   letter.subject   || letter.name || `A note from ${CLIENT_BRAND.name}`,
+    subject:   letter.subject   || letter.name || `A note from ${brand.name}`,
     preheader: letter.preheader || '',
     dataContext,
   });

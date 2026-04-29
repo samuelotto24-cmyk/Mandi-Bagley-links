@@ -6,6 +6,7 @@ import { listDrops } from '../../lib/studio/drops-store.js';
 import { renderLetter, buildPlainText } from '../../lib/studio/render.js';
 import { listSubscribers } from '../../lib/broadcast-store.js';
 import { CLIENT_BRAND } from '../../lib/client-config.js';
+import { getBrand } from '../../lib/brand-store.js';
 import { studioKey, redisCmd } from '../../lib/studio/redis.js';
 
 const RESEND_KEY        = process.env.RESEND_API_KEY;
@@ -116,17 +117,18 @@ export default async function handler(req) {
   }
   if (!recipients.length) return json({ error: 'no_recipients' }, 400);
 
-  // Render with drops auto-pulled
+  // Render with brand overrides applied + drops auto-pulled
+  const brand = await getBrand().catch(() => CLIENT_BRAND);
   const dataContext = {};
   const types = new Set(letter.sections.map(s => s?.type).filter(Boolean));
   if (types.has('drops')) {
-    const cap = CLIENT_BRAND.studioConfig?.maxDropsPerLetter || 4;
+    const cap = brand.studioConfig?.maxDropsPerLetter || CLIENT_BRAND.studioConfig?.maxDropsPerLetter || 4;
     dataContext.drops = (await listDrops()).slice(0, cap);
   }
-  if (types.has('recap')) dataContext.recap = []; // Phase 3 wires this in
+  if (types.has('recap')) dataContext.recap = []; // Phase 4 wires this in
 
-  const html = renderLetter(letter, CLIENT_BRAND, dataContext);
-  const text = buildPlainText(letter, CLIENT_BRAND);
+  const html = renderLetter(letter, brand, dataContext);
+  const text = buildPlainText(letter, brand);
   const finalSubject = mode === 'test' ? '[TEST] ' + subject : subject;
 
   // Send via Resend in batches

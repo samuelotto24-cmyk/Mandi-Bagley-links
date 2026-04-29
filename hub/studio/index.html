@@ -199,6 +199,209 @@
   .nav-link:hover { background: var(--surface); color: var(--text); }
   .nav-link .arrow { color: var(--muted); }
 
+  /* ── Inline rail sections (Drops, Questions) ─────────── */
+  .rail-section-head {
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 4px; margin-bottom: 6px;
+  }
+  .rail-toggle {
+    flex: 1; display: flex; align-items: center; justify-content: space-between;
+    background: none; border: 0; cursor: pointer;
+    padding: 4px 6px; border-radius: 2px;
+    font-family: var(--body-font);
+    transition: background .12s;
+  }
+  .rail-toggle:hover { background: var(--surface); }
+  .rail-toggle .chev {
+    color: var(--muted); font-size: 9px;
+    transition: transform .15s;
+  }
+  .rail-toggle[aria-expanded="false"] .chev { transform: rotate(-90deg); }
+  .rail-label-inline {
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600;
+  }
+  .rail-count {
+    display: inline-block; margin-left: 4px;
+    background: var(--accent-pale); color: var(--accent);
+    padding: 1px 6px; border-radius: 99px;
+    font-size: 9px; letter-spacing: 0; font-weight: 600;
+  }
+  .rail-count:empty { display: none; }
+  .rail-add {
+    width: 22px; height: 22px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--muted); cursor: pointer;
+    border-radius: 50%; font-size: 13px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0;
+  }
+  .rail-add:hover { border-color: var(--accent); color: var(--accent); }
+  .rail-body { display: block; padding: 0 0 0 2px; }
+  .rail-body[hidden] { display: none; }
+  .rail-view-all {
+    display: inline-block; padding: 4px 6px; margin-top: 4px;
+    font-size: 10px; letter-spacing: 0.06em; color: var(--muted);
+    text-decoration: none;
+  }
+  .rail-view-all:hover { color: var(--accent); }
+
+  /* Compact drop card */
+  .drop-mini {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface); border: 1px solid var(--border-soft);
+    padding: 8px 10px; margin-bottom: 4px; border-radius: 2px;
+    transition: border-color .12s;
+    cursor: pointer;
+  }
+  .drop-mini:hover { border-color: var(--accent); }
+  .drop-mini .brand {
+    flex: 1; min-width: 0;
+    font-family: var(--display-font); font-size: 14px; color: var(--text);
+    font-weight: 500; line-height: 1.1;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .drop-mini .code {
+    font-family: 'DM Mono','SF Mono',Menlo,monospace;
+    font-size: 10px; color: var(--accent);
+    background: var(--accent-pale);
+    padding: 2px 6px; border-radius: 2px;
+    flex-shrink: 0; max-width: 80px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .rail-empty {
+    font-size: 11px; color: var(--muted); padding: 6px 4px; line-height: 1.45;
+  }
+
+  /* Compact question card */
+  .qa-mini {
+    background: var(--surface); border: 1px solid var(--border-soft);
+    padding: 9px 10px; margin-bottom: 4px; border-radius: 2px;
+    transition: border-color .12s;
+  }
+  .qa-mini.starred { border-left: 2px solid var(--accent); }
+  .qa-mini:hover { border-color: var(--text); }
+  .qa-mini .who {
+    font-size: 10px; color: var(--muted); margin-bottom: 3px;
+  }
+  .qa-mini .q {
+    font-size: 12px; color: var(--text-soft); line-height: 1.4;
+    margin-bottom: 6px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .qa-mini .acts { display: flex; gap: 4px; }
+  .qa-mini .acts button {
+    appearance: none; background: var(--accent-pale); color: var(--accent);
+    border: 0; padding: 4px 8px; font-size: 10px; font-weight: 600;
+    cursor: pointer; border-radius: 2px;
+    font-family: var(--body-font); letter-spacing: 0.04em;
+  }
+  .qa-mini .acts button:hover { background: var(--accent); color: #fff; }
+  .qa-mini .acts button.ghost {
+    background: transparent; color: var(--muted);
+  }
+  .qa-mini .acts button.ghost:hover { color: var(--text); background: var(--surface-alt); }
+
+  /* ── Preview gear ──────────────────────────────────────── */
+  .preview-gear {
+    appearance: none; background: var(--surface);
+    border: 1px solid var(--border); cursor: pointer;
+    width: 32px; height: 32px; border-radius: 50%;
+    font-size: 14px; color: var(--text-soft);
+    display: flex; align-items: center; justify-content: center;
+    transition: all .12s;
+  }
+  .preview-gear:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Brand drawer (right-slide over preview) ──────────── */
+  .brand-drawer {
+    position: fixed; top: var(--topbar-h); right: 0; bottom: 0;
+    width: 420px; max-width: 90vw;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    box-shadow: -24px 0 60px rgba(0,0,0,0.18);
+    z-index: 50;
+    transform: translateX(100%);
+    transition: transform .25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+  }
+  .brand-drawer.open { transform: translateX(0); }
+  .brand-drawer-head {
+    position: sticky; top: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-soft);
+    padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 1;
+  }
+  .brand-drawer-head .title {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 24px; line-height: 1; font-weight: 500;
+  }
+  .brand-drawer-head .close {
+    background: none; border: 0; cursor: pointer;
+    font-size: 22px; color: var(--muted);
+    width: 32px; height: 32px; border-radius: 50%;
+    transition: all .12s;
+  }
+  .brand-drawer-head .close:hover { background: var(--surface-alt); color: var(--text); }
+  .brand-drawer-body { padding: 14px 20px 40px; }
+  .brand-section { margin-bottom: 26px; }
+  .brand-section-label {
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin-bottom: 10px;
+  }
+  .preset-card {
+    background: var(--bg); border: 1px solid var(--border);
+    padding: 11px; cursor: pointer; border-radius: 3px;
+    margin-bottom: 6px; display: flex; align-items: center; gap: 12px;
+    transition: all .12s; appearance: none; width: 100%;
+    font-family: var(--body-font); text-align: left;
+  }
+  .preset-card:hover { border-color: var(--text); }
+  .preset-card.active { border: 2px solid var(--accent); padding: 10px; }
+  .preset-card .swatches { display: flex; gap: 3px; flex-shrink: 0; }
+  .preset-card .swatch { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.06); }
+  .preset-card .info { flex: 1; min-width: 0; }
+  .preset-card .name { font-family: var(--display-font); font-size: 16px; color: var(--text); font-weight: 500; line-height: 1.1; }
+  .preset-card .desc { font-size: 11px; color: var(--muted); line-height: 1.4; margin-top: 2px; }
+
+  .font-card {
+    background: var(--bg); border: 1px solid var(--border);
+    padding: 9px 12px; cursor: pointer; border-radius: 3px;
+    margin-bottom: 5px; display: flex; align-items: center; gap: 10px;
+    transition: all .12s; appearance: none; width: 100%;
+    font-family: var(--body-font); text-align: left;
+  }
+  .font-card:hover { border-color: var(--text); }
+  .font-card.active { border: 2px solid var(--accent); padding: 8px 11px; }
+  .font-card .info { flex: 1; min-width: 0; }
+  .font-card .name { font-size: 13px; color: var(--text); font-weight: 500; }
+  .font-card .desc { font-size: 10px; color: var(--muted); margin-top: 1px; }
+  .font-card .sample { font-size: 18px; color: var(--text); }
+
+  .voice-edit textarea {
+    width: 100%; min-height: 140px; padding: 12px 14px;
+    border: 1px solid var(--border); border-radius: 3px;
+    font-family: ui-monospace,'SF Mono',Menlo,monospace; font-size: 12px;
+    line-height: 1.6; color: var(--text); background: var(--bg);
+    resize: vertical;
+  }
+  .voice-edit textarea:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-pale); }
+
+  .brand-backdrop {
+    position: fixed; top: var(--topbar-h); right: 0; bottom: 0; left: 0;
+    background: rgba(15,12,8,0.18);
+    z-index: 49; display: none;
+  }
+  .brand-backdrop.shown { display: block; }
+
+  @media (max-width: 700px) {
+    .brand-drawer { top: 0; }
+    .brand-backdrop { top: 0; }
+  }
+
   /* ── Letter pane ─────────────────────────────────────── */
   .letter-meta {
     background: var(--surface);
@@ -647,6 +850,7 @@
   <div class="brand">Letter Studio</div>
   <input class="letter-title" id="letterTitle" placeholder="Untitled letter">
   <div class="save-indicator" id="saveIndicator"></div>
+  <button class="icon-btn" onclick="startStudioTutorial()" title="Show me around" style="width:32px;height:32px;font-size:16px;">🎯</button>
   <button class="btn" id="newLetterBtn" onclick="newLetter()">+ New</button>
   <button class="btn btn-accent" id="sendBtn" onclick="openSendModal()" disabled>Send</button>
 </div>
@@ -679,12 +883,33 @@
       <div id="ideasList" style="margin-top:10px;"></div>
     </div>
 
+    <!-- ─── Drops (inline) ─── -->
     <div class="rail-section">
-      <div class="rail-label">Studio settings</div>
-      <a class="nav-link" href="/hub/studio/drops">🏷️ Drops Manager <span class="arrow">→</span></a>
-      <a class="nav-link" href="/hub/studio/qa">❓ Q&amp;A Inbox <span class="arrow">→</span></a>
-      <a class="nav-link" href="/hub/studio/brand">🎨 Brand &amp; Look <span class="arrow">→</span></a>
-      <button class="nav-link" onclick="startStudioTutorial()" style="background:none;border:0;text-align:left;width:100%;font:inherit;cursor:pointer;">🎯 Tutorial <span class="arrow">→</span></button>
+      <div class="rail-section-head">
+        <button class="rail-toggle" data-toggle="dropsBody" aria-expanded="true">
+          <span class="rail-label-inline">🏷️ Drops <span class="rail-count" id="dropsCount"></span></span>
+          <span class="chev">▾</span>
+        </button>
+        <button class="rail-add" onclick="openInlineAddDrop()" title="Add a drop">+</button>
+      </div>
+      <div id="dropsBody" class="rail-body">
+        <div id="dropsCompactList"></div>
+        <a href="/hub/studio/drops" target="_blank" class="rail-view-all">View all ↗</a>
+      </div>
+    </div>
+
+    <!-- ─── Questions (inline) ─── -->
+    <div class="rail-section">
+      <div class="rail-section-head">
+        <button class="rail-toggle" data-toggle="qaBody" aria-expanded="true">
+          <span class="rail-label-inline">❓ Questions <span class="rail-count" id="qaCount"></span></span>
+          <span class="chev">▾</span>
+        </button>
+      </div>
+      <div id="qaBody" class="rail-body">
+        <div id="qaCompactList"></div>
+        <a href="/hub/studio/qa" target="_blank" class="rail-view-all">View all ↗</a>
+      </div>
     </div>
   </div>
 
@@ -729,13 +954,53 @@
   <div class="pane pane-preview" data-mobile-pane="preview">
     <div class="preview-bar">
       <div class="label">Live preview</div>
-      <div class="toggle">
-        <button id="previewDesktop" class="active" onclick="setPreviewMode('desktop')">Desktop</button>
-        <button id="previewMobile" onclick="setPreviewMode('mobile')">Mobile</button>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="toggle">
+          <button id="previewDesktop" class="active" onclick="setPreviewMode('desktop')">Desktop</button>
+          <button id="previewMobile" onclick="setPreviewMode('mobile')">Mobile</button>
+        </div>
+        <button class="preview-gear" onclick="openBrandDrawer()" title="Brand &amp; Look">⚙</button>
       </div>
     </div>
     <div class="preview-frame-wrap">
       <iframe class="preview-frame" id="previewFrame" title="Letter preview"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Brand drawer (right-slide) ─── -->
+<div class="brand-backdrop" id="brandBackdrop" onclick="closeBrandDrawer()"></div>
+<div class="brand-drawer" id="brandDrawer">
+  <div class="brand-drawer-head">
+    <div class="title">Brand &amp; Look</div>
+    <button class="close" onclick="closeBrandDrawer()" title="Close">×</button>
+  </div>
+  <div class="brand-drawer-body" id="brandDrawerBody">
+    <div style="font-size:13px;color:var(--muted);padding:30px 0;text-align:center;">Loading…</div>
+  </div>
+</div>
+
+<!-- ─── Inline Add Drop modal ─── -->
+<div class="modal-backdrop" id="addDropModal" onclick="if(event.target===this)closeInlineAddDrop()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">New drop</div>
+      <button class="modal-close" onclick="closeInlineAddDrop()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="err" id="addDropErr"></div>
+      <div id="addDropTemplates" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;"></div>
+      <div class="field-row">
+        <div class="field"><label>Brand</label><input id="addDropBrand" placeholder="Gymshark"></div>
+        <div class="field"><label>Code</label><input id="addDropCode" placeholder="MANDI20"></div>
+      </div>
+      <div class="field"><label>Affiliate link</label><input id="addDropLink" placeholder="https://…"></div>
+      <div class="field"><label>Image URL (optional)</label><input id="addDropImage" placeholder="https://…"></div>
+      <div class="field"><label>Short description (optional)</label><textarea id="addDropDesc" rows="2"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeInlineAddDrop()">Cancel</button>
+      <button class="btn btn-accent" id="addDropSaveBtn" onclick="saveInlineDrop()">Save drop</button>
     </div>
   </div>
 </div>
@@ -867,6 +1132,9 @@
       renderSectionLib();
       await reloadLetters();
       await reloadIdeas();
+      reloadRailDrops();
+      reloadRailQuestions();
+      wireRailToggles();
 
       // Open ?id= or first draft
       const urlId = new URL(location.href).searchParams.get('id');
@@ -1743,6 +2011,352 @@
     document.getElementById('previewFrame').classList.toggle('mobile', mode === 'mobile');
   }
   // ═══════════════════════════════════════════════════════════════
+  // RAIL: compact Drops list
+  // ═══════════════════════════════════════════════════════════════
+  state.railDrops = [];
+  function wireRailToggles() {
+    document.querySelectorAll('.rail-toggle[data-toggle]').forEach(btn => {
+      btn.onclick = () => {
+        const id = btn.dataset.toggle;
+        const body = document.getElementById(id);
+        const open = btn.getAttribute('aria-expanded') !== 'false';
+        btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+        body.hidden = open;
+      };
+    });
+  }
+  async function reloadRailDrops() {
+    try {
+      const data = await api('/api/studio/drops');
+      state.railDrops = data.drops || [];
+    } catch { state.railDrops = []; }
+    renderRailDrops();
+  }
+  function renderRailDrops() {
+    const list = document.getElementById('dropsCompactList');
+    const count = document.getElementById('dropsCount');
+    if (!list) return;
+    count.textContent = state.railDrops.length ? state.railDrops.length : '';
+    if (!state.railDrops.length) {
+      list.innerHTML = `<div class="rail-empty">No active drops. Click + to add one.</div>`;
+      return;
+    }
+    list.innerHTML = '';
+    for (const d of state.railDrops.slice(0, 6)) {
+      const row = document.createElement('div');
+      row.className = 'drop-mini';
+      row.innerHTML = `
+        <span class="brand">${esc(d.brand)}</span>
+        <span class="code">${esc(d.code)}</span>
+      `;
+      row.title = 'Click to edit in Drops Manager';
+      row.onclick = () => window.open('/hub/studio/drops', '_blank');
+      list.appendChild(row);
+    }
+  }
+
+  // Inline Add Drop modal
+  function openInlineAddDrop() {
+    document.getElementById('addDropErr').textContent = '';
+    ['Brand','Code','Link','Image','Desc'].forEach(k =>
+      document.getElementById('addDrop' + k).value = '');
+    // Render brand templates row
+    const tpls = state.studioConfig?.brandTemplates || [];
+    const tpRow = document.getElementById('addDropTemplates');
+    tpRow.innerHTML = '';
+    if (tpls.length) {
+      const lbl = document.createElement('span');
+      lbl.style.cssText = 'font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-right:4px;align-self:center;';
+      lbl.textContent = 'Quick start:';
+      tpRow.appendChild(lbl);
+      for (const t of tpls) {
+        const b = document.createElement('button');
+        b.className = 'btn btn-tiny';
+        b.textContent = '+ ' + t.brand;
+        b.onclick = (e) => {
+          e.preventDefault();
+          document.getElementById('addDropBrand').value = t.brand;
+          document.getElementById('addDropCode').value  = t.placeholder || '';
+          document.getElementById('addDropCode').focus();
+          document.getElementById('addDropCode').select();
+        };
+        tpRow.appendChild(b);
+      }
+    }
+    document.getElementById('addDropModal').classList.add('open');
+    setTimeout(() => document.getElementById('addDropBrand').focus(), 60);
+  }
+  function closeInlineAddDrop() {
+    document.getElementById('addDropModal').classList.remove('open');
+  }
+  async function saveInlineDrop() {
+    const body = {
+      brand:       document.getElementById('addDropBrand').value.trim(),
+      code:        document.getElementById('addDropCode').value.trim(),
+      link:        document.getElementById('addDropLink').value.trim(),
+      image:       document.getElementById('addDropImage').value.trim(),
+      description: document.getElementById('addDropDesc').value.trim(),
+    };
+    const err = document.getElementById('addDropErr');
+    if (!body.brand) { err.textContent = 'Brand required.'; return; }
+    if (!body.code)  { err.textContent = 'Code required.';  return; }
+    const btn = document.getElementById('addDropSaveBtn');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try {
+      await api('/api/studio/drops', { method: 'POST', body: JSON.stringify(body) });
+      closeInlineAddDrop();
+      reloadRailDrops();
+      // If a Drops section is currently expanded, re-render to pick up new drop
+      if (state.expandedSectionId) {
+        const sec = state.letter?.sections?.find(s => s.id === state.expandedSectionId);
+        if (sec?.type === 'drops') renderSections();
+      }
+      showToast('Drop added', `${body.brand} (${body.code}) is now active.`, 'success');
+      schedulePreview();
+    } catch (e) { err.textContent = 'Save failed: ' + e.message; }
+    finally { btn.disabled = false; btn.textContent = 'Save drop'; }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // RAIL: compact Questions list
+  // ═══════════════════════════════════════════════════════════════
+  state.railQuestions = [];
+  async function reloadRailQuestions() {
+    try {
+      const data = await api('/api/studio/qa');
+      state.railQuestions = data.items || [];
+    } catch { state.railQuestions = []; }
+    renderRailQuestions();
+  }
+  function renderRailQuestions() {
+    const list = document.getElementById('qaCompactList');
+    const count = document.getElementById('qaCount');
+    if (!list) return;
+    const visible = state.railQuestions.filter(q => q.status === 'new' || q.status === 'starred');
+    const newCount = state.railQuestions.filter(q => q.status === 'new').length;
+    count.textContent = newCount ? newCount : '';
+    if (!visible.length) {
+      list.innerHTML = `<div class="rail-empty">No new questions. Share <a href="/ask" target="_blank" style="color:var(--accent);">/ask</a> to collect some.</div>`;
+      return;
+    }
+    list.innerHTML = '';
+    for (const q of visible.slice(0, 5)) {
+      const row = document.createElement('div');
+      row.className = 'qa-mini' + (q.status === 'starred' ? ' starred' : '');
+      row.innerHTML = `
+        <div class="who">${esc(q.name || 'Anonymous')} asked</div>
+        <div class="q">${esc(q.question)}</div>
+        <div class="acts">
+          <button data-act="use">Use ↗</button>
+          ${q.status === 'starred'
+            ? `<button class="ghost" data-act="unstar">Unstar</button>`
+            : `<button class="ghost" data-act="star">★</button>`}
+        </div>
+      `;
+      row.querySelector('[data-act="use"]').onclick = () => useQuestionInLetter(q);
+      const starBtn = row.querySelector('[data-act="star"], [data-act="unstar"]');
+      if (starBtn) starBtn.onclick = () => patchQuestion(q.id, q.status === 'starred' ? 'new' : 'starred');
+      list.appendChild(row);
+    }
+  }
+  async function patchQuestion(id, status) {
+    try {
+      await api('/api/studio/qa?id=' + encodeURIComponent(id), {
+        method: 'PATCH', body: JSON.stringify({ status }),
+      });
+      reloadRailQuestions();
+    } catch (e) { showToast('Update failed', e.message, 'error'); }
+  }
+  async function useQuestionInLetter(q) {
+    try {
+      // If a letter is open, append a Q&A section to it. Otherwise create one.
+      if (state.letter) {
+        const sectionId = 's_' + Math.random().toString(36).slice(2, 12);
+        const newSec = {
+          id: sectionId,
+          type: 'qa',
+          fields: {
+            intro: state.letter.sections?.some(s => s.type === 'qa') ? '' : "You asked. Here's my honest answer.",
+            pairs: [{ question: q.question, askerLabel: q.name || '', answer: '' }],
+          },
+          sourceIdeaId: q.id,
+        };
+        state.letter.sections = state.letter.sections || [];
+        state.letter.sections.push(newSec);
+        state.expandedSectionId = newSec.id;
+        renderSections();
+        scheduleSave();
+        showToast('Added to letter', `${q.name || 'Question'} added as Q&A section.`, 'success');
+      } else {
+        const data = await api('/api/studio/letters', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: `Reply: ${q.question.slice(0, 50)}${q.question.length > 50 ? '…' : ''}`,
+            sections: [{
+              id: 's_' + Math.random().toString(36).slice(2, 12),
+              type: 'qa',
+              fields: {
+                intro: "You asked. Here's my honest answer.",
+                pairs: [{ question: q.question, askerLabel: q.name || '', answer: '' }],
+              },
+              sourceIdeaId: q.id,
+            }],
+          }),
+        });
+        await reloadLetters();
+        await openLetter(data.letter.id);
+      }
+      // Mark used
+      await api('/api/studio/qa?id=' + encodeURIComponent(q.id), {
+        method: 'PATCH', body: JSON.stringify({ status: 'used' }),
+      }).catch(() => {});
+      reloadRailQuestions();
+    } catch (e) { showToast('Failed', e.message, 'error'); }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // BRAND DRAWER (right-slide over preview)
+  // ═══════════════════════════════════════════════════════════════
+  state.brand = null;
+  state.brandSaveTimer = null;
+  async function openBrandDrawer() {
+    document.getElementById('brandDrawer').classList.add('open');
+    document.getElementById('brandBackdrop').classList.add('shown');
+    if (!state.brand) await loadBrandData();
+    renderBrandDrawer();
+  }
+  function closeBrandDrawer() {
+    document.getElementById('brandDrawer').classList.remove('open');
+    document.getElementById('brandBackdrop').classList.remove('shown');
+  }
+  async function loadBrandData() {
+    const data = await api('/api/brand');
+    state.brand = data;
+  }
+  function renderBrandDrawer() {
+    if (!state.brand) return;
+    const b = state.brand;
+    const o = b.overrides || {};
+    const body = document.getElementById('brandDrawerBody');
+    body.innerHTML = `
+      <div class="brand-section">
+        <div class="brand-section-label">Palette preset</div>
+        <div id="bdPresets"></div>
+      </div>
+      <div class="brand-section">
+        <div class="brand-section-label">Display font (headlines)</div>
+        <div id="bdDisplayFonts"></div>
+      </div>
+      <div class="brand-section">
+        <div class="brand-section-label">Body font (paragraphs)</div>
+        <div id="bdBodyFonts"></div>
+      </div>
+      <div class="brand-section">
+        <div class="brand-section-label">Voice guide (used by AI)</div>
+        <p style="font-size:11px;color:var(--muted);margin:-4px 0 8px;">The rules the AI reads on every Generate / Polish / Expand call. Edit if your voice evolves.</p>
+        <div class="voice-edit"><textarea id="bdVoice" placeholder="(Voice rules)">${esc(b.voiceGuide || '')}</textarea></div>
+        <div style="margin-top:8px;"><button class="btn btn-tiny" onclick="resetBrandVoice()">Reset to default</button></div>
+      </div>
+      <div class="brand-section">
+        <div class="brand-section-label">Reset</div>
+        <button class="btn btn-ghost-danger" onclick="resetBrandAll()" style="font-size:12px;">Remove all overrides</button>
+      </div>
+    `;
+
+    // Presets
+    const presets = document.getElementById('bdPresets');
+    // Default card
+    const defCard = document.createElement('button');
+    defCard.className = 'preset-card' + (!o.presetId ? ' active' : '');
+    defCard.innerHTML = `
+      <div class="swatches">
+        <span class="swatch" style="background:${b.clientDefaults.palette.bg}"></span>
+        <span class="swatch" style="background:${b.clientDefaults.palette.text}"></span>
+        <span class="swatch" style="background:${b.clientDefaults.palette.accent}"></span>
+      </div>
+      <div class="info"><div class="name">Default</div><div class="desc">Your hub's baked-in palette.</div></div>
+    `;
+    defCard.onclick = () => saveBrandPatch({ presetId: null });
+    presets.appendChild(defCard);
+    for (const p of b.options.presets) {
+      const c = document.createElement('button');
+      c.className = 'preset-card' + (o.presetId === p.id ? ' active' : '');
+      c.innerHTML = `
+        <div class="swatches">${(p.swatches || []).map(s => `<span class="swatch" style="background:${esc(s)}"></span>`).join('')}</div>
+        <div class="info"><div class="name">${esc(p.name)}</div><div class="desc">${esc(p.description || '')}</div></div>
+      `;
+      c.onclick = () => saveBrandPatch({ presetId: p.id });
+      presets.appendChild(c);
+    }
+    // Fonts
+    renderBdFontList('bdDisplayFonts', b.options.displayFonts, 'displayFontId', o.displayFontId, b.clientDefaults.displayFont);
+    renderBdFontList('bdBodyFonts',    b.options.bodyFonts,    'bodyFontId',    o.bodyFontId,    b.clientDefaults.bodyFont);
+
+    document.getElementById('bdVoice').addEventListener('input', e => {
+      clearTimeout(state.brandSaveTimer);
+      state.brandSaveTimer = setTimeout(() => saveBrandPatch({ voiceGuide: e.target.value }), 600);
+    });
+  }
+  function renderBdFontList(elId, fonts, key, current, defaultFamily) {
+    const wrap = document.getElementById(elId);
+    wrap.innerHTML = '';
+    const def = document.createElement('button');
+    def.className = 'font-card' + (!current ? ' active' : '');
+    def.innerHTML = `<div class="info"><div class="name">Default</div><div class="desc">${esc(defaultFamily.split(',')[0].replace(/['"]/g,''))}</div></div>`;
+    def.onclick = () => saveBrandPatch({ [key]: null });
+    wrap.appendChild(def);
+    for (const f of fonts) {
+      const c = document.createElement('button');
+      c.className = 'font-card' + (current === f.id ? ' active' : '');
+      c.innerHTML = `
+        <div class="info"><div class="name">${esc(f.name)}</div><div class="desc">${esc(f.description || '')}</div></div>
+        <div class="sample" style="font-family:${esc(f.family || '')};">Aa</div>
+      `;
+      c.onclick = () => saveBrandPatch({ [key]: f.id });
+      wrap.appendChild(c);
+    }
+  }
+  async function saveBrandPatch(patch) {
+    try {
+      const res = await fetch('/api/brand', {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify(patch),
+      });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.error || 'save_failed');
+      state.brand.overrides = j.overrides;
+      state.brand.brand = j.brand;
+      // Update voiceGuide field if it changed
+      if (patch.voiceGuide !== undefined) state.brand.voiceGuide = j.brand.voiceGuide || '';
+      renderBrandDrawer();
+      // Refresh preview to reflect new palette/fonts
+      refreshPreview();
+    } catch (e) { showToast('Save failed', e.message, 'error'); }
+  }
+  function resetBrandVoice() {
+    if (!confirm('Reset voice guide to the default?')) return;
+    saveBrandPatch({ voiceGuide: null });
+  }
+  async function resetBrandAll() {
+    if (!confirm('Remove every brand override? This reverts to your hub defaults.')) return;
+    try {
+      const res = await fetch('/api/brand', { method: 'DELETE', headers: authHeaders() });
+      if (!res.ok) throw new Error('reset_failed');
+      await loadBrandData();
+      renderBrandDrawer();
+      refreshPreview();
+      showToast('Reset', 'Brand overrides cleared.', 'success');
+    } catch (e) { showToast('Reset failed', e.message, 'error'); }
+  }
+
+  // Close drawer on Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && document.getElementById('brandDrawer').classList.contains('open')) {
+      closeBrandDrawer();
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════════
   // TUTORIAL — guided spotlight tour
   // ═══════════════════════════════════════════════════════════════
   const TOUR_STEPS = [
@@ -1769,7 +2383,7 @@
     {
       target: '.preview-frame-wrap',
       title: 'Live preview',
-      body: "What subscribers see, exactly. Toggle between Desktop and Mobile to check both. Updates as you type.",
+      body: "What subscribers see, exactly. Toggle Desktop and Mobile. Click the ⚙ gear to change palette, fonts, or your voice guide — drawer slides in over the preview, updates live.",
     },
     {
       target: '#sendBtn',
@@ -1777,9 +2391,9 @@
       body: "Drafts auto-save. Test-send to yourself first. Click ✨ Sanity check before a real send — the AI reads the whole letter for repeated framings, tone breaks, anything off.",
     },
     {
-      target: '.rail-section:last-of-type',
-      title: 'Studio settings',
-      body: "Drops Manager (your brand codes), Q&A Inbox (reader questions), Brand & Look (palette + voice guide). All here on the rail.",
+      target: '#dropsBody',
+      title: 'Drops + Questions',
+      body: "Your active brand codes and reader questions live right here on the rail. Click + to add a drop. Click Use ↗ on any question to drop it into your letter.",
     },
     {
       title: "You're set",

@@ -1698,6 +1698,7 @@
   <input type="hidden" id="letterTitle">
   <div class="save-indicator" id="saveIndicator"></div>
   <button class="btn" id="aiAssistBtn" onclick="openAiPanel()" title="AI helpers — draft, polish, suggest, check"><span style="color:var(--accent);">✨</span> AI Assist</button>
+  <button class="btn" id="styleBtn" onclick="openBrandDrawer()" title="Colors, fonts, voice — change how every letter looks">🎨 Style</button>
   <button class="btn-help" onclick="startStudioTutorial()" title="Help" aria-label="Help">?</button>
   <button class="btn" id="newLetterBtn" onclick="openNewLetterPicker()">+ New</button>
   <button class="btn" onclick="togglePreviewPanel()" id="previewToggleBtn" title="See exactly what subscribers see">👁 Preview</button>
@@ -1878,15 +1879,18 @@
         <button class="dwc-preset"          data-preset="launch"    onclick="selectDwcPreset(this)">Launch</button>
       </div>
 
-      <div style="margin-top:18px;display:flex;justify-content:flex-end;gap:8px;">
-        <button class="btn" onclick="closeDwcModal()">Cancel</button>
-        <button class="btn btn-accent" id="dwcGenerateBtn" onclick="dwcQuickGenerate()" style="font-size:13px;padding:11px 20px;">
-          <span id="dwcGenerateText">✨ Draft my letter</span>
+      <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px;">
+        <button class="btn btn-accent" id="dwcGenerateBtn" onclick="dwcQuickGenerate()" style="font-size:14px;padding:14px 22px;width:100%;justify-content:center;display:flex;align-items:center;gap:8px;">
+          <span id="dwcGenerateText">✨ Quick — Draft the letter</span>
+        </button>
+        <button class="btn" onclick="dwcOpenInClaudeAi()" style="font-size:13px;padding:12px 20px;width:100%;justify-content:center;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px dashed var(--accent);color:var(--accent);">
+          <span>↗ Full canvas — Design custom HTML in Claude.ai</span>
         </button>
       </div>
 
-      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border-soft);font-size:11px;color:var(--muted);line-height:1.5;">
-        Want full design control? Use <strong>✨ AI Assist</strong> in the top bar — it has links to design custom HTML in Claude.ai or paste an existing artifact.
+      <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);">
+        <button class="dwc-import-link" onclick="closeDwcModal();openImportHtmlModal();">↗ Already designed something? Paste artifact</button>
+        <button class="btn btn-tiny" onclick="closeDwcModal()" style="background:none;border:0;color:var(--muted);">Cancel</button>
       </div>
 
       <div class="dwc-status" id="dwcStatus"></div>
@@ -2082,9 +2086,14 @@
   // ═══════════════════════════════════════════════════════════════
   async function aiStream({ op, body, textarea, replace = true, onDone }) {
     if (!textarea) return;
-    if (replace) textarea.value = '';
+    // Handle both <textarea>/<input> and contenteditable .ce elements
+    const isCe = textarea.classList.contains('ce') || textarea.isContentEditable;
+    const setVal = (v) => { if (isCe) textarea.textContent = v; else textarea.value = v; };
+    const appendVal = (v) => { if (isCe) textarea.textContent += v; else { textarea.value += v; textarea.scrollTop = textarea.scrollHeight; } };
+    if (replace) setVal('');
+    if (isCe) textarea.removeAttribute('data-empty');
     textarea.classList.add('ai-streaming');
-    textarea.disabled = false;
+    if (!isCe) textarea.disabled = false;
     // Find the AI assist box for this field and flip its status badge on
     const assistBox = textarea.parentElement?.querySelector('.ai-assist');
     const statusBadge = assistBox?.querySelector('[data-status]');
@@ -2127,13 +2136,14 @@
             const evt = JSON.parse(j);
             if (evt.text) {
               finalText += evt.text;
-              textarea.value += evt.text;
-              textarea.scrollTop = textarea.scrollHeight;
+              appendVal(stripInlineHtml(evt.text));
             }
           } catch {}
         }
       }
-      if (onDone) onDone(finalText);
+      const cleanFinal = stripInlineHtml(finalText);
+      setVal(cleanFinal);
+      if (onDone) onDone(cleanFinal);
     } catch (e) {
       alert('AI failed: ' + e.message);
     } finally {
@@ -2641,7 +2651,21 @@
     },
     freeletter(sec) {
       const f = sec.fields || {};
-      return `<div class="vc-body" style="padding-top:30px;">${ceBlock('body', f.body, 'Just write. Or click ✨ Generate to draft from a one-line prompt.')}</div>`;
+      const photoBlock = f._photoUrl ? `
+        <div class="vc-img-row" style="padding:20px 48px 8px;">
+          <img src="${esc(f._photoUrl)}" alt="${esc(f._photoCaption || '')}" style="max-width:100%;height:auto;border:1px solid var(--border);">
+          ${f._photoCaption ? `<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:6px;">${esc(f._photoCaption)}</div>` : ''}
+        </div>
+      ` : '';
+      const videoBlock = (f._videoUrl && f._videoThumb) ? `
+        <div class="vc-img-row" style="padding:20px 48px 8px;">
+          <a href="${esc(f._videoUrl)}" target="_blank" style="text-decoration:none;display:block;position:relative;">
+            <img src="${esc(f._videoThumb)}" alt="" style="max-width:100%;height:auto;border:1px solid var(--border);">
+            <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.55);color:#fff;font-size:14px;padding:8px 16px;border-radius:99px;">▶ Watch</span>
+          </a>
+        </div>
+      ` : '';
+      return photoBlock + videoBlock + `<div class="vc-body" style="padding-top:30px;">${ceBlock('body', f.body, 'Just write. Or click ✨ AI Assist for help.')}</div>`;
     },
   };
 
@@ -2793,11 +2817,12 @@
     bar.innerHTML = `
       <div class="insert-pop">
         <button class="insert-chip" data-insert="section" title="Add a section"><span class="plus">+</span> Section</button>
+        <button class="insert-chip" data-insert="photo"   title="Insert a photo (paste URL)"><span class="plus">+</span> Photo</button>
+        <button class="insert-chip" data-insert="link"    title="Insert a link"><span class="plus">+</span> Link</button>
+        <button class="insert-chip" data-insert="video"   title="Embed a video"><span class="plus">+</span> Video</button>
         <button class="insert-chip" data-insert="drop"    title="Insert a Drops section"><span class="plus">+</span> Drop</button>
         <button class="insert-chip" data-insert="qa"      title="Insert a Q&amp;A from your inbox"><span class="plus">+</span> Q&amp;A</button>
         <button class="insert-chip" data-insert="preset"  title="Use a preset starter"><span class="plus">+</span> Preset</button>
-        <button class="insert-chip" data-insert="link"    title="Insert a link"><span class="plus">+</span> Link</button>
-        <button class="insert-chip" data-insert="video"   title="Embed a video"><span class="plus">+</span> Video</button>
       </div>
       <div class="insert-popover" data-popover></div>
     `;
@@ -4118,6 +4143,7 @@
     if (action === 'ai')      return showInsertAiMenu(insertIdx, popover);
     if (action === 'link')    return showInsertLinkMenu(insertIdx, popover);
     if (action === 'video')   return showInsertVideoMenu(insertIdx, popover);
+    if (action === 'photo')   return showInsertPhotoMenu(insertIdx, popover);
   }
 
   function popOpen(popover, html) {
@@ -4256,10 +4282,19 @@
     input.addEventListener('keydown', e => { if (e.key === 'Enter') fire(); });
   }
 
+  // Strip HTML tags that the AI sometimes outputs even when told not to.
+  // We're using plaintext-only contenteditable, so any markup shows as
+  // raw text otherwise. Keep the tag's CONTENT, just drop the tag itself.
+  function stripInlineHtml(s) {
+    return String(s || '')
+      .replace(/<\/?(em|strong|i|b|p|br|span|div)\s*\/?>/gi, '');
+  }
+
   // Streams AI output into a contenteditable element. After the stream
   // completes, save the final value back to the section field.
   async function runAiStreamIntoCe(ceEl, sectionId, sectionType, prompt) {
     ceEl.classList.add('ai-streaming');
+    ceEl.removeAttribute('data-empty'); // clear placeholder so it doesn't overlay content
     ceEl.textContent = '';
     try {
       const res = await fetch('/api/studio/ai?op=expand', {
@@ -4284,19 +4319,21 @@
             const evt = JSON.parse(j);
             if (evt.text) {
               finalText += evt.text;
-              ceEl.textContent = finalText;
+              ceEl.textContent = stripInlineHtml(finalText);
             }
           } catch {}
         }
       }
-      // Persist
+      // Persist (cleaned)
+      const cleanText = stripInlineHtml(finalText);
+      ceEl.textContent = cleanText;
       const card = ceEl.closest('.section-card');
       if (card) {
         const idx = Number(card.dataset.sectionIdx);
         const sec = state.letter.sections[idx];
         if (sec) {
           const key = ceEl.dataset.key;
-          applyCeUpdate(sec, key, finalText, ceEl.dataset.line);
+          applyCeUpdate(sec, key, cleanText, ceEl.dataset.line);
           scheduleSave();
         }
       }
@@ -4331,6 +4368,34 @@
       const marker = `[${text}](${url})`;
       document.execCommand('insertText', false, marker);
       target.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+  }
+
+  function showInsertPhotoMenu(insertIdx, popover) {
+    popOpen(popover, `<h5>Insert a photo</h5>
+      <div style="padding:6px;display:flex;flex-direction:column;gap:6px;">
+        <input id="insertPhotoUrl" placeholder="Paste an image URL (https://…)" style="padding:8px 10px;border:1px solid var(--border);border-radius:2px;font-size:13px;">
+        <input id="insertPhotoCaption" placeholder="Caption (optional)" style="padding:8px 10px;border:1px solid var(--border);border-radius:2px;font-size:13px;">
+        <button class="btn btn-accent btn-sm" id="insertPhotoGo">Insert as section</button>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5;">Photo embeds inline in the email at full width. Paste any HTTPS image URL — Instagram, Cloudinary, your own host. (Vercel Blob upload coming soon.)</div>
+      </div>`);
+    setTimeout(() => popover.querySelector('#insertPhotoUrl').focus(), 30);
+    popover.querySelector('#insertPhotoGo').onclick = () => {
+      const url = popover.querySelector('#insertPhotoUrl').value.trim();
+      const caption = popover.querySelector('#insertPhotoCaption').value.trim();
+      if (!url) return;
+      if (!/^https:\/\//i.test(url)) {
+        showToast('Image URL must use https://', '', 'error');
+        return;
+      }
+      popover.classList.remove('shown');
+      // Insert as a freeletter section with _photoUrl + _photoCaption
+      // The renderer puts the image at full width above the body
+      insertSectionAt(insertIdx, 'freeletter', {
+        body: caption || '',
+        _photoUrl: url,
+        _photoCaption: caption,
+      });
     };
   }
 
@@ -4669,6 +4734,16 @@
         <div style="margin-top:8px;"><button class="btn btn-tiny" onclick="resetBrandVoice()">Reset to default</button></div>
       </div>
       <div class="brand-section">
+        <div class="brand-section-label">Footer</div>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 0;">
+          <input type="checkbox" id="bdHideWebsite" ${o.hideWebsiteLink ? '' : 'checked'} style="width:18px;height:18px;accent-color:var(--accent);">
+          <div style="flex:1;">
+            <div style="font-size:13px;color:var(--text);font-weight:500;">Show <strong>${esc(b.brand?.domain || 'your website')}</strong> in every letter footer</div>
+            <div style="font-size:11px;color:var(--muted);">Subscribers can click back to your site. Turn off if you don't want the link.</div>
+          </div>
+        </label>
+      </div>
+      <div class="brand-section">
         <div class="brand-section-label">Reset</div>
         <button class="btn btn-ghost-danger" onclick="resetBrandAll()" style="font-size:12px;">Remove all overrides</button>
       </div>
@@ -4721,6 +4796,14 @@
       clearTimeout(state.brandSaveTimer);
       state.brandSaveTimer = setTimeout(() => saveBrandPatch({ voiceGuide: e.target.value }), 600);
     });
+    // Website-link toggle
+    const websiteToggle = document.getElementById('bdHideWebsite');
+    if (websiteToggle) {
+      websiteToggle.addEventListener('change', e => {
+        // Checkbox is "show website" — invert for the override flag
+        saveBrandPatch({ hideWebsiteLink: !e.target.checked });
+      });
+    }
   }
 
   // Per-token color editor — every render token gets a color wheel.

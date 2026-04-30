@@ -997,6 +997,87 @@
   }
   .preview-frame.mobile { max-width: 375px; }
 
+  /* ── New-letter picker cards (with mini thumbnails) ── */
+  .new-letter-card {
+    appearance: none; cursor: pointer; width: 100%; text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 14px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    display: flex; align-items: center; gap: 14px;
+    font-family: var(--body-font);
+    transition: all .15s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .new-letter-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 6px 20px rgba(220,38,38,0.08);
+    transform: translateY(-1px);
+  }
+  .new-letter-thumb {
+    width: 88px; height: 64px; flex-shrink: 0;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .thumb-blank::before {
+    content: ''; position: absolute; inset: 14px 22px;
+    border-top: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--border-soft);
+    background: linear-gradient(transparent, transparent), linear-gradient(transparent 0 8px, var(--border-soft) 8px 9px, transparent 9px) repeat-y;
+    background-size: 100% 100%, 100% 8px;
+  }
+  .thumb-lockin {
+    flex-direction: column; gap: 3px; padding: 8px 12px; align-items: stretch;
+  }
+  .thumb-lockin .thumb-block {
+    height: 8px; background: var(--border-soft); border-radius: 1px;
+  }
+  .thumb-lockin .thumb-block:nth-child(2) { width: 70%; background: var(--accent-pale); }
+  .thumb-lockin .thumb-block:nth-child(4) { width: 80%; background: var(--accent-pale); }
+  .thumb-ai {
+    background: linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.18));
+    border-color: var(--accent);
+  }
+  .thumb-ai .spark { font-size: 28px; }
+  .new-letter-text { flex: 1; min-width: 0; }
+  .new-letter-title {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 20px; color: var(--text); line-height: 1.15;
+    margin-bottom: 3px; font-weight: 500;
+  }
+  .new-letter-sub {
+    font-size: 12px; color: var(--text-soft); line-height: 1.5;
+  }
+
+  /* ── Light onboarding tooltips (first-letter open) ── */
+  .onboard-tip {
+    position: fixed;
+    background: var(--text); color: var(--bg);
+    padding: 10px 14px; border-radius: 4px;
+    font-size: 12px; font-family: var(--body-font);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.22);
+    z-index: 200;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity .35s, transform .35s cubic-bezier(0.16, 1, 0.3, 1);
+    max-width: 240px;
+    line-height: 1.5;
+  }
+  .onboard-tip.shown { opacity: 1; transform: translateY(0); }
+  .onboard-tip::before {
+    content: ''; position: absolute;
+    width: 8px; height: 8px;
+    background: var(--text);
+    transform: rotate(45deg);
+  }
+  .onboard-tip[data-arrow="up"]::before { top: -4px; left: 20px; }
+  .onboard-tip[data-arrow="down"]::before { bottom: -4px; left: 20px; }
+
   /* ── Top bar breadcrumb (replaces letter-title input) ─ */
   .topbar-crumb {
     flex: 1; min-width: 0; font-size: 13px;
@@ -1007,6 +1088,184 @@
     font-family: var(--display-font); font-style: italic;
     font-size: 18px; color: var(--text);
   }
+
+  /* ── Back-to-Hub button ───────────────────────────── */
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px 7px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    font-family: var(--body-font); font-size: 12px; font-weight: 600;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border-radius: 99px;
+    transition: all .15s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .back-btn:hover {
+    background: var(--text); color: var(--bg);
+    border-color: var(--text);
+    transform: translateX(-2px);
+  }
+  .back-btn svg { flex: 0 0 14px; }
+
+  /* ── Help (?) button ─────────────────────────────── */
+  .btn-help {
+    appearance: none;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: var(--display-font);
+    font-size: 16px; font-weight: 600;
+    cursor: pointer;
+    transition: all .15s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .btn-help:hover {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+  }
+
+  /* ── AI Assist panel (right-slide) ─────────────────── */
+  .ai-panel {
+    position: fixed; top: var(--topbar-h); right: 0; bottom: 0;
+    width: 420px; max-width: 92vw;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    box-shadow: -24px 0 60px rgba(0,0,0,0.18);
+    z-index: 50;
+    transform: translateX(100%);
+    transition: transform .25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .ai-panel.open { transform: translateX(0); }
+  .ai-panel-head {
+    position: sticky; top: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-soft);
+    padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 1;
+  }
+  .ai-panel-head .title {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 24px; line-height: 1; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .ai-panel-head .title .spark { color: var(--accent); }
+  .ai-panel-head .close {
+    background: none; border: 0; cursor: pointer;
+    font-size: 22px; color: var(--muted);
+    width: 32px; height: 32px; border-radius: 50%;
+    transition: all .12s;
+  }
+  .ai-panel-head .close:hover { background: var(--surface-alt); color: var(--text); }
+  .ai-panel-body { padding: 14px 20px 28px; flex: 1; }
+  .ai-context-line {
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin: 14px 0 8px;
+  }
+  .ai-action {
+    appearance: none; cursor: pointer; width: 100%; text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    display: flex; align-items: flex-start; gap: 12px;
+    font-family: var(--body-font);
+    transition: all .15s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .ai-action:hover {
+    border-color: var(--accent);
+    box-shadow: 0 6px 18px rgba(220,38,38,0.08);
+    transform: translateY(-1px);
+  }
+  .ai-action:disabled { opacity: 0.5; cursor: not-allowed; }
+  .ai-action .glyph {
+    width: 32px; height: 32px; flex-shrink: 0;
+    background: var(--accent-pale); color: var(--accent);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .ai-action .text { flex: 1; min-width: 0; }
+  .ai-action .label {
+    display: block; font-family: var(--display-font);
+    font-size: 17px; color: var(--text); line-height: 1.2;
+    font-weight: 500; margin-bottom: 3px;
+  }
+  .ai-action .sub {
+    display: block; font-size: 12px; color: var(--text-soft);
+    line-height: 1.45;
+  }
+  .ai-prompt-block {
+    display: none;
+    margin-top: -6px; margin-bottom: 14px;
+    background: var(--bg);
+    border: 1px solid var(--accent);
+    padding: 12px;
+    border-radius: 4px;
+  }
+  .ai-prompt-block.shown { display: block; }
+  .ai-prompt-block textarea {
+    width: 100%; min-height: 70px;
+    border: 1px solid var(--border); border-radius: 3px;
+    padding: 10px; font-family: var(--body-font); font-size: 13px;
+    resize: vertical; line-height: 1.5;
+    background: var(--surface);
+  }
+  .ai-prompt-block textarea:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-pale); }
+  .ai-prompt-block .row {
+    display: flex; gap: 8px; margin-top: 8px; align-items: center;
+  }
+  .ai-prompt-block select {
+    flex: 1; padding: 7px 9px; border: 1px solid var(--border);
+    border-radius: 3px; font-family: var(--body-font); font-size: 12px;
+  }
+  .ai-prompt-block .preset-row {
+    display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;
+  }
+  .ai-prompt-block .preset-chip {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text-soft); cursor: pointer;
+    padding: 4px 9px; font-size: 10px; border-radius: 99px;
+    font-family: var(--body-font); letter-spacing: 0.04em;
+  }
+  .ai-prompt-block .preset-chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  .ai-result {
+    margin-top: 8px; padding: 10px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-size: 13px; line-height: 1.55;
+    max-height: 200px; overflow-y: auto;
+  }
+  .ai-result.error {
+    background: rgba(196,69,69,0.06);
+    border-color: rgba(196,69,69,0.3);
+    color: var(--danger);
+  }
+
+  .ai-escape {
+    margin-top: 24px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, rgba(220,38,38,0.04), rgba(220,38,38,0.08));
+    border: 1px solid rgba(220,38,38,0.18);
+    border-radius: 4px;
+  }
+  .ai-escape h5 {
+    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700; margin: 0 0 6px;
+  }
+  .ai-escape p { font-size: 12px; color: var(--text-soft); line-height: 1.5; margin: 0 0 10px; }
+  .ai-escape a {
+    display: inline-block; color: var(--accent); font-size: 12px; font-weight: 600;
+    text-decoration: none; padding: 4px 0;
+  }
+  .ai-escape a:hover { text-decoration: underline; }
+  .ai-escape .divider { margin: 4px 0; height: 1px; }
 
   /* ── Premium animation primitives ──────────────────── */
   /* Buttons get a subtle press feedback + smoother transitions */
@@ -1075,7 +1334,11 @@
 
   /* Save indicator gets a soft transition */
   .save-indicator {
-    transition: color .25s cubic-bezier(0.4, 0, 0.2, 1), opacity .2s;
+    transition: color .25s cubic-bezier(0.4, 0, 0.2, 1), opacity .2s, transform .2s;
+  }
+  .save-indicator.save-pulse {
+    color: var(--accent);
+    transform: scale(1.05);
   }
 
   /* ── Send modal ──────────────────────────────────────── */
@@ -1425,16 +1688,19 @@
   </div>
 </div>
 
-<!-- Top bar — minimal: nav + global actions only. Letter title lives in canvas. -->
+<!-- Top bar — nav + minimal actions. Letter title lives in canvas. -->
 <div class="topbar">
-  <a class="back" href="/hub">← Hub</a>
+  <a class="back-btn" href="/hub" title="Back to Hub">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    <span>Back to Hub</span>
+  </a>
   <div class="topbar-crumb" id="topbarCrumb"><span style="color:var(--muted);">Drafts</span> <span style="color:var(--muted);opacity:0.4;margin:0 6px;">›</span> <span class="crumb-name" id="crumbName">Untitled</span></div>
   <input type="hidden" id="letterTitle">
   <div class="save-indicator" id="saveIndicator"></div>
-  <button class="btn dwc-button" onclick="openDwcModal()" title="Generate with Claude — draft the letter, design custom HTML, or import">🎨 Generate with Claude</button>
-  <button class="icon-btn" onclick="startStudioTutorial()" title="Show me around" style="width:32px;height:32px;font-size:16px;">🎯</button>
+  <button class="btn" id="aiAssistBtn" onclick="openAiPanel()" title="AI helpers — draft, polish, suggest, check"><span style="color:var(--accent);">✨</span> AI Assist</button>
+  <button class="btn-help" onclick="startStudioTutorial()" title="Help" aria-label="Help">?</button>
   <button class="btn" id="newLetterBtn" onclick="openNewLetterPicker()">+ New</button>
-  <button class="btn" onclick="togglePreviewPanel()" id="previewToggleBtn" title="See exactly what subscribers see" style="font-size:13px;">👁 Preview</button>
+  <button class="btn" onclick="togglePreviewPanel()" id="previewToggleBtn" title="See exactly what subscribers see">👁 Preview</button>
   <button class="btn btn-accent" id="sendBtn" onclick="openSendModal()" disabled>Send</button>
 </div>
 
@@ -1512,6 +1778,17 @@
     <div class="preview-frame-wrap">
       <iframe class="preview-frame" id="previewFrame" title="Letter preview"></iframe>
     </div>
+  </div>
+</div>
+
+<!-- ─── AI Assist panel (right-slide; one home for every AI helper) ─── -->
+<div class="ai-panel" id="aiPanel">
+  <div class="ai-panel-head">
+    <div class="title"><span class="spark">✨</span> AI Assist</div>
+    <button class="close" onclick="closeAiPanel()" title="Close">×</button>
+  </div>
+  <div class="ai-panel-body" id="aiPanelBody">
+    <!-- Built dynamically by renderAiPanel() based on context -->
   </div>
 </div>
 
@@ -1883,11 +2160,16 @@
   // SUBJECT SUGGESTER
   // ═══════════════════════════════════════════════════════════════
   async function suggestSubject(e) {
-    e.preventDefault();
+    if (e?.preventDefault) e.preventDefault();
     if (!state.letter || !state.letter.sections.length) {
-      alert('Add a section first — I need something to suggest from.');
+      showToast('Add a section first', 'AI needs content to suggest a subject from.', 'info');
       return;
     }
+    // Route through the unified AI panel
+    openAiPanel('suggest-subject');
+    setTimeout(() => runAiAction('suggest-subject'), 200);
+    return;
+    // (legacy popover code below — unreachable; preserved temporarily)
     const popover = document.getElementById('subjectSuggest');
     const btn = document.getElementById('suggestSubjectBtn');
     btn.disabled = true; btn.innerHTML = '<span class="spark">…</span> Thinking';
@@ -2198,6 +2480,8 @@
       if (customView) customView.style.display = 'none';
       sectionsList.style.display = '';
       renderVisualCanvas();
+      // First-letter-open onboarding (light tooltips, once per user)
+      setTimeout(() => showLightOnboarding(), 200);
     }
   }
 
@@ -2470,7 +2754,13 @@
     };
     card.querySelector('[data-act="ai"]').onclick = (e) => {
       e.stopPropagation();
-      openSectionAi(sec);
+      // Open the unified AI panel pre-loaded for this section
+      state.expandedSectionId = sec.id;
+      document.querySelectorAll('.section-card').forEach(c => c.classList.remove('expanded'));
+      card.classList.add('expanded');
+      openAiPanel('write-section', { section: sec });
+      // Auto-expand the prompt input
+      setTimeout(() => toggleAiPromptBlock('writeSection'), 280);
     };
 
     // Drag-drop reorder (existing pattern)
@@ -2520,7 +2810,6 @@
         <button class="insert-chip" data-insert="drop"    title="Insert a Drops section"><span class="plus">+</span> Drop</button>
         <button class="insert-chip" data-insert="qa"      title="Insert a Q&amp;A from your inbox"><span class="plus">+</span> Q&amp;A</button>
         <button class="insert-chip" data-insert="preset"  title="Use a preset starter"><span class="plus">+</span> Preset</button>
-        <button class="insert-chip" data-insert="ai"      title="AI generate from a prompt"><span class="plus">✨</span> AI</button>
         <button class="insert-chip" data-insert="link"    title="Insert a link"><span class="plus">+</span> Link</button>
         <button class="insert-chip" data-insert="video"   title="Embed a video"><span class="plus">+</span> Video</button>
       </div>
@@ -2674,6 +2963,319 @@
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // AI ASSIST PANEL — one home for every AI helper
+  // Replaces scattered ✨ entry points (DwC button, per-section ✨,
+  // + AI insert chip, ✨ Suggest, ✨ Sanity check, ✨ Expand).
+  // The panel is context-aware: "Write this section" appears when a
+  // section is expanded; "Polish selected" appears when text is
+  // highlighted; etc.
+  // ═══════════════════════════════════════════════════════════════
+  state.aiPanelMode = null;       // 'draft-letter' | 'write-section' | 'polish' | etc.
+  state.aiPanelTargetSection = null;
+
+  function openAiPanel(mode = null, opts = {}) {
+    if (mode) state.aiPanelMode = mode;
+    if (opts.section) state.aiPanelTargetSection = opts.section;
+    if (opts.selectedText) state.aiPanelSelectedText = opts.selectedText;
+    document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
+    document.getElementById('brandDrawer')?.classList.remove('open');
+    document.getElementById('brandBackdrop')?.classList.remove('shown');
+    document.getElementById('aiPanel').classList.add('open');
+    renderAiPanel();
+  }
+  function closeAiPanel() {
+    document.getElementById('aiPanel').classList.remove('open');
+    state.aiPanelMode = null;
+    state.aiPanelTargetSection = null;
+    state.aiPanelSelectedText = null;
+  }
+
+  function renderAiPanel() {
+    const body = document.getElementById('aiPanelBody');
+    if (!body) return;
+    const hasLetter = !!state.letter;
+    const expandedSec = hasLetter && state.expandedSectionId
+      ? state.letter.sections.find(s => s.id === state.expandedSectionId)
+      : null;
+    const targetSection = state.aiPanelTargetSection || expandedSec;
+    const selection = window.getSelection();
+    const hasSelection = selection && !selection.isCollapsed && selection.toString().trim().length > 3;
+    const selText = hasSelection ? selection.toString().trim() : '';
+
+    let html = '';
+
+    // Context banner
+    if (targetSection) {
+      const t = state.sectionTypes[targetSection.type];
+      html += `<div class="ai-context-line">Working on: ${esc(t?.emoji || '')} ${esc(t?.label || targetSection.type)}</div>`;
+    } else if (hasLetter) {
+      html += `<div class="ai-context-line">Working on: ${esc(state.letter.name || 'Untitled letter')}</div>`;
+    } else {
+      html += `<div class="ai-context-line">No letter open yet</div>`;
+    }
+
+    // Action: Draft a letter (always available — starts a new letter)
+    if (!hasLetter) {
+      html += `
+        <button class="ai-action" data-act="draft-letter">
+          <span class="glyph">✨</span>
+          <span class="text">
+            <span class="label">Draft a letter from a brief</span>
+            <span class="sub">Tell me in one or two sentences. I'll write the whole letter in your voice.</span>
+          </span>
+        </button>
+      `;
+    }
+
+    // Action: Write the current section
+    if (targetSection) {
+      html += `
+        <button class="ai-action" data-act="write-section">
+          <span class="glyph">✨</span>
+          <span class="text">
+            <span class="label">Write this section</span>
+            <span class="sub">Generate the body of this ${esc(state.sectionTypes[targetSection.type]?.label || targetSection.type)} section from a one-line brief.</span>
+          </span>
+        </button>
+        <div class="ai-prompt-block" id="aiPromptBlock_writeSection">
+          <textarea id="aiPromptInput_writeSection" placeholder="What's it about? (one sentence)"></textarea>
+          <div class="row">
+            <button class="btn btn-accent btn-sm" onclick="runAiAction('write-section')">✨ Generate</button>
+            <button class="btn btn-sm" onclick="closeAiPromptBlock('writeSection')">Cancel</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Action: Polish selected text
+    if (hasSelection) {
+      html += `
+        <button class="ai-action" data-act="polish">
+          <span class="glyph">🪄</span>
+          <span class="text">
+            <span class="label">Polish selected text</span>
+            <span class="sub">"${esc(selText.slice(0, 60))}${selText.length > 60 ? '…' : ''}" — tighten, soften, sharpen.</span>
+          </span>
+        </button>
+        <div class="ai-prompt-block" id="aiPromptBlock_polish">
+          <textarea id="aiPromptInput_polish" placeholder='How? ("shorter", "more vulnerable", "remove the cliche line")'></textarea>
+          <div class="row">
+            <button class="btn btn-accent btn-sm" onclick="runAiAction('polish')">🪄 Polish</button>
+            <button class="btn btn-sm" onclick="closeAiPromptBlock('polish')">Cancel</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Action: Topic ideas (when letter open)
+    if (hasLetter) {
+      html += `
+        <button class="ai-action" data-act="topics">
+          <span class="glyph">💡</span>
+          <span class="text">
+            <span class="label">Topic ideas</span>
+            <span class="sub">5 specific angles you could write about — pick what resonates.</span>
+          </span>
+        </button>
+        <div id="aiResult_topics" class="ai-result" style="display:none;"></div>
+      `;
+    }
+
+    // Action: Suggest subject + preheader (when letter has sections)
+    if (hasLetter && state.letter.sections?.length) {
+      html += `
+        <button class="ai-action" data-act="suggest-subject">
+          <span class="glyph">✉️</span>
+          <span class="text">
+            <span class="label">Suggest subject lines</span>
+            <span class="sub">3 options + a matching preheader.</span>
+          </span>
+        </button>
+        <div id="aiResult_subject" class="ai-result" style="display:none;"></div>
+      `;
+    }
+
+    // Action: Sanity check (when letter has 2+ sections)
+    if (hasLetter && (state.letter.sections?.length || 0) >= 2) {
+      html += `
+        <button class="ai-action" data-act="sanity">
+          <span class="glyph">🔍</span>
+          <span class="text">
+            <span class="label">Sanity check before send</span>
+            <span class="sub">Reads the whole letter for repeated framings, tone breaks, AI-ish phrasing.</span>
+          </span>
+        </button>
+        <div id="aiResult_sanity" class="ai-result" style="display:none;"></div>
+      `;
+    }
+
+    // Always-visible escape hatch — Claude.ai design + paste artifact
+    html += `
+      <div class="ai-escape">
+        <h5>Want full design control?</h5>
+        <p>Open Claude.ai with your brief + brand pre-loaded. Design custom HTML there, paste it back here when done.</p>
+        <a href="javascript:void(0)" onclick="aiOpenInClaudeFromPanel()">→ Open in Claude.ai</a>
+        <div class="divider"></div>
+        <a href="javascript:void(0)" onclick="aiPasteFromClaudeFromPanel()">→ Paste an artifact</a>
+      </div>
+    `;
+
+    body.innerHTML = html;
+
+    // Wire action click handlers
+    body.querySelectorAll('.ai-action').forEach(btn => {
+      btn.onclick = () => {
+        const act = btn.dataset.act;
+        if (act === 'draft-letter') return openDwcModal(); // Re-use existing modal for drafting whole letter
+        if (act === 'write-section') return toggleAiPromptBlock('writeSection');
+        if (act === 'polish')       return toggleAiPromptBlock('polish');
+        if (act === 'topics')       return runAiAction('topics');
+        if (act === 'suggest-subject') return runAiAction('suggest-subject');
+        if (act === 'sanity')       return runAiAction('sanity');
+      };
+    });
+  }
+
+  function toggleAiPromptBlock(name) {
+    const block = document.getElementById('aiPromptBlock_' + name);
+    if (!block) return;
+    block.classList.toggle('shown');
+    if (block.classList.contains('shown')) {
+      const ta = document.getElementById('aiPromptInput_' + name);
+      if (ta) setTimeout(() => ta.focus(), 30);
+    }
+  }
+  function closeAiPromptBlock(name) {
+    document.getElementById('aiPromptBlock_' + name)?.classList.remove('shown');
+  }
+
+  async function runAiAction(act) {
+    if (act === 'write-section') {
+      const promptVal = document.getElementById('aiPromptInput_writeSection').value.trim();
+      if (!promptVal) return;
+      const sec = state.aiPanelTargetSection || state.letter?.sections?.find(s => s.id === state.expandedSectionId);
+      if (!sec) return;
+      const card = document.querySelector(`[data-section-id="${sec.id}"]`);
+      const ta = card?.querySelector('.ce[data-multiline="1"]') || card?.querySelector('.ce');
+      if (!ta) return;
+      closeAiPanel();
+      ta.focus();
+      await runAiStreamIntoCe(ta, sec.id, sec.type, promptVal);
+    }
+    if (act === 'polish') {
+      const instr = document.getElementById('aiPromptInput_polish').value.trim() || 'Tighten without losing meaning. Keep her voice.';
+      const target = state.lastFocusedCe;
+      if (!target) { showToast('No text selected', 'Highlight some text first, then try Polish.', 'info'); return; }
+      const card = target.closest('.section-card');
+      const idx = Number(card?.dataset.sectionIdx);
+      const sec = state.letter.sections[idx];
+      closeAiPanel();
+      await aiStream({
+        op: 'polish',
+        body: { text: target.innerText, instruction: instr },
+        textarea: target,
+        replace: true,
+        onDone: (text) => {
+          applyCeUpdate(sec, target.dataset.key, text, target.dataset.line);
+          scheduleSave();
+        },
+      });
+    }
+    if (act === 'topics') {
+      const out = document.getElementById('aiResult_topics');
+      out.style.display = 'block';
+      out.classList.remove('error');
+      out.innerHTML = '<div style="color:var(--muted);">Thinking…</div>';
+      try {
+        const sec = state.aiPanelTargetSection || state.letter?.sections?.find(s => s.id === state.expandedSectionId);
+        const sectionType = sec?.type || 'realtalk';
+        const recentLetters = state.letters.slice(0, 4).map(l => ({ name: l.name, subject: l.subject }));
+        const data = await api('/api/studio/ai?op=topics', {
+          method: 'POST',
+          body: JSON.stringify({ sectionType, recentLetters }),
+        });
+        if (!data.topics?.length) { out.innerHTML = 'No ideas right now — try writing something yourself first.'; return; }
+        out.innerHTML = data.topics.map(t => `<div style="padding:6px 0;border-bottom:1px solid var(--border-soft);cursor:pointer;" onclick="useTopicIdea(this)">${esc(t)}</div>`).join('');
+      } catch (e) { out.classList.add('error'); out.textContent = 'Failed: ' + e.message; }
+    }
+    if (act === 'suggest-subject') {
+      const out = document.getElementById('aiResult_subject');
+      out.style.display = 'block';
+      out.classList.remove('error');
+      out.innerHTML = '<div style="color:var(--muted);">Reading your letter…</div>';
+      try {
+        const data = await api('/api/studio/ai?op=subject', {
+          method: 'POST',
+          body: JSON.stringify({ letter: state.letter }),
+        });
+        if (!data.subjects?.length) { out.innerHTML = 'Couldn\'t generate. Try with more letter content.'; return; }
+        const subList = data.subjects.map(s => `<div style="padding:6px 8px;cursor:pointer;border-radius:2px;" onmouseover="this.style.background='var(--accent-pale)'" onmouseout="this.style.background=''" onclick="useSubject(this,'${esc(data.preheader || '').replace(/'/g,'&apos;')}')">${esc(s)}</div>`).join('');
+        out.innerHTML = `<div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Click to use:</div>${subList}${data.preheader ? `<div style="border-top:1px solid var(--border-soft);margin-top:6px;padding-top:6px;font-size:11px;color:var(--muted);">Preheader: <strong style="color:var(--text);">${esc(data.preheader)}</strong></div>` : ''}`;
+      } catch (e) { out.classList.add('error'); out.textContent = 'Failed: ' + e.message; }
+    }
+    if (act === 'sanity') {
+      const out = document.getElementById('aiResult_sanity');
+      out.style.display = 'block';
+      out.classList.remove('error');
+      out.innerHTML = '<div style="color:var(--muted);">Reviewing the whole letter…</div>';
+      try {
+        const data = await api('/api/studio/ai?op=sanity', {
+          method: 'POST',
+          body: JSON.stringify({ letter: state.letter }),
+        });
+        if (!data.issues || !data.issues.length) {
+          out.innerHTML = '<div style="background:var(--accent-pale);border:1px solid var(--accent);color:var(--accent);padding:8px;border-radius:2px;">✓ Reads clean — no issues flagged.</div>';
+        } else {
+          out.innerHTML = '<div style="font-weight:600;color:#b96900;margin-bottom:6px;">A few notes:</div>' + data.issues.map(it => `<div style="padding:6px 0;border-bottom:1px solid var(--border-soft);"><strong>Section ${it.section}</strong> · ${esc(it.kind || '')}<br><span style="color:var(--text-soft);">${esc(it.note)}</span></div>`).join('');
+        }
+      } catch (e) { out.classList.add('error'); out.textContent = 'Failed: ' + e.message; }
+    }
+  }
+
+  function useTopicIdea(el) {
+    const text = el.textContent.trim();
+    const sec = state.aiPanelTargetSection || state.letter?.sections?.find(s => s.id === state.expandedSectionId);
+    if (!sec) return;
+    closeAiPanel();
+    const card = document.querySelector(`[data-section-id="${sec.id}"]`);
+    const ta = card?.querySelector('.ce[data-multiline="1"]') || card?.querySelector('.ce');
+    if (ta) {
+      ta.focus();
+      runAiStreamIntoCe(ta, sec.id, sec.type, text);
+    }
+  }
+
+  function useSubject(el, preheader) {
+    const subject = el.textContent.trim();
+    if (state.letter) {
+      state.letter.subject = subject;
+      if (preheader) state.letter.preheader = preheader;
+      const subEl = document.getElementById('sendSubject');
+      const preEl = document.getElementById('sendPreheader');
+      if (subEl) subEl.value = subject;
+      if (preEl) preEl.value = preheader || '';
+      scheduleSave();
+      showToast('Subject set', subject.slice(0, 60), 'success');
+    }
+    closeAiPanel();
+  }
+
+  function aiOpenInClaudeFromPanel() {
+    closeAiPanel();
+    openDwcModal();
+    // Auto-trigger the Open-in-Claude flow inside the modal
+    setTimeout(() => {
+      const promptInput = document.getElementById('dwcPrompt');
+      if (promptInput) promptInput.focus();
+      showToast('Tip', 'Type your brief here, then click "Full canvas — Design in Claude.ai".', 'info', 4500);
+    }, 250);
+  }
+  function aiPasteFromClaudeFromPanel() {
+    closeAiPanel();
+    openImportHtmlModal();
+  }
+
+  // ═══════════════════════════════════════════════════════════════
   // MODAL COORDINATOR — single-modal-at-a-time + smooth open/close
   // ═══════════════════════════════════════════════════════════════
   function openModalSafe(modalId) {
@@ -2721,7 +3323,7 @@
       m.className = 'modal-backdrop';
       m.onclick = (e) => { if (e.target === m) m.classList.remove('open'); };
       m.innerHTML = `
-        <div class="modal" style="max-width:520px;">
+        <div class="modal" style="max-width:560px;">
           <div class="modal-head">
             <div>
               <div class="dwc-eyebrow">New letter</div>
@@ -2730,26 +3332,28 @@
             <button class="modal-close" onclick="document.getElementById('newLetterModal').classList.remove('open')">×</button>
           </div>
           <div class="modal-body">
-            <button class="dwc-path-card" data-pick="blank">
-              <span class="dwc-path-icon">📄</span>
-              <span class="dwc-path-text">
-                <span class="dwc-path-title">Blank letter</span>
-                <span class="dwc-path-sub">Start with an empty canvas. Add sections from the inline + bar.</span>
-              </span>
+            <button class="new-letter-card" data-pick="blank">
+              <div class="new-letter-thumb thumb-blank"></div>
+              <div class="new-letter-text">
+                <div class="new-letter-title">Blank canvas</div>
+                <div class="new-letter-sub">Start empty. Add sections from the inline + bar as you go.</div>
+              </div>
             </button>
-            <button class="dwc-path-card" data-pick="lockin">
-              <span class="dwc-path-icon">📬</span>
-              <span class="dwc-path-text">
-                <span class="dwc-path-title">Lock-In Letter (preset)</span>
-                <span class="dwc-path-sub">Pre-fills your usual section order: Devotional · Real Talk · Recipe · Drops · Favorites.</span>
-              </span>
+            <button class="new-letter-card" data-pick="lockin">
+              <div class="new-letter-thumb thumb-lockin">
+                <span class="thumb-block"></span><span class="thumb-block"></span><span class="thumb-block"></span><span class="thumb-block"></span><span class="thumb-block"></span>
+              </div>
+              <div class="new-letter-text">
+                <div class="new-letter-title">${esc(state.studioConfig?.lockInLetterName || 'Lock-In Letter')}</div>
+                <div class="new-letter-sub">Pre-fills 5 sections: Devotional · Real Talk · Recipe · Drops · Favorites.</div>
+              </div>
             </button>
-            <button class="dwc-path-card" data-pick="dwc">
-              <span class="dwc-path-icon">🎨</span>
-              <span class="dwc-path-text">
-                <span class="dwc-path-title">Generate with Claude</span>
-                <span class="dwc-path-sub">Three paths: AI quick-draft, design custom HTML in Claude.ai, or paste an artifact.</span>
-              </span>
+            <button class="new-letter-card" data-pick="dwc">
+              <div class="new-letter-thumb thumb-ai"><span class="spark">✨</span></div>
+              <div class="new-letter-text">
+                <div class="new-letter-title">Draft with AI</div>
+                <div class="new-letter-sub">Tell AI what the letter is about. It writes the whole thing in your voice.</div>
+              </div>
             </button>
           </div>
         </div>
@@ -3419,11 +4023,29 @@
   // ═══════════════════════════════════════════════════════════════
   // SAVE (debounced) + PREVIEW (debounced)
   // ═══════════════════════════════════════════════════════════════
+  state.lastSavedAt = 0;
   function setSaveIndicator(text, cls = '') {
     const el = document.getElementById('saveIndicator');
+    if (!el) return;
     el.textContent = text;
     el.className = 'save-indicator ' + cls;
+    // Soft pulse on saved
+    if (cls === '' && text.startsWith('Saved')) {
+      el.classList.add('save-pulse');
+      setTimeout(() => el.classList.remove('save-pulse'), 700);
+    }
   }
+  // Tick "Saved Ns ago" every 10s
+  setInterval(() => {
+    if (!state.lastSavedAt) return;
+    const el = document.getElementById('saveIndicator');
+    if (!el || el.classList.contains('saving') || el.classList.contains('error')) return;
+    const sec = Math.round((Date.now() - state.lastSavedAt) / 1000);
+    if (sec < 5) el.textContent = 'Saved ✓';
+    else if (sec < 60) el.textContent = `Saved ${sec}s ago`;
+    else if (sec < 3600) el.textContent = `Saved ${Math.round(sec / 60)}m ago`;
+    else el.textContent = `Saved ${Math.round(sec / 3600)}h ago`;
+  }, 10000);
   function scheduleSave() {
     clearTimeout(state.saveTimer);
     setSaveIndicator('Editing…');
@@ -3446,7 +4068,8 @@
       });
       // server returns the saved letter — sync any server-side normalization
       state.letter = data.letter;
-      setSaveIndicator('Saved', '');
+      state.lastSavedAt = Date.now();
+      setSaveIndicator('Saved ✓', '');
       // Refresh sidebar in case name/status changed
       const idx = state.letters.findIndex(l => l.id === state.letter.id);
       if (idx >= 0) {
@@ -4640,21 +5263,58 @@
   //  - first-time visit (no localStorage flag)
   // Tutorial completion or skip sets the flag so it never auto-fires twice.
   function maybeAutoStartTutorial() {
+    // Heavy 12-step tour only fires when explicitly requested (?tour=1 or ?
+    // button click). Auto-fire is now the light onboarding tips instead.
     const url = new URL(location.href);
-    const explicit = url.searchParams.get('tour') === '1';
-    const seen = localStorage.getItem('studio_tutorial_seen') === '1';
-    if (!explicit && seen) return;
-    // Wait for boot to finish so target elements exist
-    const tryStart = (attempts = 0) => {
-      if (state.brand && state.sectionTypeOrder.length) {
-        startStudioTutorial();
-      } else if (attempts < 20) {
-        setTimeout(() => tryStart(attempts + 1), 250);
-      }
-    };
-    setTimeout(tryStart, 400);
+    if (url.searchParams.get('tour') === '1') {
+      const tryStart = (attempts = 0) => {
+        if (state.brand && state.sectionTypeOrder.length) {
+          startStudioTutorial();
+        } else if (attempts < 20) {
+          setTimeout(() => tryStart(attempts + 1), 250);
+        }
+      };
+      setTimeout(tryStart, 400);
+    }
   }
   maybeAutoStartTutorial();
+
+  // ═══════════════════════════════════════════════════════════════
+  // LIGHT ONBOARDING TOOLTIPS — fades in 4 quick tips on first
+  // letter open, auto-dismisses after a few seconds. Replaces the
+  // heavy 12-step tutorial as the default first-time intro.
+  // ═══════════════════════════════════════════════════════════════
+  function showLightOnboarding() {
+    if (localStorage.getItem('studio_lightonboard_seen') === '1') return;
+    const tips = [
+      { selector: '.letter-canvas-name', text: 'Click any text to edit in place', arrow: 'up', delay: 600,  show: 3500 },
+      { selector: '.insert-bar:nth-of-type(2), .sections-list-inner > .insert-bar', text: 'Hover here to add a section, drop, or video', arrow: 'down', delay: 4200, show: 3500 },
+      { selector: '#aiAssistBtn', text: '✨ AI Assist — draft, polish, suggest, sanity check', arrow: 'up', delay: 7900, show: 4000 },
+      { selector: '#sendBtn', text: 'Send when ready (test to yourself first)', arrow: 'up', delay: 12000, show: 3500 },
+    ];
+    tips.forEach(tip => {
+      setTimeout(() => {
+        const target = document.querySelector(tip.selector);
+        if (!target) return;
+        const rect = target.getBoundingClientRect();
+        const tipEl = document.createElement('div');
+        tipEl.className = 'onboard-tip';
+        tipEl.dataset.arrow = tip.arrow;
+        tipEl.textContent = tip.text;
+        document.body.appendChild(tipEl);
+        // Position
+        const isUp = tip.arrow === 'up';
+        tipEl.style.top  = (isUp ? rect.bottom + 12 : rect.top - 60) + 'px';
+        tipEl.style.left = Math.max(8, Math.min(window.innerWidth - 260, rect.left)) + 'px';
+        requestAnimationFrame(() => tipEl.classList.add('shown'));
+        setTimeout(() => {
+          tipEl.classList.remove('shown');
+          setTimeout(() => tipEl.remove(), 600);
+        }, tip.show);
+      }, tip.delay);
+    });
+    try { localStorage.setItem('studio_lightonboard_seen', '1'); } catch {}
+  }
 
   // ═══════════════════════════════════════════════════════════════
   // SAVE FLUSH ON UNLOAD

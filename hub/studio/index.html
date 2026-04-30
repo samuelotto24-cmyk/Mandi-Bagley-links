@@ -4279,28 +4279,32 @@
     });
   }
 
-  // Preset Ideas — curated starter prompts per section type
-  const PRESET_IDEAS = [
-    { type: 'realtalk',   label: 'Discipline vs motivation', prompt: 'Why discipline beats motivation, with a Tuesday-morning example.' },
-    { type: 'realtalk',   label: 'Body image — the honest version', prompt: 'How my relationship with my body has evolved over the last year.' },
-    { type: 'devotional', label: 'A scripture I keep coming back to', prompt: 'A short reflection tied to a verse I lean on right now.' },
-    { type: 'recipe',     label: 'A weeknight family dinner', prompt: 'A simple, high-protein dinner the kids actually eat.' },
-    { type: 'favorites',  label: '5 things I am reaching for', prompt: 'Five things — gear, food, books, anything — I am loving this month.' },
-    { type: 'freeletter', label: 'A note from this week', prompt: 'A real moment from this week and what it taught me.' },
-    { type: 'realtalk',   label: 'Showing up when you do not feel ready', prompt: 'Why ready is a feeling that rarely shows up on time.' },
-    { type: 'devotional', label: 'A waiting season', prompt: 'A reflection on faith during a season where nothing seems to move.' },
+  // Preset Ideas — read from the per-client studioConfig.presetIdeas.
+  // Each client's lib/client-config.js defines their own list. Falls back to
+  // a generic set if the client hasn't configured any.
+  const PRESET_IDEAS_FALLBACK = [
+    { type: 'realtalk',   label: 'A real moment from this week', prompt: 'A specific moment from this week and what it taught me.' },
+    { type: 'realtalk',   label: 'What I am rethinking', prompt: 'Something I used to believe and what changed.' },
+    { type: 'favorites',  label: '5 things I am loving', prompt: 'Five things — gear, food, books, anything — I am reaching for this month.' },
+    { type: 'freeletter', label: 'A note from this week', prompt: 'A short personal letter — what is on my mind.' },
   ];
+  function getPresetIdeas() {
+    const fromConfig = state.studioConfig?.presetIdeas;
+    if (Array.isArray(fromConfig) && fromConfig.length) return fromConfig;
+    return PRESET_IDEAS_FALLBACK;
+  }
 
   function showInsertPresetMenu(insertIdx, popover) {
+    const presets = getPresetIdeas();
     popOpen(popover, `<h5>Preset starters (AI fills it in your voice)</h5>` +
-      PRESET_IDEAS.map((p, i) => {
+      presets.map((p, i) => {
         const t = state.sectionTypes[p.type];
         return `<button class="item" data-preset="${i}">${esc(t?.emoji || '')} ${esc(p.label)}<span class="meta">→ ${esc(t?.label || p.type)}</span></button>`;
       }).join(''));
     popover.querySelectorAll('[data-preset]').forEach(b => {
       b.onclick = async () => {
         popover.classList.remove('shown');
-        const p = PRESET_IDEAS[Number(b.dataset.preset)];
+        const p = presets[Number(b.dataset.preset)];
         if (!p) return;
         const sectionId = 's_' + Math.random().toString(36).slice(2, 12);
         insertSectionAt(insertIdx, p.type, {}, sectionId);
@@ -5199,12 +5203,12 @@
   const TOUR_STEPS = [
     {
       title: 'Welcome to The Letter Studio',
-      body: "This is where you write everything that goes out — quick blasts, biweekly Lock-In Letters, drops, devotionals, Q&A. Three panes: Ideas, Letter, Preview. AI helps in every pane.",
+      body: "This is where you write everything that goes out — quick blasts, recurring letters, drops, Q&A. Three panes: Ideas, Letter, Preview. AI helps in every pane.",
     },
     {
       target: '#sectionLib',
       title: 'Section library',
-      body: "Click any chip to drop a section into your letter. 9 types — Devotional, Real Talk, Recipe, Drops, Favorites, Q&A, Recap, Giveaway, Free Letter. A letter can be 1 chip (quick blast) or 8 (Lock-In).",
+      body: "Click any chip to drop a section into your letter. Section types come from your studioConfig — Real Talk, Recipe, Drops, Favorites, Q&A and more. A letter can be 1 section (quick blast) or many (full recurring letter).",
     },
     {
       target: '#ideaText',
@@ -5273,7 +5277,7 @@
       }
     }
     // No letters at all — auto-create a sample with one section so the tour
-    // can demonstrate AI assist + drag-drop properly. Mandi can delete it.
+    // can demonstrate AI assist + drag-drop properly. User can delete it.
     try {
       const data = await api('/api/studio/letters', {
         method: 'POST',

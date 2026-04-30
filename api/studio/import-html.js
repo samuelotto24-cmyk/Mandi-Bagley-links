@@ -35,9 +35,12 @@ export default async function handler(req) {
     }, 400);
   }
 
-  // Build a default subject + name from the brief (or fallback)
-  const defaultName    = brief ? `Custom: ${brief.slice(0, 60)}${brief.length > 60 ? '…' : ''}` : 'Custom design';
-  const defaultSubject = brief || '';
+  // Auto-name: "Imported design — May 1" (a clean draft identifier).
+  // The brief text doesn't go into the name OR the subject — those are
+  // both inbox metadata the user sets explicitly before sending.
+  const dateLabel = new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  const defaultName    = `Imported design — ${dateLabel}`;
+  const defaultSubject = '';
 
   try {
     let letter;

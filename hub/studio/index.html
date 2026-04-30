@@ -1580,6 +1580,13 @@
     white-space: pre-wrap;
     margin-bottom: 14px;
   }
+  .custom-letter-thumb {
+    width: 100%; height: 360px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    pointer-events: none;
+  }
 
   /* ── Toast ───────────────────────────────────────────── */
   .toast {
@@ -2461,17 +2468,36 @@
         customView.className = 'custom-letter-view';
         sectionsList.parentElement.insertBefore(customView, sectionsList);
       }
-      const preview = (state.letter.customHtml || '').slice(0, 240);
+      const html = state.letter.customHtml || '';
+      const bytes = Math.round(html.length / 1024 * 10) / 10;
+      // srcdoc = sanitized HTML (already cleaned at import). The iframe
+      // renders the design as it'll ship — small thumbnail, click to open
+      // full preview panel.
       customView.innerHTML = `
-        <h3>🎨 Designed in Claude.ai</h3>
-        <p>This letter is a custom HTML design imported from Claude.ai. The renderer outputs your HTML exactly. To change content, re-design in Claude.ai and re-import.</p>
-        <div class="custom-html-preview">${esc(preview)}${state.letter.customHtml.length > 240 ? '…' : ''}</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn btn-accent" onclick="openImportHtmlModal(true)">↻ Re-import HTML</button>
-          <button class="btn" onclick="convertCustomToSections()">Convert to sections</button>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <span style="background:var(--accent-pale);color:var(--accent);padding:5px 11px;font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;border-radius:99px;">🎨 Custom HTML · Ready to send</span>
+          <span style="color:var(--muted);font-size:11px;">${bytes} KB · designed in Claude.ai</span>
+        </div>
+        <h3>Your letter is ready.</h3>
+        <p style="margin-bottom:14px;">Two steps to ship it:</p>
+        <ol style="margin:0 0 18px 18px;padding:0;color:var(--text-soft);font-size:14px;line-height:1.7;">
+          <li>Click <strong>👁 Preview</strong> in the top bar — see exactly what subscribers will see.</li>
+          <li>Click <strong>Send</strong> — choose <em>"Just to me"</em> first to test, then <em>"All subscribers"</em> when happy.</li>
+        </ol>
+        <iframe class="custom-letter-thumb" sandbox="allow-same-origin" id="customLetterThumb"></iframe>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button class="btn" onclick="togglePreviewPanel()">👁 Open full preview</button>
+          <button class="btn" onclick="openImportHtmlModal(true)">↻ Re-import HTML</button>
+          <button class="btn btn-ghost-danger" onclick="convertCustomToSections()" style="margin-left:auto;font-size:11px;">Convert to editable text →</button>
         </div>
       `;
       customView.style.display = '';
+      // Render the actual HTML inside the thumbnail iframe
+      const iframe = document.getElementById('customLetterThumb');
+      if (iframe) {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        doc.open(); doc.write(html); doc.close();
+      }
     } else {
       if (customView) customView.style.display = 'none';
       sectionsList.style.display = '';
@@ -3541,16 +3567,59 @@
     if (e.target.closest('.ce-style-btn')) return;
     closeCeStylePopover();
   });
+  // Extract clean paragraph-separated text from arbitrary HTML.
+  // Used by Convert to sections so the user keeps her CONTENT even if
+  // she loses the custom layout. Strips scripts/styles/HTML chrome,
+  // preserves paragraph breaks via <p> and <br>.
+  function extractTextFromCustomHtml(html) {
+    if (!html) return '';
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    doc.querySelectorAll('script, style, head, link, meta, noscript').forEach(el => el.remove());
+    // Walk and convert structural breaks to newlines
+    let walker = doc.body || doc.documentElement;
+    const blockTags = new Set(['P','DIV','H1','H2','H3','H4','H5','H6','LI','TR','TD','BLOCKQUOTE','SECTION','ARTICLE']);
+    function recurse(node) {
+      let out = '';
+      for (const child of node.childNodes) {
+        if (child.nodeType === 3) {
+          out += child.textContent;
+        } else if (child.nodeType === 1) {
+          const tag = child.tagName;
+          if (tag === 'BR') out += '\n';
+          else if (blockTags.has(tag)) out += recurse(child) + '\n\n';
+          else out += recurse(child);
+        }
+      }
+      return out;
+    }
+    return recurse(walker)
+      .replace(/[ \t]+/g, ' ')
+      .replace(/\n{3,}/g, '\n\n')
+      .replace(/^\s+|\s+$/g, '');
+  }
+
   async function convertCustomToSections() {
     if (!state.letter || state.letter.type !== 'custom') return;
-    if (!confirm('Convert to a sections letter? This drops the custom HTML and starts a fresh sections-based draft. The HTML will be lost — copy it elsewhere first if you want to keep it.')) return;
+    const text = extractTextFromCustomHtml(state.letter.customHtml || '');
+    const wordCount = text.split(/\s+/).filter(Boolean).length;
+    const msg = `Convert this design into editable sections?\n\nKeeps your text (~${wordCount} words). Loses the custom HTML layout — you'll edit the text in plain Free Letter sections.\n\n(The custom HTML stays in this letter until you save changes — you can re-import anytime.)`;
+    if (!confirm(msg)) return;
     try {
+      const sectionId = 's_' + Math.random().toString(36).slice(2, 12);
       await api('/api/studio/letters?id=' + encodeURIComponent(state.letter.id), {
         method: 'PATCH',
-        body: JSON.stringify({ type: 'sections', customHtml: '' }),
+        body: JSON.stringify({
+          type: 'sections',
+          customHtml: '',
+          sections: text ? [{
+            id: sectionId,
+            type: 'freeletter',
+            fields: { body: text },
+          }] : [],
+        }),
       });
       await openLetter(state.letter.id);
-      showToast('Converted', 'Now a sections letter. Add sections from the rail.', 'info');
+      showToast('Converted', text ? `${wordCount} words preserved as a Free Letter section.` : 'Started fresh — add sections from the inline + bar.', 'success');
     } catch (e) { showToast('Convert failed', e.message, 'error'); }
   }
 

@@ -526,12 +526,82 @@
     outline: 0; cursor: text; min-height: 1em;
     transition: background .12s, box-shadow .12s;
     border-radius: 2px;
+    position: relative;
   }
   .ce:hover  { background: rgba(220,38,38,0.04); }
   .ce:focus  { background: rgba(220,38,38,0.06); box-shadow: 0 0 0 2px rgba(220,38,38,0.16); }
   .ce[data-empty]:not(:focus)::before {
     content: attr(data-empty);
     color: var(--muted); font-style: italic; opacity: 0.65;
+  }
+
+  /* Per-element style button — appears on hover, opens color/font popover */
+  .ce-style-btn {
+    position: absolute;
+    top: -10px; right: -10px;
+    width: 22px; height: 22px;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    color: var(--accent);
+    font-size: 11px;
+    cursor: pointer;
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 5;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: transform .12s;
+  }
+  .ce:hover > .ce-style-btn,
+  .ce:focus > .ce-style-btn,
+  .ce-style-btn:hover { display: flex; }
+  .ce-style-btn:hover { transform: scale(1.15); }
+
+  /* Element style popover — opens when ce-style-btn clicked */
+  .ce-style-popover {
+    position: fixed;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+    z-index: 60;
+    border-radius: 4px;
+    padding: 12px 14px;
+    min-width: 240px;
+    display: none;
+  }
+  .ce-style-popover.shown { display: block; }
+  .ce-style-popover .row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 0;
+  }
+  .ce-style-popover .row + .row { border-top: 1px solid var(--border-soft); }
+  .ce-style-popover label {
+    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted); font-weight: 700; flex: 0 0 60px;
+  }
+  .ce-style-popover .swatch {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--border); cursor: pointer; padding: 0; background: none;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 2px #fff;
+  }
+  .ce-style-popover .swatch input {
+    width: 100%; height: 100%; border: 0; padding: 0; cursor: pointer; background: var(--bg);
+  }
+  .ce-style-popover select {
+    flex: 1; padding: 6px 8px; border: 1px solid var(--border);
+    border-radius: 2px; font-family: var(--body-font); font-size: 13px;
+  }
+  .ce-style-popover .reset-link {
+    background: none; border: 0; color: var(--muted);
+    font-size: 11px; cursor: pointer; padding: 4px 0;
+    font-family: var(--body-font);
+  }
+  .ce-style-popover .reset-link:hover { color: var(--danger); }
+  .ce-style-popover .meta {
+    font-size: 10px; color: var(--muted); margin-top: 6px;
+    line-height: 1.5; padding-top: 6px;
+    border-top: 1px solid var(--border-soft);
   }
 
   /* Inline insert toolbar between sections + at the end of the letter */
@@ -1374,12 +1444,7 @@
         </div>
       </div>
 
-      <div class="rail-label" style="margin:20px 0 10px;">Sections</div>
       <div class="sections-list" id="sectionsList"></div>
-
-      <div style="margin-top:16px;">
-        <div style="font-size:11px;color:var(--muted);">Tip: add sections from the left rail. Drag isn't wired yet — use the up/down arrows.</div>
-      </div>
 
       <div style="margin-top:36px;padding-top:20px;border-top:1px solid var(--border-soft);display:flex;justify-content:flex-end;">
         <button class="btn btn-ghost-danger" onclick="deleteCurrentLetter()" id="deleteLetterBtn" style="font-size:12px;">Delete this letter</button>
@@ -1406,6 +1471,29 @@
       <iframe class="preview-frame" id="previewFrame" title="Letter preview"></iframe>
     </div>
   </div>
+</div>
+
+<!-- ─── Per-element style popover ─── -->
+<div class="ce-style-popover" id="ceStylePopover">
+  <div class="row">
+    <label>Color</label>
+    <span class="swatch"><input type="color" id="ceStyleColor"></span>
+    <code id="ceStyleColorHex" style="font-size:11px;color:var(--muted);">default</code>
+  </div>
+  <div class="row">
+    <label>Font</label>
+    <select id="ceStyleFont">
+      <option value="">Brand default</option>
+      <option value="'Cormorant Garamond', Georgia, serif">Cormorant Garamond</option>
+      <option value="Georgia, serif">Georgia</option>
+      <option value="'DM Sans', Arial, sans-serif">DM Sans</option>
+      <option value="'Helvetica Neue', Arial, sans-serif">Helvetica</option>
+      <option value="'Times New Roman', serif">Times</option>
+      <option value="ui-monospace, 'SF Mono', Menlo, monospace">Mono</option>
+    </select>
+  </div>
+  <button class="reset-link" id="ceStyleReset">Reset to brand default</button>
+  <div class="meta">Use this for accents — keep your overall look consistent via Brand &amp; Look (gear in preview).</div>
 </div>
 
 <!-- ─── Brand drawer (right-slide) ─── -->
@@ -2283,6 +2371,8 @@
 
     // Bind canvas-wide event delegation (text edits, list ops, etc.)
     setupCanvasHandlers(canvas);
+    // Attach per-element 🎨 style buttons + apply existing overrides
+    attachCeStyleButtons(canvas);
   }
 
   function buildVisualSectionCard(sec, idx, total) {
@@ -2528,6 +2618,131 @@
     sel.removeAllRanges();
     sel.addRange(range);
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  // PER-ELEMENT STYLE POPOVER (escape hatch from global brand)
+  // Click 🎨 on any text element → set color + font for THAT element only.
+  // Stored on section.fields._styles[key] = { color, fontFamily }.
+  // Renderer applies inline. Brand drawer is the global default;
+  // this is the parallel-mode override for one-off accents.
+  // ═══════════════════════════════════════════════════════════════
+  state.activeCeKey = null;
+  state.activeCeSection = null;
+
+  function attachCeStyleButtons(canvas) {
+    canvas.querySelectorAll('.ce').forEach(ce => {
+      // Don't double-attach
+      if (ce.querySelector('.ce-style-btn')) return;
+      // Apply existing inline overrides for live in-editor visual fidelity
+      applyCeStylesToElement(ce);
+      const btn = document.createElement('button');
+      btn.className = 'ce-style-btn';
+      btn.title = 'Color & font for this element';
+      btn.textContent = '🎨';
+      btn.onclick = (e) => {
+        e.stopPropagation(); e.preventDefault();
+        openCeStylePopover(ce);
+      };
+      ce.appendChild(btn);
+    });
+  }
+
+  function applyCeStylesToElement(ce) {
+    const card = ce.closest('.section-card');
+    if (!card) return;
+    const idx = Number(card.dataset.sectionIdx);
+    const sec = state.letter?.sections?.[idx];
+    if (!sec) return;
+    const key = ce.dataset.key;
+    const style = sec.fields?._styles?.[key];
+    if (!style) {
+      ce.style.color = '';
+      ce.style.fontFamily = '';
+      return;
+    }
+    if (style.color)      ce.style.color = style.color;
+    if (style.fontFamily) ce.style.fontFamily = style.fontFamily;
+  }
+
+  function openCeStylePopover(ce) {
+    const pop = document.getElementById('ceStylePopover');
+    const card = ce.closest('.section-card');
+    if (!card) return;
+    const idx = Number(card.dataset.sectionIdx);
+    const sec = state.letter.sections[idx];
+    state.activeCeKey = ce.dataset.key;
+    state.activeCeSection = sec;
+    state.activeCeEl = ce;
+
+    const current = sec.fields?._styles?.[ce.dataset.key] || {};
+    const colorInput = document.getElementById('ceStyleColor');
+    const fontSel = document.getElementById('ceStyleFont');
+    const colorHex = document.getElementById('ceStyleColorHex');
+    // Default color = computed style of the element
+    const computed = window.getComputedStyle(ce);
+    const rgb = computed.color;
+    const m = rgb.match(/(\d+),\s*(\d+),\s*(\d+)/);
+    const fallbackHex = m ? '#' + [m[1], m[2], m[3]].map(n => Number(n).toString(16).padStart(2, '0')).join('') : '#000000';
+    colorInput.value = current.color || fallbackHex;
+    colorHex.textContent = current.color || 'default';
+    fontSel.value = current.fontFamily || '';
+
+    // Position near the element
+    const rect = ce.getBoundingClientRect();
+    pop.style.top  = Math.min(window.innerHeight - 220, rect.bottom + 8) + 'px';
+    pop.style.left = Math.min(window.innerWidth - 280, Math.max(8, rect.left)) + 'px';
+    pop.classList.add('shown');
+  }
+
+  function closeCeStylePopover() {
+    document.getElementById('ceStylePopover').classList.remove('shown');
+    state.activeCeKey = null;
+    state.activeCeSection = null;
+    state.activeCeEl = null;
+  }
+
+  function setCeStyle(field, value) {
+    const sec = state.activeCeSection;
+    const key = state.activeCeKey;
+    if (!sec || !key) return;
+    if (!sec.fields._styles) sec.fields._styles = {};
+    if (!sec.fields._styles[key]) sec.fields._styles[key] = {};
+    if (value === '' || value == null) {
+      delete sec.fields._styles[key][field];
+      if (!Object.keys(sec.fields._styles[key]).length) delete sec.fields._styles[key];
+    } else {
+      sec.fields._styles[key][field] = value;
+    }
+    if (state.activeCeEl) applyCeStylesToElement(state.activeCeEl);
+    scheduleSave();
+  }
+
+  // Wire popover controls (once)
+  document.getElementById('ceStyleColor').addEventListener('input', e => {
+    document.getElementById('ceStyleColorHex').textContent = e.target.value;
+    setCeStyle('color', e.target.value);
+  });
+  document.getElementById('ceStyleFont').addEventListener('change', e => {
+    setCeStyle('fontFamily', e.target.value);
+  });
+  document.getElementById('ceStyleReset').onclick = () => {
+    const sec = state.activeCeSection;
+    const key = state.activeCeKey;
+    if (sec?.fields?._styles?.[key]) {
+      delete sec.fields._styles[key];
+      if (state.activeCeEl) applyCeStylesToElement(state.activeCeEl);
+      document.getElementById('ceStyleColorHex').textContent = 'default';
+      document.getElementById('ceStyleFont').value = '';
+      scheduleSave();
+    }
+  };
+  document.addEventListener('click', e => {
+    const pop = document.getElementById('ceStylePopover');
+    if (!pop.classList.contains('shown')) return;
+    if (e.target.closest('#ceStylePopover')) return;
+    if (e.target.closest('.ce-style-btn')) return;
+    closeCeStylePopover();
+  });
   async function convertCustomToSections() {
     if (!state.letter || state.letter.type !== 'custom') return;
     if (!confirm('Convert to a sections letter? This drops the custom HTML and starts a fresh sections-based draft. The HTML will be lost — copy it elsewhere first if you want to keep it.')) return;

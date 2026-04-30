@@ -24,9 +24,10 @@
     --display-font: 'Cormorant Garamond', Georgia, serif;
     --body-font:    'DM Sans', 'Helvetica Neue', Arial, sans-serif;
 
-    --pane-rail:    280px;
-    --pane-preview: 460px;
+    --pane-rail:    240px;
+    --pane-preview: 0px;          /* preview is now a slide-in panel, not a column */
     --topbar-h:     56px;
+    --canvas-max:   720px;        /* visual letter canvas max width */
   }
 
   * { box-sizing: border-box; }
@@ -78,7 +79,7 @@
   /* ── Layout ──────────────────────────────────────────── */
   .layout {
     display: grid;
-    grid-template-columns: var(--pane-rail) 1fr var(--pane-preview);
+    grid-template-columns: var(--pane-rail) 1fr;
     height: calc(100vh - var(--topbar-h));
     overflow: hidden;
   }
@@ -89,14 +90,26 @@
     padding: 14px 14px 80px;
   }
   .pane-letter {
-    background: var(--bg);
-    padding: 22px 28px 80px;
+    background: var(--surface-alt);
+    padding: 32px 28px 120px;
   }
+  /* Preview is now a togglable right-slide panel */
   .pane-preview {
+    position: fixed;
+    top: var(--topbar-h);
+    right: 0;
+    bottom: 0;
+    width: 480px; max-width: 92vw;
     background: var(--surface-alt);
     border-left: 1px solid var(--border);
     padding: 14px;
+    z-index: 40;
+    transform: translateX(100%);
+    transition: transform .25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -24px 0 60px rgba(0,0,0,0.18);
+    overflow-y: auto;
   }
+  .pane-preview.shown { transform: translateX(0); }
 
   /* ── Buttons ─────────────────────────────────────────── */
   .btn {
@@ -437,42 +450,286 @@
   }
   .letter-meta input:focus { border-bottom-color: var(--accent); }
 
-  .sections-list { display: flex; flex-direction: column; gap: 10px; }
-  .section-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 2px;
-    transition: border-color .12s, box-shadow .12s;
+  /* ── Visual letter canvas (the email-as-editor) ────────── */
+  .letter-canvas {
+    max-width: var(--canvas-max);
+    margin: 0 auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 18px 60px rgba(0,0,0,0.07);
   }
-  .section-card:hover { border-color: var(--text); }
-  .section-card.expanded { border-color: var(--accent); box-shadow: 0 6px 20px rgba(220,38,38,0.08); }
+  .letter-canvas-head {
+    padding: 32px 48px 8px; text-align: center;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .letter-canvas-role {
+    font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px;
+  }
+  .letter-canvas-name {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 32px; color: var(--text); line-height: 1.1;
+    border: 0; outline: 0; background: transparent; width: 100%;
+    text-align: center;
+  }
+  .letter-canvas-name:focus { color: var(--accent); }
+  .letter-canvas-rule {
+    width: 40px; height: 1px; margin: 16px auto 0;
+    background: var(--accent); opacity: 0.6;
+  }
 
-  .section-head {
-    display: flex; align-items: center; padding: 12px 16px;
-    cursor: pointer; gap: 12px;
+  .sections-list { display: flex; flex-direction: column; }
+  .section-card {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid transparent;
+    transition: border-color .12s, background .12s;
   }
-  .drag-handle {
-    cursor: grab;
-    color: var(--muted); font-size: 14px; line-height: 1;
-    padding: 4px 2px; user-select: none;
-    transition: color .12s;
-  }
-  .drag-handle:hover { color: var(--text); }
-  .drag-handle:active { cursor: grabbing; }
+  .section-card:hover { border-color: var(--border-soft); }
+  .section-card.expanded { border-color: var(--accent); }
   .section-card.dragging { opacity: 0.4; }
   .section-card.drop-above { border-top: 3px solid var(--accent); }
   .section-card.drop-below { border-bottom: 3px solid var(--accent); }
-  .section-emoji { font-size: 18px; }
-  .section-label {
-    font-family: var(--display-font); font-size: 20px; font-weight: 500;
-    color: var(--text); flex: 1; min-width: 0;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+
+  /* Floating section badge — appears on hover with type label + actions */
+  .section-badge {
+    position: absolute; top: 8px; right: 8px;
+    display: flex; align-items: center; gap: 4px;
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 4px 6px; border-radius: 99px;
+    opacity: 0; transition: opacity .12s;
+    z-index: 4;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
   }
-  .section-summary {
-    font-size: 12px; color: var(--muted);
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    max-width: 220px;
+  .section-card:hover .section-badge,
+  .section-card.expanded .section-badge { opacity: 1; }
+  .section-badge .label {
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; padding: 0 6px 0 4px;
   }
-  .section-actions { display: flex; gap: 4px; align-items: center; }
+  .section-badge .icon-btn {
+    width: 22px; height: 22px; font-size: 12px;
+  }
+  .drag-handle {
+    position: absolute; left: -28px; top: 50%; transform: translateY(-50%);
+    cursor: grab;
+    color: var(--muted); font-size: 14px; line-height: 1;
+    padding: 6px 4px; user-select: none;
+    opacity: 0; transition: opacity .12s, color .12s;
+  }
+  .drag-handle:hover { color: var(--text); }
+  .drag-handle:active { cursor: grabbing; }
+  .section-card:hover .drag-handle { opacity: 1; }
+
+  /* Editable text spans inside section cards */
+  .ce {
+    outline: 0; cursor: text; min-height: 1em;
+    transition: background .12s, box-shadow .12s;
+    border-radius: 2px;
+  }
+  .ce:hover  { background: rgba(220,38,38,0.04); }
+  .ce:focus  { background: rgba(220,38,38,0.06); box-shadow: 0 0 0 2px rgba(220,38,38,0.16); }
+  .ce[data-empty]:not(:focus)::before {
+    content: attr(data-empty);
+    color: var(--muted); font-style: italic; opacity: 0.65;
+  }
+
+  /* Inline insert toolbar between sections + at the end of the letter */
+  .insert-bar {
+    position: relative;
+    height: 32px; margin: 4px 0;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity .12s, height .15s;
+  }
+  .insert-bar:hover, .insert-bar.always-show { opacity: 1; }
+  .sections-list:hover .insert-bar { opacity: 0.5; }
+  .sections-list:hover .insert-bar:hover { opacity: 1; }
+  .insert-bar::before {
+    content: ''; position: absolute; inset: 50% 0 50% 0;
+    border-top: 1px dashed var(--border);
+    pointer-events: none;
+  }
+  .insert-bar .insert-pop {
+    position: relative; z-index: 1;
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 4px 6px; border-radius: 99px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+  }
+  .insert-chip {
+    appearance: none; background: transparent; border: 0;
+    cursor: pointer; padding: 4px 9px; border-radius: 99px;
+    font-family: var(--body-font); font-size: 11px; font-weight: 600;
+    color: var(--text-soft); letter-spacing: 0.04em;
+    display: inline-flex; align-items: center; gap: 4px;
+    transition: background .12s, color .12s;
+  }
+  .insert-chip:hover { background: var(--accent-pale); color: var(--accent); }
+  .insert-chip .plus { color: var(--muted); margin-right: 1px; font-weight: 700; }
+  .insert-chip:hover .plus { color: var(--accent); }
+
+  /* Insert popover — shows when an insert chip needs more options */
+  .insert-popover {
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    margin-top: 6px;
+    background: var(--surface); border: 1px solid var(--accent);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.14);
+    z-index: 20; padding: 8px;
+    min-width: 280px; max-width: 360px;
+    border-radius: 4px;
+    display: none;
+  }
+  .insert-popover.shown { display: block; }
+  .insert-popover h5 {
+    font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--muted); font-weight: 700; margin: 0 0 8px 4px;
+  }
+  .insert-popover .item {
+    display: block; width: 100%; text-align: left;
+    background: transparent; border: 0; cursor: pointer;
+    padding: 8px 10px; border-radius: 3px;
+    font-family: var(--body-font); font-size: 13px; color: var(--text);
+    transition: background .12s;
+  }
+  .insert-popover .item:hover { background: var(--accent-pale); color: var(--accent); }
+  .insert-popover .item .meta { display: block; font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+  /* Section type-specific styles inside the canvas */
+  .vc-kicker {
+    font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--muted); padding: 30px 48px 4px;
+  }
+  .vc-h2 {
+    font-family: var(--display-font); font-weight: 500;
+    font-size: 30px; line-height: 1.15; letter-spacing: -0.01em;
+    color: var(--text); padding: 0 48px 12px;
+  }
+  .vc-body {
+    font-size: 16px; line-height: 1.75; color: var(--text-soft);
+    padding: 6px 48px 20px;
+  }
+  .vc-body p { margin: 0 0 14px; }
+  .vc-quote {
+    margin: 4px 48px 16px;
+    background: rgba(220,38,38,0.045);
+    border: 1px solid var(--border-soft);
+    border-left: 3px solid var(--accent);
+    padding: 22px 28px;
+  }
+  .vc-quote .verse {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 19px; color: var(--text); line-height: 1.45;
+  }
+  .vc-quote .ref {
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--accent); margin-top: 10px;
+  }
+  .vc-list {
+    padding: 4px 48px 12px;
+    display: flex; flex-direction: column; gap: 0;
+  }
+  .vc-list-item {
+    padding: 8px 0; border-bottom: 1px solid var(--border-soft);
+    font-size: 14px; color: var(--text-soft); line-height: 1.5;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .vc-list-item .num { color: var(--muted); font-weight: 600; flex-shrink: 0; }
+  .vc-list-item .x {
+    cursor: pointer; color: var(--muted); font-size: 14px;
+    background: none; border: 0; padding: 0 4px;
+    opacity: 0;
+  }
+  .vc-list-item:hover .x { opacity: 1; }
+  .vc-list-item .x:hover { color: var(--danger); }
+  .vc-add-item {
+    appearance: none; background: transparent; border: 1px dashed var(--border);
+    cursor: pointer; padding: 7px 12px;
+    margin: 8px 48px; border-radius: 99px;
+    font-size: 11px; color: var(--muted);
+    align-self: flex-start;
+  }
+  .vc-add-item:hover { color: var(--accent); border-color: var(--accent); }
+
+  .vc-img-row { padding: 8px 48px 16px; text-align: center; }
+  .vc-img-row img { max-width: 100%; height: auto; border: 1px solid var(--border); }
+  .vc-img-empty {
+    display: inline-block; padding: 30px 60px; background: var(--surface-alt);
+    border: 1px dashed var(--border); color: var(--muted); font-size: 12px;
+    cursor: pointer;
+  }
+  .vc-img-empty:hover { color: var(--accent); border-color: var(--accent); }
+
+  .vc-cta {
+    text-align: center; padding: 16px 48px 8px;
+  }
+  .vc-cta .btn-render {
+    display: inline-block; background: var(--text); color: var(--bg);
+    padding: 14px 32px; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    border: 0; border-radius: 0;
+  }
+
+  /* Drops + Q&A item rendering inside canvas */
+  .vc-drops { padding: 4px 48px 16px; }
+  .vc-drop-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 0; border-bottom: 1px solid var(--border-soft);
+  }
+  .vc-drop-row .img {
+    width: 64px; height: 64px; flex-shrink: 0;
+    background: var(--surface-alt); border: 1px solid var(--border);
+    background-size: cover; background-position: center;
+  }
+  .vc-drop-row .meta { flex: 1; min-width: 0; }
+  .vc-drop-row .brand {
+    font-family: var(--display-font); font-size: 18px;
+    font-weight: 500; color: var(--text);
+  }
+  .vc-drop-row .desc {
+    font-size: 13px; color: var(--text-soft); margin-top: 2px;
+  }
+  .vc-drop-row .code {
+    background: var(--accent-pale); color: var(--accent);
+    font-family: 'DM Mono','SF Mono',Menlo,monospace;
+    font-size: 11px; padding: 4px 9px; letter-spacing: 0.06em;
+    border-radius: 2px; flex-shrink: 0;
+  }
+  .vc-drop-row .x {
+    background: none; border: 0; cursor: pointer; padding: 0 4px;
+    color: var(--muted); font-size: 14px; opacity: 0;
+  }
+  .vc-drop-row:hover .x { opacity: 1; }
+  .vc-drop-row .x:hover { color: var(--danger); }
+
+  .vc-qa { padding: 4px 48px 12px; display: flex; flex-direction: column; gap: 14px; }
+  .vc-qa-pair { padding: 12px 0; border-bottom: 1px solid var(--border-soft); }
+  .vc-qa-asker { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .vc-qa-question {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 18px; color: var(--text); line-height: 1.4; margin-bottom: 10px;
+  }
+  .vc-qa-answer { font-size: 15px; color: var(--text-soft); line-height: 1.7; }
+
+  .vc-letter-footer {
+    text-align: center; padding: 32px 48px 28px;
+    border-top: 1px solid var(--border-soft);
+  }
+  .vc-letter-footer .signoff {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 13px; color: var(--accent); opacity: 0.85;
+    margin-bottom: 18px;
+  }
+  .vc-letter-footer .name {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 26px; color: var(--text); line-height: 1.15;
+  }
+  .vc-letter-footer .role {
+    font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--muted); margin-top: 6px;
+  }
+
+  /* Shared icon button used by section badge + toolbars */
   .icon-btn {
     appearance: none; background: transparent; border: 1px solid transparent;
     width: 28px; height: 28px; cursor: pointer; color: var(--muted);
@@ -481,31 +738,6 @@
   }
   .icon-btn:hover { background: var(--surface-alt); color: var(--text); border-color: var(--border); }
   .icon-btn.danger:hover { color: var(--danger); border-color: var(--danger); }
-
-  .section-body {
-    border-top: 1px solid var(--border-soft);
-    padding: 16px 18px;
-    display: none;
-  }
-  .section-card.expanded .section-body { display: block; }
-
-  .field-block { margin-bottom: 14px; }
-  .field-block:last-child { margin-bottom: 0; }
-  .field-block label {
-    display: block;
-    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--muted); font-weight: 600; margin-bottom: 5px;
-  }
-  .field-block input, .field-block textarea {
-    width: 100%; appearance: none;
-    background: var(--bg); border: 1px solid var(--border);
-    color: var(--text); font-family: var(--body-font);
-    font-size: 14px; padding: 9px 11px; border-radius: 2px;
-  }
-  .field-block textarea { min-height: 80px; resize: vertical; line-height: 1.55; }
-  .field-block input:focus, .field-block textarea:focus {
-    outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-pale);
-  }
 
   /* List-of-items field (favorites items, qa pairs) */
   .field-list { display: flex; flex-direction: column; gap: 10px; }
@@ -1041,15 +1273,15 @@
   </div>
 </div>
 
-<!-- Top bar -->
+<!-- Top bar — stripped to essentials -->
 <div class="topbar">
   <a class="back" href="/hub">← Hub</a>
-  <div class="brand">Letter Studio</div>
   <input class="letter-title" id="letterTitle" placeholder="Untitled letter">
   <div class="save-indicator" id="saveIndicator"></div>
-  <button class="btn dwc-button" onclick="openDwcModal()" title="Design with Claude — alternate route to a custom HTML letter" style="background:linear-gradient(135deg,#fff,var(--accent-pale));border-color:var(--accent);color:var(--accent);">🎨 Design with Claude</button>
+  <button class="btn dwc-button" onclick="openDwcModal()" title="Design with Claude — Generate the letter or design custom HTML in Claude.ai">🎨 Generate with Claude</button>
   <button class="icon-btn" onclick="startStudioTutorial()" title="Show me around" style="width:32px;height:32px;font-size:16px;">🎯</button>
   <button class="btn" id="newLetterBtn" onclick="newLetter()">+ New</button>
+  <button class="btn" onclick="togglePreviewPanel()" id="previewToggleBtn" title="Toggle final email preview (shows what subscribers see)" style="font-size:13px;">👁 Preview</button>
   <button class="btn btn-accent" id="sendBtn" onclick="openSendModal()" disabled>Send</button>
 </div>
 
@@ -1803,7 +2035,6 @@
     const isCustom = state.letter.type === 'custom';
 
     if (isCustom) {
-      // Hide section editor, show the custom HTML view
       sectionsList.style.display = 'none';
       if (!customView) {
         customView = document.createElement('div');
@@ -1814,7 +2045,7 @@
       const preview = (state.letter.customHtml || '').slice(0, 240);
       customView.innerHTML = `
         <h3>🎨 Designed in Claude.ai</h3>
-        <p>This letter is a custom HTML design imported from Claude.ai. The renderer outputs your HTML exactly — no section system, no editing in fields. To change content, re-design in Claude.ai and re-import.</p>
+        <p>This letter is a custom HTML design imported from Claude.ai. The renderer outputs your HTML exactly. To change content, re-design in Claude.ai and re-import.</p>
         <div class="custom-html-preview">${esc(preview)}${state.letter.customHtml.length > 240 ? '…' : ''}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn btn-accent" onclick="openImportHtmlModal(true)">↻ Re-import HTML</button>
@@ -1823,11 +2054,479 @@
       `;
       customView.style.display = '';
     } else {
-      // Section letter — hide custom view if it exists, show sections editor
       if (customView) customView.style.display = 'none';
       sectionsList.style.display = '';
-      renderSections();
+      renderVisualCanvas();
     }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // VISUAL CANVAS — the letter renders in-place as the editing surface
+  // Each section is shown in its email-like styling. Text fields are
+  // contenteditable spans (.ce). Editing them updates state.letter.sections
+  // via event delegation in setupCanvasHandlers().
+  // ═══════════════════════════════════════════════════════════════
+
+  // HTML-attribute-safe escape for raw user text dropped into innerHTML.
+  // Don't use this on already-escaped output.
+  function ceText(v) { return esc(v == null ? '' : String(v)); }
+
+  // Build a contenteditable span with field metadata
+  function ceSpan(key, value, placeholder, extraClass = '', attrs = '') {
+    const empty = (!value || !String(value).trim());
+    return `<span class="ce ${extraClass}" data-key="${esc(key)}" contenteditable="plaintext-only"${empty ? ` data-empty="${esc(placeholder || '')}"` : ''} ${attrs}>${ceText(value)}</span>`;
+  }
+
+  // Multi-line contenteditable (paragraph divider via Enter)
+  function ceBlock(key, value, placeholder, extraClass = '') {
+    const empty = (!value || !String(value).trim());
+    // Render existing paragraphs as <p>, but keep contenteditable
+    const html = empty
+      ? ''
+      : String(value).split(/\n{2,}/).map(p => `<p>${ceText(p).replace(/\n/g,'<br>')}</p>`).join('');
+    return `<div class="ce ${extraClass}" data-key="${esc(key)}" data-multiline="1" contenteditable="plaintext-only"${empty ? ` data-empty="${esc(placeholder || '')}"` : ''}>${html}</div>`;
+  }
+
+  // Per-type visual renderers — return inner HTML for the section card.
+  // Each text field is wrapped in a .ce span with a data-key path.
+  const VISUAL = {
+    devotional(sec) {
+      const f = sec.fields || {};
+      return `
+        <div class="vc-kicker">Devotional</div>
+        ${(f.verseText || f.scripture) || sec.id === state.expandedSectionId
+          ? `<div class="vc-quote">
+               <div class="verse">${ceSpan('verseText', f.verseText, 'Scripture verse — paste it here.', '')}</div>
+               <div class="ref">${ceSpan('scripture', f.scripture, 'Reference (e.g. Phil 4:13)', '')}</div>
+             </div>`
+          : ''}
+        <div class="vc-body">${ceBlock('reflection', f.reflection, 'Click to write a short reflection. Or use ✨ Generate below.')}</div>
+      `;
+    },
+    realtalk(sec) {
+      const f = sec.fields || {};
+      return `
+        <div class="vc-kicker">Real Talk</div>
+        <div class="vc-h2">${ceSpan('topic', f.topic, 'Real talk about…')}</div>
+        <div class="vc-body">${ceBlock('body', f.body, 'Write the real-talk section. Specific, lived-in, no platitudes.')}</div>
+      `;
+    },
+    recipe(sec) {
+      const f = sec.fields || {};
+      const ingredients = String(f.ingredients || '').split('\n').map(s => s.trim()).filter(Boolean);
+      const steps = String(f.steps || '').split('\n').map(s => s.trim()).filter(Boolean);
+      return `
+        <div class="vc-kicker">A fun recipe</div>
+        <div class="vc-h2">${ceSpan('title', f.title, 'Recipe name')}</div>
+        ${f.intro || sec.id === state.expandedSectionId
+          ? `<div class="vc-body" style="padding-bottom:8px;font-style:italic;color:var(--muted);">${ceSpan('intro', f.intro, 'One-line intro — when you make this, what it tastes like.')}</div>`
+          : ''}
+        <div class="vc-img-row">
+          ${f.photo
+            ? `<img src="${esc(f.photo)}" alt="${esc(f.title || '')}">`
+            : `<div class="vc-img-empty" data-act="upload-photo" data-sec-id="${esc(sec.id)}">Click to add a photo URL</div>`}
+        </div>
+        <div class="vc-kicker" style="padding-top:0;">Ingredients</div>
+        <div class="vc-list">${ingredients.length
+          ? ingredients.map((line, i) => `<div class="vc-list-item"><span class="num">·</span><span class="ce" data-key="ingredients" data-line="${i}" contenteditable="plaintext-only">${ceText(line)}</span></div>`).join('')
+          : '<div class="vc-list-item"><span class="num">·</span><span class="ce" data-key="ingredients" data-line="0" data-empty="One ingredient per line" contenteditable="plaintext-only"></span></div>'}
+          <button class="vc-add-item" data-act="add-line" data-key="ingredients" data-sec-id="${esc(sec.id)}">+ ingredient</button>
+        </div>
+        <div class="vc-kicker" style="padding-top:0;">Steps</div>
+        <div class="vc-list">${steps.length
+          ? steps.map((line, i) => `<div class="vc-list-item"><span class="num">${i + 1}.</span><span class="ce" data-key="steps" data-line="${i}" contenteditable="plaintext-only">${ceText(line)}</span></div>`).join('')
+          : '<div class="vc-list-item"><span class="num">1.</span><span class="ce" data-key="steps" data-line="0" data-empty="One step per line" contenteditable="plaintext-only"></span></div>'}
+          <button class="vc-add-item" data-act="add-line" data-key="steps" data-sec-id="${esc(sec.id)}">+ step</button>
+        </div>
+      `;
+    },
+    drops(sec) {
+      const f = sec.fields || {};
+      const allDrops = state.railDrops || [];
+      const cap = state.studioConfig?.maxDropsPerLetter || 4;
+      const selected = (Array.isArray(f.selectedDropIds) && f.selectedDropIds.length)
+        ? allDrops.filter(d => f.selectedDropIds.includes(d.id))
+        : allDrops.slice(0, cap);
+      return `
+        <div class="vc-kicker">Drops · use my code</div>
+        <div class="vc-body" style="padding-bottom:6px;">${ceSpan('intro', f.intro, 'A few things dropping this week:')}</div>
+        <div class="vc-drops">
+          ${selected.length
+            ? selected.map(d => `
+                <div class="vc-drop-row">
+                  <div class="img" ${d.image ? `style="background-image:url('${esc(d.image)}')"` : ''}></div>
+                  <div class="meta">
+                    <div class="brand">${esc(d.brand)}</div>
+                    ${d.description ? `<div class="desc">${esc(d.description)}</div>` : ''}
+                  </div>
+                  <span class="code">${esc(d.code)}</span>
+                </div>
+              `).join('')
+            : `<div style="color:var(--muted);font-style:italic;font-size:13px;padding:14px 0;">No active drops yet. <a href="#" data-act="open-drops" style="color:var(--accent);">Add some →</a></div>`}
+        </div>
+      `;
+    },
+    favorites(sec) {
+      const f = sec.fields || {};
+      const items = Array.isArray(f.items) ? f.items : [];
+      return `
+        <div class="vc-kicker">Favorites</div>
+        <div class="vc-body" style="padding-bottom:6px;font-style:italic;">${ceSpan('intro', f.intro, 'Things I keep reaching for:')}</div>
+        <div class="vc-list">
+          ${items.map((it, i) => `
+            <div class="vc-list-item">
+              <span class="num">·</span>
+              <div style="flex:1;">
+                <div style="font-family:var(--display-font);font-size:18px;color:var(--text);font-weight:500;">
+                  ${ceSpan('items.label', it.label, 'Label', '', `data-line="${i}"`)}
+                </div>
+                <div style="font-size:13px;color:var(--text-soft);margin-top:2px;">
+                  ${ceSpan('items.note', it.note, 'Why I love it', '', `data-line="${i}"`)}
+                </div>
+              </div>
+              <button class="x" data-act="remove-list-item" data-key="items" data-line="${i}" data-sec-id="${esc(sec.id)}">×</button>
+            </div>
+          `).join('')}
+          <button class="vc-add-item" data-act="add-list-item" data-key="items" data-sec-id="${esc(sec.id)}">+ favorite</button>
+        </div>
+      `;
+    },
+    qa(sec) {
+      const f = sec.fields || {};
+      const pairs = Array.isArray(f.pairs) ? f.pairs : [];
+      return `
+        <div class="vc-kicker">Q&amp;A</div>
+        <div class="vc-body" style="padding-bottom:6px;font-style:italic;">${ceSpan('intro', f.intro, 'You asked. I answered.')}</div>
+        <div class="vc-qa">
+          ${pairs.length ? pairs.map((p, i) => `
+            <div class="vc-qa-pair">
+              <div class="vc-qa-asker">${ceSpan('pairs.askerLabel', p.askerLabel, 'Anonymous', '', `data-line="${i}"`)} asked</div>
+              <div class="vc-qa-question">"${ceSpan('pairs.question', p.question, 'Their question', '', `data-line="${i}"`)}"</div>
+              <div class="vc-qa-answer">${ceBlock(`pairs.answer:${i}`, p.answer, 'Your honest answer.', '')}</div>
+              <button class="x" style="float:right;color:var(--muted);background:none;border:0;cursor:pointer;font-size:12px;" data-act="remove-list-item" data-key="pairs" data-line="${i}" data-sec-id="${esc(sec.id)}">remove</button>
+            </div>
+          `).join('') : '<div style="color:var(--muted);font-size:13px;font-style:italic;">No questions added yet. Pick from the rail or use ✨ Generate.</div>'}
+          <button class="vc-add-item" data-act="add-list-item" data-key="pairs" data-sec-id="${esc(sec.id)}">+ Q&amp;A pair</button>
+        </div>
+      `;
+    },
+    recap(sec) {
+      const f = sec.fields || {};
+      return `
+        <div class="vc-kicker">In case you missed it</div>
+        <div class="vc-body" style="padding-bottom:6px;font-style:italic;">${ceSpan('intro', f.intro, 'In case you missed it:')}</div>
+        <div class="vc-body" style="font-size:13px;color:var(--muted);font-style:italic;">Recap items will pull from your IG/TikTok stats once that integration ships. For now this section renders a placeholder.</div>
+      `;
+    },
+    giveaway(sec) {
+      const f = sec.fields || {};
+      return `
+        <div class="vc-kicker" style="color:var(--accent);">A surprise giveaway</div>
+        <div class="vc-h2" style="font-size:24px;">${ceSpan('prize', f.prize, 'What\'s the prize?')}</div>
+        <div class="vc-body">${ceBlock('rules', f.rules, 'How to enter — keep it simple.')}</div>
+        <div class="vc-body" style="padding-top:0;font-size:13px;">Entries close <strong>${ceSpan('deadline', f.deadline, 'Sunday at midnight CT')}</strong>.</div>
+        <div class="vc-cta"><span class="btn-render">${ceSpan('cta', f.cta, 'Reply with the word "yes"', '', '')}</span></div>
+      `;
+    },
+    freeletter(sec) {
+      const f = sec.fields || {};
+      return `<div class="vc-body" style="padding-top:30px;">${ceBlock('body', f.body, 'Just write. Or click ✨ Generate to draft from a one-line prompt.')}</div>`;
+    },
+  };
+
+  function renderVisualCanvas() {
+    const wrap = document.getElementById('sectionsList');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+
+    const brand = state.brand || {};
+    const sections = state.letter?.sections || [];
+
+    // Letter canvas wrapper
+    const canvas = document.createElement('div');
+    canvas.className = 'letter-canvas';
+
+    // Header
+    const head = document.createElement('div');
+    head.className = 'letter-canvas-head';
+    head.innerHTML = `
+      <div class="letter-canvas-role">${esc(brand.role || '')}</div>
+      <input class="letter-canvas-name" id="letterCanvasName" value="${esc(state.letter.name || '')}" placeholder="Untitled letter">
+      <div class="letter-canvas-rule"></div>
+    `;
+    canvas.appendChild(head);
+
+    // Sections
+    const sectionsWrap = document.createElement('div');
+    sectionsWrap.className = 'sections-list-inner';
+    canvas.appendChild(sectionsWrap);
+
+    // First insert bar (above sections)
+    sectionsWrap.appendChild(buildInsertBar(0, !sections.length));
+
+    sections.forEach((sec, idx) => {
+      sectionsWrap.appendChild(buildVisualSectionCard(sec, idx, sections.length));
+      sectionsWrap.appendChild(buildInsertBar(idx + 1, false));
+    });
+
+    // Sign-off
+    const foot = document.createElement('div');
+    foot.className = 'vc-letter-footer';
+    foot.innerHTML = `
+      <div class="signoff">— until next time —</div>
+      <div class="name">${esc(brand.name || 'Your name')}</div>
+      <div class="role">${esc(brand.role || '')}</div>
+    `;
+    canvas.appendChild(foot);
+
+    wrap.appendChild(canvas);
+
+    // Bind canvas-wide event delegation (text edits, list ops, etc.)
+    setupCanvasHandlers(canvas);
+  }
+
+  function buildVisualSectionCard(sec, idx, total) {
+    const t = state.sectionTypes[sec.type];
+    const card = document.createElement('div');
+    card.className = 'section-card' + (sec.id === state.expandedSectionId ? ' expanded' : '');
+    card.dataset.sectionIdx = idx;
+    card.dataset.sectionId = sec.id;
+
+    const renderer = VISUAL[sec.type];
+    const inner = renderer ? renderer(sec) : `<div class="vc-body" style="color:var(--danger);padding:20px 48px;">Unknown section type: ${esc(sec.type)}</div>`;
+
+    card.innerHTML = `
+      <span class="drag-handle" draggable="true" title="Drag to reorder">⋮⋮</span>
+      <div class="section-badge">
+        <span class="label">${esc(t?.emoji || '')} ${esc(t?.label || sec.type)}</span>
+        <button class="icon-btn" data-act="ai" title="✨ AI assist">✨</button>
+        <button class="icon-btn" data-act="up" ${idx === 0 ? 'disabled' : ''} title="Move up">↑</button>
+        <button class="icon-btn" data-act="down" ${idx === total - 1 ? 'disabled' : ''} title="Move down">↓</button>
+        <button class="icon-btn danger" data-act="delete" title="Delete section">×</button>
+      </div>
+      ${inner}
+    `;
+
+    // Section-card click → expand (focus that section)
+    card.addEventListener('click', e => {
+      if (e.target.closest('.section-badge')) return;
+      if (e.target.classList.contains('drag-handle')) return;
+      state.expandedSectionId = sec.id;
+      // Just update the .expanded class — don't re-render and lose caret
+      document.querySelectorAll('.section-card').forEach(c => c.classList.remove('expanded'));
+      card.classList.add('expanded');
+    });
+
+    // Badge actions
+    card.querySelector('[data-act="up"]').onclick   = (e) => { e.stopPropagation(); moveSection(idx, -1); };
+    card.querySelector('[data-act="down"]').onclick = (e) => { e.stopPropagation(); moveSection(idx, 1); };
+    card.querySelector('[data-act="delete"]').onclick = (e) => {
+      e.stopPropagation();
+      if (!confirm('Delete this ' + (t?.label || sec.type) + ' section?')) return;
+      deleteSection(idx);
+    };
+    card.querySelector('[data-act="ai"]').onclick = (e) => {
+      e.stopPropagation();
+      openSectionAi(sec);
+    };
+
+    // Drag-drop reorder (existing pattern)
+    const handle = card.querySelector('.drag-handle');
+    handle.addEventListener('dragstart', e => {
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(idx));
+      card.classList.add('dragging');
+    });
+    handle.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      document.querySelectorAll('.section-card').forEach(c => c.classList.remove('drop-above', 'drop-below'));
+    });
+    card.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const rect = card.getBoundingClientRect();
+      const above = (e.clientY - rect.top) < rect.height / 2;
+      card.classList.toggle('drop-above', above);
+      card.classList.toggle('drop-below', !above);
+    });
+    card.addEventListener('dragleave', () => card.classList.remove('drop-above', 'drop-below'));
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      const fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+      const above = card.classList.contains('drop-above');
+      card.classList.remove('drop-above', 'drop-below');
+      if (isNaN(fromIdx) || fromIdx === idx) return;
+      const sections = state.letter.sections;
+      const [moved] = sections.splice(fromIdx, 1);
+      let toIdx = above ? idx : idx + 1;
+      if (fromIdx < idx) toIdx--;
+      sections.splice(toIdx, 0, moved);
+      renderVisualCanvas();
+      scheduleSave();
+    });
+
+    return card;
+  }
+
+  function buildInsertBar(insertIdx, alwaysShow) {
+    const bar = document.createElement('div');
+    bar.className = 'insert-bar' + (alwaysShow ? ' always-show' : '');
+    bar.innerHTML = `
+      <div class="insert-pop">
+        <button class="insert-chip" data-insert="section" title="Add a section"><span class="plus">+</span> Section</button>
+        <button class="insert-chip" data-insert="drop"    title="Insert a Drops section"><span class="plus">+</span> Drop</button>
+        <button class="insert-chip" data-insert="qa"      title="Insert a Q&amp;A from your inbox"><span class="plus">+</span> Q&amp;A</button>
+        <button class="insert-chip" data-insert="preset"  title="Use a preset starter"><span class="plus">+</span> Preset</button>
+        <button class="insert-chip" data-insert="ai"      title="AI generate from a prompt"><span class="plus">✨</span> AI</button>
+        <button class="insert-chip" data-insert="link"    title="Insert a link"><span class="plus">+</span> Link</button>
+        <button class="insert-chip" data-insert="video"   title="Embed a video"><span class="plus">+</span> Video</button>
+      </div>
+      <div class="insert-popover" data-popover></div>
+    `;
+    bar.querySelectorAll('.insert-chip').forEach(b => {
+      b.onclick = (e) => {
+        e.stopPropagation();
+        handleInsertChip(b.dataset.insert, insertIdx, bar);
+      };
+    });
+    // Click outside closes any open popover
+    return bar;
+  }
+  // Close any open insert popover when user clicks outside
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.insert-popover') && !e.target.closest('.insert-chip')) {
+      document.querySelectorAll('.insert-popover.shown').forEach(p => p.classList.remove('shown'));
+    }
+  });
+
+  function setupCanvasHandlers(canvas) {
+    // Letter title input
+    const nameInput = canvas.querySelector('#letterCanvasName');
+    if (nameInput) {
+      nameInput.addEventListener('input', e => {
+        state.letter.name = e.target.value;
+        document.getElementById('letterTitle').value = e.target.value;
+        scheduleSave();
+      });
+    }
+
+    // Contenteditable text fields — debounced save on input
+    canvas.querySelectorAll('.ce').forEach(el => {
+      el.addEventListener('input', () => {
+        const card = el.closest('.section-card');
+        if (!card) return;
+        const idx = Number(card.dataset.sectionIdx);
+        const sec = state.letter.sections[idx];
+        if (!sec) return;
+        const key = el.dataset.key;
+        const lineAttr = el.dataset.line;
+        const isMultiline = el.dataset.multiline === '1';
+        // Read current value off the element
+        let val;
+        if (isMultiline) {
+          // Convert <p>'s back to \n\n separated text, <br> → \n
+          val = Array.from(el.children).map(p => p.innerText).join('\n\n');
+          if (!val) val = el.innerText.trim();
+        } else {
+          val = el.innerText;
+        }
+        applyCeUpdate(sec, key, val, lineAttr);
+        // Clear data-empty placeholder once she's typed
+        if (val.trim()) el.removeAttribute('data-empty');
+        scheduleSave();
+      });
+    });
+
+    // List ops + photo upload + open-drops
+    canvas.querySelectorAll('[data-act]').forEach(el => {
+      el.addEventListener('click', e => {
+        e.stopPropagation();
+        const act = el.dataset.act;
+        const card = el.closest('.section-card');
+        const idx = card ? Number(card.dataset.sectionIdx) : -1;
+        const sec = idx >= 0 ? state.letter.sections[idx] : null;
+        if (act === 'add-line' && sec) {
+          const key = el.dataset.key;
+          const cur = String(sec.fields[key] || '');
+          sec.fields[key] = (cur ? cur + '\n' : '');
+          renderVisualCanvas();
+          scheduleSave();
+          // Focus the newly added line
+          setTimeout(() => {
+            const newCard = document.querySelector(`[data-section-id="${sec.id}"]`);
+            const lines = newCard?.querySelectorAll(`[data-key="${key}"]`);
+            const last = lines && lines[lines.length - 1];
+            if (last) { last.focus(); placeCaretEnd(last); }
+          }, 30);
+        }
+        if (act === 'add-list-item' && sec) {
+          const key = el.dataset.key;
+          if (!Array.isArray(sec.fields[key])) sec.fields[key] = [];
+          sec.fields[key].push(key === 'pairs' ? { question: '', askerLabel: '', answer: '' } : { label: '', note: '' });
+          renderVisualCanvas();
+          scheduleSave();
+        }
+        if (act === 'remove-list-item' && sec) {
+          const key = el.dataset.key;
+          const line = Number(el.dataset.line);
+          if (Array.isArray(sec.fields[key])) {
+            sec.fields[key].splice(line, 1);
+            renderVisualCanvas();
+            scheduleSave();
+          }
+        }
+        if (act === 'upload-photo' && sec) {
+          const url = window.prompt('Paste a photo URL:', '');
+          if (url && url.trim()) {
+            sec.fields.photo = url.trim();
+            renderVisualCanvas();
+            scheduleSave();
+          }
+        }
+        if (act === 'open-drops') {
+          window.open('/hub/studio/drops', '_blank');
+        }
+      });
+    });
+  }
+
+  function applyCeUpdate(sec, key, val, lineAttr) {
+    if (key.includes('.')) {
+      // List item field, e.g. items.label, pairs.answer — line is required
+      const [arrKey, fieldName] = key.split('.');
+      if (!Array.isArray(sec.fields[arrKey])) sec.fields[arrKey] = [];
+      const lineNum = Number(lineAttr);
+      if (Number.isFinite(lineNum)) {
+        if (!sec.fields[arrKey][lineNum]) sec.fields[arrKey][lineNum] = {};
+        sec.fields[arrKey][lineNum][fieldName] = val;
+      }
+    } else if (key.includes(':')) {
+      // pairs.answer:0 — handle the answer-with-line special case
+      const [base, lineNum] = key.split(':');
+      const [arrKey, fieldName] = base.split('.');
+      if (!Array.isArray(sec.fields[arrKey])) sec.fields[arrKey] = [];
+      const ln = Number(lineNum);
+      if (!sec.fields[arrKey][ln]) sec.fields[arrKey][ln] = {};
+      sec.fields[arrKey][ln][fieldName] = val;
+    } else if (lineAttr != null && (key === 'ingredients' || key === 'steps')) {
+      // Newline-separated string: rebuild from individual line edits
+      const lines = String(sec.fields[key] || '').split('\n');
+      const lineNum = Number(lineAttr);
+      while (lines.length <= lineNum) lines.push('');
+      lines[lineNum] = val;
+      sec.fields[key] = lines.join('\n');
+    } else {
+      sec.fields[key] = val;
+    }
+  }
+
+  function placeCaretEnd(el) {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
   }
   async function convertCustomToSections() {
     if (!state.letter || state.letter.type !== 'custom') return;
@@ -1846,16 +2545,8 @@
   // SECTION RENDERING (in letter editor)
   // ═══════════════════════════════════════════════════════════════
   function renderSections() {
-    const wrap = document.getElementById('sectionsList');
-    wrap.innerHTML = '';
-    const sections = state.letter?.sections || [];
-    if (!sections.length) {
-      wrap.innerHTML = `<div style="background:var(--surface);border:1px dashed var(--border);padding:30px;text-align:center;color:var(--muted);font-size:13px;border-radius:2px;">
-        No sections yet. Add one from the rail on the left.
-      </div>`;
-      return;
-    }
-    sections.forEach((sec, idx) => wrap.appendChild(renderSectionCard(sec, idx, sections.length)));
+    // The visual canvas is the new rendering path.
+    renderVisualCanvas();
   }
   function renderSectionCard(sec, idx, total) {
     const t = state.sectionTypes[sec.type];
@@ -2395,6 +3086,303 @@
     document.getElementById('previewDesktop').classList.toggle('active', mode === 'desktop');
     document.getElementById('previewMobile').classList.toggle('active', mode === 'mobile');
     document.getElementById('previewFrame').classList.toggle('mobile', mode === 'mobile');
+  }
+  function togglePreviewPanel() {
+    const panel = document.querySelector('.pane-preview');
+    if (!panel) return;
+    const willShow = !panel.classList.contains('shown');
+    panel.classList.toggle('shown', willShow);
+    document.getElementById('previewToggleBtn').classList.toggle('btn-accent', willShow);
+    if (willShow) refreshPreview();
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // INSERT TOOLBAR — chips between sections that drop in content
+  // ═══════════════════════════════════════════════════════════════
+  function handleInsertChip(action, insertIdx, barEl) {
+    const popover = barEl.querySelector('[data-popover]');
+    // Close any other open popovers
+    document.querySelectorAll('.insert-popover.shown').forEach(p => { if (p !== popover) p.classList.remove('shown'); });
+
+    if (action === 'section') return showInsertSectionMenu(insertIdx, popover);
+    if (action === 'drop')    return showInsertDropMenu(insertIdx, popover);
+    if (action === 'qa')      return showInsertQaMenu(insertIdx, popover);
+    if (action === 'preset')  return showInsertPresetMenu(insertIdx, popover);
+    if (action === 'ai')      return showInsertAiMenu(insertIdx, popover);
+    if (action === 'link')    return showInsertLinkMenu(insertIdx, popover);
+    if (action === 'video')   return showInsertVideoMenu(insertIdx, popover);
+  }
+
+  function popOpen(popover, html) {
+    popover.innerHTML = html;
+    popover.classList.add('shown');
+  }
+
+  function showInsertSectionMenu(insertIdx, popover) {
+    const ids = state.sectionTypeOrder || [];
+    popOpen(popover, `<h5>Add section</h5>` + ids.map(id => {
+      const t = state.sectionTypes[id];
+      if (!t) return '';
+      return `<button class="item" data-type="${esc(id)}">${esc(t.emoji || '')} ${esc(t.label)}</button>`;
+    }).join(''));
+    popover.querySelectorAll('button[data-type]').forEach(b => {
+      b.onclick = () => { popover.classList.remove('shown'); insertSectionAt(insertIdx, b.dataset.type, {}); };
+    });
+  }
+
+  function showInsertDropMenu(insertIdx, popover) {
+    const drops = state.railDrops || [];
+    if (!drops.length) {
+      popOpen(popover, `<h5>No active drops</h5>
+        <button class="item" onclick="window.open('/hub/studio/drops','_blank');this.closest('.insert-popover').classList.remove('shown')">Open Drops Manager →</button>`);
+      return;
+    }
+    popOpen(popover, `<h5>Insert a Drops section</h5>
+      <button class="item" data-all>+ All active drops (auto)</button>
+      <div style="border-top:1px solid var(--border-soft);margin:6px 0;"></div>
+      <div style="font-size:10px;letter-spacing:0.12em;color:var(--muted);padding:0 8px 4px;">OR PICK ONE</div>` +
+      drops.slice(0, 10).map(d => `<button class="item" data-drop-id="${esc(d.id)}">${esc(d.brand)} <span class="meta">${esc(d.code)}</span></button>`).join(''));
+    popover.querySelector('[data-all]').onclick = () => {
+      popover.classList.remove('shown');
+      insertSectionAt(insertIdx, 'drops', { intro: '', selectedDropIds: [] });
+    };
+    popover.querySelectorAll('[data-drop-id]').forEach(b => {
+      b.onclick = () => { popover.classList.remove('shown'); insertSectionAt(insertIdx, 'drops', { intro: '', selectedDropIds: [b.dataset.dropId] }); };
+    });
+  }
+
+  function showInsertQaMenu(insertIdx, popover) {
+    const items = (state.railQuestions || []).filter(q => q.status === 'new' || q.status === 'starred');
+    if (!items.length) {
+      popOpen(popover, `<h5>No questions yet</h5>
+        <button class="item" onclick="window.open('/ask','_blank');this.closest('.insert-popover').classList.remove('shown')">Open public form →</button>`);
+      return;
+    }
+    popOpen(popover, `<h5>Pick a question to answer</h5>` +
+      items.slice(0, 10).map(q => `<button class="item" data-qid="${esc(q.id)}">${esc(q.question.slice(0, 80))}<span class="meta">${esc(q.name || 'Anonymous')}</span></button>`).join(''));
+    popover.querySelectorAll('[data-qid]').forEach(b => {
+      b.onclick = () => {
+        popover.classList.remove('shown');
+        const q = items.find(x => x.id === b.dataset.qid);
+        if (!q) return;
+        insertSectionAt(insertIdx, 'qa', {
+          intro: "You asked. Here's my honest answer.",
+          pairs: [{ question: q.question, askerLabel: q.name || '', answer: '' }],
+        });
+        // Mark question as used
+        api('/api/studio/qa?id=' + encodeURIComponent(q.id), {
+          method: 'PATCH', body: JSON.stringify({ status: 'used' }),
+        }).then(() => reloadRailQuestions()).catch(() => {});
+      };
+    });
+  }
+
+  // Preset Ideas — curated starter prompts per section type
+  const PRESET_IDEAS = [
+    { type: 'realtalk',   label: 'Discipline vs motivation', prompt: 'Why discipline beats motivation, with a Tuesday-morning example.' },
+    { type: 'realtalk',   label: 'Body image — the honest version', prompt: 'How my relationship with my body has evolved over the last year.' },
+    { type: 'devotional', label: 'A scripture I keep coming back to', prompt: 'A short reflection tied to a verse I lean on right now.' },
+    { type: 'recipe',     label: 'A weeknight family dinner', prompt: 'A simple, high-protein dinner the kids actually eat.' },
+    { type: 'favorites',  label: '5 things I am reaching for', prompt: 'Five things — gear, food, books, anything — I am loving this month.' },
+    { type: 'freeletter', label: 'A note from this week', prompt: 'A real moment from this week and what it taught me.' },
+    { type: 'realtalk',   label: 'Showing up when you do not feel ready', prompt: 'Why ready is a feeling that rarely shows up on time.' },
+    { type: 'devotional', label: 'A waiting season', prompt: 'A reflection on faith during a season where nothing seems to move.' },
+  ];
+
+  function showInsertPresetMenu(insertIdx, popover) {
+    popOpen(popover, `<h5>Preset starters (AI fills it in your voice)</h5>` +
+      PRESET_IDEAS.map((p, i) => {
+        const t = state.sectionTypes[p.type];
+        return `<button class="item" data-preset="${i}">${esc(t?.emoji || '')} ${esc(p.label)}<span class="meta">→ ${esc(t?.label || p.type)}</span></button>`;
+      }).join(''));
+    popover.querySelectorAll('[data-preset]').forEach(b => {
+      b.onclick = async () => {
+        popover.classList.remove('shown');
+        const p = PRESET_IDEAS[Number(b.dataset.preset)];
+        if (!p) return;
+        const sectionId = 's_' + Math.random().toString(36).slice(2, 12);
+        insertSectionAt(insertIdx, p.type, {}, sectionId);
+        // Auto-stream from the preset prompt
+        setTimeout(async () => {
+          const card = document.querySelector(`[data-section-id="${sectionId}"]`);
+          // Find the first multiline ce inside it
+          const ta = card?.querySelector('.ce[data-multiline="1"]') || card?.querySelector('.ce');
+          if (ta) {
+            ta.focus();
+            await runAiStreamIntoCe(ta, sectionId, p.type, p.prompt);
+          }
+        }, 80);
+      };
+    });
+  }
+
+  function showInsertAiMenu(insertIdx, popover) {
+    popOpen(popover, `<h5>AI generate a section</h5>
+      <div style="padding:6px;display:flex;gap:6px;">
+        <input type="text" id="insertAiPrompt" placeholder="What's it about?" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:2px;font-size:13px;">
+        <select id="insertAiType" style="padding:8px;border:1px solid var(--border);border-radius:2px;font-size:13px;">
+          ${(state.sectionTypeOrder || []).map(id => {
+            const t = state.sectionTypes[id]; if (!t) return '';
+            return `<option value="${esc(id)}">${esc(t.label)}</option>`;
+          }).join('')}
+        </select>
+        <button class="btn btn-accent btn-sm" id="insertAiGo">Go</button>
+      </div>
+    `);
+    const input = popover.querySelector('#insertAiPrompt');
+    setTimeout(() => input.focus(), 30);
+    const go = popover.querySelector('#insertAiGo');
+    const fire = async () => {
+      const prompt = input.value.trim();
+      const type = popover.querySelector('#insertAiType').value;
+      if (!prompt) return;
+      popover.classList.remove('shown');
+      const sectionId = 's_' + Math.random().toString(36).slice(2, 12);
+      insertSectionAt(insertIdx, type, {}, sectionId);
+      setTimeout(async () => {
+        const card = document.querySelector(`[data-section-id="${sectionId}"]`);
+        const ta = card?.querySelector('.ce[data-multiline="1"]') || card?.querySelector('.ce');
+        if (ta) { ta.focus(); await runAiStreamIntoCe(ta, sectionId, type, prompt); }
+      }, 80);
+    };
+    go.onclick = fire;
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') fire(); });
+  }
+
+  // Streams AI output into a contenteditable element. After the stream
+  // completes, save the final value back to the section field.
+  async function runAiStreamIntoCe(ceEl, sectionId, sectionType, prompt) {
+    ceEl.classList.add('ai-streaming');
+    ceEl.textContent = '';
+    try {
+      const res = await fetch('/api/studio/ai?op=expand', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ ideaText: prompt, sectionType }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || res.status);
+      const reader = res.body.getReader();
+      const dec = new TextDecoder();
+      let buffer = '', finalText = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += dec.decode(value, { stream: true });
+        const lines = buffer.split('\n'); buffer = lines.pop() || '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const j = line.slice(6).trim();
+          if (j === '[DONE]') continue;
+          try {
+            const evt = JSON.parse(j);
+            if (evt.text) {
+              finalText += evt.text;
+              ceEl.textContent = finalText;
+            }
+          } catch {}
+        }
+      }
+      // Persist
+      const card = ceEl.closest('.section-card');
+      if (card) {
+        const idx = Number(card.dataset.sectionIdx);
+        const sec = state.letter.sections[idx];
+        if (sec) {
+          const key = ceEl.dataset.key;
+          applyCeUpdate(sec, key, finalText, ceEl.dataset.line);
+          scheduleSave();
+        }
+      }
+    } catch (e) {
+      showToast('AI failed', e.message, 'error');
+    } finally {
+      ceEl.classList.remove('ai-streaming');
+    }
+  }
+
+  function showInsertLinkMenu(insertIdx, popover) {
+    popOpen(popover, `<h5>Insert a link (in current text)</h5>
+      <div style="padding:6px;display:flex;flex-direction:column;gap:6px;">
+        <input id="insertLinkText" placeholder="Link text" style="padding:8px 10px;border:1px solid var(--border);border-radius:2px;font-size:13px;">
+        <input id="insertLinkUrl" placeholder="https://..." style="padding:8px 10px;border:1px solid var(--border);border-radius:2px;font-size:13px;">
+        <button class="btn btn-accent btn-sm" id="insertLinkGo">Insert</button>
+        <div style="font-size:11px;color:var(--muted);">Inserts the link into the section you most recently clicked into.</div>
+      </div>`);
+    setTimeout(() => popover.querySelector('#insertLinkText').focus(), 30);
+    popover.querySelector('#insertLinkGo').onclick = () => {
+      const text = popover.querySelector('#insertLinkText').value.trim();
+      const url = popover.querySelector('#insertLinkUrl').value.trim();
+      if (!text || !url) return;
+      popover.classList.remove('shown');
+      // Insert into last-focused .ce
+      const target = state.lastFocusedCe;
+      if (!target) {
+        showToast('Pick a spot first', 'Click into a paragraph, then Insert Link again.', 'info');
+        return;
+      }
+      // We're using plaintext-only contenteditable; embed a marker the renderer turns into a real link
+      const marker = `[${text}](${url})`;
+      document.execCommand('insertText', false, marker);
+      target.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+  }
+
+  function showInsertVideoMenu(insertIdx, popover) {
+    popOpen(popover, `<h5>Embed a video</h5>
+      <div style="padding:6px;display:flex;flex-direction:column;gap:6px;">
+        <input id="insertVideoUrl" placeholder="YouTube or Vimeo URL" style="padding:8px 10px;border:1px solid var(--border);border-radius:2px;font-size:13px;">
+        <button class="btn btn-accent btn-sm" id="insertVideoGo">Insert as section</button>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5;">Email clients can't embed videos. Inserts a thumbnail + watch link as a Free Letter section that previews like a real video card.</div>
+      </div>`);
+    setTimeout(() => popover.querySelector('#insertVideoUrl').focus(), 30);
+    popover.querySelector('#insertVideoGo').onclick = () => {
+      const url = popover.querySelector('#insertVideoUrl').value.trim();
+      if (!url) return;
+      popover.classList.remove('shown');
+      const ytId = (url.match(/(?:youtube\.com.*[?&]v=|youtu\.be\/)([\w-]{11})/) || [])[1];
+      const thumb = ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : '';
+      const body = thumb
+        ? `▶ Watch: ${url}\n\n(The email will show a thumbnail clickable to YouTube.)`
+        : `▶ Watch: ${url}`;
+      insertSectionAt(insertIdx, 'freeletter', { body, _videoUrl: url, _videoThumb: thumb });
+    };
+  }
+
+  // Insert a new section at the given position with optional initial fields/id
+  function insertSectionAt(insertIdx, type, initialFields = {}, sectionId = null) {
+    if (!state.letter) {
+      newLetter().then(() => insertSectionAt(insertIdx, type, initialFields, sectionId));
+      return;
+    }
+    const newSec = {
+      id: sectionId || ('s_' + Math.random().toString(36).slice(2, 12)),
+      type,
+      fields: { ...initialFields },
+    };
+    state.letter.sections = state.letter.sections || [];
+    state.letter.sections.splice(insertIdx, 0, newSec);
+    state.expandedSectionId = newSec.id;
+    renderVisualCanvas();
+    scheduleSave();
+  }
+
+  // Track last-focused contenteditable (for Insert Link)
+  document.addEventListener('focusin', e => {
+    if (e.target.classList?.contains('ce')) state.lastFocusedCe = e.target;
+  });
+
+  // Section-level AI button (badge ✨) opens inline prompt in the section
+  function openSectionAi(sec) {
+    state.expandedSectionId = sec.id;
+    renderVisualCanvas();
+    setTimeout(() => {
+      const card = document.querySelector(`[data-section-id="${sec.id}"]`);
+      const ta = card?.querySelector('.ce[data-multiline="1"]') || card?.querySelector('.ce');
+      if (ta) ta.focus();
+      const prompt = window.prompt('What should the AI write?', '');
+      if (!prompt) return;
+      runAiStreamIntoCe(ta, sec.id, sec.type, prompt);
+    }, 50);
   }
   // ═══════════════════════════════════════════════════════════════
   // RAIL: compact Drops list

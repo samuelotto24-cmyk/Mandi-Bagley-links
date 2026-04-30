@@ -1860,13 +1860,13 @@
   <div class="modal dwc-modal">
     <div class="modal-head">
       <div>
-        <div class="dwc-eyebrow">🎨 Design with Claude</div>
+        <div class="dwc-eyebrow">✨ Draft with AI</div>
         <div class="dwc-title">What's this letter <em>about</em>?</div>
       </div>
       <button class="modal-close" onclick="closeDwcModal()">×</button>
     </div>
     <div class="modal-body">
-      <div class="dwc-body">Tell me in one or two sentences. Be specific. I'll either draft a letter for you, or open Claude.ai with the full design canvas — your call.</div>
+      <div class="dwc-body">One or two sentences is enough. Be specific. AI writes the whole thing in your voice — a Free Letter you can edit any time.</div>
       <textarea class="dwc-prompt" id="dwcPrompt" rows="4" placeholder="e.g. October recipes I've been making + a quick reset workout for travel weeks"></textarea>
 
       <div class="dwc-presets">
@@ -1878,29 +1878,15 @@
         <button class="dwc-preset"          data-preset="launch"    onclick="selectDwcPreset(this)">Launch</button>
       </div>
 
-      <div class="dwc-paths">
-        <div class="dwc-path-label">Two ways to use this</div>
-
-        <button class="dwc-path-card" id="dwcGenerateBtn" onclick="dwcQuickGenerate()">
-          <span class="dwc-path-icon">✨</span>
-          <span class="dwc-path-text">
-            <span class="dwc-path-title" id="dwcGenerateText">Quick — Draft the letter</span>
-            <span class="dwc-path-sub">Creates a new letter with a Free Letter section, AI-drafted from your brief in your voice. Fastest path.</span>
-          </span>
-        </button>
-
-        <button class="dwc-path-card alt" onclick="dwcOpenInClaudeAi()">
-          <span class="dwc-path-icon">↗</span>
-          <span class="dwc-path-text">
-            <span class="dwc-path-title">Full canvas — Design in Claude.ai</span>
-            <span class="dwc-path-sub">Opens Claude.ai with your brief + email-safe constraints + your brand palette pre-loaded. Use the artifact tool to design a custom HTML email. Then come back and Import HTML.</span>
-          </span>
+      <div style="margin-top:18px;display:flex;justify-content:flex-end;gap:8px;">
+        <button class="btn" onclick="closeDwcModal()">Cancel</button>
+        <button class="btn btn-accent" id="dwcGenerateBtn" onclick="dwcQuickGenerate()" style="font-size:13px;padding:11px 20px;">
+          <span id="dwcGenerateText">✨ Draft my letter</span>
         </button>
       </div>
 
-      <div class="dwc-import-row">
-        <span>Already designed something in Claude.ai?</span>
-        <button class="dwc-import-link" onclick="openImportHtmlModal()">Import HTML →</button>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border-soft);font-size:11px;color:var(--muted);line-height:1.5;">
+        Want full design control? Use <strong>✨ AI Assist</strong> in the top bar — it has links to design custom HTML in Claude.ai or paste an existing artifact.
       </div>
 
       <div class="dwc-status" id="dwcStatus"></div>
@@ -4942,12 +4928,16 @@
     }
     btn.disabled = true; btnText.textContent = 'Drafting…';
     try {
-      // Create empty letter with one freeletter section
+      // Create empty letter with one freeletter section.
+      // CRITICAL: don't use the prompt as the letter name — the name shows
+      // as a giant italic header on the canvas + in the rendered email.
+      // Use a placeholder; AI will suggest a real name once content exists.
       const sectionId = 's_' + Math.random().toString(36).slice(2, 12);
+      const dateLabel = new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
       const data = await api('/api/studio/letters', {
         method: 'POST',
         body: JSON.stringify({
-          name: prompt.slice(0, 60),
+          name: `Draft — ${dateLabel}`,
           sections: [{
             id: sectionId,
             type: 'freeletter',
@@ -4959,22 +4949,43 @@
       await reloadLetters();
       await openLetter(letterId);
       closeDwcModal();
-      // Wait for the section to render, then stream into its body field
+
+      // Wait for the visual canvas to render, then find the contenteditable
+      // body field via the NEW selector (data-section-id + .ce[data-key]).
       setTimeout(async () => {
-        const ta = document.getElementById(`f_${sectionId}_body`);
-        if (!ta) return;
-        await aiStream({
-          op: 'expand',
-          body: { ideaText: prompt, sectionType: 'freeletter' },
-          textarea: ta,
-          replace: true,
-          onDone: (text) => {
-            const sec = state.letter.sections.find(s => s.id === sectionId);
-            if (sec) sec.fields.body = text;
+        const card = document.querySelector(`[data-section-id="${sectionId}"]`);
+        const ta = card?.querySelector('.ce[data-key="body"]');
+        if (!ta) {
+          showToast('AI couldn\'t target the section', 'Try clicking ✨ AI Assist on the new section.', 'error');
+          return;
+        }
+        ta.focus();
+        await runAiStreamIntoCe(ta, sectionId, 'freeletter', prompt);
+
+        // After body is drafted, auto-suggest subject + preheader + a real
+        // letter name. Foolproof finishing — she gets a complete letter,
+        // not a body with a placeholder header.
+        try {
+          const suggested = await api('/api/studio/ai?op=subject', {
+            method: 'POST',
+            body: JSON.stringify({ letter: state.letter }),
+          });
+          if (suggested.subjects?.length) {
+            // Subject + preheader → letter
+            state.letter.subject = suggested.subjects[0];
+            if (suggested.preheader) state.letter.preheader = suggested.preheader;
+            // Letter name = first 5 words of subject (clean draft identifier)
+            const cleanName = suggested.subjects[0].split(/\s+/).slice(0, 6).join(' ');
+            state.letter.name = cleanName;
+            // Sync UI
+            const canvasName = document.getElementById('letterCanvasName');
+            if (canvasName) canvasName.value = cleanName;
+            updateBreadcrumb();
             scheduleSave();
-          },
-        });
-      }, 150);
+            showToast('Letter ready', `Drafted + named + subject set. Edit anything.`, 'success', 5000);
+          }
+        } catch (_) { /* non-fatal — body is the main deliverable */ }
+      }, 200);
     } catch (e) {
       status.textContent = 'Draft failed: ' + e.message;
       status.className = 'dwc-status err';

@@ -535,27 +535,28 @@
     color: var(--muted); font-style: italic; opacity: 0.65;
   }
 
-  /* Per-element style button — appears on hover, opens color/font popover */
-  .ce-style-btn {
-    position: absolute;
-    top: -10px; right: -10px;
-    width: 22px; height: 22px;
+  /* Per-element 🎨 button is now triggered by text selection only.
+     The floating button is positioned absolutely above the selection
+     when there's a non-empty selection inside a .ce element. */
+  .ce-select-btn {
+    position: fixed;
+    width: 28px; height: 28px;
     background: var(--surface);
     border: 1px solid var(--accent);
     border-radius: 50%;
     color: var(--accent);
-    font-size: 11px;
+    font-size: 13px;
     cursor: pointer;
+    z-index: 55;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
     display: none;
     align-items: center; justify-content: center;
-    z-index: 5;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    transition: transform .12s;
+    transform: scale(0.9);
+    opacity: 0;
+    transition: transform .15s cubic-bezier(0.16, 1, 0.3, 1), opacity .12s;
   }
-  .ce:hover > .ce-style-btn,
-  .ce:focus > .ce-style-btn,
-  .ce-style-btn:hover { display: flex; }
-  .ce-style-btn:hover { transform: scale(1.15); }
+  .ce-select-btn.shown { display: flex; transform: scale(1); opacity: 1; }
+  .ce-select-btn:hover { transform: scale(1.12); }
 
   /* Element style popover — opens when ce-style-btn clicked */
   .ce-style-popover {
@@ -996,6 +997,87 @@
   }
   .preview-frame.mobile { max-width: 375px; }
 
+  /* ── Top bar breadcrumb (replaces letter-title input) ─ */
+  .topbar-crumb {
+    flex: 1; min-width: 0; font-size: 13px;
+    color: var(--text-soft);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .topbar-crumb .crumb-name {
+    font-family: var(--display-font); font-style: italic;
+    font-size: 18px; color: var(--text);
+  }
+
+  /* ── Premium animation primitives ──────────────────── */
+  /* Buttons get a subtle press feedback + smoother transitions */
+  .btn, .icon-btn, .ai-chip, .insert-chip, .nav-link, .preset-card, .font-card, .preset, .font-row, .dwc-preset, .dwc-path-card, .filter, .tab, .messages-design-btn, .messages-new-btn {
+    transition: background .18s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color .18s cubic-bezier(0.4, 0, 0.2, 1),
+                color .18s cubic-bezier(0.4, 0, 0.2, 1),
+                transform .12s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow .18s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .btn:active, .ai-chip:active, .insert-chip:active, .preset-card:active, .font-card:active, .dwc-path-card:active, .nav-link:active {
+    transform: scale(0.97);
+  }
+
+  /* Modal backdrop fade-in */
+  .modal-backdrop {
+    opacity: 0;
+    transition: opacity .22s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+  .modal-backdrop.open {
+    display: flex;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  /* Modal content scale + fade */
+  .modal-backdrop .modal {
+    transform: translateY(12px) scale(0.98);
+    opacity: 0;
+    transition: transform .26s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity .22s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .modal-backdrop.open .modal {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  /* Replace the old @keyframes modalIn rule */
+  @keyframes modalIn { from { transform: none; opacity: 0; } to { transform: none; opacity: 1; } }
+
+  /* Insert popovers — scale-fade in */
+  .insert-popover, .ce-style-popover, .subject-suggest {
+    transform: translateX(-50%) scale(0.96);
+    transform-origin: top center;
+    opacity: 0;
+    transition: transform .18s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity .14s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .insert-popover.shown, .ce-style-popover.shown, .subject-suggest.open {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+  .ce-style-popover {
+    transform: translateY(-6px) scale(0.96);
+    transform-origin: top left;
+  }
+  .ce-style-popover.shown { transform: translateY(0) scale(1); }
+
+  /* Section card additions/removals — fade-slide */
+  .section-card {
+    animation: sectionIn .25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes sectionIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Save indicator gets a soft transition */
+  .save-indicator {
+    transition: color .25s cubic-bezier(0.4, 0, 0.2, 1), opacity .2s;
+  }
+
   /* ── Send modal ──────────────────────────────────────── */
   .modal-backdrop {
     position: fixed; inset: 0;
@@ -1343,15 +1425,16 @@
   </div>
 </div>
 
-<!-- Top bar — stripped to essentials -->
+<!-- Top bar — minimal: nav + global actions only. Letter title lives in canvas. -->
 <div class="topbar">
   <a class="back" href="/hub">← Hub</a>
-  <input class="letter-title" id="letterTitle" placeholder="Untitled letter">
+  <div class="topbar-crumb" id="topbarCrumb"><span style="color:var(--muted);">Drafts</span> <span style="color:var(--muted);opacity:0.4;margin:0 6px;">›</span> <span class="crumb-name" id="crumbName">Untitled</span></div>
+  <input type="hidden" id="letterTitle">
   <div class="save-indicator" id="saveIndicator"></div>
-  <button class="btn dwc-button" onclick="openDwcModal()" title="Design with Claude — Generate the letter or design custom HTML in Claude.ai">🎨 Generate with Claude</button>
+  <button class="btn dwc-button" onclick="openDwcModal()" title="Generate with Claude — draft the letter, design custom HTML, or import">🎨 Generate with Claude</button>
   <button class="icon-btn" onclick="startStudioTutorial()" title="Show me around" style="width:32px;height:32px;font-size:16px;">🎯</button>
-  <button class="btn" id="newLetterBtn" onclick="newLetter()">+ New</button>
-  <button class="btn" onclick="togglePreviewPanel()" id="previewToggleBtn" title="Toggle final email preview (shows what subscribers see)" style="font-size:13px;">👁 Preview</button>
+  <button class="btn" id="newLetterBtn" onclick="openNewLetterPicker()">+ New</button>
+  <button class="btn" onclick="togglePreviewPanel()" id="previewToggleBtn" title="See exactly what subscribers see" style="font-size:13px;">👁 Preview</button>
   <button class="btn btn-accent" id="sendBtn" onclick="openSendModal()" disabled>Send</button>
 </div>
 
@@ -1364,56 +1447,25 @@
 <div class="layout">
   <!-- ─── Left rail ─── -->
   <div class="pane pane-rail mobile-active" data-mobile-pane="rail">
-    <div class="rail-section">
+    <div class="rail-section" style="margin-bottom:14px;">
       <div class="rail-label">Letters</div>
       <div class="letters-list" id="lettersList">
         <div style="font-size:12px;color:var(--muted);padding:6px 10px;">Loading…</div>
       </div>
     </div>
 
-    <div class="rail-section">
-      <div class="rail-label">Add a section</div>
-      <div class="section-lib" id="sectionLib"></div>
-    </div>
-
-    <div class="rail-section">
-      <div class="rail-label">Ideas inbox</div>
-      <textarea class="ideas-inbox-input" id="ideaText" placeholder="Capture a thought… ('Real Talk: discipline vs motivation' / 'recipe for blueberry muffins' / etc.)"></textarea>
+    <div class="rail-section" style="margin-bottom:14px;">
+      <div class="rail-label">Ideas</div>
+      <textarea class="ideas-inbox-input" id="ideaText" placeholder="Capture a thought…"></textarea>
       <button class="btn btn-sm" onclick="captureIdea()">Capture</button>
       <div id="ideasList" style="margin-top:10px;"></div>
     </div>
 
-    <!-- ─── Drops (inline, default collapsed) ─── -->
-    <div class="rail-section" id="railDropsSection">
-      <div class="rail-section-head">
-        <button class="rail-toggle" data-toggle="dropsBody" aria-expanded="false">
-          <span class="rail-label-inline">🏷️ Drops <span class="rail-count" id="dropsCount"></span></span>
-          <span class="chev">▾</span>
-        </button>
-        <button class="rail-add" onclick="openInlineAddDrop()" title="Add a drop">+</button>
-      </div>
-      <div id="dropsBody" class="rail-body" hidden>
-        <div id="dropsCompactList"></div>
-        <a href="/hub/studio/drops" target="_blank" class="rail-view-all">View all ↗</a>
-      </div>
-    </div>
-
-    <!-- ─── Questions (inline, default collapsed) ─── -->
+    <!-- ─── Workspaces (simple links) ─── -->
     <div class="rail-section">
-      <div class="rail-section-head">
-        <button class="rail-toggle" data-toggle="qaBody" aria-expanded="false">
-          <span class="rail-label-inline">❓ Questions <span class="rail-count" id="qaCount"></span></span>
-          <span class="chev">▾</span>
-        </button>
-      </div>
-      <div id="qaBody" class="rail-body" hidden>
-        <div id="qaCompactList"></div>
-        <a href="/hub/studio/qa" target="_blank" class="rail-view-all">View all ↗</a>
-      </div>
-    </div>
-
-    <!-- ─── Brand & Look (opens drawer) ─── -->
-    <div class="rail-section">
+      <div class="rail-label">Workspaces</div>
+      <a class="nav-link" href="/hub/studio/drops" target="_blank">🏷️ Drops Manager <span class="arrow">↗</span></a>
+      <a class="nav-link" href="/hub/studio/qa" target="_blank">❓ Q&amp;A Inbox <span class="arrow">↗</span></a>
       <button class="nav-link" onclick="openBrandDrawer()" style="background:none;border:0;width:100%;text-align:left;font:inherit;cursor:pointer;">
         🎨 Brand &amp; Look <span class="arrow">→</span>
       </button>
@@ -1429,20 +1481,10 @@
     </div>
 
     <div id="letterEditor" style="display:none">
-      <div class="letter-meta">
-        <div class="field" style="position:relative;">
-          <label for="letterSubject">
-            Subject line
-            <button type="button" class="ai-chip" style="float:right;margin-top:-2px;" onclick="suggestSubject(event)" id="suggestSubjectBtn"><span class="spark">✨</span> Suggest</button>
-          </label>
-          <input id="letterSubject" placeholder="What lands in their inbox preview">
-          <div class="subject-suggest" id="subjectSuggest"></div>
-        </div>
-        <div class="field">
-          <label for="letterPreheader">Preheader (optional)</label>
-          <input id="letterPreheader" placeholder="The line that shows under the subject">
-        </div>
-      </div>
+      <!-- Subject + preheader moved to Send modal — they're inbox metadata, not letter body -->
+      <input type="hidden" id="letterSubject">
+      <input type="hidden" id="letterPreheader">
+      <div class="subject-suggest" id="subjectSuggest" style="display:none;"></div>
 
       <div class="sections-list" id="sectionsList"></div>
 
@@ -1472,6 +1514,9 @@
     </div>
   </div>
 </div>
+
+<!-- ─── Selection-triggered 🎨 button (floats above text selection) ─── -->
+<button class="ce-select-btn" id="ceSelectBtn" title="Style this text" tabindex="-1">🎨</button>
 
 <!-- ─── Per-element style popover ─── -->
 <div class="ce-style-popover" id="ceStylePopover">
@@ -1637,9 +1682,16 @@
     </div>
     <div class="modal-body">
       <div class="err" id="sendErr"></div>
+      <div class="field" style="position:relative;">
+        <label>
+          Subject line
+          <button type="button" class="ai-chip" style="float:right;margin-top:-2px;" onclick="suggestSubject(event)" id="suggestSubjectBtn"><span class="spark">✨</span> Suggest</button>
+        </label>
+        <input id="sendSubject" placeholder="What lands in their inbox preview">
+      </div>
       <div class="field">
-        <label>Subject (final)</label>
-        <input id="sendSubject" placeholder="Required">
+        <label>Preheader (optional)</label>
+        <input id="sendPreheader" placeholder="The line that shows under the subject">
       </div>
       <div class="field">
         <label>Send to</label>
@@ -1648,8 +1700,8 @@
           <option value="__test__">Just to me (test send)</option>
         </select>
       </div>
-      <div class="field">
-        <label>Test email (only if "Just to me")</label>
+      <div class="field" id="sendTestEmailField">
+        <label>Test email</label>
         <input id="sendTestEmail" placeholder="you@example.com">
       </div>
       <div id="sanityResult" style="display:none;font-size:13px;line-height:1.5;margin-top:6px;"></div>
@@ -1732,12 +1784,12 @@
       state.sectionTypes = cfg.sectionTypes;
       state.sectionTypeOrder = cfg.sectionTypeOrder;
 
-      renderSectionLib();
+      // Section chips moved out of the rail — only inline insert bar uses them now.
       await reloadLetters();
       await reloadIdeas();
+      // Drops + Questions are still loaded so the inline insert popovers can pick from them
       reloadRailDrops();
       reloadRailQuestions();
-      wireRailToggles();
 
       // Open ?id= or first draft
       const urlId = new URL(location.href).searchParams.get('id');
@@ -2117,6 +2169,7 @@
     document.getElementById('letterTitle').value     = state.letter.name      || '';
     document.getElementById('letterSubject').value   = state.letter.subject   || '';
     document.getElementById('letterPreheader').value = state.letter.preheader || '';
+    updateBreadcrumb();
 
     const sectionsList = document.getElementById('sectionsList');
     let customView = document.getElementById('customLetterView');
@@ -2490,12 +2543,13 @@
   });
 
   function setupCanvasHandlers(canvas) {
-    // Letter title input
+    // Letter title input (in canvas header)
     const nameInput = canvas.querySelector('#letterCanvasName');
     if (nameInput) {
       nameInput.addEventListener('input', e => {
         state.letter.name = e.target.value;
         document.getElementById('letterTitle').value = e.target.value;
+        updateBreadcrumb();
         scheduleSave();
       });
     }
@@ -2620,6 +2674,119 @@
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // MODAL COORDINATOR — single-modal-at-a-time + smooth open/close
+  // ═══════════════════════════════════════════════════════════════
+  function openModalSafe(modalId) {
+    // Close any other open modal first so we never stack
+    document.querySelectorAll('.modal-backdrop.open').forEach(m => {
+      if (m.id !== modalId) m.classList.remove('open');
+    });
+    // Close any open popover
+    document.querySelectorAll('.insert-popover.shown').forEach(p => p.classList.remove('shown'));
+    document.getElementById('ceStylePopover')?.classList.remove('shown');
+    document.getElementById('subjectSuggest')?.classList.remove('open');
+    // Close brand drawer if open
+    document.getElementById('brandDrawer')?.classList.remove('open');
+    document.getElementById('brandBackdrop')?.classList.remove('shown');
+    document.getElementById(modalId)?.classList.add('open');
+  }
+  // Esc key closes any open modal/popover/drawer
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
+    document.querySelectorAll('.insert-popover.shown').forEach(p => p.classList.remove('shown'));
+    document.getElementById('ceStylePopover')?.classList.remove('shown');
+    document.getElementById('subjectSuggest')?.classList.remove('open');
+    if (document.getElementById('brandDrawer')?.classList.contains('open')) closeBrandDrawer();
+    document.getElementById('ceSelectBtn')?.classList.remove('shown');
+  });
+
+  // Update the breadcrumb when letter loads or title changes
+  function updateBreadcrumb() {
+    const el = document.getElementById('crumbName');
+    if (!el) return;
+    const name = state.letter?.name || 'Untitled';
+    el.textContent = name;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // NEW LETTER PICKER — informed start instead of silent blank create
+  // ═══════════════════════════════════════════════════════════════
+  function openNewLetterPicker() {
+    // Build modal lazily on first use
+    let m = document.getElementById('newLetterModal');
+    if (!m) {
+      m = document.createElement('div');
+      m.id = 'newLetterModal';
+      m.className = 'modal-backdrop';
+      m.onclick = (e) => { if (e.target === m) m.classList.remove('open'); };
+      m.innerHTML = `
+        <div class="modal" style="max-width:520px;">
+          <div class="modal-head">
+            <div>
+              <div class="dwc-eyebrow">New letter</div>
+              <div class="dwc-title">How do you want to <em>start</em>?</div>
+            </div>
+            <button class="modal-close" onclick="document.getElementById('newLetterModal').classList.remove('open')">×</button>
+          </div>
+          <div class="modal-body">
+            <button class="dwc-path-card" data-pick="blank">
+              <span class="dwc-path-icon">📄</span>
+              <span class="dwc-path-text">
+                <span class="dwc-path-title">Blank letter</span>
+                <span class="dwc-path-sub">Start with an empty canvas. Add sections from the inline + bar.</span>
+              </span>
+            </button>
+            <button class="dwc-path-card" data-pick="lockin">
+              <span class="dwc-path-icon">📬</span>
+              <span class="dwc-path-text">
+                <span class="dwc-path-title">Lock-In Letter (preset)</span>
+                <span class="dwc-path-sub">Pre-fills your usual section order: Devotional · Real Talk · Recipe · Drops · Favorites.</span>
+              </span>
+            </button>
+            <button class="dwc-path-card" data-pick="dwc">
+              <span class="dwc-path-icon">🎨</span>
+              <span class="dwc-path-text">
+                <span class="dwc-path-title">Generate with Claude</span>
+                <span class="dwc-path-sub">Three paths: AI quick-draft, design custom HTML in Claude.ai, or paste an artifact.</span>
+              </span>
+            </button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(m);
+      m.querySelector('[data-pick="blank"]').onclick = () => { m.classList.remove('open'); newLetter(); };
+      m.querySelector('[data-pick="lockin"]').onclick = () => { m.classList.remove('open'); newLockInLetter(); };
+      m.querySelector('[data-pick="dwc"]').onclick = () => { m.classList.remove('open'); openDwcModal(); };
+    }
+    openModalSafe('newLetterModal');
+  }
+
+  async function newLockInLetter() {
+    try {
+      const preset = state.studioConfig?.lockInPreset || ['devotional','realtalk','recipe','drops','favorites'];
+      const dateLabel = new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      const sections = preset.map(type => ({
+        id: 's_' + Math.random().toString(36).slice(2, 12),
+        type,
+        fields: type === 'drops' ? { intro: 'A few things dropping this week:', selectedDropIds: [] }
+              : type === 'favorites' ? { intro: 'Things I keep reaching for:', items: [] }
+              : type === 'qa' ? { intro: "You asked. I answered.", pairs: [] }
+              : {},
+      }));
+      const data = await api('/api/studio/letters', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: `${state.studioConfig?.lockInLetterName || 'Lock-In Letter'} — ${dateLabel}`,
+          sections,
+        }),
+      });
+      await reloadLetters();
+      await openLetter(data.letter.id);
+    } catch (e) { showToast('Couldn\'t create', e.message, 'error'); }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
   // PER-ELEMENT STYLE POPOVER (escape hatch from global brand)
   // Click 🎨 on any text element → set color + font for THAT element only.
   // Stored on section.fields._styles[key] = { color, fontFamily }.
@@ -2630,22 +2797,38 @@
   state.activeCeSection = null;
 
   function attachCeStyleButtons(canvas) {
-    canvas.querySelectorAll('.ce').forEach(ce => {
-      // Don't double-attach
-      if (ce.querySelector('.ce-style-btn')) return;
-      // Apply existing inline overrides for live in-editor visual fidelity
-      applyCeStylesToElement(ce);
-      const btn = document.createElement('button');
-      btn.className = 'ce-style-btn';
-      btn.title = 'Color & font for this element';
-      btn.textContent = '🎨';
-      btn.onclick = (e) => {
-        e.stopPropagation(); e.preventDefault();
-        openCeStylePopover(ce);
-      };
-      ce.appendChild(btn);
-    });
+    // Apply existing per-element overrides (color/font) so the editor
+    // visually matches what the rendered email will show.
+    canvas.querySelectorAll('.ce').forEach(ce => applyCeStylesToElement(ce));
   }
+  // Show the 🎨 button when there's a non-empty selection inside a .ce.
+  // Hide otherwise. Position above the selection.
+  let ceSelectActiveCe = null;
+  function updateSelectButton() {
+    const btn = document.getElementById('ceSelectBtn');
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
+      btn.classList.remove('shown');
+      return;
+    }
+    const range = sel.getRangeAt(0);
+    let node = range.startContainer;
+    if (node.nodeType === 3) node = node.parentElement;
+    const ce = node?.closest?.('.ce');
+    if (!ce) { btn.classList.remove('shown'); return; }
+    ceSelectActiveCe = ce;
+    const rect = range.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) { btn.classList.remove('shown'); return; }
+    btn.style.top  = (rect.top - 36) + 'px';
+    btn.style.left = (rect.left + rect.width / 2 - 14) + 'px';
+    btn.classList.add('shown');
+  }
+  document.addEventListener('selectionchange', updateSelectButton);
+  document.getElementById('ceSelectBtn').addEventListener('mousedown', e => {
+    // mousedown not click — keeps the selection alive across the click
+    e.preventDefault(); e.stopPropagation();
+    if (ceSelectActiveCe) openCeStylePopover(ceSelectActiveCe);
+  });
 
   function applyCeStylesToElement(ce) {
     const card = ce.closest('.section-card');
@@ -3624,8 +3807,8 @@
   function renderRailDrops() {
     const list = document.getElementById('dropsCompactList');
     const count = document.getElementById('dropsCount');
-    if (!list) return;
-    count.textContent = state.railDrops.length ? state.railDrops.length : '';
+    if (!list) return; // rail no longer has compact drop list — drops live in insert popover
+    if (count) count.textContent = state.railDrops.length ? state.railDrops.length : '';
     if (!state.railDrops.length) {
       list.innerHTML = `<div class="rail-empty">No active drops. Click + to add one.</div>`;
       return;
@@ -3672,7 +3855,7 @@
         tpRow.appendChild(b);
       }
     }
-    document.getElementById('addDropModal').classList.add('open');
+    openModalSafe('addDropModal');
     setTimeout(() => document.getElementById('addDropBrand').focus(), 60);
   }
   function closeInlineAddDrop() {
@@ -3720,10 +3903,10 @@
   function renderRailQuestions() {
     const list = document.getElementById('qaCompactList');
     const count = document.getElementById('qaCount');
-    if (!list) return;
+    if (!list) return; // rail no longer has compact list — questions live in insert popover
     const visible = state.railQuestions.filter(q => q.status === 'new' || q.status === 'starred');
     const newCount = state.railQuestions.filter(q => q.status === 'new').length;
-    count.textContent = newCount ? newCount : '';
+    if (count) count.textContent = newCount ? newCount : '';
     if (!visible.length) {
       list.innerHTML = `<div class="rail-empty">No new questions. Share <a href="/ask" target="_blank" style="color:var(--accent);">/ask</a> to collect some.</div>`;
       return;
@@ -4054,7 +4237,7 @@
     document.getElementById('dwcPrompt').value = '';
     document.querySelectorAll('.dwc-preset').forEach(b => b.classList.toggle('selected', b.dataset.preset === 'general'));
     state.dwcPreset = 'general';
-    document.getElementById('dwcModal').classList.add('open');
+    openModalSafe('dwcModal');
     setTimeout(() => document.getElementById('dwcPrompt').focus(), 60);
   }
   function closeDwcModal() {
@@ -4182,8 +4365,7 @@
     state.dwcImportTargetExisting = (targetExisting === true && state.letter && state.letter.type === 'custom');
     document.getElementById('importHtmlInput').value = '';
     document.getElementById('importHtmlWarnings').style.display = 'none';
-    document.getElementById('importHtmlModal').classList.add('open');
-    closeDwcModal();
+    openModalSafe('importHtmlModal');
     setTimeout(() => document.getElementById('importHtmlInput').focus(), 60);
   }
   function closeImportHtmlModal() {
@@ -4532,16 +4714,8 @@
     state.letter.name = e.target.value;
     scheduleSave();
   });
-  document.getElementById('letterSubject').addEventListener('input', e => {
-    if (!state.letter) return;
-    state.letter.subject = e.target.value;
-    scheduleSave();
-  });
-  document.getElementById('letterPreheader').addEventListener('input', e => {
-    if (!state.letter) return;
-    state.letter.preheader = e.target.value;
-    scheduleSave();
-  });
+  // letterSubject + letterPreheader are hidden inputs now (kept for compat).
+  // The user-facing inputs live in the Send modal, synced on confirmSend.
 
   // ═══════════════════════════════════════════════════════════════
   // SEND MODAL
@@ -4549,13 +4723,20 @@
   function openSendModal() {
     if (!state.letter) return;
     document.getElementById('sendErr').textContent = '';
-    document.getElementById('sendSubject').value = state.letter.subject || state.letter.name || '';
+    document.getElementById('sendSubject').value   = state.letter.subject   || state.letter.name || '';
+    document.getElementById('sendPreheader').value = state.letter.preheader || '';
     document.getElementById('sendSegment').value = '__test__';
+    document.getElementById('sendTestEmailField').style.display = '';
     const sanityResult = document.getElementById('sanityResult');
     sanityResult.style.display = 'none';
     sanityResult.innerHTML = '';
-    document.getElementById('sendModal').classList.add('open');
+    openModalSafe('sendModal');
   }
+  // Toggle test-email visibility based on segment selection
+  document.getElementById('sendSegment')?.addEventListener('change', e => {
+    const f = document.getElementById('sendTestEmailField');
+    if (f) f.style.display = (e.target.value === '__test__') ? '' : 'none';
+  });
   async function runSanityCheck() {
     if (!state.letter) return;
     const btn = document.getElementById('sanityBtn');
@@ -4595,6 +4776,7 @@
   async function confirmSend() {
     if (state.sending) return;
     const subject = document.getElementById('sendSubject').value.trim();
+    const preheader = document.getElementById('sendPreheader').value.trim();
     const segment = document.getElementById('sendSegment').value;
     const testEmail = document.getElementById('sendTestEmail').value.trim();
     const errEl = document.getElementById('sendErr');
@@ -4602,6 +4784,10 @@
 
     if (!subject) { errEl.textContent = 'Subject is required.'; return; }
     if (segment === '__test__' && !testEmail) { errEl.textContent = 'Test email is required for "Just to me".'; return; }
+
+    // Sync subject + preheader back to letter state before save/send
+    state.letter.subject = subject;
+    state.letter.preheader = preheader;
 
     state.sending = true;
     document.getElementById('sendConfirmBtn').textContent = 'Sending…';

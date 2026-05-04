@@ -138,6 +138,12 @@
   .btn-ghost-danger { color: var(--danger); border-color: transparent; }
   .btn-ghost-danger:hover { border-color: var(--danger); background: rgba(196,69,69,0.06); }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-icon {
+    padding: 6px 9px; font-size: 16px; line-height: 1;
+    min-width: 32px; display: inline-flex;
+    align-items: center; justify-content: center;
+  }
+  .btn-icon:disabled { opacity: 0.3; }
 
   /* ── Rail sections ───────────────────────────────────── */
   .rail-section { margin-bottom: 22px; }
@@ -1704,6 +1710,8 @@
   <div class="topbar-crumb" id="topbarCrumb"><span style="color:var(--muted);">Drafts</span> <span style="color:var(--muted);opacity:0.4;margin:0 6px;">›</span> <span class="crumb-name" id="crumbName">Untitled</span></div>
   <input type="hidden" id="letterTitle">
   <div class="save-indicator" id="saveIndicator"></div>
+  <button class="btn btn-icon" id="undoBtn" onclick="performUndo()" disabled title="Undo (no actions yet)" aria-label="Undo">⟲</button>
+  <button class="btn btn-icon" id="redoBtn" onclick="performRedo()" disabled title="Redo (nothing to redo)" aria-label="Redo">⟳</button>
   <button class="btn" id="aiAssistBtn" onclick="openAiPanel()" title="AI helpers — draft, polish, suggest, check"><span style="color:var(--accent);">✨</span> AI Assist</button>
   <button class="btn" id="styleBtn" onclick="openBrandDrawer()" title="Colors, fonts, voice — change how every letter looks">🎨 Style</button>
   <button class="btn-help" onclick="startStudioTutorial()" title="Help" aria-label="Help">?</button>
@@ -2342,6 +2350,7 @@
       // Find the textarea in the DOM
       const ta = document.getElementById(`f_${sec.id}_${targetField.key}`);
       if (!ta) return;
+      const _u = captureUndo('AI expand from idea');
       await aiStream({
         op: 'expand',
         body: { ideaText: idea.text, sectionType: typeId },
@@ -2350,6 +2359,7 @@
         onDone: (text) => {
           sec.fields[targetField.key] = text;
           scheduleSave();
+          _u.commit();
         },
       });
       // Mark idea as used
@@ -2415,6 +2425,7 @@
     try {
       await api('/api/studio/letters?id=' + encodeURIComponent(state.letter.id), { method: 'DELETE' });
       state.letter = null; state.letterId = null;
+      resetUndoHistory();
       const url = new URL(location.href); url.searchParams.delete('id'); history.replaceState({}, '', url);
       document.getElementById('letterEditor').style.display = 'none';
       document.getElementById('emptyLetter').style.display = '';
@@ -2439,6 +2450,7 @@
       const data = await api('/api/studio/letters?id=' + encodeURIComponent(id));
       state.letterId = id;
       state.letter = data.letter;
+      resetUndoHistory();
       // Update URL
       const url = new URL(location.href);
       url.searchParams.set('id', id);
@@ -2826,6 +2838,7 @@
       const above = card.classList.contains('drop-above');
       card.classList.remove('drop-above', 'drop-below');
       if (isNaN(fromIdx) || fromIdx === idx) return;
+      const u = captureUndo('Reorder section');
       const sections = state.letter.sections;
       const [moved] = sections.splice(fromIdx, 1);
       let toIdx = above ? idx : idx + 1;
@@ -2833,6 +2846,7 @@
       sections.splice(toIdx, 0, moved);
       renderVisualCanvas();
       scheduleSave();
+      u.commit();
     });
 
     return card;
@@ -3208,6 +3222,7 @@
       const idx = Number(card?.dataset.sectionIdx);
       const sec = state.letter.sections[idx];
       closeAiPanel();
+      const _u = captureUndo('AI polish');
       await aiStream({
         op: 'polish',
         body: { text: target.innerText, instruction: instr },
@@ -3216,6 +3231,7 @@
         onDone: (text) => {
           applyCeUpdate(sec, target.dataset.key, text, target.dataset.line);
           scheduleSave();
+          _u.commit();
         },
       });
     }
@@ -3697,6 +3713,7 @@
       const above = card.classList.contains('drop-above');
       card.classList.remove('drop-above', 'drop-below');
       if (isNaN(fromIdx) || fromIdx === idx) return;
+      const u = captureUndo('Reorder section');
       const sections = state.letter.sections;
       const [moved] = sections.splice(fromIdx, 1);
       // Adjust target index since we removed an earlier item
@@ -3705,6 +3722,7 @@
       sections.splice(toIdx, 0, moved);
       renderSections();
       scheduleSave();
+      u.commit();
     });
 
     card.querySelector('[data-act="up"]').onclick   = (e) => { e.stopPropagation(); moveSection(idx, -1); };
@@ -3936,24 +3954,26 @@
         if (!prompt) return;
         const mode = promptRow.dataset.mode || 'generate';
         if (mode === 'polish') {
+          const _u = captureUndo('AI polish');
           await aiStream({
             op: 'polish',
             body: { text: input.value, instruction: prompt },
             textarea: input,
             replace: true,
-            onDone: (text) => onChange(text),
+            onDone: (text) => { onChange(text); _u.commit(); },
           });
         } else {
           const recentSections = (state.letter?.sections || []).slice(0, 5).map(s => ({
             type: s.type,
             summary: pickSnippet(s.fields || {}).slice(0, 120),
           }));
+          const _u = captureUndo('AI generate');
           await aiStream({
             op: 'generate',
             body: { sectionType: sec.type, prompt, currentDraft: input.value, recentSections },
             textarea: input,
             replace: true,
-            onDone: (text) => onChange(text),
+            onDone: (text) => { onChange(text); _u.commit(); },
           });
         }
         promptRow.classList.remove('shown');
@@ -4075,6 +4095,7 @@
     }
     const t = state.sectionTypes[typeId];
     if (!t) return;
+    const u = captureUndo(`Add ${t.label || typeId} section`);
     const newSec = {
       id: 's_' + Math.random().toString(36).slice(2, 12),
       type: typeId,
@@ -4086,19 +4107,25 @@
     state.expandedSectionId = newSec.id;
     renderSections();
     scheduleSave();
+    u.commit();
   }
   function moveSection(idx, dir) {
     const sections = state.letter.sections;
     const next = idx + dir;
     if (next < 0 || next >= sections.length) return;
+    const u = captureUndo('Reorder section');
     [sections[idx], sections[next]] = [sections[next], sections[idx]];
     renderSections();
     scheduleSave();
+    u.commit();
   }
   function deleteSection(idx) {
+    const t = state.sectionTypes[state.letter.sections[idx]?.type];
+    const u = captureUndo(`Delete ${t?.label || 'section'}`);
     state.letter.sections.splice(idx, 1);
     renderSections();
     scheduleSave();
+    u.commit();
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -4127,6 +4154,106 @@
     else if (sec < 3600) el.textContent = `Saved ${Math.round(sec / 60)}m ago`;
     else el.textContent = `Saved ${Math.round(sec / 3600)}h ago`;
   }, 10000);
+  // ═══════════════════════════════════════════════════════════════
+  // UNDO / REDO — snapshot-based for STRUCTURAL changes only
+  // (add / delete / reorder section + AI replacements). Browser-native
+  // Cmd-Z still handles typing inside contenteditable / textareas.
+  // Cmd-Z outside an editable triggers performUndo. Cmd-Shift-Z always
+  // triggers performRedo.
+  // ═══════════════════════════════════════════════════════════════
+  const UNDO_LIMIT = 20;
+  let undoStack = [];
+  let redoStack = [];
+
+  function _snapshotLetter() {
+    return state.letter ? JSON.parse(JSON.stringify({
+      sections:  state.letter.sections || [],
+      subject:   state.letter.subject || '',
+      preheader: state.letter.preheader || '',
+      name:      state.letter.name || '',
+    })) : null;
+  }
+  function _restoreSnapshot(snap) {
+    if (!state.letter || !snap) return;
+    state.letter.sections  = snap.sections;
+    state.letter.subject   = snap.subject;
+    state.letter.preheader = snap.preheader;
+    state.letter.name      = snap.name;
+    state.expandedSectionId = null;
+    renderLetterEditor();
+    scheduleSave();
+  }
+  function captureUndo(label) {
+    const snap = _snapshotLetter();
+    let committed = false;
+    return {
+      commit() {
+        if (committed || !snap) return;
+        committed = true;
+        undoStack.push({ snapshot: snap, label: label || 'change', ts: Date.now() });
+        if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+        redoStack = [];
+        updateUndoButtons();
+      },
+      drop() { /* discard — no push */ },
+    };
+  }
+  function performUndo() {
+    if (!undoStack.length || !state.letter) return;
+    const entry = undoStack.pop();
+    redoStack.push({ snapshot: _snapshotLetter(), label: entry.label, ts: Date.now() });
+    if (redoStack.length > UNDO_LIMIT) redoStack.shift();
+    _restoreSnapshot(entry.snapshot);
+    updateUndoButtons();
+  }
+  function performRedo() {
+    if (!redoStack.length || !state.letter) return;
+    const entry = redoStack.pop();
+    undoStack.push({ snapshot: _snapshotLetter(), label: entry.label, ts: Date.now() });
+    if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+    _restoreSnapshot(entry.snapshot);
+    updateUndoButtons();
+  }
+  function updateUndoButtons() {
+    const u = document.getElementById('undoBtn');
+    const r = document.getElementById('redoBtn');
+    if (u) {
+      u.disabled = !undoStack.length;
+      const last = undoStack[undoStack.length - 1];
+      u.title = last ? `Undo: ${last.label}` : 'Undo (no actions yet)';
+    }
+    if (r) {
+      r.disabled = !redoStack.length;
+      const last = redoStack[redoStack.length - 1];
+      r.title = last ? `Redo: ${last.label}` : 'Redo (nothing to redo)';
+    }
+  }
+  function resetUndoHistory() {
+    undoStack = [];
+    redoStack = [];
+    updateUndoButtons();
+  }
+  // Keybinds: Cmd-Shift-Z always = redo. Cmd-Z = browser native if focused
+  // in editable, otherwise = structural undo.
+  document.addEventListener('keydown', e => {
+    const isMod = e.metaKey || e.ctrlKey;
+    if (!isMod) return;
+    if (e.key !== 'z' && e.key !== 'Z') return;
+    if (e.shiftKey) {
+      e.preventDefault();
+      performRedo();
+      return;
+    }
+    const t = e.target;
+    const inEditable = t && (t.isContentEditable
+      || t.tagName === 'TEXTAREA' || t.tagName === 'INPUT');
+    if (!inEditable) {
+      e.preventDefault();
+      performUndo();
+    }
+    // else: leave Cmd-Z to browser for native text undo
+  });
+
   function scheduleSave() {
     clearTimeout(state.saveTimer);
     setSaveIndicator('Editing…');
@@ -4500,6 +4627,8 @@
       newLetter().then(() => insertSectionAt(insertIdx, type, initialFields, sectionId));
       return;
     }
+    const t = state.sectionTypes[type];
+    const u = captureUndo(`Insert ${t?.label || type} section`);
     const newSec = {
       id: sectionId || ('s_' + Math.random().toString(36).slice(2, 12)),
       type,
@@ -4510,6 +4639,7 @@
     state.expandedSectionId = newSec.id;
     renderVisualCanvas();
     scheduleSave();
+    u.commit();
   }
 
   // Track last-focused contenteditable (for Insert Link)

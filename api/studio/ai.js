@@ -76,7 +76,7 @@ async function opExpand(body) {
     role: 'user',
     content: `Take this raw idea and expand it into a full ${SECTION_TYPES[sectionType].label} section, in the voice rules above:\n\n"""${ideaText}"""\n\nReturn just the section body content. No labels, no preamble, no quotes.`,
   }];
-  return streamAnthropic({ system, messages, model: AI_MODELS.deep, maxTokens: 800 });
+  return streamAnthropic({ system, messages, model: AI_MODELS.deep, maxTokens: 800, op: 'expand' });
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -97,6 +97,7 @@ async function opGenerate(body) {
     messages: [{ role: 'user', content: userMsg }],
     model: AI_MODELS.deep,
     maxTokens: 800,
+    op: 'generate',
   });
 }
 
@@ -116,6 +117,7 @@ async function opPolish(body) {
     messages,
     model: AI_MODELS.fast,
     maxTokens: 400,
+    op: 'polish',
   });
 }
 
@@ -141,7 +143,7 @@ async function opSubject(body) {
   }];
 
   let out;
-  try { out = await nonStreamAnthropic({ system, messages, model: AI_MODELS.fast, maxTokens: 240 }); }
+  try { out = await nonStreamAnthropic({ system, messages, model: AI_MODELS.fast, maxTokens: 240, op: 'subject' }); }
   catch (e) { return json({ error: String(e.message || e) }, 502); }
 
   const lines = out.text.split('\n').map(l => l.trim()).filter(Boolean);
@@ -169,7 +171,7 @@ async function opTopics(body) {
   }];
 
   let out;
-  try { out = await nonStreamAnthropic({ system, messages, model: AI_MODELS.fast, maxTokens: 200 }); }
+  try { out = await nonStreamAnthropic({ system, messages, model: AI_MODELS.fast, maxTokens: 200, op: 'topics' }); }
   catch (e) { return json({ error: String(e.message || e) }, 502); }
 
   const topics = out.text.split('\n')
@@ -217,7 +219,7 @@ ${summary}`,
   }];
 
   let out;
-  try { out = await nonStreamAnthropic({ system, messages, model: AI_MODELS.deep, maxTokens: 600 }); }
+  try { out = await nonStreamAnthropic({ system, messages, model: AI_MODELS.deep, maxTokens: 600, op: 'sanity' }); }
   catch (e) { return json({ error: String(e.message || e) }, 502); }
 
   // Parse JSON from output (model sometimes wraps in code fences)
